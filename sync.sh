@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cp ~/.bash_profile ./bash-profile
+cp ~/.bash_profile ./bash_profile
 cp ~/.bashrc ./bashrc
 cp ~/.git-completion.bash ./git-completion.bash
 cp ~/.git-prompt.sh ./git-prompt.sh
