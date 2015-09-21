@@ -4,18 +4,22 @@ export PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
 
 # Homebrew Cask - Global Applications Folder
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
-export PATH="/usr/local/bin:/usr/local/sbin:~/bin:${PATH}"
+export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
 source `brew --repository`/Library/Contributions/brew_bash_completion.sh
 
-# Custom Aliases
-alias ls='ls -a'
-alias df='df -h'
-alias gitinit='git init && git add . && git commit'
-alias gitca='git add -A && git commit'
-alias gitsync='git checkout master && git fetch upstream && git merge upstream/master'
-alias brewup='brew update && brew upgrade'
-alias bpe='edit ~/.bash_profile'
-alias su='su -'
+# Master Password Name
+export MP_FULLNAME="Cameron Charles Unterberger"
+
+# Load .bashrc if it exists
+test -f ~/.bashrc && source ~/.bashrc
+
+# add bash-completion from Homebrew
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+    source $(brew --prefix)/etc/bash_completion
+fi
+
+# pip should only run if there is a virtualenv currently activated
+# export PIP_REQUIRE_VIRTUALENV=true
 
 
 
