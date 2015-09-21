@@ -4,8 +4,11 @@ export PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
 
 # Homebrew Cask - Global Applications Folder
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
-export PATH="/usr/local/bin:/usr/local/sbin:~/bin:${PATH}"
+export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
 source `brew --repository`/Library/Contributions/brew_bash_completion.sh
+
+# Master Password Name
+export MP_FULLNAME="Cameron Charles Unterberger"
 
 # Load .bashrc if it exists
 test -f ~/.bashrc && source ~/.bashrc

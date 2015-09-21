@@ -14,9 +14,6 @@ alias md5sum='openssl md5'
 alias sha1sum='openssl sha1'
 alias pipup='pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip install -U'
 
-# Master Password Name
-export MP_FULLNAME="Cameron Charles Unterberger"
-
 # global pip installation
 #gpip(){
 #   PIP_REQUIRE_VIRTUALENV="" pip "$@"
