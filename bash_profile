@@ -21,6 +21,12 @@ fi
 # pip should only run if there is a virtualenv currently activated
 # export PIP_REQUIRE_VIRTUALENV=true
 
+# ls colors
+export CLICOLOR=1
+# export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx # for black background
+export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
+# export LSCOLORS=ExFxCxDxBxegedabagacad # white background
+
 
 
 #-------------------------------------
