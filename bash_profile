@@ -1,6 +1,17 @@
+#######################################################
+# Personal environment variables and startup programs.
+#######################################################
+
 # NOTE: Archived in git repository: 
 # "/Users/cameron/Coding/Languages/BASH and Terminal/Terminal Setup"
 
+# Personal aliases and functions should go in ~/.bashrc.  System wide
+# environment variables and startup programs are in /etc/profile.
+# System wide aliases and functions are in /etc/bashrc.
+
+
+# Load .bashrc if it exists
+test -f ~/.bashrc && source ~/.bashrc
 
 # Homebrew Cask - Global Applications Folder
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
@@ -12,9 +23,6 @@ export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
 if [ -f $(brew --prefix)/etc/bash_completion ]; then
     source $(brew --prefix)/etc/bash_completion
 fi
-
-# Load .bashrc if it exists
-test -f ~/.bashrc && source ~/.bashrc
 
 # Master Password Name
 export MP_FULLNAME="Cameron Charles Unterberger"
@@ -40,31 +48,33 @@ shopt -s checkwinsize
 #---------------------------------------
 
 # text (foreground) colors!
-_COL_BLACK=$(tput setaf 0)
-_COL_RED=$(tput setaf 1)
-_COL_GREEN=$(tput setaf 2)
-_COL_YELLOW=$(tput setaf 3)
-_COL_BLUE=$(tput setaf 4)
-_COL_MAGENTA=$(tput setaf 5)
-_COL_CYAN=$(tput setaf 6)
-_COL_WHITE=$(tput setaf 7)
-_COL_DEFAULT=$(tput setaf 9)
+BLACK=$(tput setaf 0)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+WHITE=$(tput setaf 7)
+DEFAULT=$(tput setaf 9)
 _RESET_ALL=$(tput sgr0) # reset all attributes
 # see url for more codes: http://wiki.bash-hackers.org/scripting/terminalcodes
 # and for more ideas on terminal prompts: http://mywiki.wooledge.org/BashFAQ/053
-
 
 # Change command prompt
 source ~/.git-prompt.sh
 export GIT_PS1_SHOWDIRTYSTATE=1
 
-export PS1="\[$_COL_YELLOW\]\u\[$_COL_CYAN\]\$(__git_ps1)\[$_COL_WHITE\] \W \$ \[$_RESET_ALL\]"
+export PS1="\[$YELLOW\]\u\[$CYAN\]\$(__git_ps1)\[$WHITE\] \W \$ \[$_RESET_ALL\]"
   # note: PS1 needs '\[' and '\]' to escape non-printable characters, 
   # keeping char count in line w/ displayed text (new line happens at right place).
   # '\u' adds the name of the current user to the prompt.
   # '\$(__git_ps1)' adds git-related stuff.
   # '\W' adds the name of the current directory.
 
+unset BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE DEFAULT _RESET_ALL
+
 #-------------------------------------
 # END Prompt Customization
 #-------------------------------------
+
