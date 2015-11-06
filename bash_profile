@@ -1,5 +1,5 @@
 # NOTE: Archived in git repository: 
-# "~/Coding/Languages/BASH and Terminal/Terminal Setup"
+# "/Users/cameron/Coding/Languages/BASH and Terminal/Terminal Setup"
 
 
 # Homebrew Cask - Global Applications Folder
@@ -38,13 +38,6 @@ shopt -s checkwinsize
 #-------------------------------------
 # BEGIN Udacity Git Customization
 #-------------------------------------
-
-# Enable git tab completion:
-# source ~/.git-completion.bash
-#   ^^ no longer needed. 
-# By putting file in /usr/local/opt/bash-completion/etc/bash_completion.d, 
-# Mac terminal runs it automatically (thanks to Homebrew bash-completion)
-# file found at: https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
 
 # text (foreground) colors!
 _COL_BLACK=$(tput setaf 0)
