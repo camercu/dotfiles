@@ -36,8 +36,11 @@ shopt -s checkwinsize
 # BEGIN Udacity Git Customization
 #-------------------------------------
 
-# Enable tab completion
-source ~/.git-completion.bash
+# Enable git tab completion:
+# source ~/.git-completion.bash
+#   ^^ no longer needed. 
+# By putting file in /opt/local/etc/bash_completion.d, Mac terminal runs it automatically
+# file found at: https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
 
 # text (foreground) colors!
 _COL_BLACK=$(tput setaf 0)
@@ -50,6 +53,8 @@ _COL_CYAN=$(tput setaf 6)
 _COL_WHITE=$(tput setaf 7)
 _COL_DEFAULT=$(tput setaf 9)
 _RESET_ALL=$(tput sgr0) # reset all attributes
+# see url for more codes: http://wiki.bash-hackers.org/scripting/terminalcodes
+# and for more ideas on terminal prompts: http://mywiki.wooledge.org/BashFAQ/053
 
 
 # Change command prompt

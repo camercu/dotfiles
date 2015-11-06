@@ -186,7 +186,7 @@ fi
 
 __gitcompappend ()
 {
-	local i=${#COMPREPLY[@]}
+	local x i=${#COMPREPLY[@]}
 	for x in $1; do
 		if [[ "$x" == "$3"* ]]; then
 			COMPREPLY[i++]="$2$x$4"
@@ -411,12 +411,9 @@ __git_refs_remotes ()
 
 __git_remotes ()
 {
-	local i IFS=$'\n' d="$(__gitdir)"
+	local d="$(__gitdir)"
 	test -d "$d/remotes" && ls -1 "$d/remotes"
-	for i in $(git --git-dir="$d" config --get-regexp 'remote\..*\.url' 2>/dev/null); do
-		i="${i#remote.}"
-		echo "${i/.url*/}"
-	done
+	git --git-dir="$d" remote
 }
 
 __git_list_merge_strategies ()
@@ -668,8 +665,8 @@ __git_list_porcelain_commands ()
 		checkout-index)   : plumbing;;
 		commit-tree)      : plumbing;;
 		count-objects)    : infrequent;;
-		credential-cache) : credentials helper;;
-		credential-store) : credentials helper;;
+		credential)       : credentials;;
+		credential-*)     : credentials helper;;
 		cvsexportcommit)  : export;;
 		cvsimport)        : import;;
 		cvsserver)        : daemon;;
@@ -738,35 +735,28 @@ __git_list_porcelain_commands ()
 __git_porcelain_commands=
 __git_compute_porcelain_commands ()
 {
-	__git_compute_all_commands
 	test -n "$__git_porcelain_commands" ||
 	__git_porcelain_commands=$(__git_list_porcelain_commands)
 }
 
+# Lists all set config variables starting with the given section prefix,
+# with the prefix removed.
+__git_get_config_variables ()
+{
+	local section="$1" i IFS=$'\n'
+	for i in $(git --git-dir="$(__gitdir)" config --name-only --get-regexp "^$section\..*" 2>/dev/null); do
+		echo "${i#$section.}"
+	done
+}
+
 __git_pretty_aliases ()
 {
-	local i IFS=$'\n'
-	for i in $(git --git-dir="$(__gitdir)" config --get-regexp "pretty\..*" 2>/dev/null); do
-		case "$i" in
-		pretty.*)
-			i="${i#pretty.}"
-			echo "${i/ */}"
-			;;
-		esac
-	done
+	__git_get_config_variables "pretty"
 }
 
 __git_aliases ()
 {
-	local i IFS=$'\n'
-	for i in $(git --git-dir="$(__gitdir)" config --get-regexp "alias\..*" 2>/dev/null); do
-		case "$i" in
-		alias.*)
-			i="${i#alias.}"
-			echo "${i/ */}"
-			;;
-		esac
-	done
+	__git_get_config_variables "alias"
 }
 
 # __git_aliased_command requires 1 argument
@@ -980,7 +970,7 @@ _git_branch ()
 
 	case "$cur" in
 	--set-upstream-to=*)
-		__gitcomp "$(__git_refs)" "" "${cur##--set-upstream-to=}"
+		__gitcomp_nl "$(__git_refs)" "" "${cur##--set-upstream-to=}"
 		;;
 	--*)
 		__gitcomp "
@@ -1048,7 +1038,7 @@ _git_checkout ()
 
 _git_cherry ()
 {
-	__gitcomp "$(__git_refs)"
+	__gitcomp_nl "$(__git_refs)"
 }
 
 _git_cherry_pick ()
@@ -1117,7 +1107,7 @@ _git_commit ()
 
 	case "$cur" in
 	--cleanup=*)
-		__gitcomp "default strip verbatim whitespace
+		__gitcomp "default scissors strip verbatim whitespace
 			" "" "${cur##--cleanup=}"
 		return
 		;;
@@ -1305,7 +1295,7 @@ _git_gitk ()
 }
 
 __git_match_ctag() {
-	awk "/^${1////\\/}/ { print \$1 }" "$2"
+	awk "/^${1//\//\\/}/ { print \$1 }" "$2"
 }
 
 _git_grep ()
@@ -1425,7 +1415,7 @@ __git_log_gitk_options="
 # Options that go well for log and shortlog (not gitk)
 __git_log_shortlog_options="
 	--author= --committer= --grep=
-	--all-match
+	--all-match --invert-grep
 "
 
 __git_log_pretty_formats="oneline short medium full fuller email raw format:"
@@ -1451,7 +1441,7 @@ _git_log ()
 		return
 		;;
 	--decorate=*)
-		__gitcomp "long short" "" "${cur##--decorate=}"
+		__gitcomp "full short no" "" "${cur##--decorate=}"
 		return
 		;;
 	--*)
@@ -1676,7 +1666,10 @@ _git_push ()
 _git_rebase ()
 {
 	local dir="$(__gitdir)"
-	if [ -d "$dir"/rebase-apply ] || [ -d "$dir"/rebase-merge ]; then
+	if [ -f "$dir"/rebase-merge/interactive ]; then
+		__gitcomp "--continue --skip --abort --edit-todo"
+		return
+	elif [ -d "$dir"/rebase-apply ] || [ -d "$dir"/rebase-merge ]; then
 		__gitcomp "--continue --skip --abort"
 		return
 	fi
@@ -1693,6 +1686,7 @@ _git_rebase ()
 			--committer-date-is-author-date --ignore-date
 			--ignore-whitespace --whitespace=
 			--autosquash --fork-point --no-fork-point
+			--autostash
 			"
 
 		return
@@ -1782,15 +1776,7 @@ __git_config_get_set_variables ()
 		c=$((--c))
 	done
 
-	git --git-dir="$(__gitdir)" config $config_file --list 2>/dev/null |
-	while read -r line
-	do
-		case "$line" in
-		*.*=*)
-			echo "${line/=*/}"
-			;;
-		esac
-	done
+	git --git-dir="$(__gitdir)" config $config_file --name-only --list 2>/dev/null
 }
 
 _git_config ()
@@ -1895,6 +1881,7 @@ _git_config ()
 			--get --get-all --get-regexp
 			--add --unset --unset-all
 			--remove-section --rename-section
+			--name-only
 			"
 		return
 		;;
@@ -2013,6 +2000,7 @@ _git_config ()
 		color.status.changed
 		color.status.header
 		color.status.nobranch
+		color.status.unmerged
 		color.status.untracked
 		color.status.updated
 		color.ui
@@ -2124,6 +2112,8 @@ _git_config ()
 		http.noEPSV
 		http.postBuffer
 		http.proxy
+		http.sslCipherList
+		http.sslVersion
 		http.sslCAInfo
 		http.sslCAPath
 		http.sslCert
@@ -2187,6 +2177,7 @@ _git_config ()
 		pull.octopus
 		pull.twohead
 		push.default
+		push.followTags
 		rebase.autosquash
 		rebase.stat
 		receive.autogc
@@ -2260,12 +2251,7 @@ _git_remote ()
 		__git_complete_remote_or_refspec
 		;;
 	update)
-		local i c='' IFS=$'\n'
-		for i in $(git --git-dir="$(__gitdir)" config --get-regexp "remotes\..*" 2>/dev/null); do
-			i="${i#remotes.}"
-			c="$c ${i/ */}"
-		done
-		__gitcomp "$c"
+		__gitcomp "$(__git_get_config_variables "remotes")"
 		;;
 	*)
 		;;
@@ -2292,6 +2278,11 @@ _git_reset ()
 
 _git_revert ()
 {
+	local dir="$(__gitdir)"
+	if [ -f "$dir"/REVERT_HEAD ]; then
+		__gitcomp "--continue --quit --abort"
+		return
+	fi
 	case "$cur" in
 	--*)
 		__gitcomp "--edit --mainline --no-edit --no-commit --signoff"
