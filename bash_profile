@@ -35,9 +35,9 @@ export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
 shopt -s checkwinsize
 
 
-#-------------------------------------
-# BEGIN Udacity Git Customization
-#-------------------------------------
+#---------------------------------------
+# BEGIN Bash Prompt Customization w/ Git
+#---------------------------------------
 
 # text (foreground) colors!
 _COL_BLACK=$(tput setaf 0)
@@ -57,11 +57,14 @@ _RESET_ALL=$(tput sgr0) # reset all attributes
 # Change command prompt
 source ~/.git-prompt.sh
 export GIT_PS1_SHOWDIRTYSTATE=1
-# '\u' adds the name of the current user to the prompt
-# '\$(__git_ps1)' adds git-related stuff
-# '\W' adds the name of the current directory
+
 export PS1="\[$_COL_YELLOW\]\u\[$_COL_CYAN\]\$(__git_ps1)\[$_COL_WHITE\] \W \$ \[$_RESET_ALL\]"
+  # note: PS1 needs '\[' and '\]' to escape non-printable characters, 
+  # keeping char count in line w/ displayed text (new line happens at right place).
+  # '\u' adds the name of the current user to the prompt.
+  # '\$(__git_ps1)' adds git-related stuff.
+  # '\W' adds the name of the current directory.
 
 #-------------------------------------
-# END Udacity Git Customization
+# END Prompt Customization
 #-------------------------------------
