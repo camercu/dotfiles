@@ -1,3 +1,6 @@
+# NOTE: Archived in git repository: 
+# "~/Coding/Languages/BASH and Terminal/Terminal Setup"
+
 
 # Homebrew Cask - Global Applications Folder
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
@@ -39,7 +42,8 @@ shopt -s checkwinsize
 # Enable git tab completion:
 # source ~/.git-completion.bash
 #   ^^ no longer needed. 
-# By putting file in /opt/local/etc/bash_completion.d, Mac terminal runs it automatically
+# By putting file in /usr/local/opt/bash-completion/etc/bash_completion.d, 
+# Mac terminal runs it automatically (thanks to Homebrew bash-completion)
 # file found at: https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
 
 # text (foreground) colors!

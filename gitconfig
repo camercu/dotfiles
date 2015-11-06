@@ -1,11 +1,11 @@
 [user]
-	name = ccu337
+	name = camercu
 	email = unterbergerc@live.com
 [credential]
 	helper = osxkeychain
 [core]
 	editor = subl -nw
-	excludesfile = /Users/cameron/.gitignore_global
+	excludesfile = ~/.gitignore_global
 	autocrlf = input
 	safecrlf = true
 [push]
@@ -13,6 +13,7 @@
 [merge]
 	conflictstyle = diff3
 [alias]
+    # https://git-scm.com/book/en/v1/Git-Basics-Tips-and-Tricks#Git-Aliases
     co = checkout
     cob = checkout -b
     editconfig = config --global -e
