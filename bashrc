@@ -13,6 +13,7 @@ alias remake='make -B'
 alias md5sum='openssl md5'
 alias sha1sum='openssl sha1'
 alias pipup='pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip install -U'
+alias bashreload=". ~/.bash_profile" # same as "source ~/.bash_profile"
 
 # global pip installation
 #gpip(){
