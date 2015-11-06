@@ -1,11 +1,21 @@
-#compiled source #
+# Compiled Source #
 ###################
 *.com
 *.class
 *.dll
-*.exe
 *.so
-# both objects and archives:
+*.so.*
+*.dylib
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.dSYM/
+*.obj
+*.elf
+## ignore both object and archive files:
 *.[oa]
 
 # Packages #
@@ -21,28 +31,47 @@
 *.tar
 *.zip
 
-# Logs and databases #
-######################
+# Logs #
+########
 *.log
-*.sql
-*.sqlite
 
 # OS generated files #
 ######################
 .DS_Store
 .DS_Store?
+.AppleDouble
+.LSOverride
 ._*
 .Spotlight-V100
 .Trashes
+.TemporaryItems
+.VolumeIcon.icns
 ehthumbs.db
 Thumbs.db
+.dbfseventsd
+.DocumentRevisions-V100
 
-# codekit #
+# Python compiled files #
+#########################
+*.py[cod]
+
+# Sublime Text #
+################
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+sftp-config.json
+# project files should be checked into the repository, unless a significant
+# proportion of contributors will probably not be using SublimeText
+# *.sublime-project
+
+# Codekit #
 ###########
 .sass-cache/
 .codekit-config.json
 config.codekit
 
-# python compiled files #
-#########################
-*.py[oc]
+# GPG #
+#######
+secring.*
