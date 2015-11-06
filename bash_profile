@@ -28,6 +28,8 @@ export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
 # export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx # for black background
 # export LSCOLORS=ExFxCxDxBxegedabagacad # white background
 
+# ensure proper line-wrapping when scrolling through previous commands
+shopt -s checkwinsize
 
 
 #-------------------------------------
@@ -37,15 +39,18 @@ export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
 # Enable tab completion
 source ~/.git-completion.bash
 
-# colors!
-red="\[\033[0;31m\]"
-green="\[\033[0;32m\]"
-yellow="\[\033[0;33m\]"
-blue="\[\033[0;34m\]"
-magenta="\[\033[0;35m\]"
-cyan="\[\033[0;36m\]"
-white="\[\033[0;37m\]"
-no_color="\[\033[0m\]"
+# text (foreground) colors!
+_COL_BLACK=$(tput setaf 0)
+_COL_RED=$(tput setaf 1)
+_COL_GREEN=$(tput setaf 2)
+_COL_YELLOW=$(tput setaf 3)
+_COL_BLUE=$(tput setaf 4)
+_COL_MAGENTA=$(tput setaf 5)
+_COL_CYAN=$(tput setaf 6)
+_COL_WHITE=$(tput setaf 7)
+_COL_DEFAULT=$(tput setaf 9)
+_RESET_ALL=$(tput sgr0) # reset all attributes
+
 
 # Change command prompt
 source ~/.git-prompt.sh
@@ -53,7 +58,7 @@ export GIT_PS1_SHOWDIRTYSTATE=1
 # '\u' adds the name of the current user to the prompt
 # '\$(__git_ps1)' adds git-related stuff
 # '\W' adds the name of the current directory
-export PS1="$yellow\u$cyan\$(__git_ps1)$white \W \$ $no_color"
+export PS1="\[$_COL_YELLOW\]\u\[$_COL_CYAN\]\$(__git_ps1)\[$_COL_WHITE\] \W \$ \[$_RESET_ALL\]"
 
 #-------------------------------------
 # END Udacity Git Customization
