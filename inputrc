@@ -37,6 +37,7 @@ set completion-query-items 150
 # words which have more than one possible completion cause the matches 
 # to be listed immediately instead of ringing the bell.
 set show-all-if-ambiguous on
+set show-all-if-unmodified on
 
 # performs filename matching and completion in a case-insensitive fashion
 set completion-ignore-case on
@@ -61,6 +62,10 @@ set colored-stats on
 "\e\e[D": backward-word
 Control-j: menu-complete
 Control-k: menu-complete-backward
+
+# Macro key bindings
+"\ex": 'cd !$ \015ls\015'	# Option+x: cd to dir of prev cmd
+"\ez": 'cd -\015'			# Option+z: cd back to last dir
 
 $if Bash
   # do history expansion when space entered
