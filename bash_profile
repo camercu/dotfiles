@@ -39,9 +39,6 @@ export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
 # export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx # for black background
 # export LSCOLORS=ExFxCxDxBxegedabagacad # white background
 
-# ensure proper line-wrapping when scrolling through previous commands
-shopt -s checkwinsize
-
 
 #---------------------------------------
 # BEGIN Bash Prompt Customization w/ Git

@@ -7,6 +7,11 @@
 # programs are in /etc/profile.  System wide aliases and functions are
 # in /etc/bashrc.
 
+# include global bashrc settings
+if [ -f "/etc/bashrc" ] ; then
+  source /etc/bashrc
+fi
+
 
 alias bashreload=". ~/.bash_profile" # same as "source ~/.bash_profile"
 alias bpe='edit ~/.bash_profile'
@@ -70,12 +75,10 @@ export HISTIGNORE="exit"
 # small typos ignored in directory names
 shopt -s cdspell
 
+# ensure proper line-wrapping when scrolling through previous commands
+shopt -s checkwinsize
+
 # global pip installation
 #gpip(){
 #   PIP_REQUIRE_VIRTUALENV="" pip "$@"
 #}
-
-# include global bashrc settings
-if [ -f "/etc/bashrc" ] ; then
-  source /etc/bashrc
-fi
