@@ -41,8 +41,8 @@ set show-all-if-ambiguous on
 # performs filename matching and completion in a case-insensitive fashion
 set completion-ignore-case on
 
-# do not make noise. Also visible can cause delays.
-set bell-style none
+# do not make noise. Also 'visible' can cause delays.
+# set bell-style none
 
 # Enable coloring for tab completions with bash >= 4.3
 set colored-stats on
