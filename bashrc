@@ -54,7 +54,7 @@ export HISTCONTROL="erasedups:ignoreboth"
 
 # Big(ish) history file
 export HISTSIZE=1000
-export HISTFILE = ~/.bash_history
+export HISTFILE=~/.bash_history
 
 # ensure history expansion is on (might make "!" try to expand undesirably)
 # set -o histexpand
