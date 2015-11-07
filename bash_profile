@@ -65,6 +65,13 @@ _RESET_ALL=$(tput sgr0) # reset all attributes
 source ~/.git-prompt.sh
 export GIT_PS1_SHOWDIRTYSTATE=1
 
+# Fancy unicode globe character! (for admin prompt)
+GLOBECHAR=$'\xf0\[\x9f\x8c\x8e\] '
+
+# Admin Prompt
+# export PS1="${GLOBECHAR}\[$YELLOW\] \w \$ \[$_RESET_ALL\]"
+
+# My prompt
 export PS1="\[$YELLOW\]\u\[$CYAN\]\$(__git_ps1)\[$WHITE\] \W \$ \[$_RESET_ALL\]"
   # note: PS1 needs '\[' and '\]' to escape non-printable characters, 
   # keeping char count in line w/ displayed text (new line happens at right place).
@@ -72,7 +79,7 @@ export PS1="\[$YELLOW\]\u\[$CYAN\]\$(__git_ps1)\[$WHITE\] \W \$ \[$_RESET_ALL\]"
   # '\$(__git_ps1)' adds git-related stuff.
   # '\W' adds the name of the current directory.
 
-unset BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE DEFAULT _RESET_ALL
+unset BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE DEFAULT _RESET_ALL GLOBECHAR
 
 #-------------------------------------
 # END Prompt Customization
