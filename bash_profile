@@ -11,7 +11,7 @@
 
 
 # Load .bashrc if it exists
-test -f ~/.bashrc && source ~/.bashrc
+test -e ~/.bashrc && source ~/.bashrc
 
 # Homebrew Cask - Global Applications Folder
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
@@ -20,7 +20,7 @@ export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
 
 # Homebrew bash-completion
-if [ -f $(brew --prefix)/etc/bash_completion ]; then
+if [ -e $(brew --prefix)/etc/bash_completion ]; then
     source $(brew --prefix)/etc/bash_completion
 fi
 
@@ -38,6 +38,44 @@ export CLICOLOR=1
 export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
 # export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx # for black background
 # export LSCOLORS=ExFxCxDxBxegedabagacad # white background
+
+# set up the editor for programs that want them
+export EDITOR='nano'
+export VISUAL='nano'
+
+# Ensure history appends to disk (rather than overwrite, when multi windows open).
+shopt -s histappend
+PROMPT_COMMAND='history -a'
+
+# save multiline commands as one command
+shopt -s cmdhist
+
+# No duplicate entries in history. Also ignore (don't put in history)
+# duplicate commands and commands preceded by a space (useful if you don't 
+# want a command recorded in your history
+export HISTCONTROL="erasedups:ignoreboth"
+
+# Big(ish) history file
+export HISTSIZE=1000
+export HISTFILE=~/.bash_history
+
+# ensure history expansion is on (might make "!" try to expand undesirably)
+# set -o histexpand
+
+# have bash display expanded history commands before executing (paranoid)
+# shopt -s histverify # redundant with magic-space
+
+# don't put 'exit' command in history
+# can string commands together with "cmd1:cmd2"
+# wildcard "*" also ok
+export HISTIGNORE="exit"
+
+# small typos ignored in directory names
+shopt -s cdspell
+
+# ensure proper line-wrapping when scrolling through previous commands
+shopt -s checkwinsize
+
 
 
 #---------------------------------------
