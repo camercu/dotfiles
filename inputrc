@@ -39,9 +39,6 @@ set completion-query-items 150
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
 
-# keep hidden files hidden from auto-complete unless matching with "/."
-match-hidden-files off
-
 # performs filename matching and completion in a case-insensitive fashion
 set completion-ignore-case on
 
