@@ -17,7 +17,12 @@ test -e ~/.bashrc && source ~/.bashrc
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 
 # Homebrew PATH
-export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
+# export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
+# ^^ no longer needed because I manually changed the /etc/profile and /etc/paths
+# files to set this order as desired.
+# NOTE: for future appending of items to path, can use files in /etc/path.d
+# along with /usr/libexec/path_helper tool to (man page: path_helper(8))
+# ref: http://www.softec.lu/site/DevelopersCorner/MasteringThePathHelper
 
 # Homebrew bash-completion
 if [ -e $(brew --prefix)/etc/bash_completion ]; then
@@ -45,7 +50,7 @@ export VISUAL='nano'
 
 # Ensure history appends to disk (rather than overwrite, when multi windows open).
 shopt -s histappend
-PROMPT_COMMAND='history -a'
+export PROMPT_COMMAND='history -a'
 
 # save multiline commands as one command
 shopt -s cmdhist
@@ -58,9 +63,6 @@ export HISTCONTROL="erasedups:ignoreboth"
 # Big(ish) history file
 export HISTSIZE=1000
 export HISTFILE=~/.bash_history
-
-# ensure history expansion is on (might make "!" try to expand undesirably)
-# set -o histexpand
 
 # have bash display expanded history commands before executing (paranoid)
 # shopt -s histverify # redundant with magic-space
@@ -104,7 +106,7 @@ export GIT_PS1_SHOWDIRTYSTATE=1
 GLOBECHAR=$'\xf0\[\x9f\x8c\x8e\] '
 
 # Admin Prompt
-# export PS1="${GLOBECHAR}\[$YELLOW\] \w \$ \[$_RESET_ALL\]"
+# export PS1="${GLOBECHAR}\[$CYAN\]\$(__git_ps1)\[$WHITE\] \w \$ \[$_RESET_ALL\]"
 
 # My prompt
 export PS1="\[$YELLOW\]\u\[$CYAN\]\$(__git_ps1)\[$WHITE\] \W \$ \[$_RESET_ALL\]"
