@@ -64,7 +64,7 @@ Control-j: menu-complete
 Control-k: menu-complete-backward
 
 # Macro key bindings
-"\ex": 'cd !$ \015ls\015'	# Option+x: cd to dir of prev cmd
+"\ex": 'cd !$ \015'			# Option+x: cd to dir of prev cmd
 "\ez": 'cd -\015'			# Option+z: cd back to last dir
 
 $if Bash
