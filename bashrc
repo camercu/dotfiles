@@ -23,9 +23,9 @@ alias git='hub'
 alias gitca='git add . && git commit'
 alias gitinit='git init && git add . && git commit -m "initial commit"'
 alias gitsync='git checkout master && git fetch upstream && git merge upstream/master'
-alias grep='grep -r --color=auto'
-alias ls='ls -a'
-alias lsl="ls -l"
+alias ll='ls -l'
+alias ls='ls -Ah'
+alias lsl="ll"
 alias md5sum='openssl md5'
 alias mkdir='mkdir -p'
 alias pipup='pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip install -U'

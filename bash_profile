@@ -13,6 +13,16 @@
 # Load .bashrc if it exists
 test -e ~/.bashrc && source ~/.bashrc
 
+# Master Password Name
+export MP_FULLNAME="Cameron Charles Unterberger"
+
+# set up the editor for programs that want them
+export EDITOR='nano'
+export VISUAL='nano'
+
+#---------------------------------------
+# Homebrew settings
+#---------------------------------------
 # Homebrew Cask - Global Applications Folder
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 
@@ -29,25 +39,9 @@ if [ -e $(brew --prefix)/etc/bash_completion ]; then
     source $(brew --prefix)/etc/bash_completion
 fi
 
-# Master Password Name
-export MP_FULLNAME="Cameron Charles Unterberger"
-
-# Setting PATH for Python 2.7
-# export PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
-
-# pip should only run if there is a virtualenv currently activated
-# export PIP_REQUIRE_VIRTUALENV=true
-
-# ls colors <https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/ls.1.html>
-export CLICOLOR=1
-export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
-# export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx # for black background
-# export LSCOLORS=ExFxCxDxBxegedabagacad # white background
-
-# set up the editor for programs that want them
-export EDITOR='nano'
-export VISUAL='nano'
-
+#---------------------------------------
+# History settings
+#---------------------------------------
 # Ensure history appends to disk (rather than overwrite, when multi windows open).
 shopt -s histappend
 export PROMPT_COMMAND='history -a'
@@ -65,25 +59,23 @@ export HISTSIZE=1000
 export HISTFILE=~/.bash_history
 
 # have bash display expanded history commands before executing (paranoid)
-# shopt -s histverify # redundant with magic-space
+shopt -s histverify # somewhat redundant with magic-space
 
-# don't put 'exit' command in history
+# don't put 'exit' and 'history' commands in history
 # can string commands together with "cmd1:cmd2"
 # wildcard "*" also ok
-export HISTIGNORE="exit"
-
-# small typos ignored in directory names
-shopt -s cdspell
+export HISTIGNORE="exit:history*"
 
 # ensure proper line-wrapping when scrolling through previous commands
 shopt -s checkwinsize
 
+# small typos ignored in directory names
+shopt -s cdspell
 
 
 #---------------------------------------
-# BEGIN Bash Prompt Customization w/ Git
+# Bash Prompt Customization w/ Git
 #---------------------------------------
-
 # text (foreground) colors!
 BLACK=$(tput setaf 0)
 RED=$(tput setaf 1)
@@ -118,7 +110,42 @@ export PS1="\[$YELLOW\]\u\[$CYAN\]\$(__git_ps1)\[$WHITE\] \W \$ \[$_RESET_ALL\]"
 
 unset BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE DEFAULT _RESET_ALL GLOBECHAR
 
-#-------------------------------------
-# END Prompt Customization
-#-------------------------------------
 
+#-------------------------------------
+# Manpages coloring
+#-------------------------------------
+# source: http://www.tuxarena.com/2012/04/tutorial-colored-man-pages-how-it-works/
+export LESS_TERMCAP_mb=$(printf '\e[01;31m') # enter blinking mode - red
+export LESS_TERMCAP_md=$(printf '\e[01;35m') # enter double-bright mode - bold, magenta
+export LESS_TERMCAP_me=$(printf '\e[0m') # turn off all appearance modes (mb, md, so, us)
+export LESS_TERMCAP_se=$(printf '\e[0m') # leave standout mode    
+export LESS_TERMCAP_so=$(printf '\e[01;33m') # enter standout mode - yellow
+export LESS_TERMCAP_ue=$(printf '\e[0m') # leave underline mode
+export LESS_TERMCAP_us=$(printf '\e[04;36m') # enter underline mode - cyan
+
+# another option: http://www.cyberciti.biz/faq/unix-linux-color-man-pages-configuration/
+# export PAGER=most # must have 'most' installed
+
+
+#-------------------------------------
+# ls/grep colors
+#-------------------------------------
+# Manpage: <https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/ls.1.html>
+# Simplified source: http://osxdaily.com/2012/02/21/add-color-to-the-terminal-in-mac-os-x/
+export CLICOLOR=1
+export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
+# export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx # for black background
+# export LSCOLORS=ExFxCxDxBxegedabagacad # white background
+
+# Tell grep to highlight matches
+export GREP_OPTIONS='--color=auto'
+
+
+#-------------------------------------
+# Old (probably not needed anymore)
+#-------------------------------------
+# Setting PATH for Python 2.7
+# export PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
+
+# pip should only run if there is a virtualenv currently activated
+# export PIP_REQUIRE_VIRTUALENV=true
