@@ -1,10 +1,6 @@
 #######################################################
 # Personal environment variables and startup programs.
 #######################################################
-
-# NOTE: Archived in git repository:
-# "/Users/cameron/Coding/Languages/BASH and Terminal/Terminal Setup"
-
 # Personal aliases and functions should go in ~/.bashrc.  System wide
 # environment variables and startup programs are in /etc/profile.
 # System wide aliases and functions are in /etc/bashrc.
