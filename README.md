@@ -5,6 +5,3 @@ Sublime Text 3, and gnupg.
 
 ## Usage
 To link these dotfiles to their proper locations, run `./push_dotfiles.sh`.
-  
-> **NOTE:** You should back up your old dotfiles before running this script, as it
-> will delete them.
