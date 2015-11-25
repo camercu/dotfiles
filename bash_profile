@@ -2,7 +2,7 @@
 # Personal environment variables and startup programs.
 #######################################################
 
-# NOTE: Archived in git repository: 
+# NOTE: Archived in git repository:
 # "/Users/cameron/Coding/Languages/BASH and Terminal/Terminal Setup"
 
 # Personal aliases and functions should go in ~/.bashrc.  System wide
@@ -50,7 +50,7 @@ export PROMPT_COMMAND='history -a'
 shopt -s cmdhist
 
 # No duplicate entries in history. Also ignore (don't put in history)
-# duplicate commands and commands preceded by a space (useful if you don't 
+# duplicate commands and commands preceded by a space (useful if you don't
 # want a command recorded in your history
 export HISTCONTROL="erasedups:ignoreboth"
 
@@ -74,21 +74,36 @@ shopt -s cdspell
 
 
 #---------------------------------------
-# Bash Prompt Customization w/ Git
+# Bash Prompt Customization
 #---------------------------------------
+
 # text (foreground) colors!
-BLACK=$(tput setaf 0)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
-MAGENTA=$(tput setaf 5)
-CYAN=$(tput setaf 6)
-WHITE=$(tput setaf 7)
-DEFAULT=$(tput setaf 9)
-_RESET_ALL=$(tput sgr0) # reset all attributes
+COLOR_BLACK=$(tput setaf 0)
+COLOR_RED=$(tput setaf 1)
+COLOR_GREEN=$(tput setaf 2)
+COLOR_YELLOW=$(tput setaf 3)
+COLOR_BLUE=$(tput setaf 4)
+COLOR_MAGENTA=$(tput setaf 5)
+COLOR_CYAN=$(tput setaf 6)
+COLOR_WHITE=$(tput setaf 7)
+COLOR_DEFAULT=$(tput setaf 9)
 # see url for more codes: http://wiki.bash-hackers.org/scripting/terminalcodes
 # and for more ideas on terminal prompts: http://mywiki.wooledge.org/BashFAQ/053
+# also: terminfo(5)
+
+# Other text modes:
+ATTR_RESET=$(tput sgr0) # turn off all attributes
+ATTR_UNDERLINE=$(tput smul)
+ATTR_BOLD=$(tput bold) # extra-bright mode
+ATTR_ITALICS=$(tput sitm)
+ATTR_BLINK=$(tput blink)
+ATTR_DIM=$(tput dim) # half-bright mode
+ATTR_STANDOUT=${ATTR_RESET}$(tput smso)
+
+ATTR_UNDERLINE_OFF=$(tput rmul)
+ATTR_ITALICS_OFF=$(tput ritm)
+ATTR_STANDOUT_OFF=$(tput rmso)
+
 
 # Change command prompt
 source ~/.git-prompt.sh
@@ -97,31 +112,32 @@ export GIT_PS1_SHOWDIRTYSTATE=1
 # Fancy unicode globe character! (for admin prompt)
 GLOBECHAR=$'\xf0\[\x9f\x8c\x8e\] '
 
-# Admin Prompt
-# export PS1="${GLOBECHAR}\[$CYAN\]\$(__git_ps1)\[$WHITE\] \w \$ \[$_RESET_ALL\]"
+# Admin Prompt (globe and git info)
+# export PS1="\[$ATTR_RESET\]${GLOBECHAR}\[$COLOR_CYAN\]\$(__git_ps1)\[$COLOR_WHITE\] \w \$ \[$ATTR_RESET\]"
 
-# My prompt
-export PS1="\[$YELLOW\]\u\[$CYAN\]\$(__git_ps1)\[$WHITE\] \W \$ \[$_RESET_ALL\]"
-  # note: PS1 needs '\[' and '\]' to escape non-printable characters, 
+# My prompt (show git info)
+export PS1="\[$ATTR_RESET\]\[$COLOR_YELLOW\]\u\[$COLOR_CYAN\]\$(__git_ps1)\[$COLOR_WHITE\] \W \$ \[$ATTR_RESET\]"
+  # note: PS1 needs '\[' and '\]' to escape non-printable characters,
   # keeping char count in line w/ displayed text (new line happens at right place).
   # '\u' adds the name of the current user to the prompt.
   # '\$(__git_ps1)' adds git-related stuff.
   # '\W' adds the name of the current directory.
 
-unset BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE DEFAULT _RESET_ALL GLOBECHAR
+unset GLOBECHAR
 
 
 #-------------------------------------
 # Manpages coloring
 #-------------------------------------
 # source: http://www.tuxarena.com/2012/04/tutorial-colored-man-pages-how-it-works/
-export LESS_TERMCAP_mb=$(printf '\e[01;31m') # enter blinking mode - red
-export LESS_TERMCAP_md=$(printf '\e[01;35m') # enter double-bright mode - bold, magenta
-export LESS_TERMCAP_me=$(printf '\e[0m') # turn off all appearance modes (mb, md, so, us)
-export LESS_TERMCAP_se=$(printf '\e[0m') # leave standout mode    
-export LESS_TERMCAP_so=$(printf '\e[01;33m') # enter standout mode - yellow
-export LESS_TERMCAP_ue=$(printf '\e[0m') # leave underline mode
-export LESS_TERMCAP_us=$(printf '\e[04;36m') # enter underline mode - cyan
+export LESS_TERMCAP_mb=${ATTR_BOLD}${COLOR_RED} # enter blinking mode
+export LESS_TERMCAP_md=${ATTR_BOLD}${COLOR_MAGENTA} # enter bold mode
+export LESS_TERMCAP_me=${ATTR_RESET} # turn off all appearance modes (mb, md, so, us)
+export LESS_TERMCAP_se=${ATTR_RESET} # exit standout mode
+export LESS_TERMCAP_so=${ATTR_STANDOUT}${COLOR_YELLOW} # enter standout mode
+export LESS_TERMCAP_us=${ATTR_UNDERLINE}${COLOR_CYAN} # enter underline mode
+export LESS_TERMCAP_ue=${ATTR_RESET} # exit underline mode
+
 
 # another option: http://www.cyberciti.biz/faq/unix-linux-color-man-pages-configuration/
 # export PAGER=most # must have 'most' installed
