@@ -48,11 +48,11 @@ alias ducks='du -cks * | sort -rn | head -11'
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls="ls -Ah --color=auto"
+    alias ls="ls -Ah" # --color=auto not used because of settings in bash_profile
     alias dir="dir --color=auto"
     alias vdir="vdir --color=auto"
 
-    alias grep='grep --color=auto'
+    # alias grep='grep --color=auto' # already in bash_profile
     alias fgrep='grep -F'
     alias egrep='grep -E'
     alias rgrep='grep -r'
