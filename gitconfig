@@ -1,6 +1,7 @@
 [user]
 	name = camercu
 	email = unterbergerc@live.com
+	signingkey = 5AEB0889D9ADE158
 [credential]
 	helper = osxkeychain
 [core]
