@@ -8,7 +8,7 @@
 # in /etc/bashrc.
 
 # include global bashrc settings
-if [ -e "/etc/bashrc" ] ; then
+if [ -e '/etc/bashrc' ] ; then
   source /etc/bashrc
 fi
 
@@ -25,7 +25,7 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-alias bashreload=". ~/.bash_profile" # same as "source ~/.bash_profile"
+alias bashreload='. ~/.bash_profile' # same as 'source ~/.bash_profile'
 alias bpe='edit ~/.bash_profile'
 alias brce='edit ~/.bashrc'
 alias brewup='brew update && brew upgrade && brew cleanup && brew cask cleanup'
@@ -38,7 +38,7 @@ alias gitinit='git init && git add . && git commit -m "initial commit"'
 alias gitsync='git checkout master && git fetch upstream && git merge upstream/master'
 alias md5sum='openssl md5'
 alias mkdir='mkdir -p'
-alias pipup='pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip install -U'
+alias pipup='pip freeze --local | grep -v "^\-e" | cut -d = -f 1  | xargs -n1 sudo -H pip install -U'
 alias remake='make -B'
 alias sha1sum='openssl sha1'
 alias su='su -'
@@ -49,9 +49,9 @@ alias ducks='du -cks * | sort -rn | head -11'
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls="ls -Ah" # --color=auto not used because of settings in bash_profile
-    alias dir="dir --color=auto"
-    alias vdir="vdir --color=auto"
+    alias ls='ls -Ah' # --color=auto not used because of settings in bash_profile
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
 
     # alias grep='grep --color=auto' # already in bash_profile
     alias fgrep='grep -F'
@@ -60,9 +60,9 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # some more ls aliases
-alias ll='ls -l'
+alias lsl='ls -Ahl'
 alias l='ls -CF'
-alias lsl='ll'
+alias ll='lsl -T'
 
 ## some useful aliases, so new users don't hurt themselves
 # alias rm='rm -i'
