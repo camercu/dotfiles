@@ -70,8 +70,3 @@ alias ll='lsl -T'
 # alias mv='mv -i'
 # alias ls='ls -F'
 
-
-# global pip installation
-#gpip(){
-#   PIP_REQUIRE_VIRTUALENV="" pip "$@"
-#}
