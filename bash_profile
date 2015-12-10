@@ -40,7 +40,7 @@ fi
 #---------------------------------------
 # Ensure history appends to disk (rather than overwrite, when multi windows open).
 shopt -s histappend
-export PROMPT_COMMAND='history -a'
+export PROMPT_COMMAND=update_terminal_cwd; history -a
 
 # save multiline commands as one command
 shopt -s cmdhist
