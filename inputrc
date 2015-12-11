@@ -3,7 +3,6 @@
 # programs include FTP, Bash, and GDB.
 #
 # You can re-read the inputrc file with C-x C-r.
-# Lines beginning with '#' are comments.
 #
 # documentation: http://ss64.com/bash/syntax-inputrc.html
 # sample: https://www.gnu.org/software/bash/manual/html_node/Sample-Init-File.html#Sample-Init-File
@@ -13,28 +12,17 @@
 $include /etc/inputrc
 
 # Set various bindings for emacs mode
-# set editing-mode emacs 
+# set editing-mode emacs
 
 # Set various bindings for vim mode
 # set editing-mode vi
 
-# don't strip characters to 7 bits when reading
-set input-meta on
-
-# allow iso-latin1 characters to be inserted rather
-# than converted to prefix-meta sequences
-set convert-meta off
-
-# display characters with the eighth bit set directly
-# rather than as meta-prefixed characters
-set output-meta on
-
-# if there are more than 150 possible completions for
+# if there are more than 50 possible completions for
 # a word, ask the user if he wants to see all of them
 # default = 100
-set completion-query-items 150
+set completion-query-items 50
 
-# words which have more than one possible completion cause the matches 
+# words which have more than one possible completion cause the matches
 # to be listed immediately instead of ringing the bell.
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
@@ -54,12 +42,6 @@ set colored-stats on
 "\e[C": forward-char			# right arrow
 "\e[D": backward-char			# left arrow
 "\t": menu-complete				# tab
-"\e[1~": beginning-of-line
-"\e[4~": end-of-line
-"\e[5C": forward-word
-"\e[5D": backward-word
-"\e\e[C": forward-word
-"\e\e[D": backward-word
 Control-j: menu-complete
 Control-k: menu-complete-backward
 
