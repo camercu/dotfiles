@@ -8,7 +8,7 @@
 # in /etc/bashrc.
 
 # include global bashrc settings
-if [ -e '/etc/bashrc' ] ; then
+if [ -f '/etc/bashrc' ] ; then
   source /etc/bashrc
 fi
 
