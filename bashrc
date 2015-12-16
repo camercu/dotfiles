@@ -46,6 +46,9 @@ alias su='su -'
 # list the size of directories in descending order
 alias ducks='du -cks * | sort -rn | head -11'
 
+# convert hex-escaped files (streams) to raw binary
+alias hex2raw="tr -d '\\\x' | xxd -r -p"
+
 # enable color support of ls and also add handy aliases
 #if [ -x /usr/bin/dircolors ]; then
     #test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
