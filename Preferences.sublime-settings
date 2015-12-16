@@ -107,6 +107,8 @@
 	"hot_exit": true,
 	"ignored_packages":
 	[
+		"Makefile",
+		"Markdown",
 		"Vintage"
 	],
 	"indent_guide_options":
@@ -124,7 +126,7 @@
 	"line_numbers": true,
 	"line_padding_bottom": 0,
 	"line_padding_top": 0,
-	"margin": 2,
+	"margin": 4,
 	"match_brackets": true,
 	"match_brackets_angle": false,
 	"match_brackets_braces": true,
@@ -167,7 +169,7 @@
 	"tab_completion": true,
 	"tab_size": 4,
 	"theme": "Default.sublime-theme",
-	"translate_tabs_to_spaces": true,
+	"translate_tabs_to_spaces": false,
 	"tree_animation_enabled": true,
 	"trim_automatic_white_space": true,
 	"trim_trailing_white_space_on_save": true,

@@ -35,12 +35,14 @@ if [ -e $(brew --prefix)/etc/bash_completion ]; then
     source $(brew --prefix)/etc/bash_completion
 fi
 
+
+
 #---------------------------------------
 # History settings
 #---------------------------------------
 # Ensure history appends to disk (rather than overwrite, when multi windows open).
 shopt -s histappend
-export PROMPT_COMMAND=update_terminal_cwd; history -a
+PROMPT_COMMAND=update_terminal_cwd; history -a
 
 # save multiline commands as one command
 shopt -s cmdhist
@@ -48,11 +50,11 @@ shopt -s cmdhist
 # No duplicate entries in history. Also ignore (don't put in history)
 # duplicate commands and commands preceded by a space (useful if you don't
 # want a command recorded in your history
-export HISTCONTROL="erasedups:ignoreboth"
+HISTCONTROL="erasedups:ignoreboth"
 
 # Big(ish) history file
-export HISTSIZE=1000
-export HISTFILE=~/.bash_history
+HISTSIZE=1000
+HISTFILE=~/.bash_history
 
 # have bash display expanded history commands before executing (paranoid)
 shopt -s histverify # somewhat redundant with magic-space
@@ -60,13 +62,14 @@ shopt -s histverify # somewhat redundant with magic-space
 # don't put 'exit' and 'history' commands in history
 # can string commands together with "cmd1:cmd2"
 # wildcard "*" also ok
-export HISTIGNORE="exit:history*"
+HISTIGNORE="logout:exit:history*"
 
 # ensure proper line-wrapping when scrolling through previous commands
 shopt -s checkwinsize
 
 # small typos ignored in directory names
 shopt -s cdspell
+
 
 
 #---------------------------------------
@@ -103,21 +106,28 @@ ATTR_STANDOUT_OFF=$(tput rmso)
 
 # Change command prompt
 source ~/.git-prompt.sh
-export GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_SHOWDIRTYSTATE=1
 
 # Fancy unicode globe character! (for admin prompt)
 GLOBECHAR=$'\xf0\[\x9f\x8c\x8e\] '
 
-# Admin Prompt (globe and git info)
-# export PS1="\[$ATTR_RESET\]${GLOBECHAR}\[$COLOR_CYAN\]\$(__git_ps1)\[$COLOR_WHITE\] \w \$ \[$ATTR_RESET\]"
+[[ $SHLVL == 1 ]] && __git_ps1=__git_ps1 || __git_ps1=
 
-# My prompt (show git info)
-export PS1="\[$ATTR_RESET\]\[$COLOR_YELLOW\]\u\[$COLOR_CYAN\]\$(__git_ps1)\[$COLOR_WHITE\] \W \$ \[$ATTR_RESET\]"
-  # note: PS1 needs '\[' and '\]' to escape non-printable characters,
-  # keeping char count in line w/ displayed text (new line happens at right place).
-  # '\u' adds the name of the current user to the prompt.
-  # '\$(__git_ps1)' adds git-related stuff.
-  # '\W' adds the name of the current directory.
+case $USER in
+admin )
+	# Admin Prompt (globe and git info)
+	PS1="\[$ATTR_RESET\]${GLOBECHAR}\[$COLOR_CYAN\]\$(__git_ps1)\[$COLOR_WHITE\] \w \$ \[$ATTR_RESET\]"
+	;;
+* )
+	# My prompt (show git info)
+	PS1="\[$ATTR_RESET\]\[$COLOR_YELLOW\]\u\[$COLOR_CYAN\]\$(__git_ps1)\[$COLOR_WHITE\] \W \$ \[$ATTR_RESET\]"
+		# note: PS1 needs '\[' and '\]' to escape non-printable characters,
+		# keeping char count in line w/ displayed text (new line happens at right place).
+		# '\u' adds the name of the current user to the prompt.
+		# '\$(__git_ps1)' adds git-related stuff.
+		# '\W' adds the name of the current directory.
+	;;
+esac
 
 unset GLOBECHAR
 
