@@ -16,6 +16,9 @@ export MP_FULLNAME="Cameron Charles Unterberger"
 export EDITOR='nano'
 export VISUAL='nano'
 
+# enable "**" (globstar): recurse all subdirectories from current
+shopt -s globstar
+
 #---------------------------------------
 # Homebrew settings
 #---------------------------------------
