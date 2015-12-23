@@ -17,7 +17,9 @@ export EDITOR='nano'
 export VISUAL='nano'
 
 # enable "**" (globstar): recurse all subdirectories from current
-shopt -s globstar
+if [ "${BASH_VERSINFO[0]}" -ge 4 ]; then  # only supported in v4.0+
+	shopt -s globstar
+fi
 
 #---------------------------------------
 # Homebrew settings
