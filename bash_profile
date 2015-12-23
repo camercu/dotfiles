@@ -116,6 +116,7 @@ GIT_PS1_SHOWDIRTYSTATE=1
 # Fancy unicode globe character! (for admin prompt)
 GLOBECHAR=$'\xf0\[\x9f\x8c\x8e\] '
 
+# allows disabling of git prompt for subshells
 [[ $SHLVL == 1 ]] && __git_ps1=__git_ps1 || __git_ps1=
 
 case $USER in
