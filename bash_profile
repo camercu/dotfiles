@@ -58,7 +58,8 @@ shopt -s cmdhist
 HISTCONTROL="erasedups:ignoreboth"
 
 # Big(ish) history file
-HISTSIZE=1000
+HISTFILESIZE=5000	# lines stored on disk
+HISTSIZE=1000	# lines stored in RAM
 HISTFILE=~/.bash_history
 
 # have bash display expanded history commands before executing (paranoid)
@@ -148,9 +149,6 @@ export LESS_TERMCAP_us=${ATTR_UNDERLINE}${COLOR_CYAN} # enter underline mode
 export LESS_TERMCAP_ue=${ATTR_RESET} # exit underline mode
 
 
-# another option: http://www.cyberciti.biz/faq/unix-linux-color-man-pages-configuration/
-# export PAGER=most # must have 'most' installed
-
 
 #-------------------------------------
 # ls/grep colors
@@ -166,11 +164,3 @@ export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
 export GREP_OPTIONS='--color=auto'
 
 
-#-------------------------------------
-# Old (probably not needed anymore)
-#-------------------------------------
-# Setting PATH for Python 2.7
-# export PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
-
-# pip should only run if there is a virtualenv currently activated
-# export PIP_REQUIRE_VIRTUALENV=true
