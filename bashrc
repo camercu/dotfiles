@@ -120,9 +120,11 @@ function extract {
 function gdb {
 	# auto-resize window for ideal gdb usage
 	# ref: http://apple.stackexchange.com/a/47841/153340
-	printf '\e[8;30;125t'  # set size to 125x30
+	local OLD_ROWS=$LINES
+	local OLD_COLS=$COLUMNS
+	printf "\e[8;30;125t"  # set size to 125x30
 	$(which gdb) -q "$@"
-	printf '\e[8;25;85t'   # reset back to 85x25
+	printf "\e[8;${OLD_ROWS};${OLD_COLS}t"   # reset back to original
 }
 
 
