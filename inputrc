@@ -4,52 +4,162 @@
 #
 # You can re-read the inputrc file with C-x C-r.
 #
-# documentation: http://ss64.com/bash/syntax-inputrc.html
+# All of the Readline variables and thier values can be displayed by typing:
+# "bind -v" into terminal
+#
+# Man Page: https://www.gnu.org/software/bash/manual/html_node/Readline-Init-File-Syntax.html
+# or: http://linux.about.com/library/cmd/blcmdl3_readline.htm
 # sample: https://www.gnu.org/software/bash/manual/html_node/Sample-Init-File.html#Sample-Init-File
 
 # Include system wide settings which are ignored
 # by default if one has their own .inputrc
 $include /etc/inputrc
 
-# Set various bindings for emacs mode
-# set editing-mode emacs
+# Enable coloring for tab completions with bash >= 4.3
+set colored-stats on
 
-# Set various bindings for vim mode
-# set editing-mode vi
+# performs filename matching and completion in a case-insensitive fashion
+set completion-ignore-case on
 
 # if there are more than 50 possible completions for
 # a word, ask the user if he wants to see all of them
 # default = 100
 set completion-query-items 50
 
+# Readline will convert characters with the eighth bit set to an ASCII key
+# sequence by stripping the eighth bit and prefixing an ESC character,
+# converting them to a meta-prefixed key sequence
+set convert-meta on
+
 # words which have more than one possible completion cause the matches
 # to be listed immediately instead of ringing the bell.
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
 
-# performs filename matching and completion in a case-insensitive fashion
-set completion-ignore-case on
+# during completion in middle of word, if match found, won't insert text,
+# just jump cursor to end of matching chars
+set skip-completed-text on
 
-# do not make noise. Also 'visible' can cause delays.
-# set bell-style none
 
-# Enable coloring for tab completions with bash >= 4.3
-set colored-stats on
 
-# Key Bindings
+
+
+#############################################
+#           Key Bindings                    #
+#############################################
+# The following symbolic character names are recognized while processing key
+# bindings: DEL, ESC, ESCAPE, LFD, NEWLINE, RET, RETURN, RUBOUT, SPACE, SPC,
+# and TAB.
+#
+# In addition to command names, readline allows keys to be bound to a string
+# that is inserted when the key is pressed (a macro).
+#
+# Try "bind -p" in terminal to see list of all set bindings. It's displayed
+# in a way that can be copied directly into this initialization file
+#
+# Meta (M) = Option/Alt (press and hold) or ESC (press and release), "\M-"
+# Control (C) = Control, "\C-"
+# Escape Character (ESC) = "\e"
+# Rubout (DEL) = Backspace (Delete on Mac)
+#
+# Note: using ESC as Meta prefix can be turned off with "set convert-meta off"
+#
+# List of all bindable commands can be found at:
+# https://www.gnu.org/software/bash/manual/html_node/Bindable-Readline-Commands.html#Bindable-Readline-Commands
+
+
+### MOVEMENT OF CURSOR: ###########################
+C-a: beginning-of-line
+C-e: end-of-line
+M-f: forward-word
+M-b: backward-word
+C-l: clear-screen  # Clear screen leaving current line at top of screen
+"\C-xr": redraw-current-line  # refresh the current line
+
+
+### HISTORY SEARCHING: ###########################
 "\e[A": history-search-backward	# up arrow
 "\e[B": history-search-forward	# down arrow
 "\e[C": forward-char			# right arrow
 "\e[D": backward-char			# left arrow
-"\t": menu-complete				# tab
-Control-j: menu-complete
-Control-k: menu-complete-backward
-
-# Macro key bindings
-"\ex": 'cd !$ \015'			# Option+x: cd to dir of prev cmd
-"\ez": 'cd -\015'			# Option+z: cd back to last dir
 
 $if Bash
   # do history expansion when space entered
   Space: magic-space
 $endif
+
+# Insert the last argument to the previous command (the last word of the
+# previous history entry)
+Meta-.: yank-last-arg
+Meta-_: yank-last-arg
+
+TAB: menu-complete
+M-?: possible-completions  # List possible completions of text before point.
+
+
+### TEXT MANIPULATION: ###########################
+M-t: transpose-words   # Drag the word before point past the word after point,
+					   # moving point over that word as well. If point is at
+					   # the end of the line, this transposes the last two
+					   # words on the line.
+M-u: upcase-word
+M-l: downcase-word
+M-c: capitalize-word
+
+M-TAB: tab-insert  # insert a tab character
+
+
+### KILLING AND YANKING ##########################
+M-k: kill-whole-line  # Kill all characters on the current line, no matter
+					  # where point is.
+C-k: kill-line  # Kill the text from point to the end of the line.
+C-j: backward-kill-line  # Kill backward to the beginning of the line.
+M-d: kill-word  # Kill from point the end of the current word, or if between
+				# words, to the end of the next word.
+M-DEL: backward-kill-word  # Kill from the cursor the start of the current
+						   # word, or, if between words, to the start of
+						   # the previous word
+C-w: unix-word-rubout # Kill the word behind point, using white space as a
+					  # word boundary (different from backward-kill-word).
+					  # The killed text is saved on the kill-ring
+
+M-\: delete-horizontal-space  # Delete all spaces and tabs around point
+
+
+### UNDOING THINGS: ##############################
+C-_: undo  # Incremental undo, separately remembered for each line
+"\C-x\C-u": undo
+M-r: revert-line  # Undo all changes made to this line. This is like
+				  # executing the undo command enough times to return the line
+				  # to its initial state (i.e. blank).
+
+### MISCELLANEOUS: ##############################
+"\C-x\C-r": re-read-init-file
+"\e\C-e": shell-expand-line
+
+# alternate way to run command, in case Return key is broken:
+"\C-xx": accept-line
+
+
+#### MACROS: #####################################
+# change to previous dir
+M-z: "\M-kcd -\015"
+
+# change dir to last arg of last cmd
+M-x: "\M-kcd \M-.\015"
+
+# yank head of last arg (i.e. path portion, excluding filename)
+"\M-,": "!$:h\e\C-e"
+
+# yank tail of last arg (i.e. filename portion only)
+#"\M-\C-.": "!$:t\e\C-e"
+
+# yank tail of last arg, removing file extension
+#"\e\C->": "!$:t:r:r\e\C-e"
+
+
+
+## RECORD CUSTOM KEYBOARD MACROS: ##################
+"\C-x(": start-kbd-macro
+"\C-x)": end-kbd-macro
+"\C-xe": call-last-kbd-macro
