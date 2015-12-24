@@ -31,7 +31,6 @@ alias brce='edit ~/.bashrc'
 alias brewup='brew update && brew upgrade && brew cleanup && brew cask cleanup'
 alias df='df -h'
 alias duff='diff -ur'
-alias gdb='gdb -q'
 alias git='hub'
 alias gitca='git add . && git commit'
 alias gitinit='git init && git add . && git commit -m "initial commit"'
@@ -74,7 +73,7 @@ alias ll='lsl -T'
 # alias ls='ls -F'
 
 
-update_terminal_cwd() {
+function update_terminal_cwd {
     # Identify the directory using a "file:" scheme URL,
     # including the host name to disambiguate local vs.
     # remote connections. Percent-escape spaces.
@@ -84,3 +83,48 @@ update_terminal_cwd() {
     printf '\e]7;%s\a' "$PWD_URL"
 }
 
+
+function extract {
+	if [ -z "$1" ]; then
+		# display usage if no parameters given
+		echo "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>"
+	else
+		if [ -f $1 ] ; then
+			# NAME=${1%.*}
+			# mkdir $NAME && cd $NAME
+			case $1 in
+			  *.tar.bz2)   tar xvjf ../$1    ;;
+			  *.tar.gz)    tar xvzf ../$1    ;;
+			  *.tar.xz)    tar xvJf ../$1    ;;
+			  *.lzma)      unlzma ../$1      ;;
+			  *.bz2)       bunzip2 ../$1     ;;
+			  *.rar)       unrar x -ad ../$1 ;;
+			  *.gz)        gunzip ../$1      ;;
+			  *.tar)       tar xvf ../$1     ;;
+			  *.tbz2)      tar xvjf ../$1    ;;
+			  *.tgz)       tar xvzf ../$1    ;;
+			  *.zip)       unzip ../$1       ;;
+			  *.Z)         uncompress ../$1  ;;
+			  *.7z)        7z x ../$1        ;;
+			  *.xz)        unxz ../$1        ;;
+			  *.exe)       cabextract ../$1  ;;
+			  *)           echo "extract: '$1' - unknown archive method" ;;
+			esac
+		else
+			echo "$1 - file does not exist"
+		fi
+	fi
+}
+
+
+function gdb {
+	# auto-resize window for ideal gdb usage
+	# ref: http://apple.stackexchange.com/a/47841/153340
+	printf '\e[8;30;125t'  # set size to 125x30
+	$(which gdb) -q "$@"
+	printf '\e[8;25;85t'   # reset back to 85x25
+}
+
+
+# cool one-liner to print most-used commands from history:
+# history | awk '{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n10
