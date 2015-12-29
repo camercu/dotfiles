@@ -1,5 +1,5 @@
 ##################################
-# Personal aliases and functions.
+# Personal aliases and functions
 ##################################
 
 # Personal environment variables and startup programs should go in
@@ -15,26 +15,35 @@ fi
 
 
 ######################
-# Alias definitions.
+# Alias definitions
 ######################
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
+# set easy dotfile editing commands
+if [ -n "$(which edit)" -a "$(logname)" = "$(whoami)" ]; then
+	DOTFILE_EDITOR=edit
+else
+	DOTFILE_EDITOR=nano
+fi
+alias bpe="$DOTFILE_EDITOR ~/.bash_profile"
+alias brce="$DOTFILE_EDITOR ~/.bashrc"
+alias irce="$DOTFILE_EDITOR ~/.inputrc"
+unset DOTFILE_EDITOR
+
 alias bashreload='. ~/.bash_profile' # same as 'source ~/.bash_profile'
-alias bpe='edit ~/.bash_profile'
-alias brce='edit ~/.bashrc'
 alias brewup='brew update && brew upgrade && brew cleanup && brew cask cleanup'
 alias cdot='cd ~/.dotfiles'
-alias df='df -h'
+alias df='df -H'
+alias dircolors='gdircolors'
 alias duff='diff -ur'
 alias git='hub'
-alias gitca='git add . && git commit'
-alias gitinit='git init && git add . && git commit -m "initial commit"'
+alias gitca='git commit -a'
+alias gitinit='git init && git commit -a -m "initial commit"'
 alias gitsync='git checkout master && git fetch upstream && git merge upstream/master'
 alias md5sum='openssl md5'
 alias mkdir='mkdir -p'
@@ -49,23 +58,25 @@ alias ducks='du -cks * | sort -rn | head -11'
 # convert hex-escaped files (streams) to raw binary
 alias hex2raw="tr -d '\\\x' | xxd -r -p"
 
-# enable color support of ls and also add handy aliases
-#if [ -x /usr/bin/dircolors ]; then
-    #test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls -A' # --color=auto not used because of settings in bash_profile
-    alias dir='dir --color=auto'
-    alias vdir='vdir --color=auto'
+# enable color support
+if [ -n "$(which dircolors)" ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+fi
 
-    # alias grep='grep --color=auto' # already in bash_profile
-    alias fgrep='grep -F'
-    alias egrep='grep -E'
-    alias rgrep='grep -r'
-#fi
+# ls aliases
+alias ls='ls -A'  # --color=auto not used because already set in bash_profile
+alias lsl='ls -hlT'
+alias ll='lsl'
 
-# some more ls aliases
-alias lsl='ls -Ahl'
-alias l='ls -CF'
-alias ll='lsl -T'
+# dir coloring
+[ -n "$(which dir)" ] && alias dir='dir --color=auto'
+[ -n "$(which vdir)" ] && alias vdir='vdir --color=auto'
+
+# grep aliases
+# alias grep='grep --color=auto' # already in bash_profile
+alias fgrep='grep -F'
+alias egrep='grep -E'
+alias rgrep='grep -r'
 
 ## some useful aliases, so new users don't hurt themselves
 # alias rm='rm -i'
@@ -74,6 +85,9 @@ alias ll='lsl -T'
 # alias ls='ls -F'
 
 
+########################
+# Function definitions
+########################
 function update_terminal_cwd {
     # Identify the directory using a "file:" scheme URL,
     # including the host name to disambiguate local vs.

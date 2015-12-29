@@ -31,6 +31,10 @@ set completion-query-items 50
 # converting them to a meta-prefixed key sequence
 set convert-meta on
 
+# If a tab-completed file is a symlink to a directory,
+# treat it like a directory not a file ('/' instead of space after completion)
+set mark-symlinked-directories on
+
 # words which have more than one possible completion cause the matches
 # to be listed immediately instead of ringing the bell.
 set show-all-if-ambiguous on
@@ -40,12 +44,16 @@ set show-all-if-unmodified on
 # just jump cursor to end of matching chars
 set skip-completed-text on
 
+# Edit with Vi keybindings
+set editing-mode vi
+set keymap vi
+
 
 
 
 
 #############################################
-#           Key Bindings                    #
+#           Custom Key Bindings             #
 #############################################
 # The following symbolic character names are recognized while processing key
 # bindings: DEL, ESC, ESCAPE, LFD, NEWLINE, RET, RETURN, RUBOUT, SPACE, SPC,
