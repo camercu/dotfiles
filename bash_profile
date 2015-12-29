@@ -159,8 +159,10 @@ export LESS_TERMCAP_ue=${ATTR_RESET} # exit underline mode
 #-------------------------------------
 # Manpage: <https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/ls.1.html>
 # Simplified source: http://osxdaily.com/2012/02/21/add-color-to-the-terminal-in-mac-os-x/
+# LS color generator: http://geoff.greer.fm/lscolors/
 export CLICOLOR=1
-export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
+export LSCOLORS=ExGxFxdxBxafacBeBgEhEd
+# export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd # default Linux colors
 # export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx # for black background
 # export LSCOLORS=ExFxCxDxBxegedabagacad # white background
 
