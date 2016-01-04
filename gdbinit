@@ -2111,11 +2111,11 @@ sys.stdout.write("0x%08X]" % gdb.parse_and_eval("$esp"))
 	    color_bold
 	    printf "[stack]\n"
     	color_reset
-    	set $context_i = $CONTEXTSIZE_STACK
-    	while ($context_i > 0)
-       	    set $context_t = $sp + 0x10 * ($context_i - 1)
+    	set $context_i = 0
+    	while ($context_i < $CONTEXTSIZE_STACK)
+       	    set $context_t = $sp + 0x10 * $context_i
        	    hexdump $context_t
-       	    set $context_i--
+       	    set $context_i++
     	end
     end
     # show the objective C message being passed to msgSend
