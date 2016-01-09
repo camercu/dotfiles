@@ -21,6 +21,10 @@ if [ "${BASH_VERSINFO[0]}" -ge 4 ]; then  # only supported in v4.0+
 	shopt -s globstar
 fi
 
+# enable Ctrl+O to function properly (disables stty key binding so inputrc
+# key binding takes over)
+stty discard undef
+
 # for capstone disassembler libraries:
 # http://www.capstone-engine.org/
 #export DYLD_LIBRARY_PATH=/usr/local/opt/capstone/lib/:$DYLD_LIBRARY_PATH
