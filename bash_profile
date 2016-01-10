@@ -152,7 +152,7 @@ export LESS_TERMCAP_mb=${ATTR_BOLD}${COLOR_RED} # enter blinking mode
 export LESS_TERMCAP_md=${ATTR_BOLD}${COLOR_MAGENTA} # enter bold mode
 export LESS_TERMCAP_me=${ATTR_RESET} # turn off all appearance modes (mb, md, so, us)
 export LESS_TERMCAP_se=${ATTR_RESET} # exit standout mode
-export LESS_TERMCAP_so=${ATTR_STANDOUT}${COLOR_YELLOW} # enter standout mode
+export LESS_TERMCAP_so=${ATTR_STANDOUT}${ATTR_BOLD}${COLOR_YELLOW} # enter standout mode
 export LESS_TERMCAP_us=${ATTR_UNDERLINE}${COLOR_CYAN} # enter underline mode
 export LESS_TERMCAP_ue=${ATTR_RESET} # exit underline mode
 
