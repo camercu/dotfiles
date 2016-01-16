@@ -35,6 +35,8 @@ alias brce="$DOTFILE_EDITOR ~/.bashrc"
 alias irce="$DOTFILE_EDITOR ~/.inputrc"
 unset DOTFILE_EDITOR
 
+alias ..='cd ..'
+alias ...='cd ../..'
 alias bashreload='. ~/.bash_profile' # same as 'source ~/.bash_profile'
 alias brewup='brew update && brew upgrade && brew cleanup && brew cask cleanup'
 alias cdot='cd ~/.dotfiles'
