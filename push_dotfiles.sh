@@ -29,4 +29,4 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 [[ -e ~/.gitconfig ]] || ln -s "${DOTFILE_DIR}/gitconfig" ~/.gitconfig
 [[ -e ~/.gitignore_global ]] || ln -s "${DOTFILE_DIR}/gitignore_global" ~/.gitignore_global
 [[ -e ~/.inputrc ]] || ln -s "${DOTFILE_DIR}/inputrc" ~/.inputrc
-[[ -e ~/.gnupg/gpg.conf ]] || ln -s "${DOTFILE_DIR}/gpg.conf" ~/.gnupg/
+[[ ! -e ~/.gnupg/gpg.conf && -e ~/.gnupg ]] && ln -s "${DOTFILE_DIR}/gpg.conf" ~/.gnupg/
