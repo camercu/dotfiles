@@ -144,5 +144,18 @@ function gdb {
 }
 
 
+
+cdf() {
+    # change directory to current finder directory
+    # source: https://apple.stackexchange.com/questions/12161/os-x-terminal-must-have-utilities
+    target=`osascript -e 'tell application "Finder" to if (count of Finder windows) > 0 then get POSIX path of (target of front Finder window as text)'`
+    if [ "$target" != "" ]; then
+        cd "$target"; pwd
+    else
+        echo 'No Finder window found' >&2
+    fi
+}
+
+
 # cool one-liner to print most-used commands from history:
 # history | awk '{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n10
