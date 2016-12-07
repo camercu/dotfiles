@@ -5,7 +5,7 @@
 [credential]
 	helper = osxkeychain
 [core]
-	editor = subl -nw
+	editor = nano
 	excludesfile = ~/.gitignore_global
 	autocrlf = input
 	safecrlf = true

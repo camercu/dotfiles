@@ -126,7 +126,7 @@ GIT_PS1_SHOWDIRTYSTATE=1
 GLOBECHAR=$'\xf0\[\x9f\x8c\x8e\] '
 
 case $USER in
-admin )
+?admin )
 	# Admin Prompt (globe and git info)
 	PS1="\[$ATTR_RESET\]${GLOBECHAR}\[$COLOR_CYAN\]\$(__git_ps1)\[$COLOR_WHITE\] \w \$ \[$ATTR_RESET\]"
 	;;
