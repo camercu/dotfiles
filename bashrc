@@ -49,6 +49,7 @@ alias gitsync='git checkout master && git fetch upstream && git merge upstream/m
 alias md5sum='openssl md5'
 alias mkdir='mkdir -p'
 alias pipup='pip freeze --local | grep -v "^\-e" | cut -d = -f 1  | xargs -n1 sudo -H pip install -U'
+alias pip3up='pip3 freeze --local | grep -v "^\-e" | cut -d = -f 1  | xargs -n1 sudo -H pip3 install -U'
 alias remake='make -B'
 alias sha1sum='openssl sha1'
 alias su='su -'
