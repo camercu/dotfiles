@@ -36,7 +36,7 @@ stty discard undef
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 
 # Homebrew API Token for more access to GitHub
-export HOMEBREW_GITHUB_API_TOKEN="7ab966c97b1e1fe75573f5d0027ef70b0147e854"
+source ~/.dotfiles/.github-api-token
 
 # Homebrew PATH
 # export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
