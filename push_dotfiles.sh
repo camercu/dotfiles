@@ -9,6 +9,8 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 	mv ~/.bash_profile $ARCHIVE_DIR
 [[ -f ~/.bashrc && ! -L ~/.bashrc ]] && \
 	mv ~/.bashrc $ARCHIVE_DIR
+[[ -f ~/.vimrc && ! -L ~/.vimrc ]] && \
+	mv ~/.vimrc $ARCHIVE_DIR
 [[ -f ~/.gdbinit && ! -L ~/.gdbinit ]] && \
 	mv ~/.gdbinit $ARCHIVE_DIR
 [[ -f ~/.git-prompt.sh && ! -L ~/.git-prompt.sh ]] && \
@@ -24,6 +26,7 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 
 [[ -e ~/.bash_profile ]] || ln -s "${DOTFILE_DIR}/bash_profile" ~/.bash_profile
 [[ -e ~/.bashrc ]] || ln -s "${DOTFILE_DIR}/bashrc" ~/.bashrc
+[[ -e ~/.vimrc ]] || ln -s "${DOTFILE_DIR}/vimrc" ~/.vimrc
 [[ -e ~/.gdbinit ]] || ln -s "${DOTFILE_DIR}/gdbinit" ~/.gdbinit
 [[ -e ~/.git-prompt.sh ]] || ln -s "${DOTFILE_DIR}/git-prompt.sh" ~/.git-prompt.sh
 [[ -e ~/.gitconfig ]] || ln -s "${DOTFILE_DIR}/gitconfig" ~/.gitconfig
