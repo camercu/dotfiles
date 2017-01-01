@@ -9,6 +9,9 @@
 # Load .bashrc if it exists
 test -e ~/.bashrc && source ~/.bashrc
 
+# Load .profile if it exists
+test -e ~/.profile && source ~/.profile
+
 # Master Password Name
 export MP_FULLNAME="Cameron Charles Unterberger"
 
@@ -29,8 +32,6 @@ stty discard undef
 # http://www.capstone-engine.org/
 #export DYLD_LIBRARY_PATH=/usr/local/opt/capstone/lib/:$DYLD_LIBRARY_PATH
 
-# RVM sourcing
-source ~/.dotfiles/.rvm-source
 
 #---------------------------------------
 # Homebrew settings
@@ -180,3 +181,5 @@ export LSCOLORS=ExGxFxdxBxafacBeBgEhEd
 export GREP_OPTIONS='--color=auto'
 
 
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
