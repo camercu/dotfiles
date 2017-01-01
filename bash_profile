@@ -177,3 +177,5 @@ export LSCOLORS=ExGxFxdxBxafacBeBgEhEd
 export GREP_OPTIONS='--color=auto'
 
 
+PATH=$PATH:/opt/metasploit-framework/bin
+export PATH=$PATH:/opt/metasploit-framework/bin
