@@ -29,6 +29,9 @@ stty discard undef
 # http://www.capstone-engine.org/
 #export DYLD_LIBRARY_PATH=/usr/local/opt/capstone/lib/:$DYLD_LIBRARY_PATH
 
+# RVM sourcing
+source ~/.dotfiles/.rvm-source
+
 #---------------------------------------
 # Homebrew settings
 #---------------------------------------
