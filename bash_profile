@@ -50,6 +50,11 @@ source ~/.dotfiles/.github-api-token
 # along with /usr/libexec/path_helper tool to (man page: path_helper(8))
 # ref: http://www.softec.lu/site/DevelopersCorner/MasteringThePathHelper
 
+# Add Keg-only items to PATH
+export PATH="/usr/local/opt/sqlite/bin:$PATH"
+export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
+export PATH="/usr/local/opt/curl/bin:$PATH"
+
 # Homebrew bash-completion
 if [ -e $(brew --prefix)/etc/bash_completion ]; then
     source $(brew --prefix)/etc/bash_completion
