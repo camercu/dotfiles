@@ -146,7 +146,7 @@ function gdb {
 
 
 
-cdf() {
+function cdf() {
     # change directory to current finder directory
     # source: https://apple.stackexchange.com/questions/12161/os-x-terminal-must-have-utilities
     target=`osascript -e 'tell application "Finder" to if (count of Finder windows) > 0 then get POSIX path of (target of front Finder window as text)'`
@@ -155,6 +155,17 @@ cdf() {
     else
         echo 'No Finder window found' >&2
     fi
+}
+
+
+function brewrm() {
+        if [ -z "$1" ]; then
+                # display usage if no parameters given
+                echo "Usage: brewrm <program-name>"
+		echo "  -Uninstalls/removes program and all dependencies"
+        else
+		brew rm "$1" && brew rm $(join <(brew leaves) <(brew deps "$1"))
+	fi
 }
 
 
