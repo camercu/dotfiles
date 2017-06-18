@@ -77,6 +77,8 @@ set skip-completed-text on
 
 
 ### MOVEMENT OF CURSOR: ###########################
+#"\e[C": forward-char			# right arrow
+#"\e[D": backward-char			# left arrow
 #C-a: beginning-of-line
 #C-e: end-of-line
 #M-f: forward-word
@@ -86,10 +88,8 @@ set skip-completed-text on
 
 
 ### HISTORY SEARCHING: ###########################
-#"\e[A": history-search-backward	# up arrow
-#"\e[B": history-search-forward		# down arrow
-#"\e[C": forward-char			# right arrow
-#"\e[D": backward-char			# left arrow
+"\e[A": history-search-backward		# up arrow
+"\e[B": history-search-forward		# down arrow
 
 # do history expansion when space entered
 $if Bash
