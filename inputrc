@@ -101,7 +101,7 @@ $endif
 #Meta-.: yank-last-arg
 #Meta-_: yank-last-arg
 
-#TAB: menu-complete
+TAB: menu-complete
 #M-?: possible-completions  # List possible completions of text before point.
 
 
