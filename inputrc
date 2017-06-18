@@ -87,14 +87,14 @@ set skip-completed-text on
 
 ### HISTORY SEARCHING: ###########################
 #"\e[A": history-search-backward	# up arrow
-#"\e[B": history-search-forward	# down arrow
+#"\e[B": history-search-forward		# down arrow
 #"\e[C": forward-char			# right arrow
 #"\e[D": backward-char			# left arrow
 
-#$if Bash
-#  # do history expansion when space entered
-#  Space: magic-space
-#$endif
+# do history expansion when space entered
+$if Bash
+  Space: magic-space
+$endif
 
 # Insert the last argument to the previous command (the last word of the
 # previous history entry)
