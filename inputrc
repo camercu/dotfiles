@@ -77,87 +77,87 @@ set skip-completed-text on
 
 
 ### MOVEMENT OF CURSOR: ###########################
-C-a: beginning-of-line
-C-e: end-of-line
-M-f: forward-word
-M-b: backward-word
-C-l: clear-screen  # Clear screen leaving current line at top of screen
-"\C-xr": redraw-current-line  # refresh the current line
+#"\e[C": forward-char			# right arrow
+#"\e[D": backward-char			# left arrow
+#C-a: beginning-of-line
+#C-e: end-of-line
+#M-f: forward-word
+#M-b: backward-word
+#C-l: clear-screen  # Clear screen leaving current line at top of screen
+#"\C-xr": redraw-current-line  # refresh the current line
 
 
 ### HISTORY SEARCHING: ###########################
-"\e[A": history-search-backward	# up arrow
-"\e[B": history-search-forward	# down arrow
-"\e[C": forward-char			# right arrow
-"\e[D": backward-char			# left arrow
+"\e[A": history-search-backward		# up arrow
+"\e[B": history-search-forward		# down arrow
 
+# do history expansion when space entered
 $if Bash
-  # do history expansion when space entered
   Space: magic-space
 $endif
 
 # Insert the last argument to the previous command (the last word of the
 # previous history entry)
-Meta-.: yank-last-arg
-Meta-_: yank-last-arg
+#Meta-.: yank-last-arg
+#Meta-_: yank-last-arg
 
 TAB: menu-complete
-M-?: possible-completions  # List possible completions of text before point.
+#M-?: possible-completions  # List possible completions of text before point.
 
 
 ### TEXT MANIPULATION: ###########################
-M-t: transpose-words   # Drag the word before point past the word after point,
+#M-t: transpose-words   # Drag the word before point past the word after point,
 					   # moving point over that word as well. If point is at
 					   # the end of the line, this transposes the last two
 					   # words on the line.
-M-u: upcase-word
-M-l: downcase-word
-M-c: capitalize-word
+#M-u: upcase-word
+#M-l: downcase-word
+#M-c: capitalize-word
 
-M-TAB: tab-insert  # insert a tab character
+#M-TAB: tab-insert  # insert a tab character
 
 
 ### KILLING AND YANKING ##########################
-M-k: kill-whole-line  # Kill all characters on the current line, no matter
+#M-k: kill-whole-line  # Kill all characters on the current line, no matter
 					  # where point is.
-C-k: kill-line  # Kill the text from point to the end of the line.
-C-j: backward-kill-line  # Kill backward to the beginning of the line.
-M-d: kill-word  # Kill from point the end of the current word, or if between
+#C-k: kill-line  # Kill the text from point to the end of the line.
+#C-j: backward-kill-line  # Kill backward to the beginning of the line.
+#M-d: kill-word  # Kill from point the end of the current word, or if between
 				# words, to the end of the next word.
-M-DEL: backward-kill-word  # Kill from the cursor the start of the current
+#M-DEL: backward-kill-word  # Kill from the cursor the start of the current
 						   # word, or, if between words, to the start of
 						   # the previous word
-C-w: unix-word-rubout # Kill the word behind point, using white space as a
+#C-w: unix-word-rubout # Kill the word behind point, using white space as a
 					  # word boundary (different from backward-kill-word).
 					  # The killed text is saved on the kill-ring
 
-M-\: delete-horizontal-space  # Delete all spaces and tabs around point
+#M-\: delete-horizontal-space  # Delete all spaces and tabs around point
 
 
 ### UNDOING THINGS: ##############################
-C-_: undo  # Incremental undo, separately remembered for each line
-"\C-x\C-u": undo
-M-r: revert-line  # Undo all changes made to this line. This is like
+#C-_: undo  # Incremental undo, separately remembered for each line
+#"\C-x\C-u": undo
+#M-r: revert-line  # Undo all changes made to this line. This is like
 				  # executing the undo command enough times to return the line
 				  # to its initial state (i.e. blank).
 
 ### MISCELLANEOUS: ##############################
-"\C-x\C-r": re-read-init-file
-"\e\C-e": shell-expand-line
+#"\C-x\C-r": re-read-init-file
+#"\e\C-e": shell-expand-line
 
 # alternate way to run command, in case Return key is broken:
-"\C-xx": accept-line
+#"\C-xx": accept-line
 
 
 #### MACROS: #####################################
 # change to previous dir
-M-z: "\M-kcd -\015"
+#M-z: "\M-kcd -\015"
 
 # change dir to last arg of last cmd
-M-x: "\M-kcd \M-.\015"
+#M-x: "\M-kcd \M-.\015"
 
 # yank head of last arg (i.e. path portion, excluding filename)
-"\M-,": "!$:h\e\C-e"
+#"\M-,": "!$:h\e\C-e"
 
 # yank tail of last arg (i.e. filename portion only)
 #"\M-\C-.": "!$:t\e\C-e"
@@ -168,6 +168,6 @@ M-x: "\M-kcd \M-.\015"
 
 
 ## RECORD CUSTOM KEYBOARD MACROS: ##################
-"\C-x(": start-kbd-macro
-"\C-x)": end-kbd-macro
-"\C-xe": call-last-kbd-macro
+#"\C-x(": start-kbd-macro
+#"\C-x)": end-kbd-macro
+#"\C-xe": call-last-kbd-macro

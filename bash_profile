@@ -19,6 +19,10 @@ export MP_FULLNAME="Cameron Charles Unterberger"
 export EDITOR='nano'
 export VISUAL='nano'
 
+# Cisco Packet Tracer environment:
+#export PT7HOME="/Users/cameron/.wine/drive_c/Program Files/Cisco Packet Tracer 7.0/bin"
+#export PATH="$PATH:$PT7HOME"
+
 # enable "**" (globstar): recurse all subdirectories from current
 if [ "${BASH_VERSINFO[0]}" -ge 4 ]; then  # only supported in v4.0+
 	shopt -s globstar
@@ -79,7 +83,7 @@ HISTCONTROL="erasedups:ignoreboth"
 
 # Big(ish) history file
 HISTFILESIZE=5000	# lines stored on disk
-HISTSIZE=1000	# lines stored in RAM
+HISTSIZE=500	# lines stored in RAM
 HISTFILE=~/.bash_history
 
 # have bash display expanded history commands before executing (paranoid)
