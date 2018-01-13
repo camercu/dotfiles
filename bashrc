@@ -24,70 +24,6 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-# set easy dotfile editing commands
-if [ -n "$(which edit)" -a "$(logname)" = "$(whoami)" ]; then
-	DOTFILE_EDITOR=edit
-else
-	DOTFILE_EDITOR=nano
-fi
-alias bpe="$DOTFILE_EDITOR ~/.bash_profile"
-alias brce="$DOTFILE_EDITOR ~/.bashrc"
-alias irce="$DOTFILE_EDITOR ~/.inputrc"
-unset DOTFILE_EDITOR
-
-alias ..='cd ..'
-alias ...='cd ../..'
-alias bashreload='. ~/.bash_profile' # same as 'source ~/.bash_profile'
-alias brewup='brew update && brew upgrade && brew cleanup && brew cask cleanup'
-alias cdot='cd ~/.dotfiles'
-alias df='df -H'
-alias dircolors='gdircolors'
-alias duff='diff -ur'
-alias gitca='git commit -a'
-alias gitinit='git init && git commit -a -m "initial commit"'
-alias gitsync='git checkout master && git fetch upstream && git merge upstream/master'
-alias md5sum='openssl md5'
-alias sha1sum='openssl sha1'
-alias sha256sum='openssl sha256'
-alias mkdir='mkdir -p'
-alias pip='pip2'
-alias pipup='pip2 freeze --local | grep -v "^\-e" | cut -d = -f 1  | 
-xargs -n1 sudo -H pip2 install -U'
-alias pip3up='pip3 freeze --local | grep -v "^\-e" | cut -d = -f 1  | xargs -n1 sudo -H pip3 install -U'
-alias remake='make -B'
-alias su='su -'
-
-# list the size of directories in descending order
-alias ducks='du -cks * | sort -rn | head -11'
-
-# convert hex-escaped files (streams) to raw binary
-alias hex2raw="tr -d '\\\x' | xxd -r -p"
-
-# enable color support
-if [ -n "$(which dircolors)" ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-fi
-
-# ls aliases
-alias ls='ls -A'  # --color=auto not used because already set in bash_profile
-alias lsl='ls -hlT'
-alias ll='lsl'
-
-# dir coloring
-[ -n "$(which dir)" ] && alias dir='dir --color=auto'
-[ -n "$(which vdir)" ] && alias vdir='vdir --color=auto'
-
-# grep aliases
-# alias grep='grep --color=auto' # already in bash_profile
-alias fgrep='grep -F'
-alias egrep='grep -E'
-alias rgrep='grep -r'
-
-## some useful aliases, so new users don't hurt themselves
-# alias rm='rm -i'
-# alias cp='cp -i'
-# alias mv='mv -i'
-# alias ls='ls -F'
 
 
 ########################
@@ -175,4 +111,6 @@ function brewrm() {
 # cool one-liner to print most-used commands from history:
 # history | awk '{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n10
 
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
+# Add RVM to PATH for scripting
+export PATH="$PATH:$HOME/.rvm/bin"
