@@ -33,7 +33,7 @@ fi
 [ -n "$(which vdir)" ] && alias vdir='vdir --color=auto'
 
 ## ls aliases
-alias ls='ls --color=auto -A'
+alias ls='ls -A'
 alias lsl='ls -hlT'
 alias ll='lsl'
 
