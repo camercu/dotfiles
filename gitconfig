@@ -3,7 +3,6 @@
 	email = unterbergerc@live.com
 	signingkey = 5AEB0889D9ADE158
 [credential]
-	helper = osxkeychain
 [core]
 	editor = nano
 	excludesfile = /Users/cameron/.gitignore_global
