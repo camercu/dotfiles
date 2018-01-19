@@ -28,3 +28,5 @@
     st = status
     last = log -1 HEAD
     visual = !gitk
+[color]
+	ui = auto
