@@ -30,3 +30,8 @@
     visual = !gitk
 [color]
 	ui = auto
+
+
+# useful random stuff:
+# disable upstream push
+# git remote set-url --push upstream PUSH_DISABLED
