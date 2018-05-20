@@ -24,12 +24,13 @@
     amend = commit -a --amend
     wipe = !git add -A && git commit -qm 'WIPE SAVEPOINT' && git reset HEAD~1 --hard
     unstage = reset HEAD --
+    untrack = rm --cached
     br = branch
     st = status
     last = log -1 HEAD
     visual = !gitk
 [color]
-	ui = auto
+    ui = auto
 
 
 # useful random stuff:

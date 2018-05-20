@@ -1,25 +1,64 @@
-# Compiled Source #
-###################
-*.com
-*.class
+###############################################################################
+# C
+###############################################################################
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
 *.dll
 *.so
 *.so.*
 *.dylib
+
+# Executables
 *.exe
 *.out
 *.app
 *.i*86
 *.x86_64
 *.hex
-*.dSYM/
-*.obj
-*.elf
-## ignore both object and archive files:
-*.[oa]
 
-# Packages #
-############
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+
+
+##############################################################################
+# Packages / Compressed Files
+##############################################################################
 # it's better to unpack these files and commit the raw source
 # git has its own built in compression methods
 *.7z
@@ -32,47 +71,262 @@
 *.tar
 *.zip
 
-# Logs #
-########
-*.log
 
-# OS generated files #
-######################
+
+
+
+##############################################################################
+# Vagrant
+##############################################################################
+.vagrant/
+
+
+
+
+
+
+
+###############################################################################
+# Dropbox
+###############################################################################
+.dropbox
+.dropbox.attr
+.dropbox.cache
+
+
+
+
+
+###############################################################################
+# Logs
+###############################################################################
+*.log
+*.logs
+
+
+
+
+
+
+###############################################################################
+# OS X
+################################################################################
+
+# General
 .DS_Store
 .DS_Store?
 .AppleDouble
 .LSOverride
+
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
 ._*
-.Spotlight-V100
-.Trashes
-.TemporaryItems
-.VolumeIcon.icns
-ehthumbs.db
-Thumbs.db
+
+# Files that might appear in the root of a volume
 .dbfseventsd
 .DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
 
-# Python compiled files #
-#########################
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+
+
+
+###############################################################################
+# Linux
+###############################################################################
+*~
+
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
+
+# KDE directory preferences
+.directory
+
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
+
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
+
+
+
+
+
+###############################################################################
+# Microsoft Windows
+###############################################################################
+*.tmp
+
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+
+
+
+###############################################################################
+# Python
+###############################################################################
+# Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
+*$py.class
 
-# Sublime Text #
-################
-*.tmlanguage.cache
-*.tmPreferences.cache
-*.stTheme.cache
-*.sublime-workspace
-sftp-config.json
-# project files should be checked into the repository, unless a significant
-# proportion of contributors will probably not be using SublimeText
-# *.sublime-project
+# C extensions
+*.so
 
-# Codekit #
-###########
-.sass-cache/
-.codekit-config.json
-config.codekit
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# GPG #
-#######
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.Python
+pyvenv.cfg
+pip-selfcheck.json
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+
+
+
+
+
+###############################################################################
+# GPG
+###############################################################################
 secring.*
+
+
+
+
+
+###############################################################################
+# VS Code
+###############################################################################
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
