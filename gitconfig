@@ -14,6 +14,107 @@
 [merge]
 	conflictstyle = diff3
 [alias]
+  # https://github.com/GitAlias/gitalias/blob/master/gitalias.txt
+
+  ##
+  # One letter alias for our most frequent commands.
+  #
+  # Guidelines: these aliases do not use options, because we want
+  # these aliases to be easy to compose and use in many ways.
+  ##
+
+  a = add
+  b = branch
+  c = commit
+  d = diff
+  f = fetch
+  g = grep
+  l = log
+  m = merge
+  o = checkout
+  p = pull
+  r = remote
+  s = status
+  w = whatchanged
+
+  ##
+  # Short aliases for our frequent commands.
+  #
+  # Guidelines:
+  #
+  #  * Generally speaking, the alias should be in the same
+  #    order as the command name followed by its options.
+  #
+  #    * Right: fb = foo --bar
+  #    * Wrong: bf = foo --bar
+  ##
+
+### add ###
+
+  # add all
+  aa = add --all
+
+  # add by patch - looks at each change, and asks if we want to put it in the repo.
+  ap = add --patch
+
+  # add just the files that are updated.
+  au = add --update
+
+### branch ###
+
+  # branch - edit the description
+  be = branch --edit-description
+
+  # branch and only list branches whose tips are reachable from the specified commit (HEAD if not specified).
+  bm = branch --merged
+
+  # branch and only list branches whose tips are not reachable from the specified commit (HEAD if not specified).
+  bnm = branch --no-merged
+
+### commit ###
+
+  # commit - amend the tip of the current branch rather than creating a new commit.
+  ca = commit --amend
+
+  # commit - amend the tip of the current branch, and edit the message.
+  cam = commit --amend --message
+
+  # commit - amend the tip of the current branch, and do not edit the message.
+  cane = commit --amend --no-edit
+
+  # commit interactive
+  ci = commit --interactive
+
+  # commit with a message
+  cm = commit --message
+
+### diff ###
+
+  # diff - show changes not yet staged
+  dc = diff --cached
+
+  # diff - changes about to be commited
+  ds = diff --staged
+
+  # diff - show changes but by word, not line
+  dw = diff --word-diff
+
+### grep ###
+
+  # grep and show line number
+  gl =  grep --line-number
+
+  # grep group: find text and group the output lines; a.k.a. `grep-group`.
+  gg = grep --break --heading --line-number
+
+### log ###
+
+  # log with a text-based graphical representation of the commit history.
+  lg = log --graph
+
+  # log with one line per item.
+  lo = log --oneline
+
     # https://git-scm.com/book/en/v1/Git-Basics-Tips-and-Tricks#Git-Aliases
     co = checkout
     cob = checkout -b
@@ -28,6 +129,9 @@
     br = branch
     st = status
     last = log -1 HEAD
+    discard = checkout --
+    discard-all = !git ls-files | xargs -I% -n1 git checkout -- %
+    ls = ls-files
     visual = !gitk
 [color]
     ui = auto
