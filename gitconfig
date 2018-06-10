@@ -6,7 +6,7 @@
 	helper = osxkeychain
 [core]
 	editor = nano
-	excludesfile = /Users/cameron/.gitignore_global
+	excludesfile = ~/.gitignore_global
 	autocrlf = input
 	safecrlf = true
 [push]
