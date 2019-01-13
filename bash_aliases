@@ -11,9 +11,7 @@ alias cdot='cd ~/.dotfiles'
 alias md5sum='openssl md5'
 alias sha1sum='openssl sha1'
 alias sha256sum='openssl sha256'
-alias pip='pip2'
-alias pipup='pip2 freeze --local | grep -v "^\-e" | cut -d = -f 1  |
-xargs -n1 sudo -H pip2 install -U'
+alias pipup='pip2 freeze --local | grep -v "^\-e" | cut -d = -f 1  |xargs -n1 sudo -H pip2 install -U'
 alias pip3up='pip3 freeze --local | grep -v "^\-e" | cut -d = -f 1  | xargs -n1 sudo -H pip3 install -U'
 
 # list the size of directories in descending order
@@ -60,6 +58,7 @@ else
 fi
 alias bpe="$DOTFILE_EDITOR ~/.bash_profile"
 alias brce="$DOTFILE_EDITOR ~/.bashrc"
+alias bae="$DOTFILE_EDITOR ~/.bash_aliases"
 alias irce="$DOTFILE_EDITOR ~/.inputrc"
 unset DOTFILE_EDITOR
 
