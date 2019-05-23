@@ -19,10 +19,6 @@ export MP_FULLNAME="Cameron Charles Unterberger"
 export EDITOR='nano'
 export VISUAL='nano'
 
-# Cisco Packet Tracer environment:
-#export PT7HOME="/Users/cameron/.wine/drive_c/Program Files/Cisco Packet Tracer 7.0/bin"
-#export PATH="$PATH:$PT7HOME"
-
 # enable "**" (globstar): recurse all subdirectories from current
 if [ "${BASH_VERSINFO[0]}" -ge 4 ]; then  # only supported in v4.0+
 	shopt -s globstar
@@ -31,11 +27,6 @@ fi
 # enable Ctrl+O to function properly (disables stty key binding so inputrc
 # key binding takes over)
 stty discard undef
-
-# for capstone disassembler libraries:
-# http://www.capstone-engine.org/
-#export DYLD_LIBRARY_PATH=/usr/local/opt/capstone/lib/:$DYLD_LIBRARY_PATH
-
 
 #---------------------------------------
 # Homebrew settings
@@ -60,10 +51,8 @@ export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
 export PATH="/usr/local/opt/curl/bin:$PATH"
 
 # Homebrew bash-completion
-if [ -e $(brew --prefix)/etc/bash_completion ]; then
-    source $(brew --prefix)/etc/bash_completion
-fi
-
+[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && \
+    . "/usr/local/etc/profile.d/bash_completion.sh"
 
 
 #---------------------------------------
