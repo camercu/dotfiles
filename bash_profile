@@ -35,7 +35,7 @@ stty discard undef
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 
 # Homebrew API Token for more access to GitHub
-source ~/.dotfiles/.github-api-token
+test -e ~/.dotfiles/.github-api-token && source ~/.dotfiles/.github-api-token
 
 # Homebrew PATH
 # export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
@@ -46,9 +46,9 @@ source ~/.dotfiles/.github-api-token
 # ref: http://www.softec.lu/site/DevelopersCorner/MasteringThePathHelper
 
 # Add Keg-only items to PATH
-export PATH="/usr/local/opt/sqlite/bin:$PATH"
-export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
-export PATH="/usr/local/opt/curl/bin:$PATH"
+#export PATH="/usr/local/opt/sqlite/bin:$PATH"
+#export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
+#export PATH="/usr/local/opt/curl/bin:$PATH"
 
 # Homebrew bash-completion
 [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && \
