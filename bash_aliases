@@ -51,8 +51,8 @@ alias gitinit='git init && git commit -a -m "initial commit"'
 alias gitsync='git checkout master && git fetch upstream && git merge upstream/master'
 
 ## set easy dotfile editing commands
-if [ -n "$(which edit)" -a "$(logname)" = "$(whoami)" ]; then
-	DOTFILE_EDITOR=edit
+if [ -n "$(which code)" -a "$(logname)" = "$(whoami)" ]; then
+	DOTFILE_EDITOR=code
 else
 	DOTFILE_EDITOR=nano
 fi
