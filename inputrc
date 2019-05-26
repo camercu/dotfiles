@@ -1,10 +1,10 @@
-# This file controls the behaviour of line input editing for
+# This file controls the behavior of line input editing for
 # programs that use the GNU Readline library.  Existing
 # programs include FTP, Bash, and GDB.
 #
 # You can re-read the inputrc file with C-x C-r.
 #
-# All of the Readline variables and thier values can be displayed by typing:
+# All of the Readline variables and their values can be displayed by typing:
 # "bind -v" into terminal
 #
 # Man Page: https://www.gnu.org/software/bash/manual/html_node/Readline-Init-File-Syntax.html
@@ -29,7 +29,11 @@ set completion-query-items 50
 # Readline will convert characters with the eighth bit set to an ASCII key
 # sequence by stripping the eighth bit and prefixing an ESC character,
 # converting them to a meta-prefixed key sequence
-set convert-meta on
+set convert-meta off
+
+# Display and allow input from 8-bit characters
+set input-meta on
+set output-meta on
 
 # If a tab-completed file is a symlink to a directory,
 # treat it like a directory not a file ('/' instead of space after completion)
@@ -40,8 +44,8 @@ set mark-symlinked-directories on
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
 
-# during completion in middle of word, if match found, won't insert text,
-# just jump cursor to end of matching chars
+# during completion in middle of word, if match found, won't only insert text,
+# but will jump cursor to end of matching chars
 set skip-completed-text on
 
 # Edit with Vi keybindings
@@ -79,12 +83,12 @@ set skip-completed-text on
 ### MOVEMENT OF CURSOR: ###########################
 #"\e[C": forward-char			# right arrow
 #"\e[D": backward-char			# left arrow
-#C-a: beginning-of-line
-#C-e: end-of-line
-#M-f: forward-word
-#M-b: backward-word
+C-a: beginning-of-line
+C-e: end-of-line
+M-f: forward-word
+M-b: backward-word
 #C-l: clear-screen  # Clear screen leaving current line at top of screen
-#"\C-xr": redraw-current-line  # refresh the current line
+"\C-xr": redraw-current-line  # refresh the current line
 
 
 ### HISTORY SEARCHING: ###########################
@@ -142,7 +146,7 @@ TAB: menu-complete
 				  # to its initial state (i.e. blank).
 
 ### MISCELLANEOUS: ##############################
-#"\C-x\C-r": re-read-init-file
+"\C-x\C-r": re-read-init-file
 #"\e\C-e": shell-expand-line
 
 # alternate way to run command, in case Return key is broken:
