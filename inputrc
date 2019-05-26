@@ -26,9 +26,11 @@ set completion-ignore-case on
 # default = 100
 set completion-query-items 50
 
-# Readline will convert characters with the eighth bit set to an ASCII key
+# When on, Readline will convert characters with the eighth bit set to an ASCII key
 # sequence by stripping the eighth bit and prefixing an ESC character,
 # converting them to a meta-prefixed key sequence
+# NOTE: on OS X, must enable Option as Meta key:
+# Terminal > Preferences > Settings > Keyboard > Use option as meta key
 set convert-meta off
 
 # Display and allow input from 8-bit characters
