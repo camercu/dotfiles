@@ -12,12 +12,9 @@ test -e ~/.bashrc && source ~/.bashrc
 # Load .profile if it exists
 test -e ~/.profile && source ~/.profile
 
-# Master Password Name
-export MP_FULLNAME="Cameron Charles Unterberger"
-
 # set up the editor for programs that want them
 export EDITOR='nano'
-export VISUAL='nano'
+export VISUAL='code'
 
 # enable "**" (globstar): recurse all subdirectories from current
 if [ "${BASH_VERSINFO[0]}" -ge 4 ]; then  # only supported in v4.0+
