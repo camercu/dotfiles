@@ -6,7 +6,7 @@ alias remake='make -B'
 alias su='su -'
 
 ## Mac Specific:
-alias brewup='brew update && brew upgrade && brew cleanup && brew cask cleanup'
+alias brewup='brew update && brew upgrade && brew cleanup'
 alias cdot='cd ~/.dotfiles'
 alias md5sum='openssl md5'
 alias sha1sum='openssl sha1'
