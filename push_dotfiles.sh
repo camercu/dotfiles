@@ -25,8 +25,6 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 	mv ~/.gitignore_global "$ARCHIVE_DIR"
 [[ -f ~/.inputrc && ! -L ~/.inputrc ]] && \
 	mv ~/.inputrc "$ARCHIVE_DIR"
-[[ -f ~/.gnupg/gpg.conf && ! -L ~/.gnupg/gpg.conf ]] && \
-	mv ~/.gnupg/gpg.conf "$ARCHIVE_DIR"
 [[ -f ~/.nanorc && ! -L ~/.nanorc ]] && \
 	mv ~/.nanorc "$ARCHIVE_DIR"
 
