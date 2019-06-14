@@ -196,3 +196,7 @@ else
 fi
 unset __conda_setup
 # <<< conda init <<<
+
+export PATH="$PATH:"/Applications/microchip/xc8/v2.05/bin""
+
+export PATH="$PATH:"/Applications/microchip/xc16/v1.36/bin""
