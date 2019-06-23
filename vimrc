@@ -16,18 +16,26 @@ Plugin 'VundleVim/Vundle.vim'
 " Keep Plugin commands between vundle#begin/end.
 " plugin on GitHub repo
 Plugin 'tpope/vim-fugitive'
+
 " plugin from http://vim-scripts.org/vim/scripts.html
 " Plugin 'L9'
-" Git plugin not hosted on GitHub
-Plugin 'git://git.wincent.com/command-t.git'
-" git repos on your local machine (i.e. when working on your own plugin)
-Plugin 'file:///home/gmarik/path/to/plugin'
-" The sparkup vim script is in a subdirectory of this repo called vim.
+"" The sparkup vim script is in a subdirectory of this repo called vim.
 " Pass the path to set the runtimepath properly.
 Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+
+" Git plugin not hosted on GitHub
+"Plugin 'git://git.wincent.com/command-t.git'
+
+" git repos on your local machine (i.e. when working on your own plugin)
+"Plugin 'file:///home/gmarik/path/to/plugin'
+
 " Install L9 and avoid a Naming conflict if you've already installed a
 " different version somewhere else.
-" Plugin 'ascenator/L9', {'name': 'newL9'}
+"Plugin 'ascenator/L9', {'name': 'newL9'}
+
+Plugin 'lifepillar/vim-solarized8'
+
+"Plugin 'Valloric/YouCompleteMe'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -54,7 +62,6 @@ set columns=79			        " only display 79 characters per line
 syntax on			            " syntax highlighting
 filetype indent plugin on		" turn on a plugin to do most of indenting based on filename
 
-Plugin 'lifepillar/vim-solarized8'
 set background=dark
 colorscheme solarized8_high
 
