@@ -40,3 +40,7 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 [[ -e ~/.inputrc ]] || ln -s "${DOTFILE_DIR}/inputrc" ~/.inputrc
 [[ ! -e ~/.gnupg/gpg.conf && -e ~/.gnupg ]] && ln -s "${DOTFILE_DIR}/gpg.conf" ~/.gnupg/
 [[ -e ~/.nanorc ]] || ln -s "${DOTFILE_DIR}/nanorc" ~/.nanorc
+
+# add Vundle to vim
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+
