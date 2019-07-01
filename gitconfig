@@ -8,7 +8,7 @@
 	editor = nano
 	excludesfile = ~/.gitignore_global
 	autocrlf = input
-	safecrlf = true
+#	safecrlf = true
 [push]
 	default = upstream
 [merge]
