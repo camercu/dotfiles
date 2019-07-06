@@ -21,6 +21,8 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 	mv ~/.git-prompt.sh "$ARCHIVE_DIR"
 [[ -f ~/.gitconfig && ! -L ~/.gitconfig ]] && \
 	mv ~/.gitconfig "$ARCHIVE_DIR"
+[[ -f ~/.gitconfig.aliases && ! -L ~/.gitconfig.aliases ]] && \
+	mv ~/.gitconfig.aliases "$ARCHIVE_DIR"
 [[ -f ~/.gitignore_global && ! -L ~/.gitignore_global ]] && \
 	mv ~/.gitignore_global "$ARCHIVE_DIR"
 [[ -f ~/.inputrc && ! -L ~/.inputrc ]] && \
@@ -36,6 +38,7 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 [[ -e ~/.gdbinit ]] || ln -s "${DOTFILE_DIR}/gdbinit" ~/.gdbinit
 [[ -e ~/.git-prompt.sh ]] || ln -s "${DOTFILE_DIR}/git-prompt.sh" ~/.git-prompt.sh
 [[ -e ~/.gitconfig ]] || ln -s "${DOTFILE_DIR}/gitconfig" ~/.gitconfig
+[[ -e ~/.gitconfig.aliases ]] || ln -s "${DOTFILE_DIR}/gitconfig.aliases" ~/.gitconfig.aliases
 [[ -e ~/.gitignore_global ]] || ln -s "${DOTFILE_DIR}/gitignore_global" ~/.gitignore_global
 [[ -e ~/.inputrc ]] || ln -s "${DOTFILE_DIR}/inputrc" ~/.inputrc
 [[ ! -e ~/.gnupg/gpg.conf && -e ~/.gnupg ]] && ln -s "${DOTFILE_DIR}/gpg.conf" ~/.gnupg/

@@ -1,0 +1,234 @@
+#
+# Include this in your own .gitconfig by using the
+# [include] directive with the path to this file
+#
+# [include]
+#    path = ~/.gitconfig.aliases
+#
+# If you don't have any existing includes, you can add this via the following command
+#
+#   git config --global include.path ~/.gitconfig.aliases
+#
+# https://raw.githubusercontent.com/Haacked/dotfiles/master/git/.gitconfig.aliases
+
+[alias]
+    abort = rebase --abort
+
+    # Deletes all branches merged specified branch (or master if no branch is specified)
+    bclean = "!f() { git branch --merged ${1-master} | grep -v " ${1-master}$" | xargs git branch -d; }; f"
+
+    # Switches to specified branch (or master if no branch is specified), runs git up, then runs bclean.
+    bdone = "!f() { git checkout ${1-master} && git up && git bclean ${1-master}; }; f"
+
+    # Lists all branches including remote branches
+    branches = branch -a
+
+    browse = !git open
+
+    # Lists the files with the most churn
+    churn = !git --no-pager log --name-only --oneline | grep -v ' ' | sort | uniq -c | sort -nr | head
+
+    cleanup = clean -xdf -e *.DotSettings* -e s3_keys.ps1
+
+    # Stages every file then creates a commit with specified message
+    # cm = !git add -A && git commit -m
+
+    # Show list of files in a conflict state.
+    conflicts = !git diff --name-only --diff-filter=U
+
+    cp = cherry-pick
+
+    delete = branch -d
+
+    # Discard changes to a file
+    discard = checkout --
+
+    find = "!git ls-files | grep -i"
+
+    graph = log --graph -10 --branches --remotes --tags  --format=format:'%Cgreen%h %Creset• %<(75,trunc)%s (%cN, %cr) %Cred%d' --date-order
+
+    grep = grep -Ii
+
+    hist = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+
+    history = log --graph --abbrev-commit --decorate --date=relative --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+
+    # Shows the commit message and files changed from the latest commit
+    latest = "!git ll -1"
+
+    lds = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+
+    lost = fsck --lost-found
+
+    # A better git log.
+    # ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+
+    # Moves a set of commits from the current branch to another
+    migrate = "!f(){ CURRENT=$(git symbolic-ref --short HEAD); git checkout -b $1 && git branch --force $CURRENT ${3-$CURRENT@{u}} && git rebase --onto ${2-master} $CURRENT; }; f"
+
+    open = "!f(){ URL=$(git config remote.origin.url); open ${URL%.git}; }; f"
+
+    pr = "!f(){ URL=$(git config remote.origin.url); open ${URL%.git}/compare/$(git rev-parse --abbrev-ref HEAD); }; f"
+
+    publish = "!f() { git push origin $1 && git push drafts :$1 && git browse }; f"
+
+    rba = rebase --abort
+
+    rbc = "!f(){ git add -A && git rebase --continue; }; f"
+
+    re = "!f(){ git fetch origin && git rebase origin/${1-master}; }; f"
+
+    remotes = remote -v
+
+    restore = "!f(){ git add -A && git commit -qm 'RESTORE SAVEPOINT'; git reset $1 --hard; }; f"
+
+    ri = "!f(){ git fetch origin && git rebase --interactive origin/${1-master}; }; f"
+
+    set-origin = remote set-url origin
+
+    set-upstream = remote set-url upstream
+
+    st = status -s
+
+    stashes = stash list
+
+    sync = !git pull --rebase && git push
+
+    # Unstage a file
+    unstage = reset -q HEAD --
+
+    up = !git pull --rebase --prune $@ && git submodule update --init --recursive
+
+    wip = commit -am "WIP"
+
+    wipe = "!f() { rev=$(git rev-parse ${1-HEAD}); git add -A && git commit --allow-empty -qm 'WIPE SAVEPOINT' && git reset $rev --hard; }; f"
+
+    # https://github.com/GitAlias/gitalias/blob/master/gitalias.txt
+
+    ##
+    # One letter alias for our most frequent commands.
+    #
+    # Guidelines: these aliases do not use options, because we want
+    # these aliases to be easy to compose and use in many ways.
+    ##
+
+    a = add
+    b = branch
+    c = commit
+    d = diff
+    f = fetch
+    g = grep
+    l = log
+    m = merge
+    o = checkout
+    p = pull
+    r = remote
+    s = status
+    w = whatchanged
+
+    ##
+    # Short aliases for our frequent commands.
+    #
+    # Guidelines:
+    #
+    #  * Generally speaking, the alias should be in the same
+    #    order as the command name followed by its options.
+    #
+    #    * Right: fb = foo --bar
+    #    * Wrong: bf = foo --bar
+    ##
+
+### add ###
+
+    # add all
+    aa = add --all
+
+    # add by patch - looks at each change, and asks if we want to put it in the repo.
+    ap = add --patch
+
+    # add just the files that are updated.
+    au = add --update
+
+### Alias Management  ###
+
+    # Show our defined alias list
+    aliases = "!git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /'"
+
+    # Add an alias
+    add-alias = "!f() { [ $# = 3 ] && git config $1 alias.\"$2\" \"$3\" && return 0 || echo \"Usage: git add-(local|global)-alias <new alias> <original command>\" >&2 && return 1; }; f"
+    add-global-alias = "!git add-alias --global"
+    add-local-alias = "!git add-alias --local"
+
+    # Rename an alias
+    rename-alias = "!f() { [ $# = 3 ] && [ $2 != $3 ] && [ ! -z \"$(git config $1 --get alias.$2)\" ] && [ -z \"$(git config $1 --get alias.$3)\" ] && git config $1 alias.$3 \"$(git config $1 --get alias.$2)\" && git config $1 --unset alias.$2 && return 0 || echo \"Usage: git rename-(local|global)-alias <alias existing name> <new alias name>\nThe alias you are going to rename must exist and new name must not exist.\" >&2 && return 1; };f"
+    rename-global-alias = "!git rename-alias --global"
+    rename-local-alias = "!git rename-alias --local"
+
+### branch ###
+
+    # branch - edit the description
+    be = branch --edit-description
+
+    # branch and only list branches whose tips are reachable from the specified commit (HEAD if not specified).
+    bm = branch --merged
+
+    # branch and only list branches whose tips are not reachable from the specified commit (HEAD if not specified).
+    bnm = branch --no-merged
+
+### commit ###
+
+    # commit - amend the tip of the current branch rather than creating a new commit.
+    ca = commit --amend
+
+    # commit - amend the tip of the current branch, and edit the message.
+    cam = commit --amend --message
+
+    # commit - amend the tip of the current branch, and do not edit the message.
+    cane = commit --amend --no-edit
+
+    # commit interactive
+    ci = commit --interactive
+
+    # commit with a message
+    cm = commit --message
+
+### diff ###
+
+    # diff - show changes not yet staged
+    dc = diff --cached
+
+    # diff - changes about to be commited
+    ds = diff --staged
+
+    # diff - show changes but by word, not line
+    dw = diff --word-diff
+
+### grep ###
+
+    # grep and show line number
+    gl =  grep --line-number
+
+    # grep group: find text and group the output lines; a.k.a. `grep-group`.
+    gg = grep --break --heading --line-number
+
+### log ###
+
+    # log with a text-based graphical representation of the commit history.
+    lg = log --graph
+
+    # log with one line per item.
+    lo = log --oneline
+
+    # https://git-scm.com/book/en/v1/Git-Basics-Tips-and-Tricks#Git-Aliases
+    co = checkout
+    cob = checkout -b
+    editconfig = config --global -e
+    ec = config --global -e
+    save = !git add -A && git commit -m 'SAVEPOINT'
+    undo = reset HEAD~1 --mixed
+    amend = commit -a --amend
+    untrack = rm --cached
+    last = log -1 HEAD
+    discard-all = !git ls-files | xargs -I% -n1 git checkout -- %
+    ls = ls-files
+    visual = !gitk
