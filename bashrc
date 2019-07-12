@@ -110,7 +110,3 @@ function brewrm() {
 
 # cool one-liner to print most-used commands from history:
 # history | awk '{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n10
-
-export PATH="$PATH:"/Applications/microchip/xc8/v2.05/bin""
-
-export PATH="$PATH:"/Applications/microchip/xc16/v1.36/bin""
