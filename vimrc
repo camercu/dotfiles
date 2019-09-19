@@ -59,28 +59,64 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 
-"********************
+
+"***************************************************************
 " Personal Settings
-"********************
-set wrapmargin=8
-set number
-set shiftwidth=4		      " vim's shifts using >> represent 4 characters
-set tabstop=4			      " tabs you type represent four character positions
-set expandtab			      " turn any tab you type into spaces
+"***************************************************************
+
+" Custom <leader> key
+" let mapleader=","
+nmap <space> <leader>
+vmap <space> <leader>
+
+" Fast saving
+nnoremap <leader>w :w!<cr>
+
+" :W sudo saves the file 
+" (useful for handling the permission-denied error)
+command W w !sudo tee % > /dev/null
+
+" make backspace behave like normal again
+set backspace=indent,eol,start
+
+" easier formatting of paragraphs
+" vnoremap Q gq
+" nnoremap Q gqap
+
+" Real programmers use spaces, not TABs
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set shiftround
+set expandtab
 set smarttab
-set ruler			          " show line # and column at bottom
-syntax on			          " syntax highlighting
+
+" Search settings
+set hlsearch        " Highlight search results
+set incsearch       " Incremental search; jump to match as you type
+set ignorecase      " Ignore case when searching
+set smartcase       " Override ignorecase when search pattern has uppercase
 
 setlocal spell spelllang=en_us " Enable spell-check with English language
-set cursorline                  " Highlight current line
-"set autoindent
-"set smartindent
-
-filetype plugin on          " filetype plugins
-"Filetype associations"
-au BufNewFile,BufRead *.json    set filetype=javascript
-
 set encoding=utf-8
+
+syntax on           " syntax highlighting
+set cursorline      " Highlight current line
+set showmatch       " Show matching brackets when cursor on them
+set showcmd         " Show command in bottom bar
+set number          " Show line numbers
+set ruler           " Show line # and column at bottom
+set scrolloff=5     " Set lines visible around cursor when scrolling
+set wrap            " Soft-wrap lines
+set autoindent      " Copy indent from current line when starting a new line
+set smartindent     " Do smart autoindenting when starting a new line
+set autowrite		" Automatically save before commands like :next and :make
+set hidden		    " Hide buffers when they are abandoned (vs. closing them)
+set mouse=a		    " Enable mouse usage (all modes)
+set history=500     " Sets how many lines of history VIM has to remember
+set autoread        " update automatically when a file is changed from the outside
+set background=dark
+colorscheme solarized8_high
 
 " Change cursor based on mode
 let &t_SI.="\e[5 q" "SI = INSERT mode
@@ -94,7 +130,16 @@ let &t_EI.="\e[1 q" "EI = NORMAL mode (ELSE)
 "  5 -> blinking vertical bar
 "  6 -> solid vertical bar
 
-" Code block commenting: toggle with ',/'
+" Do not recognize octal numbers for Ctrl-A and Ctrl-X, most users find it
+" confusing.
+set nrformats-=octal
+
+
+
+"Filetype associations
+au BufNewFile,BufRead *.json    set filetype=javascript
+
+" Code block commenting: toggle with '<leader>cc'
 let s:comment_map = {
     \   "c": '\/\/',
     \   "cpp": '\/\/',
@@ -140,283 +185,69 @@ function! ToggleComment()
         echo "No comment leader found for filetype"
     end
 endfunction
-nnoremap ,/ :call ToggleComment()<cr>
-vnoremap ,/ :call ToggleComment()<cr>
+nnoremap <leader>cc :call ToggleComment()<cr>
+vnoremap <leader>cc :call ToggleComment()<cr>
 
 " Delete trailing white space on save, useful for some filetypes ;)
-fun! CleanExtraSpaces()
+fun! StripTrailingWhitespace()
     let save_cursor = getpos(".")
     let old_query = getreg('/')
     silent! %s/\s\+$//e
     call setpos('.', save_cursor)
     call setreg('/', old_query)
 endfun
-
 if has("autocmd")
-    autocmd BufWritePre *.c,*.cpp,*.cc,*.h,*.js,*.py,*.wiki,*.sh,*.coffee :call CleanExtraSpaces()
+    autocmd BufWritePre *.php,*.cls,*.java,*.rb,*.md,*.c,*.cpp,*.cc,*.h,*.js,*.py,*.wiki,*.sh,*.coffee :call StripTrailingWhitespace()
 endif
 
-set background=dark
-colorscheme solarized8_high
+" Put these in an autocmd group, so that you can revert them with:
+" ":augroup vimStartup | au! | augroup END"
+augroup vimStartup
+    au!
 
-"***********************************************************************************************
-set bs=2     " make backspace behave like normal again
+    " When editing a file, always jump to the last known cursor position.
+    " Don't do it when the position is invalid, when inside an event handler
+    " (happens when dropping a file on gvim) and for a commit message (it's
+    " likely a different one than last time).
+    autocmd BufReadPost *
+        \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
+        \ |   exe "normal! g`\""
+        \ | endif
 
-" easier formatting of paragraphs
-vmap Q gq
-nmap Q gqap
-
-" Real programmers don't use TABs but spaces
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set shiftround
-set expandtab
-
-" Make search case insensitive
-set hlsearch
-set incsearch
-set ignorecase
-set smartcase
-
-function! RunTestsInFile()
-    if(&ft=='php')
-        :execute "!" . "/Users/dblack/pear/bin/phpunit -d memory_limit=512M -c /usr/local/twilio/src/php/tests/config.xml --bootstrap /usr/local/twilio/src/php/tests/bootstrap.php " . bufname('%') . ' \| grep -v Configuration \| egrep -v "^$" '
-    elseif(&ft=='go')
-        exec ":!gp test"
-    elseif(&ft=='python')
-        exec ":read !" . ". venv/bin/activate; nosetests " . bufname('%') . " --nocapture"
-    endif
-endfunction
-
-function! RunTestFile()
-    if(&ft=='python')
-        exec ":!" . ". venv/bin/activate; nosetests " .bufname('%') . " --stop"
-    endif
-endfunction
-
-" AutoGroups {{{
-augroup configgroup
-    autocmd!
-    autocmd VimEnter * highlight clear SignColumn
-    autocmd BufWritePre *.php,*.py,*.js,*.txt,*.hs,*.java,*.md,*.rb :call <SID>StripTrailingWhitespaces()
-    autocmd BufEnter *.cls setlocal filetype=java
-    autocmd BufEnter *.zsh-theme setlocal filetype=zsh
-    autocmd BufEnter Makefile setlocal noexpandtab
-    autocmd BufEnter *.sh setlocal tabstop=2
-    autocmd BufEnter *.sh setlocal shiftwidth=2
-    autocmd BufEnter *.sh setlocal softtabstop=2
 augroup END
-" }}}
-" Leader Shortcuts {{{
-let mapleader=","
-nnoremap <leader>m :silent make\|redraw!\|cw<CR>
-nnoremap <leader>w :NERDTree<CR>
-nnoremap <leader>u :GundoToggle<CR>
-nnoremap <leader>h :A<CR>
-nnoremap <leader>ev :vsp $MYVIMRC<CR>
-nnoremap <leader>ez :vsp ~/.zshrc<CR>
-nnoremap <leader>sv :source $MYVIMRC<CR>
-nnoremap <leader>l :call ToggleNumber()<CR>
-nnoremap <leader><space> :noh<CR>
-nnoremap <leader>s :mksession<CR>
-nnoremap <leader>a :Ag 
-nnoremap <leader>c :SyntasticCheck<CR>:Errors<CR>
+
+" Convenient command to see the difference between the current buffer and the
+" file it was loaded from, thus the changes you made.
+" Only define it when not defined already.
+" Revert with: ":delcommand DiffOrig".
+if !exists(":DiffOrig")
+  command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
+		  \ | wincmd p | diffthis
+endif
+
+" Key Mapping and Keycode timeouts
+set timeout timeoutlen=1000 ttimeoutlen=100
+
+" Clear search highlighting
+nnoremap <silent> <leader><space> :noh<cr>
+
+" Insert blank line at cursor
+nnoremap <leader><cr> O<esc>
+
+" Toggle line numbers
 nnoremap <leader>1 :set number!<CR>
-nnoremap <leader>d :Make! 
-nnoremap <leader>r :call RunTestFile()<CR>
-nnoremap <leader>g :call RunGoFile()<CR>
-vnoremap <leader>y "+y
-vmap v <Plug>(expand_region_expand)
-vmap <C-v> <Plug>(expand_region_shrink)
-inoremap jk <esc>
-" }}}
-
-" Searching {{{
-set ignorecase          " ignore case when searching
-set incsearch           " search as characters are entered
-set hlsearch            " highlight all matches
-" }}}
-
-set showmatch           " higlight matching parenthesis
-set number              " show line numbers
-set showcmd             " show command in bottom bar
-set nocursorline        " highlight current line
-
-" Source a global configuration file if available
-if filereadable("/etc/vim/vimrc.local")
-  source /etc/vim/vimrc.local
-endif
-
-" The following are commented out as they cause vim to behave a lot
-" differently from regular Vi. They are highly recommended though.
-"set showcmd		" Show (partial) command in status line.
-"set showmatch		" Show matching brackets.
-"set ignorecase		" Do case insensitive matching
-"set smartcase		" Do smart case matching
-"set incsearch		" Incremental search
-"set autowrite		" Automatically save before commands like :next and :make
-"set hidden		" Hide buffers when they are abandoned
-"set mouse=a		" Enable mouse usage (all modes)
-
-" Uncomment the following to have Vim jump to the last position when
-" reopening a file
-"if has("autocmd")
-"  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-"endif
-
-" Uncomment the following to have Vim load indentation rules and plugins
-" according to the detected filetype.
-"if has("autocmd")
-"  filetype plugin indent on
-"endif
-
-" Show whitespace
-" MUST be inserted BEFORE the colorscheme command
-autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=red
-au InsertLeave * match ExtraWhitespace /\s\+$/
-
-" F5 OPNOTES
-nmap <F5> a<C-R>=strftime("%Y-%m-%d %a %H:%M:%S")<CR><Esc>
-inoremap <F5> <C-R>=strftime("[" . $USER . "] %Y-%m-%d %a %H:%M:%S: ")<CR>
-nnoremap <F5> "=strftime("[" . $USER . "] %Y-%m-%d %a %H:%M:%S: ")"<CR>Pa
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => General
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Sets how many lines of history VIM has to remember
-set history=500
-
-" Enable filetype plugins
-filetype plugin on
-filetype indent on
-
-" Set to auto read when a file is changed from the outside
-set autoread
-
-" With a map leader it's possible to do extra key combinations
-" like <leader>w saves the current file
-let mapleader = ","
-
-" Fast saving
-nmap <leader>w :w!<cr>
-
-" :W sudo saves the file 
-" (useful for handling the permission-denied error)
-command W w !sudo tee % > /dev/null
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => VIM user interface
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Set 7 lines to the cursor - when moving vertically using j/k
-set so=2
-
-"Always show current position
-set ruler
-
-" Configure backspace so it acts as it should act
-set backspace=eol,start,indent
-set whichwrap+=<,>,h,l
-
-" Ignore case when searching
-set ignorecase
-
-" When searching try to be smart about cases 
-set smartcase
-
-" Highlight search results
-set hlsearch
-
-" Makes search act like search in modern browsers
-set incsearch 
-
-" Don't redraw while executing macros (good performance config)
-set lazyredraw 
-
-" For regular expressions turn magic on
-set magic
-
-" Show matching brackets when text indicator is over them
-set showmatch 
-" How many tenths of a second to blink when matching brackets
-set mat=2
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => Colors and Fonts
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Enable syntax highlighting
-syntax enable 
-
-" Enable 256 colors palette in Gnome Terminal
-if $COLORTERM == 'gnome-terminal'
-    set t_Co=256
-endif
-
-try
-    colorscheme desert
-catch
-endtry
-
-set background=dark
-
-" Set extra options when running in GUI mode
-if has("gui_running")
-    set guioptions-=T
-    set guioptions-=e
-    set t_Co=256
-    set guitablabel=%M\ %t
-endif
-
-" Set utf8 as standard encoding and en_US as the standard language
-set encoding=utf8
-
-" Use Unix as the standard file type
-set ffs=unix,dos,mac
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => Text, tab and indent related
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Use spaces instead of tabs
-set expandtab
-
-" Be smart when using tabs ;)
-set smarttab
-
-" 1 tab == 4 spaces
-set shiftwidth=4
-set tabstop=4
-
-set ai "Auto indent
-set si "Smart indent
-set wrap "Wrap lines
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => Moving around, tabs, windows and buffers
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Map <Space> to / (search) and Ctrl-<Space> to ? (backwards search)
-map <space> /
-map <c-space> ?
-
-" Disable highlight when <leader><cr> is pressed
-map <silent> <leader><cr> :noh<cr>
 
 " Smart way to move between windows
-map <C-j> <C-W>j
-map <C-k> <C-W>k
-map <C-h> <C-W>h
-map <C-l> <C-W>l
+noremap <C-j> <C-W>j
+noremap <C-k> <C-W>k
+noremap <C-h> <C-W>h
+noremap <C-l> <C-W>l
 
-" Delete trailing white space on save, useful for some filetypes ;)
-fun! CleanExtraSpaces()
-    let save_cursor = getpos(".")
-    let old_query = getreg('/')
-    silent! %s/\s\+$//e
-    call setpos('.', save_cursor)
-    call setreg('/', old_query)
-endfun
+" Run this file in terminal (if it's a Python file)
+autocmd FileType python nnoremap <buffer> <F5> :exec '!clear; python' shellescape(@%, 1)<cr>
 
-if has("autocmd")
-    autocmd BufWritePre *.c,*.h,*.cpp,*.cc,*.js,*.py,*.wiki,*.sh,*.coffee :call CleanExtraSpaces()
-endif
+" Make it easy to edit the vimrc file
+nnoremap <leader>ev :split $MYVIMRC<cr>
+
+" Reload vimrc file (update vim behavior based on vimrc changes)
+nnoremap <leader>sv :source $MYVIMRC<cr>

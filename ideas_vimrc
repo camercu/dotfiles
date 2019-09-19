@@ -1,0 +1,618 @@
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+set shell=/usr/local/bin/bash
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+"call vundle#begin('~/some/path/here')
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+
+" The following are examples of different formats supported.
+" Keep Plugin commands between vundle#begin/end.
+" plugin on GitHub repo
+Plugin 'tpope/vim-fugitive'
+" ^ a wrapper for git
+
+" plugin from http://vim-scripts.org/vim/scripts.html
+" Plugin 'L9'
+"" The sparkup vim script is in a subdirectory of this repo called vim.
+" Pass the path to set the runtimepath properly.
+Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+" ^ faster HTML code editing
+
+" Git plugin not hosted on GitHub
+"Plugin 'git://git.wincent.com/command-t.git'
+
+" git repos on your local machine (i.e. when working on your own plugin)
+"Plugin 'file:///home/gmarik/path/to/plugin'
+
+" Install L9 and avoid a Naming conflict if you've already installed a
+" different version somewhere else.
+"Plugin 'ascenator/L9', {'name': 'newL9'}
+
+" Solarized color theme
+Plugin 'lifepillar/vim-solarized8'
+
+" Toggle Comments for blocks of code
+"Plugin 'tpope/vim-commentary'
+
+" autocompletion engine
+"Plugin 'Valloric/YouCompleteMe'
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+" To ignore plugin indent changes, instead use:
+"filetype plugin on
+"
+" Brief help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+"
+" see :h vundle for more details or wiki for FAQ
+" Put your non-Plugin stuff after this line
+
+"********************
+" Personal Settings
+"********************
+set wrapmargin=8
+set number
+set shiftwidth=4		      " vim's shifts using >> represent 4 characters
+set tabstop=4			      " tabs you type represent four character positions
+set expandtab			      " turn any tab you type into spaces
+set smarttab
+set ruler			          " show line # and column at bottom
+syntax on			          " syntax highlighting
+
+setlocal spell spelllang=en_us " Enable spell-check with English language
+set cursorline                  " Highlight current line
+"set autoindent
+"set smartindent
+
+filetype plugin on          " filetype plugins
+"Filetype associations"
+au BufNewFile,BufRead *.json    set filetype=javascript
+
+set encoding=utf-8
+
+" Change cursor based on mode
+let &t_SI.="\e[5 q" "SI = INSERT mode
+let &t_SR.="\e[4 q" "SR = REPLACE mode
+let &t_EI.="\e[1 q" "EI = NORMAL mode (ELSE)
+"Cursor settings:
+"  1 -> blinking block
+"  2 -> solid block
+"  3 -> blinking underscore
+"  4 -> solid underscore
+"  5 -> blinking vertical bar
+"  6 -> solid vertical bar
+
+" Code block commenting: toggle with ',/'
+let s:comment_map = {
+    \   "c": '\/\/',
+    \   "cpp": '\/\/',
+    \   "go": '\/\/',
+    \   "java": '\/\/',
+    \   "javascript": '\/\/',
+    \   "lua": '--',
+    \   "scala": '\/\/',
+    \   "php": '\/\/',
+    \   "python": '#',
+    \   "ruby": '#',
+    \   "rust": '\/\/',
+    \   "sh": '#',
+    \   "desktop": '#',
+    \   "fstab": '#',
+    \   "conf": '#',
+    \   "profile": '#',
+    \   "bashrc": '#',
+    \   "bash_profile": '#',
+    \   "mail": '>',
+    \   "eml": '>',
+    \   "bat": 'REM',
+    \   "ahk": ';',
+    \   "vim": '"',
+    \   "tex": '%',
+    \ }
+function! ToggleComment()
+    if has_key(s:comment_map, &filetype)
+        let comment_leader = s:comment_map[&filetype]
+        if getline('.') =~ "^\\s*" . comment_leader . " "
+            " Uncomment the line
+            execute "silent s/^\\(\\s*\\)" . comment_leader . " /\\1/"
+        else
+            if getline('.') =~ "^\\s*" . comment_leader
+                " Uncomment the line
+                execute "silent s/^\\(\\s*\\)" . comment_leader . "/\\1/"
+            else
+                " Comment the line
+                execute "silent s/^\\(\\s*\\)/\\1" . comment_leader . " /"
+            end
+        end
+    else
+        echo "No comment leader found for filetype"
+    end
+endfunction
+nnoremap ,/ :call ToggleComment()<cr>
+vnoremap ,/ :call ToggleComment()<cr>
+
+" Delete trailing white space on save, useful for some filetypes ;)
+fun! CleanExtraSpaces()
+    let save_cursor = getpos(".")
+    let old_query = getreg('/')
+    silent! %s/\s\+$//e
+    call setpos('.', save_cursor)
+    call setreg('/', old_query)
+endfun
+
+if has("autocmd")
+    autocmd BufWritePre *.c,*.cpp,*.cc,*.h,*.js,*.py,*.wiki,*.sh,*.coffee :call CleanExtraSpaces()
+endif
+
+set background=dark
+colorscheme solarized8_high
+
+"***********************************************************************************************
+set bs=2     " make backspace behave like normal again
+
+" easier formatting of paragraphs
+vnoremap Q gq
+nnoremap Q gqap
+
+" Real programmers don't use TABs but spaces
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set shiftround
+set expandtab
+
+" Make search case insensitive
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+
+function! RunTestsInFile()
+    if(&ft=='php')
+        :execute "!" . "/Users/dblack/pear/bin/phpunit -d memory_limit=512M -c /usr/local/twilio/src/php/tests/config.xml --bootstrap /usr/local/twilio/src/php/tests/bootstrap.php " . bufname('%') . ' \| grep -v Configuration \| egrep -v "^$" '
+    elseif(&ft=='go')
+        exec ":!gp test"
+    elseif(&ft=='python')
+        exec ":read !" . ". venv/bin/activate; nosetests " . bufname('%') . " --nocapture"
+    endif
+endfunction
+
+function! RunTestFile()
+    if(&ft=='python')
+        exec ":!" . ". venv/bin/activate; nosetests " .bufname('%') . " --stop"
+    endif
+endfunction
+
+" AutoGroups {{{
+augroup configgroup
+    autocmd!
+    autocmd VimEnter * highlight clear SignColumn
+    autocmd BufWritePre *.php,*.py,*.js,*.txt,*.hs,*.java,*.md,*.rb :call <SID>StripTrailingWhitespaces()
+    autocmd BufEnter *.cls setlocal filetype=java
+    autocmd BufEnter *.zsh-theme setlocal filetype=zsh
+    autocmd BufEnter Makefile setlocal noexpandtab
+    autocmd BufEnter *.sh setlocal tabstop=2
+    autocmd BufEnter *.sh setlocal shiftwidth=2
+    autocmd BufEnter *.sh setlocal softtabstop=2
+augroup END
+" }}}
+" Leader Shortcuts {{{
+let mapleader=","
+nnoremap <leader>m :silent make\|redraw!\|cw<CR>
+nnoremap <leader>w :NERDTree<CR>
+nnoremap <leader>u :GundoToggle<CR>
+nnoremap <leader>h :A<CR>
+nnoremap <leader>ev :vsp $MYVIMRC<CR>
+nnoremap <leader>ez :vsp ~/.zshrc<CR>
+nnoremap <leader>sv :source $MYVIMRC<CR>
+nnoremap <leader>l :call ToggleNumber()<CR>
+nnoremap <leader><space> :noh<CR>
+nnoremap <leader>s :mksession<CR>
+nnoremap <leader>a :Ag 
+nnoremap <leader>c :SyntasticCheck<CR>:Errors<CR>
+nnoremap <leader>1 :set number!<CR>
+nnoremap <leader>d :Make! 
+nnoremap <leader>r :call RunTestFile()<CR>
+nnoremap <leader>g :call RunGoFile()<CR>
+vnoremap <leader>y "+y
+vnoremap v <Plug>(expand_region_expand)
+vnoremap <C-v> <Plug>(expand_region_shrink)
+inoremap jk <esc>
+" }}}
+
+" Searching {{{
+set ignorecase          " ignore case when searching
+set incsearch           " search as characters are entered
+set hlsearch            " highlight all matches
+" }}}
+
+set showmatch           " higlight matching parenthesis
+set number              " show line numbers
+set showcmd             " show command in bottom bar
+set nocursorline        " highlight current line
+
+" Source a global configuration file if available
+if filereadable("/etc/vim/vimrc.local")
+  source /etc/vim/vimrc.local
+endif
+
+" The following are commented out as they cause vim to behave a lot
+" differently from regular Vi. They are highly recommended though.
+"set showcmd		" Show (partial) command in status line.
+"set showmatch		" Show matching brackets.
+"set ignorecase		" Do case insensitive matching
+"set smartcase		" Do smart case matching
+"set incsearch		" Incremental search
+"set autowrite		" Automatically save before commands like :next and :make
+"set hidden		" Hide buffers when they are abandoned
+"set mouse=a		" Enable mouse usage (all modes)
+
+" Uncomment the following to have Vim jump to the last position when
+" reopening a file
+"if has("autocmd")
+"  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+"endif
+
+" Uncomment the following to have Vim load indentation rules and plugins
+" according to the detected filetype.
+"if has("autocmd")
+"  filetype plugin indent on
+"endif
+
+" Show whitespace
+" MUST be inserted BEFORE the colorscheme command
+autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=red
+au InsertLeave * match ExtraWhitespace /\s\+$/
+
+" F5 OPNOTES
+nnoremap <F5> a<C-R>=strftime("%Y-%m-%d %a %H:%M:%S")<CR><Esc>
+inoremap <F5> <C-R>=strftime("[" . $USER . "] %Y-%m-%d %a %H:%M:%S: ")<CR>
+nnoremap <F5> "=strftime("[" . $USER . "] %Y-%m-%d %a %H:%M:%S: ")"<CR>Pa
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => General
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Sets how many lines of history VIM has to remember
+set history=500
+
+" Enable filetype plugins
+filetype plugin on
+filetype indent on
+
+" Set to auto read when a file is changed from the outside
+set autoread
+
+" With a map leader it's possible to do extra key combinations
+" like <leader>w saves the current file
+let mapleader = ","
+
+" Fast saving
+nnoremap <leader>w :w!<cr>
+
+" :W sudo saves the file 
+" (useful for handling the permission-denied error)
+command W w !sudo tee % > /dev/null
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => VIM user interface
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set lines visible around cursor when scrolling
+set scrolloff=5
+
+"Always show current position
+set ruler
+
+" Configure backspace so it acts as it should act
+set backspace=eol,start,indent
+set whichwrap+=<,>,h,l
+
+" Ignore case when searching
+set ignorecase
+
+" When searching try to be smart about cases 
+set smartcase
+
+" Highlight search results
+set hlsearch
+
+" Makes search act like search in modern browsers
+set incsearch 
+
+" Don't redraw while executing macros (good performance config)
+set lazyredraw 
+
+" For regular expressions turn magic on
+set magic
+
+" Show matching brackets when text indicator is over them
+set showmatch 
+" How many tenths of a second to blink when matching brackets
+set matchtime=2
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Colors and Fonts
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Enable syntax highlighting
+syntax enable 
+
+" Enable 256 colors palette in Gnome Terminal
+if $COLORTERM == 'gnome-terminal'
+    set t_Co=256
+endif
+
+try
+    colorscheme desert
+catch
+endtry
+
+set background=dark
+
+" Set extra options when running in GUI mode
+if has("gui_running")
+    set guioptions-=T
+    set guioptions-=e
+    set t_Co=256
+    set guitablabel=%M\ %t
+endif
+
+" Set utf8 as standard encoding and en_US as the standard language
+set encoding=utf8
+
+" Use Unix as the standard file type
+set ffs=unix,dos,mac
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Text, tab and indent related
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Use spaces instead of tabs
+set expandtab
+
+" Be smart when using tabs ;)
+set smarttab
+
+" 1 tab == 4 spaces
+set shiftwidth=4
+set tabstop=4
+
+set ai "Auto indent
+set si "Smart indent
+set wrap "Wrap lines
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Moving around, tabs, windows and buffers
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Map <Space> to / (search) and Ctrl-<Space> to ? (backwards search)
+noremap <space> /
+noremap <c-space> ?
+
+" Disable highlight when <leader><cr> is pressed
+noremap <silent> <leader><cr> :noh<cr>
+
+" Smart way to move between windows
+noremap <C-j> <C-W>j
+noremap <C-k> <C-W>k
+noremap <C-h> <C-W>h
+noremap <C-l> <C-W>l
+
+" Delete trailing white space on save, useful for some filetypes ;)
+fun! CleanExtraSpaces()
+    let save_cursor = getpos(".")
+    let old_query = getreg('/')
+    silent! %s/\s\+$//e
+    call setpos('.', save_cursor)
+    call setreg('/', old_query)
+endfun
+
+if has("autocmd")
+    autocmd BufWritePre *.c,*.h,*.cpp,*.cc,*.js,*.py,*.wiki,*.sh,*.coffee :call CleanExtraSpaces()
+endif
+
+
+" (inserted with: ":read $VIMRUNTIME/vimrc_example.vim")
+" An example for a vimrc file.
+"
+" Maintainer:	Bram Moolenaar <Bram@vim.org>
+" Last change:	2019 Jan 26
+"
+" To use it, copy it to
+"     for Unix and OS/2:  ~/.vimrc
+"	      for Amiga:  s:.vimrc
+"  for MS-DOS and Win32:  $VIM\_vimrc
+"	    for OpenVMS:  sys$login:.vimrc
+
+" When started as "evim", evim.vim will already have done these settings, bail
+" out.
+if v:progname =~? "evim"
+  finish
+endif
+
+" Get the defaults that most users want.
+source $VIMRUNTIME/defaults.vim
+:read $VIMRUNTIME/vimrc_example.vim
+if has("vms")
+  set nobackup		" do not keep a backup file, use versions instead
+else
+  set backup		" keep a backup file (restore to previous version)
+  if has('persistent_undo')
+    set undofile	" keep an undo file (undo changes after closing)
+  endif
+endif
+
+if &t_Co > 2 || has("gui_running")
+  " Switch on highlighting the last used search pattern.
+  set hlsearch
+endif
+
+" Put these in an autocmd group, so that we can delete them easily.
+augroup vimrcex
+  au!
+
+  " For all text files set 'textwidth' to 78 characters.
+  autocmd FileType text setlocal textwidth=78
+augroup END
+
+" Add optional packages.
+"
+" The matchit plugin makes the % command work better, but it is not backwards
+" compatible.
+" The ! means the package won't be loaded right away but when plugins are
+" loaded during initialization.
+if has('syntax') && has('eval')
+  packadd! matchit
+endif
+
+
+
+
+
+
+
+" The default vimrc file. ($VIMRUNTIME/defaults.vim)
+"
+" Maintainer:	Bram Moolenaar <Bram@vim.org>
+" Last change:	2019 Feb 18
+"
+" This is loaded if no vimrc file was found.
+" Except when Vim is run with "-u NONE" or "-C".
+" Individual settings can be reverted with ":set option&".
+" Other commands can be reverted as mentioned below.
+
+" When started as "evim", evim.vim will already have done these settings.
+if v:progname =~? "evim"
+  finish
+endif
+
+" Bail out if something that ran earlier, e.g. a system wide vimrc, does not
+" want Vim to use these default values.
+if exists('skip_defaults_vim')
+  finish
+endif
+
+" Use Vim settings, rather than Vi settings (much better!).
+" This must be first, because it changes other options as a side effect.
+" Avoid side effects when it was already reset.
+if &compatible
+  set nocompatible
+endif
+
+" When the +eval feature is missing, the set command above will be skipped.
+" Use a trick to reset compatible only when the +eval feature is missing.
+silent! while 0
+  set nocompatible
+silent! endwhile
+
+" Allow backspacing over everything in insert mode.
+set backspace=indent,eol,start
+
+set history=200		" keep 200 lines of command line history
+set ruler		" show the cursor position all the time
+set showcmd		" display incomplete commands
+set wildmenu		" display completion matches in a status line
+
+set ttimeout		" time out for key codes
+set ttimeoutlen=100	" wait up to 100ms after Esc for special key
+
+" Show @@@ in the last line if it is truncated.
+set display=truncate
+
+" Show a few lines of context around the cursor.  Note that this makes the
+" text scroll if you mouse-click near the start or end of the window.
+set scrolloff=5
+
+" Do incremental searching when it's possible to timeout.
+if has('reltime')
+  set incsearch
+endif
+
+" Do not recognize octal numbers for Ctrl-A and Ctrl-X, most users find it
+" confusing.
+set nrformats-=octal
+
+" For Win32 GUI: remove 't' flag from 'guioptions': no tearoff menu entries.
+if has('win32')
+  set guioptions-=t
+endif
+
+" Don't use Ex mode, use Q for formatting.
+" Revert with ":unmap Q".
+noremap Q gq
+
+" CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
+" so that you can undo CTRL-U after inserting a line break.
+" Revert with ":iunmap <C-U>".
+inoremap <C-U> <C-G>u<C-U>
+
+" In many terminal emulators the mouse works just fine.  By enabling it you
+" can position the cursor, Visually select and scroll with the mouse.
+if has('mouse')
+  set mouse=a
+endif
+
+" Switch syntax highlighting on when the terminal has colors or when using the
+" GUI (which always has colors).
+if &t_Co > 2 || has("gui_running")
+  " Revert with ":syntax off".
+  syntax on
+
+  " I like highlighting strings inside C comments.
+  " Revert with ":unlet c_comment_strings".
+  let c_comment_strings=1
+endif
+
+" Only do this part when Vim was compiled with the +eval feature.
+if 1
+
+  " Enable file type detection.
+  " Use the default filetype settings, so that mail gets 'tw' set to 72,
+  " 'cindent' is on in C files, etc.
+  " Also load indent files, to automatically do language-dependent indenting.
+  " Revert with ":filetype off".
+  filetype plugin indent on
+
+  " Put these in an autocmd group, so that you can revert them with:
+  " ":augroup vimStartup | au! | augroup END"
+  augroup vimStartup
+    au!
+
+    " When editing a file, always jump to the last known cursor position.
+    " Don't do it when the position is invalid, when inside an event handler
+    " (happens when dropping a file on gvim) and for a commit message (it's
+    " likely a different one than last time).
+    autocmd BufReadPost *
+      \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
+      \ |   exe "normal! g`\""
+      \ | endif
+
+  augroup END
+
+endif
+
+" Convenient command to see the difference between the current buffer and the
+" file it was loaded from, thus the changes you made.
+" Only define it when not defined already.
+" Revert with: ":delcommand DiffOrig".
+if !exists(":DiffOrig")
+  command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
+		  \ | wincmd p | diffthis
+endif
+
+if has('langmap') && exists('+langremap')
+  " Prevent that the langmap option applies to characters that result from a
+  " mapping.  If set (default), this may break plugins (but it's backward
+  " compatible).
+  set nolangremap
+endif
