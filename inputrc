@@ -51,7 +51,7 @@ set show-all-if-unmodified on
 set skip-completed-text on
 
 # Edit with Vi keybindings
-# set editing-mode vi
+set editing-mode vi
 # set keymap vi
 
 
