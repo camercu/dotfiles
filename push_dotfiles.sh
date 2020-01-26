@@ -27,6 +27,8 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 	mv ~/.inputrc "$ARCHIVE_DIR"
 [[ -f ~/.nanorc && ! -L ~/.nanorc ]] && \
 	mv ~/.nanorc "$ARCHIVE_DIR"
+[[ -f ~/.tmux.conf && ! -L ~/.tmux.conf ]] && \
+	mv ~/.tmux.conf "$ARCHIVE_DIR"
 [[ -f ~/.vimrc && ! -L ~/.vimrc ]] && \
     mv ~/.vimrc "$ARCHIVE_DIR"
 [[ -f ~/.zshrc && ! -L ~/.zshrc ]] && \
@@ -46,6 +48,7 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 [[ ! -e ~/.gnupg/gpg.conf && -e ~/.gnupg ]] && ln -s "${DOTFILE_DIR}/gpg.conf" ~/.gnupg/
 [[ -e ~/.inputrc ]] || ln -s "${DOTFILE_DIR}/inputrc" ~/.inputrc
 [[ -e ~/.nanorc ]] || ln -s "${DOTFILE_DIR}/nanorc" ~/.nanorc
+[[ -e ~/.tmux.conf ]] || ln -s "${DOTFILE_DIR}/tmux.conf" ~/.tmux.conf
 [[ -e ~/.vimrc ]] || ln -s "${DOTFILE_DIR}/vimrc" ~/.vimrc
 [[ -e ~/.zshrc ]] || ln -s "${DOTFILE_DIR}/zshrc" ~/.zshrc
 [[ -e ~/.zsh-aliases ]] || ln -s "${DOTFILE_DIR}/zsh-aliases" ~/.zsh-aliases
