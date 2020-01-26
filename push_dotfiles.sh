@@ -7,14 +7,12 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 [[ -d $ARCHIVE_DIR ]] || mkdir -p "$ARCHIVE_DIR"
 
 # back up existing dotfiles
+[[ -f ~/.bash_aliases && ! -L ~/.bash_aliases ]] && \
+    mv ~/.bash_aliases "$ARCHIVE_DIR"
 [[ -f ~/.bash_profile && ! -L ~/.bash_profile ]] && \
 	mv ~/.bash_profile "$ARCHIVE_DIR"
 [[ -f ~/.bashrc && ! -L ~/.bashrc ]] && \
 	mv ~/.bashrc "$ARCHIVE_DIR"
-[[ -f ~/.bash_aliases && ! -L ~/.bash_aliases ]] && \
-        mv ~/.bash_aliases "$ARCHIVE_DIR"
-[[ -f ~/.vimrc && ! -L ~/.vimrc ]] && \
-	mv ~/.vimrc "$ARCHIVE_DIR"
 [[ -f ~/.gdbinit && ! -L ~/.gdbinit ]] && \
 	mv ~/.gdbinit "$ARCHIVE_DIR"
 [[ -f ~/.git-prompt.sh && ! -L ~/.git-prompt.sh ]] && \
@@ -29,21 +27,29 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 	mv ~/.inputrc "$ARCHIVE_DIR"
 [[ -f ~/.nanorc && ! -L ~/.nanorc ]] && \
 	mv ~/.nanorc "$ARCHIVE_DIR"
+[[ -f ~/.vimrc && ! -L ~/.vimrc ]] && \
+    mv ~/.vimrc "$ARCHIVE_DIR"
+[[ -f ~/.zshrc && ! -L ~/.zshrc ]] && \
+	mv ~/.zshrc "$ARCHIVE_DIR"
+[[ -f ~/.zsh-aliases && ! -L ~/.zsh-aliases ]] && \
+	mv ~/.zsh-aliases "$ARCHIVE_DIR"
 
 # symlink dotfiles
+[[ -e ~/.bash_aliases ]] || ln -s "${DOTFILE_DIR}/bash_aliases" ~/.bash_aliases
 [[ -e ~/.bash_profile ]] || ln -s "${DOTFILE_DIR}/bash_profile" ~/.bash_profile
 [[ -e ~/.bashrc ]] || ln -s "${DOTFILE_DIR}/bashrc" ~/.bashrc
-[[ -e ~/.bash_aliases ]] || ln -s "${DOTFILE_DIR}/bash_aliases" ~/.bash_aliases
-[[ -e ~/.vimrc ]] || ln -s "${DOTFILE_DIR}/vimrc" ~/.vimrc
 [[ -e ~/.gdbinit ]] || ln -s "${DOTFILE_DIR}/gdbinit" ~/.gdbinit
 [[ -e ~/.git-prompt.sh ]] || ln -s "${DOTFILE_DIR}/git-prompt.sh" ~/.git-prompt.sh
 [[ -e ~/.gitconfig ]] || ln -s "${DOTFILE_DIR}/gitconfig" ~/.gitconfig
 [[ -e ~/.gitconfig.aliases ]] || ln -s "${DOTFILE_DIR}/gitconfig.aliases" ~/.gitconfig.aliases
 [[ -e ~/.gitignore_global ]] || ln -s "${DOTFILE_DIR}/gitignore_global" ~/.gitignore_global
-[[ -e ~/.inputrc ]] || ln -s "${DOTFILE_DIR}/inputrc" ~/.inputrc
 [[ ! -e ~/.gnupg/gpg.conf && -e ~/.gnupg ]] && ln -s "${DOTFILE_DIR}/gpg.conf" ~/.gnupg/
+[[ -e ~/.inputrc ]] || ln -s "${DOTFILE_DIR}/inputrc" ~/.inputrc
 [[ -e ~/.nanorc ]] || ln -s "${DOTFILE_DIR}/nanorc" ~/.nanorc
+[[ -e ~/.vimrc ]] || ln -s "${DOTFILE_DIR}/vimrc" ~/.vimrc
+[[ -e ~/.zshrc ]] || ln -s "${DOTFILE_DIR}/zshrc" ~/.zshrc
+[[ -e ~/.zsh-aliases ]] || ln -s "${DOTFILE_DIR}/zsh-aliases" ~/.zsh-aliases
 
 # add Vundle to vim
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+git clone https://github.com/VundleVim/Vundle.vim.git "${DOTFILE_DIR}/.vim/bundle/Vundle.vim"
 

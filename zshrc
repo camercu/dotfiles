@@ -3,14 +3,34 @@
 
 ZSH_DISABLE_COMPFIX=true
 
+# Make sure to expand tilde to home directory
+set -o magicequalsubst
+
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/cameron/.oh-my-zsh"
+export ZSH="$HOME/.dotfiles/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+# ZSH_THEME="robbyrussell"
+ZSH_THEME="powerlevel9k/powerlevel9k"
+
+if [ $ZSH_THEME = "powerlevel9k/powerlevel9k" ]; then
+    POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(dir rbenv vcs)
+    POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status root_indicator background_jobs history time)
+    POWERLEVEL9K_PROMPT_ON_NEWLINE=true
+
+    # Add a space in the first prompt
+    POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX="%f" # Visual customisation of the second prompt line
+    local user_symbol="$"
+    if [[ $(print -P "%#") =~ "#" ]]; then
+        user_symbol = "#"
+    fi
+    POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="%{%B%F{black}%K{yellow}%} $user_symbol%{%b%f%k%F{yellow}%} %{%f%}"
+    POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
+    POWERLEVEL9K_VCS_MODIFIED_BACKGROUND='red'
+fi
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -80,6 +100,7 @@ plugins=(
     cp
     history
     sudo
+    zsh-autosuggestions
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -116,24 +137,24 @@ source "/usr/local/opt/zsh-git-prompt/zshrc.sh"
 source "/usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
 source "/usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
-if [ -f "~/.bash_aliases" ]; then
-    source "~/.bash_aliases" ]
+if [ -f "$HOME/.zsh-aliases" ]; then
+    source "$HOME/.zsh-aliases" ]
 fi
 
 export CLICOLOR=1
-
+#
 # added by Anaconda3 2019.10 installer
 # >>> conda init >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$(CONDA_REPORT_ERRORS=false '/Users/cameron/opt/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
+__conda_setup="$(CONDA_REPORT_ERRORS=false '~/opt/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
 if [ $? -eq 0 ]; then
     \eval "$__conda_setup"
 else
-    if [ -f "/Users/cameron/opt/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/Users/cameron/opt/anaconda3/etc/profile.d/conda.sh"
+    if [ -f "$HOME/opt/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "$HOME/opt/anaconda3/etc/profile.d/conda.sh"
         CONDA_CHANGEPS1=false conda activate base
     else
-        \export PATH="/Users/cameron/opt/anaconda3/bin:$PATH"
+        \export PATH="$HOME/opt/anaconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
