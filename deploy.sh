@@ -31,6 +31,10 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 	mv ~/.tmux.conf "$ARCHIVE_DIR"
 [[ -f ~/.vimrc && ! -L ~/.vimrc ]] && \
     mv ~/.vimrc "$ARCHIVE_DIR"
+[[ -f ~/.vimrc-plugs && ! -L ~/.vimrc-plugs ]] && \
+    mv ~/.vimrc-plugs "$ARCHIVE_DIR"
+[[ -d ~/.vim && ! -L ~/.vim ]] && \
+    mv ~/.vim "$ARCHIVE_DIR"
 [[ -f ~/.zshrc && ! -L ~/.zshrc ]] && \
 	mv ~/.zshrc "$ARCHIVE_DIR"
 [[ -f ~/.zsh-aliases && ! -L ~/.zsh-aliases ]] && \
@@ -50,9 +54,12 @@ ARCHIVE_DIR="${DOTFILE_DIR}/old"
 [[ -e ~/.nanorc ]] || ln -s "${DOTFILE_DIR}/nanorc" ~/.nanorc
 [[ -e ~/.tmux.conf ]] || ln -s "${DOTFILE_DIR}/tmux.conf" ~/.tmux.conf
 [[ -e ~/.vimrc ]] || ln -s "${DOTFILE_DIR}/vimrc" ~/.vimrc
+[[ -e ~/.vimrc-plugs ]] || ln -s "${DOTFILE_DIR}/vimrc-plugs" ~/.vimrc-plugs
+[[ -e ~/.vim ]] || ln -s "${DOTFILE_DIR}/.vim" ~/.vim
 [[ -e ~/.zshrc ]] || ln -s "${DOTFILE_DIR}/zshrc" ~/.zshrc
 [[ -e ~/.zsh-aliases ]] || ln -s "${DOTFILE_DIR}/zsh-aliases" ~/.zsh-aliases
 
-# add Vundle to vim
-git clone https://github.com/VundleVim/Vundle.vim.git "${DOTFILE_DIR}/.vim/bundle/Vundle.vim"
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 

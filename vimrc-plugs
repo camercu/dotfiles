@@ -1,0 +1,87 @@
+"****************************************************************************
+" Plugins
+"****************************************************************************
+" install vim-plug if not already installed
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+
+call plug#begin('~/.vim/bundle')
+
+" Color Themes
+Plug 'joshdick/onedark.vim'
+" Plugin 'lifepillar/vim-solarized8'
+" Plugin 'doums/darcula'
+
+" autocompletion engine
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" Autocomplete Language Servers
+Plug 'neoclide/coc-css', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-git', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-html', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-json', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-lists', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-python', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-rls', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-snippets', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-tabnine', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-yaml', {'do': 'yarn install --frozen-lockfile'}
+
+" Yank highlight and persist yank history support for vim
+Plug 'neoclide/coc-yank', {'do': 'yarn install --frozen-lockfile'}
+
+"  Make jump to character easier
+Plug 'neoclide/coc-smartf', {'do': 'yarn install --frozen-lockfile'}
+
+" Prettier extension for coc.nvim
+Plug 'neoclide/coc-prettier', {'do': 'yarn install --frozen-lockfile'}
+
+" Git commands from inside vim
+Plug 'tpope/vim-fugitive'
+
+" File-tree navigation sidebar
+Plug 'scrooloose/nerdtree'
+
+" Superior code commenting
+Plug 'scrooloose/nerdcommenter'
+
+" Quoting/parenthesizing made simple
+Plug 'tpope/vim-surround'
+
+" Repeat plugin maps with '.'
+Plug 'tpope/vim-repeat'
+
+" Show git diff in gutter
+Plug 'airblade/vim-gitgutter'
+
+" Move text up/down/left/right with <A-h/j/k/l>
+Plug 'matze/vim-move'
+
+" A much better status line at the bottom
+" Plugin 'vim-airline/vim-airline'
+" let g:airline_theme='onedark'
+" Another option:
+Plug 'itchyny/lightline.vim'
+
+" Better Python Code Folding
+" Plug 'tmhedberg/SimpylFold'
+
+" PEP8 Python indenting
+" Plug 'vim-scripts/indentpython.vim'
+
+" Improved Python syntax highlighting
+" Plug 'vim-syntastic/syntastic'
+
+" PEP8 linting
+" Plug 'nvie/vim-flake8'
+
+" Better copy/paste
+" Plugin 'vim-scripts/YankRing.vim'
+
+" All of your Plugins must be added before the following line
+call plug#end()            " required
+

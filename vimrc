@@ -1,150 +1,15 @@
-set nocompatible              " be iMproved, required
-filetype off                  " required
-
-set shell=/usr/local/bin/zsh
-
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.dotfiles/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
-
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-
-" The following are examples of different formats supported.
-" Keep Plugin commands between vundle#begin/end.
-
-" Git commands from inside vim
-Plugin 'tpope/vim-fugitive' " plugin on GitHub repo
-
-" plugin from http://vim-scripts.org/vim/scripts.html
-" Plugin 'L9'
-
-"" The sparkup vim script is in a subdirectory of this repo called vim.
-" Pass the path to set the runtimepath properly.
-Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-" ^ faster HTML code editing
-
-" Git plugin not hosted on GitHub
-"Plugin 'git://git.wincent.com/command-t.git'
-
-" git repos on your local machine (i.e. when working on your own plugin)
-"Plugin 'file:///home/gmarik/path/to/plugin'
-
-" Install L9 and avoid a Naming conflict if you've already installed a
-" different version somewhere else.
-"Plugin 'ascenator/L9', {'name': 'newL9'}
-
-" Solarized color theme
-Plugin 'lifepillar/vim-solarized8'
-
-" One Dark color theme
-Plugin 'joshdick/onedark.vim'
-
-" Darkula color theme
-Plugin 'doums/darcula'
-
-" autocompletion engine
-Plugin 'Valloric/YouCompleteMe'
-
-" Better Python Code Folding
-Plugin 'tmhedberg/SimpylFold'
-
-" PEP8 Python indenting
-Plugin 'vim-scripts/indentpython.vim'
-
-" Improved Python syntax highlighting
-Plugin 'vim-syntastic/syntastic'
-
-" PEP8 linting
-Plugin 'nvie/vim-flake8'
-
-" File-tree navigation sidebar
-Plugin 'scrooloose/nerdtree'
-
-" Superior code commenting
-Plugin 'scrooloose/nerdcommenter'
-
-" Move text up/down/left/right with <A-h/j/k/l>
-Bundle 'matze/vim-move'
-let g:move_map_keys = 0
-set <F20>=j
-set <F21>=k
-set <F22>=h
-set <F23>=l
-vmap <F20> <Plug>MoveBlockDown
-vmap <F21> <Plug>MoveBlockUp
-vmap <F22> <Plug>MoveBlockLeft
-vmap <F23> <Plug>MoveBlockRight
-nmap <F20> <Plug>MoveLineDown
-nmap <F21> <Plug>MoveLineUp
-nmap <F22> <Plug>MoveLineLeft
-nmap <F23> <Plug>MoveLineRight
-
-" Quoting/parenthesizing made simple
-Plugin 'tpope/vim-surround'
-
-" Repeat plugin maps with '.'
-Plugin 'tpope/vim-repeat'
-
-" A much better status line at the bottom
-" Plugin 'vim-airline/vim-airline'
-" let g:airline_theme='onedark'
-" Another option:
-Plugin 'itchyny/lightline.vim'
-let g:lightline = {
-            \ 'colorscheme': 'onedark',
-            \ 'active': {
-            \   'left': [ [ 'mode', 'paste' ],
-            \             [ 'fugitive' ],
-            \             [ 'readonly', 'filename', 'modified' ] ],
-            \   'right': [ [ 'lineinfo' ],
-            \              [ 'percent' ],
-            \              [ 'fileformat', 'fileencoding', 'filetype', 'charvaluehex' ] ]
-            \ },
-            \ 'component_function': {
-            \   'gitbranch': 'fugitive#head'
-            \ },
-            \ 'component': {
-            \   'charvaluehex': '0x%B'
-            \ },
-            \ }
-
-" Show git diff in gutter
-Plugin 'airblade/vim-gitgutter'
-
-" Code snippets
-Plugin 'MarcWeber/vim-addon-mw-utils'
-Plugin 'tomtom/tlib_vim'
-Plugin 'garbas/vim-snipmate'
-" alternate: https://github.com/SirVer/ultisnips
-
-" Better copy/paste
-" Plugin 'vim-scripts/YankRing.vim'
-
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-"
-" Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
-
+if !empty(glob('~/.vimrc-plugs'))
+    source ~/.vimrc-plugs
+endif
 
 "***************************************************************
 " Personal Settings
 "***************************************************************
+set nocompatible                " be iMproved
+set shell=/usr/local/bin/zsh    " set local shell
 set modelines=0     " prevent secuirty exploits via modelines, which I never use
 
-" Indentation settings (spaces are better than tabs)
+" Indentation settings
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
@@ -172,12 +37,8 @@ set ruler           " Show line # and column at bottom
 set scrolloff=3     " Set lines visible around cursor when scrolling
 set wrap            " Soft-wrap lines
 set background=dark
-if has('gui_running')
-    colorscheme solorized8_high
-else
-    set t_Co=256
-    colorscheme onedark
-endif
+set t_Co=256
+colorscheme onedark
 
 " Change cursor based on mode
 let &t_SI.="\e[5 q" "SI = INSERT mode
@@ -198,7 +59,7 @@ endif
 set encoding=utf-8  " Make sure vim works with python3 files
 set backspace=indent,eol,start  " make backspace behave like normal again
 set clipboard^=unnamed,unnamedplus  " use system clipboard by default
-set history=500     " Sets how many lines of history Vim has to remember
+set history=1000    " Sets how many lines of history Vim has to remember
 set autowrite       " Automatically save before commands like :next and :make
 set autoread        " update automatically when a file is changed from the outside
 set hidden          " Hide buffers when they are abandoned (vs. closing them)
@@ -208,7 +69,7 @@ set wildmenu        " show tab-completions in command line
 set wildmode=list:longest   " show all completions, sorted by longest match
 set ttyfast         " fast terminal connection, helps with copy/paste
 set undofile        " create <filename>.un~ files to persist undo information
-command W w !sudo tee % > /dev/null " :W to sudo-save
+command! W w !sudo tee % > /dev/null " :W to sudo-save
 
 " Delete trailing white space on save, useful for some filetypes ;)
 fun! StripTrailingWhitespace()
@@ -330,16 +191,9 @@ nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
 
-" Plugin-specific:  ======================================================
-
-let g:SimpylFold_docstring_preview=1    " show docstring for folded code
-
-" YouCompleteMe improvements
-let g:ycm_autoclose_preview_window_after_completion=1
-noremap <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-
-" Make python code look pretty
-let python_highlight_all=1
+"****************************************************************************
+" Plugin-Specific Settings
+"****************************************************************************
 
 " NERDComment settings
 let g:NERDSpaceDelims = 1       " Add spaces after comment delimiters by default
@@ -358,4 +212,171 @@ nnoremap <leader>/ :call NERDComment(0,"toggle")<CR>
 vnoremap <leader>/ :call NERDComment(0,"toggle")<CR>
 
 let NERDTreeIgnore=['\.py[co]$', '\~$'] "ignore files in NERDTree
+
+let g:lightline = {
+            \ 'colorscheme': 'onedark',
+            \ 'active': {
+            \   'left': [ [ 'mode', 'paste' ],
+            \             [ 'fugitive' ],
+            \             [ 'readonly', 'filename', 'modified' ] ],
+            \   'right': [ [ 'lineinfo' ],
+            \              [ 'percent' ],
+            \              [ 'fileformat', 'fileencoding', 'filetype', 'charvaluehex' ] ]
+            \ },
+            \ 'component_function': {
+            \   'gitbranch': 'fugitive#head'
+            \ },
+            \ 'component': {
+            \   'charvaluehex': '0x%B'
+            \ },
+            \ }
+
+let g:move_map_keys = 0
+set <F20>=j
+set <F21>=k
+set <F22>=h
+set <F23>=l
+vmap <F20> <Plug>MoveBlockDown
+vmap <F21> <Plug>MoveBlockUp
+vmap <F22> <Plug>MoveBlockLeft
+vmap <F23> <Plug>MoveBlockRight
+nmap <F20> <Plug>MoveLineDown
+nmap <F21> <Plug>MoveLineUp
+nmap <F22> <Plug>MoveLineLeft
+nmap <F23> <Plug>MoveLineRight
+
+
+"****************************************************************************
+" CoC - Conqueror of Completion Settings
+
+" if hidden is not set, TextEdit might fail.
+set hidden
+
+" Some servers have issues with backup files, see #649
+set nobackup
+set nowritebackup
+
+" Better display for messages
+set cmdheight=2
+
+" You will have bad experience for diagnostic messages when it's default 4000.
+set updatetime=300
+
+" don't give |ins-completion-menu| messages.
+set shortmess+=c
+
+" always show signcolumns
+set signcolumn=yes
+
+" Use tab for trigger completion with characters ahead and navigate.
+" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> to trigger completion.
+inoremap <silent><expr> <c-space> coc#refresh()
+
+" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
+" Coc only does snippet and additional edit on confirm.
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" Or use `complete_info` if your vim support it, like:
+" inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+
+" Use `[g` and `]g` to navigate diagnostics
+nnoremap <silent> [g <Plug>(coc-diagnostic-prev)
+nnoremap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" Remap keys for gotos
+nnoremap <silent> gd <Plug>(coc-definition)
+nnoremap <silent> gy <Plug>(coc-type-definition)
+nnoremap <silent> gi <Plug>(coc-implementation)
+nnoremap <silent> gr <Plug>(coc-references)
+
+" Use K to show documentation in preview window
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
+" Highlight symbol under cursor on CursorHold
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Remap for rename current word
+nnoremap <leader>rn <Plug>(coc-rename)
+
+" Remap for format selected region
+xnoremap <leader>f  <Plug>(coc-format-selected)
+nnoremap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
+xnoremap <leader>a  <Plug>(coc-codeaction-selected)
+nnoremap <leader>a  <Plug>(coc-codeaction-selected)
+
+" Remap for do codeAction of current line
+nnoremap <leader>ac  <Plug>(coc-codeaction)
+" Fix autofix problem of current line
+nnoremap <leader>qf  <Plug>(coc-fix-current)
+
+" Create mappings for function text object, requires document symbols feature of languageserver.
+xnoremap if <Plug>(coc-funcobj-i)
+xnoremap af <Plug>(coc-funcobj-a)
+onoremap if <Plug>(coc-funcobj-i)
+onoremap af <Plug>(coc-funcobj-a)
+
+" Use <TAB> for select selections ranges, needs server support, like: coc-tsserver, coc-python
+nnoremap <silent> <TAB> <Plug>(coc-range-select)
+xnoremap <silent> <TAB> <Plug>(coc-range-select)
+
+" Use `:Format` to format current buffer
+command! -nargs=0 Format :call CocAction('format')
+
+" Use `:Fold` to fold current buffer
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+" use `:OR` for organize import of current buffer
+command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+" Using CocList
+" Show all diagnostics
+nnoremap <silent> <leader>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions
+nnoremap <silent> <leader>x  :<C-u>CocList extensions<cr>
+" Show commands
+nnoremap <silent> <leader>c  :<C-u>CocList commands<cr>
+" Find symbol of current document
+nnoremap <silent> <leader>o  :<C-u>CocList outline<cr>
+" Search workspace symbols
+nnoremap <silent> <leader>sy  :<C-u>CocList -I symbols<cr>
+" Do default action for next item.
+nnoremap <silent> <leader>j  :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent> <leader>k  :<C-u>CocPrev<CR>
+" Resume latest coc list
+nnoremap <silent> <leader>p  :<C-u>CocListResume<CR>
+
+" keymap to open yank list
+nnoremap <silent> <leader>y  :<C-u>CocList -A --normal yank<cr>
+
+" hi HighlightedyankRegion term=bold ctermbg=11 guibg=#13354A
 
