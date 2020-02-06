@@ -317,10 +317,6 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 " Remap for rename current word
 nnoremap <leader>rn <Plug>(coc-rename)
 
-" Remap for format selected region
-xnoremap <leader>f  <Plug>(coc-format-selected)
-nnoremap <leader>f  <Plug>(coc-format-selected)
-
 augroup mygroup
   autocmd!
   " Setup formatexpr specified filetype(s).
@@ -380,3 +376,9 @@ nnoremap <silent> <leader>y  :<C-u>CocList -A --normal yank<cr>
 
 " hi HighlightedyankRegion term=bold ctermbg=11 guibg=#13354A
 
+" add command to format entire document
+command! -nargs=0 Prettier :CocCommand prettier.formatFile
+
+" Remap for format selected region
+vnoremap <leader>f  <Plug>(coc-format-selected)
+nnoremap <leader>f  <Plug>(coc-format-selected)
