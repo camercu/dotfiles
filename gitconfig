@@ -5,7 +5,7 @@
 [credential]
 	helper = osxkeychain
 [core]
-	editor = nano
+	editor = vim
 	excludesfile = ~/.gitignore_global
 	autocrlf = input
 #	safecrlf = true
