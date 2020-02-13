@@ -5,40 +5,39 @@ endif
 "***************************************************************
 " Personal Settings
 "***************************************************************
-set nocompatible                " be iMproved
-set shell=/usr/local/bin/zsh    " set local shell
+set nocompatible    " be iMproved
 set modelines=0     " prevent secuirty exploits via modelines, which I never use
 
 " Indentation settings
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set shiftround
-set expandtab       " real programmers use spaces, not tabs
-set smarttab
 set autoindent      " Copy indent from current line when starting a new line
-set smartindent     " Do smart autoindenting when starting a new line
 set cindent         " Stricter indenting rules for C files
+set expandtab       " real programmers use spaces, not tabs
+set shiftround
+set shiftwidth=4
+set smartindent     " Do smart autoindenting when starting a new line
+set smarttab
+set softtabstop=4
+set tabstop=8       " width of normal tab character
 
 " Search settings
 set hlsearch        " Highlight search results
-set incsearch       " Incremental search; jump to match as you type
 set ignorecase      " Ignore case when searching
+set incsearch       " Incremental search; jump to match as you type
 set smartcase       " Override ignorecase when search pattern has uppercase
 
 " Display settings
-syntax on           " syntax highlighting
-set laststatus=2    " make room for custom status line
+colorscheme onedark
+set background=dark
 set cursorline      " Highlight current line
-set showmatch       " Show matching brackets when cursor on them
-set showcmd         " Show command in bottom bar
+set laststatus=2    " make room for custom status line
 set number          " Show line numbers
 set ruler           " Show line # and column at bottom
 set scrolloff=3     " Set lines visible around cursor when scrolling
+set showcmd         " Show command in bottom bar
+set showmatch       " Show matching brackets when cursor on them
+set t_Co=256        " full 256 color terminal
 set wrap            " Soft-wrap lines
-set background=dark
-set t_Co=256
-colorscheme onedark
+syntax on           " syntax highlighting
 
 " Change cursor based on mode
 let &t_SI.="\e[5 q" "SI = INSERT mode
@@ -56,19 +55,20 @@ let &t_EI.="\e[1 q" "EI = NORMAL mode (ELSE)
 if has('mouse')
     set mouse=a     " Enable mouse usage (all modes)
 endif
-set encoding=utf-8  " Make sure vim works with python3 files
+set autoread        " update automatically when a file is changed from the outside
+set autowrite       " Automatically save before commands like :next and :make
 set backspace=indent,eol,start  " make backspace behave like normal again
 set clipboard^=unnamed,unnamedplus  " use system clipboard by default
-set history=1000    " Sets how many lines of history Vim has to remember
-set autowrite       " Automatically save before commands like :next and :make
-set autoread        " update automatically when a file is changed from the outside
+set encoding=utf-8  " Make sure vim works with python3 files
+set lazyredraw      " Don't redraw during macros (improves performance)
 set hidden          " Hide buffers when they are abandoned (vs. closing them)
+set history=1000    " Sets how many lines of history Vim has to remember
 set nrformats-=octal    " ignore octal numbers for Ctrl-A/X (confusing)
 set timeout timeoutlen=1500 ttimeoutlen=100 " Key Mapping and Keycode timeouts
-set wildmenu        " show tab-completions in command line
-set wildmode=list:longest   " show all completions, sorted by longest match
 set ttyfast         " fast terminal connection, helps with copy/paste
 set undofile        " create <filename>.un~ files to persist undo information
+set wildmenu        " show tab-completions in command line
+set wildmode=list:longest   " show all completions, sorted by longest match
 command! W w !sudo tee % > /dev/null " :W to sudo-save
 
 " Delete trailing white space on save, useful for some filetypes ;)
@@ -249,15 +249,9 @@ nmap <F23> <Plug>MoveLineRight
 "****************************************************************************
 " CoC - Conqueror of Completion Settings
 
-" if hidden is not set, TextEdit might fail.
-set hidden
-
 " Some servers have issues with backup files, see #649
 set nobackup
 set nowritebackup
-
-" Better display for messages
-set cmdheight=2
 
 " You will have bad experience for diagnostic messages when it's default 4000.
 set updatetime=300
@@ -326,7 +320,6 @@ augroup mygroup
 augroup end
 
 " Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
-xnoremap <leader>a  <Plug>(coc-codeaction-selected)
 nnoremap <leader>a  <Plug>(coc-codeaction-selected)
 
 " Remap for do codeAction of current line
@@ -382,3 +375,6 @@ command! -nargs=0 Prettier :CocCommand prettier.formatFile
 " Remap for format selected region
 vnoremap <leader>f  <Plug>(coc-format-selected)
 nnoremap <leader>f  <Plug>(coc-format-selected)
+
+" get correct comment coloring for jsonc config files
+autocmd FileType json syntax match Comment +\/\/.\+$+
