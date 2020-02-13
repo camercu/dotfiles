@@ -9,6 +9,7 @@ set nocompatible    " be iMproved
 set modelines=0     " prevent secuirty exploits via modelines, which I never use
 
 " Indentation settings
+filetype plugin indent on
 set autoindent      " Copy indent from current line when starting a new line
 set cindent         " Stricter indenting rules for C files
 set expandtab       " real programmers use spaces, not tabs
