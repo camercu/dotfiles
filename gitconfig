@@ -6,7 +6,7 @@
 	helper = osxkeychain
 [core]
 	editor = vim
-	excludesfile = ~/.gitignore_global
+	excludesfile = ~/.gitignore-global
 	autocrlf = input
 #	safecrlf = true
 [push]
@@ -14,7 +14,7 @@
 [merge]
 	conflictstyle = diff3
 [include]
-    path = ~/.gitconfig.aliases
+    path = ~/.gitconfig-aliases
 [color]
     ui = auto
 
