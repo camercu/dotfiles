@@ -27,7 +27,7 @@ set incsearch       " Incremental search; jump to match as you type
 set smartcase       " Override ignorecase when search pattern has uppercase
 
 " Display settings
-colorscheme onedark
+silent! colorscheme onedark
 set background=dark
 set cursorline      " Highlight current line
 set laststatus=2    " make room for custom status line
