@@ -364,5 +364,3 @@ nnoremap <leader>f  <Plug>(coc-format-selected)
 " get correct comment coloring for jsonc config files
 autocmd FileType json syntax match Comment +\/\/.\+$+
 
-" Golang: Add missing imports on save
-autocmd BufWritePre *.go :call CocAction('runCommand', 'editor.action.organizeImport')

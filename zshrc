@@ -82,16 +82,17 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-    git
-    gitignore
-    osx
-    command-not-found
     colored-man-pages
+    command-not-found
     copydir
     cp
+    git
+    gitignore
     history
-    sudo
+    osx
+    vi-mode
     zsh-autosuggestions
+    zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -121,12 +122,6 @@ export LANG=en_US.UTF-8
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-fpath=(/usr/local/share/zsh-completions $fpath)
-source "/usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-source "/usr/local/opt/zsh-git-prompt/zshrc.sh"
-source "/usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-source "/usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 if [ -f "$HOME/.zsh-aliases" ]; then
     source "$HOME/.zsh-aliases" ]

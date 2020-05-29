@@ -1,3 +1,16 @@
+# Easy navigation:
+alias d='dirs -v | head -10'
+alias 1='cd -'
+alias 2='cd -2'
+alias 3='cd -3'
+alias 4='cd -4'
+alias 5='cd -5'
+alias 6='cd -6'
+alias 7='cd -7'
+alias 8='cd -8'
+alias 9='cd -9'
+
+# Misc
 alias zshreload="source $HOME/.zshrc"
 alias df='df -H'
 alias duff='diff -ur'
@@ -42,10 +55,8 @@ alias gitsync='git checkout master && git fetch upstream && git merge upstream/m
 
 ## set easy dotfile editing commands
 DOTFILE_EDITOR=vim
-alias bpe="$DOTFILE_EDITOR ~/.bash_profile"
-alias brce="$DOTFILE_EDITOR ~/.bashrc"
-alias bae="$DOTFILE_EDITOR ~/.bash_aliases"
-alias irce="$DOTFILE_EDITOR ~/.inputrc"
+alias zrce="$DOTFILE_EDITOR ~/.zshrc"
+alias zae="$DOTFILE_EDITOR ~/.zsh_aliases"
 unset DOTFILE_EDITOR
 
 # disable host-key verification and saving when running ssh
