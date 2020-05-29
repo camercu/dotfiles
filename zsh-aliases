@@ -48,6 +48,9 @@ alias bae="$DOTFILE_EDITOR ~/.bash_aliases"
 alias irce="$DOTFILE_EDITOR ~/.inputrc"
 unset DOTFILE_EDITOR
 
+# disable host-key verification and saving when running ssh
+alias ssh-noverify='ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no"'
+
 ## some useful aliases, so new users don't hurt themselves
 # alias rm='rm -i'
 # alias cp='cp -i'

@@ -22,3 +22,5 @@
 # useful random stuff:
 # disable upstream push
 # git remote set-url --push upstream PUSH_DISABLED
+[alias]
+	contributors = shortlog --summary --numbered --email --all

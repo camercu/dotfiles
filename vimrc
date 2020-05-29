@@ -67,7 +67,7 @@ set history=1000    " Sets how many lines of history Vim has to remember
 set nrformats-=octal    " ignore octal numbers for Ctrl-A/X (confusing)
 set timeout timeoutlen=1500 ttimeoutlen=100 " Key Mapping and Keycode timeouts
 set ttyfast         " fast terminal connection, helps with copy/paste
-set undofile        " create <filename>.un~ files to persist undo information
+" set undofile        " create <filename>.un~ files to persist undo information
 set wildmenu        " show tab-completions in command line
 set wildmode=list:longest   " show all completions, sorted by longest match
 command! W w !sudo tee % > /dev/null " :W to sudo-save
@@ -98,22 +98,6 @@ augroup vimStartup
                 \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
                 \ |   exe "normal! g`\""
                 \ | endif
-    " Python PEP8 indentation
-    au BufNewFile,BufRead *.py
-                \ set tabstop=4
-                \ set softtabstop=4
-                \ set shiftwidth=4
-                \ set textwidth=79
-                \ set expandtab
-                \ set autoindent
-                \ set fileformat=unix
-                \ retab
-    " Custom indent for web development
-    au BufNewFile,BufRead *.js, *.html, *.css
-                \ set tabstop=2
-                \ set softtabstop=2
-                \ set shiftwidth=2
-                \ retab
     "Custom Filetype associations
     au BufNewFile,BufRead *.json    set filetype=javascript
 augroup END
