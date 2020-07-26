@@ -2,3 +2,5 @@ old/
 lscolors/
 .github-api-token
 .vim/bundle/
+.vim/autoload/plug.vim.old
+.vim/sessions/

@@ -364,3 +364,5 @@ nnoremap <leader>f  <Plug>(coc-format-selected)
 " get correct comment coloring for jsonc config files
 autocmd FileType json syntax match Comment +\/\/.\+$+
 
+" auto-run goimports on save of Go files
+let g:go_fmt_command = "goimports"

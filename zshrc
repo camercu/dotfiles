@@ -90,7 +90,6 @@ plugins=(
     gitignore
     history
     osx
-    vi-mode
     zsh-autosuggestions
     zsh-syntax-highlighting
 )
@@ -123,28 +122,29 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-if [ -f "$HOME/.zsh-aliases" ]; then
-    source "$HOME/.zsh-aliases" ]
-fi
+[[ -f "$HOME/.zsh-aliases" ]] && source "$HOME/.zsh-aliases"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+
+export PATH="$PATH:$(go env GOPATH)/bin"
+export GOPATH=$(go env GOPATH)
 
 export CLICOLOR=1
-#
-# added by Anaconda3 2019.10 installer
-# >>> conda init >>>
+
+
+# >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$(CONDA_REPORT_ERRORS=false '~/opt/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
+__conda_setup="$('/Users/cameron/opt/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
-    \eval "$__conda_setup"
+    eval "$__conda_setup"
 else
-    if [ -f "$HOME/opt/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "$HOME/opt/anaconda3/etc/profile.d/conda.sh"
-        CONDA_CHANGEPS1=false conda activate base
+    if [ -f "/Users/cameron/opt/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/cameron/opt/miniconda3/etc/profile.d/conda.sh"
     else
-        \export PATH="$HOME/opt/anaconda3/bin:$PATH"
+        export PATH="/Users/cameron/opt/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
-# <<< conda init <<<
+# <<< conda initialize <<<
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
