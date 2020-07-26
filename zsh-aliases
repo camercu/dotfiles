@@ -64,3 +64,6 @@ alias ssh-noverify='ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyCheck
 # alias cp='cp -i'
 # alias mv='mv -i'
 # alias ls='ls -F'
+
+# Terminal Logging
+alias startlog='script term-$(date "+%Y-%T").log'
