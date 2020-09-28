@@ -53,7 +53,7 @@ alias ....='cd ../../..'
 ## set easy dotfile editing commands
 DOTFILE_EDITOR=vim
 alias zrce="$DOTFILE_EDITOR ~/.zshrc"
-alias zae="$DOTFILE_EDITOR ~/.zsh_aliases"
+alias zae="$DOTFILE_EDITOR ~/.zsh-aliases"
 unset DOTFILE_EDITOR
 
 # disable host-key verification and saving when running ssh

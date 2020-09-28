@@ -72,7 +72,10 @@ Plug 'neoclide/coc-yank', {'do': 'yarn install --frozen-lockfile'}
 Plug 'jiangmiao/auto-pairs'
 
 "  Make jump to character easier
-" Plug 'neoclide/coc-smartf', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-smartf', {'do': 'yarn install --frozen-lockfile'}
+
+" use EditorConfig settings for projects
+Plug 'editorconfig/editorconfig-vim'
 
 " Better Python Code Folding
 " Plug 'tmhedberg/SimpylFold'
