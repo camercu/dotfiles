@@ -83,13 +83,8 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
     colored-man-pages
-    command-not-found
-    copydir
-    cp
     git
-    gitignore
-    history
-    osx
+    hashcat-mode-finder
     zsh-autosuggestions
     zsh-syntax-highlighting
 )
@@ -122,6 +117,7 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# Source custom aliases
 [[ -f "$HOME/.zsh-aliases" ]] && source "$HOME/.zsh-aliases"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -132,6 +128,9 @@ export CLICOLOR=1
 export PATH="$PATH:$(go env GOPATH)/bin"
 export GOPATH=$(go env GOPATH)
 
+export PATH="$PATH:$HOME/.local/bin"
+
+# configure pyenv
 if command -v pyenv &>/dev/null; then
     eval "$(pyenv init -)"
     export PIPENV_IGNORE_VIRTUALENVS=1
