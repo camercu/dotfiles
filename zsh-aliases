@@ -53,21 +53,17 @@ alias ta='tmux a -t'
 alias tl='tmux list-sessions'
 alias ts='tmux new-session -s'
 
-## network servers
-alias pysrv='python3 -m http.server'
-alias lsn='sudo nc -lnvp'
-
 ## encoding/decoding
-alias rot13='python3 -c "import sys, codecs; print(codecs.encode(sys.argv[1],\"rot_13\"))"'
-alias urlencode='python3 -c "import sys,os,urllib.parse as url; print(url.quote(os.fsencode(sys.argv[1])))"'
-alias urldecode='python3 -c "import sys,urllib.parse as url; sys.stdout.buffer.write(url.unquote(sys.argv[1]).encode())"'
-alias b64encode='python3 -c "import sys,os,base64 as b64; print(b64.b64encode(os.fsencode(sys.argv[1])).decode())"'
+alias rot13="python3 -c 'import sys, codecs;s=sys.argv[1] if len(sys.argv)>1 else sys.stdin.read().encode();print(codecs.encode(s,\"rot_13\"))'"
+alias urlencode="python3 -c 'import sys,os,urllib.parse as url;s=sys.argv[1] if len(sys.argv)>1 else sys.stdin.read().encode();print(url.quote(os.fsencode(s)))'"
+alias urldecode="python3 -c 'import sys,urllib.parse as url;s=sys.argv[1] if len(sys.argv)>1 else sys.stdin.read().encode();print(url.unquote(s.strip()))'"
+alias b64encode="python3 -c 'import sys,os,base64 as b64;s=sys.argv[1] if len(sys.argv)>1 else sys.stdin.read().encode();print(b64.b64encode(os.fsencode(s)).decode())'"
 alias b64e='b64encode'
-alias b64decode='python3 -c "import sys,base64 as b64; sys.stdout.buffer.write(b64.b64decode(sys.argv[1].encode()))"'
+alias b64decode="python3 -c 'import sys,base64 as b;s=sys.argv[1] if len(sys.argv)>1 else sys.stdin.read().encode();sys.stdout.buffer.write(b.b64decode(s.strip()));'"
 alias b64d='b64decode'
-alias b16encode='python3 -c "import sys,os,base64 as b16; print(b16.b16encode(os.fsencode(sys.argv[1])).decode())"'
+alias b16encode="python3 -c 'import sys,os,base64 as b16;s=sys.argv[1] if len(sys.argv)>1 else sys.stdin.read().encode();print(b16.b16encode(os.fsencode(s)).decode())'"
 alias b16e='b16encode'
-alias b16decode='python3 -c "import sys,base64 as b16; sys.stdout.buffer.write(b16.b16decode(sys.argv[1].encode()))"'
+alias b16decode="python3 -c 'import sys, base64 as b;s=sys.argv[1] if len(sys.argv)>1 else sys.stdin.read().encode();sys.stdout.buffer.write(b.b16decode(s.strip().upper()));'"
 alias b16d='b16decode'
 
 ###  miscellaneous  ###
@@ -78,7 +74,7 @@ alias remake='make -B'
 alias su='su -'
 alias path='echo $PATH'
 alias nsort='sort | uniq -c | sort -n'
-alias rm0='find . -size 0 -type f -delete'
+alias pysrv='python3 -m http.server'
 
 # list the size of directories in descending order
 alias ducks='du -cks * | sort -rn | head -11'
@@ -97,7 +93,7 @@ DOTFILE_EDITOR=vim
 alias zrce="$DOTFILE_EDITOR ~/.zshrc"
 alias zae="$DOTFILE_EDITOR ~/.zsh-aliases"
 unset DOTFILE_EDITOR
-alias zshreload="source $HOME/.zshrc"
+alias shreload="exec $SHELL"
 
 
 ####   Mac Specific:   ##########
@@ -129,6 +125,9 @@ if [[ "$OS" == "linux" ]]; then
     # display tun0 ip addr
     alias vpnip="ip a s tun0 | grep -w inet | awk '{print \$2}' | cut -d '/' -f 1"
     # export VPNIP=$(ip -f inet addr show tun0 | grep -Po 'inet \\K\[\\d.\]+')
+
+    # netcat listener
+    alias lsn='sudo nc -lnvp'
 
     ## If working in hacking vm  ############
     if [ -d "/mnt/vm-share" ]; then

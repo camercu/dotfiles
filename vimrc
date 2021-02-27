@@ -137,12 +137,6 @@ nnoremap <leader>v V`]
 nnoremap <tab> %
 vnoremap <tab> %
 
-" Cursor up/down visual lines (if wrapped) instead of text lines
-nnoremap j gj
-nnoremap k gk
-vnoremap j gj
-vnoremap k gk
-
 " Show and switch buffers easily
 nnoremap <leader>b :ls<cr>:buffer 
 

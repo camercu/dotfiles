@@ -130,6 +130,10 @@ export GOPATH=$(go env GOPATH)
 
 export PATH="$PATH:$HOME/.local/bin"
 
+# enable nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
 # configure pyenv
 if command -v pyenv &>/dev/null; then
     eval "$(pyenv init -)"
