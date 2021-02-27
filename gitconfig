@@ -23,3 +23,5 @@
 # git remote set-url --push upstream PUSH_DISABLED
 [alias]
 	contributors = shortlog --summary --numbered --email --all
+[pull]
+	rebase = false
