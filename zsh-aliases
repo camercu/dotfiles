@@ -115,7 +115,7 @@ if [[ "$OS" == "linux" ]]; then
     alias maintain='sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get autoremove -y && sudo apt-get autoclean -y'
 
     # copy to clipboard
-    alias ctc='xclip -sel clip' 
+    alias ctc='xclip -sel clip'
 
     # colorize ip command output
     alias ip='ip --color=auto'
@@ -142,9 +142,9 @@ if [[ "$OS" == "linux" ]]; then
     if [ -d "/mnt/vm-share" ]; then
         alias cdot='cd /mnt/vm-share/dotfiles'
         alias cdshare='cd /mnt/vm-share'
-        alias cdlab='cd /mnt/hgfs/vm-share/lab'
-        alias cdexer='cd /mnt/hgfs/vm-share/exercises'
-        alias cdexam='cd /mnt/hgfs/vm-share/exam'
+        alias cdlab='cd /mnt/hgfs/vm-share/oscp/lab'
+        alias cdexer='cd /mnt/hgfs/vm-share/oscp/exercises'
+        alias cdexam='cd /mnt/hgfs/vm-share/oscp/exam'
         alias cdthm='cd /mnt/vm-share/thm'
         alias cdhtb='cd /mnt/vm-share/htb'
 
@@ -153,7 +153,7 @@ if [[ "$OS" == "linux" ]]; then
         ## openvpn
         alias thmconnect='sudo openvpn /mnt/vm-share/thm/tryhackme-ccu337.ovpn'
         alias htbconnect='sudo openvpn /mnt/vm-share/htb/HTB-ccu337.ovpn'
-        alias pwkconnect='echo OS-80249; sudo openvpn /mnt/vm-share/lab-connection/OS-80249-PWK.ovpn'
+        alias pwkconnect='echo OS-80249; sudo openvpn /mnt/vm-share/oscp/lab/connection/OS-80249-PWK.ovpn'
 
         ## rdp to the offsec windows vm
         alias winvm='rdesktop -u admin -p lab 192.168.139.10 -g 1366x768'
