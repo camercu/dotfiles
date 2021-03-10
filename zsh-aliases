@@ -19,7 +19,7 @@ OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 alias l='ls'
 alias la='ls -A'
 alias ll='ls -Alh'
-alias lt='ls -Alht'
+alias lt='ls -Alhtr'
 
 ## grep aliases
 alias grep='grep --color=auto'
@@ -91,10 +91,10 @@ alias startlog='script term-$(date "+%Y%m%d-%T").log'
 
 ## easy dotfile editing commands
 DOTFILE_EDITOR=vim
-alias zrce="$DOTFILE_EDITOR ~/.zshrc"
-alias zae="$DOTFILE_EDITOR ~/.zsh-aliases"
+alias erc="$DOTFILE_EDITOR ~/.zshrc"
+alias ea="$DOTFILE_EDITOR ~/.zsh-aliases"
 unset DOTFILE_EDITOR
-alias shreload="exec $SHELL"
+alias reload="exec $SHELL"
 
 
 ####   Mac Specific:   ##########
@@ -115,7 +115,7 @@ if [[ "$OS" == "linux" ]]; then
     alias maintain='sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get autoremove -y && sudo apt-get autoclean -y'
 
     # copy to clipboard
-    alias ctc='xclip -sel clip'
+    alias clip='xclip -sel clip'
 
     # colorize ip command output
     alias ip='ip --color=auto'
@@ -158,6 +158,10 @@ if [[ "$OS" == "linux" ]]; then
         ## rdp to the offsec windows vm
         alias winvm='rdesktop -u admin -p lab 192.168.139.10 -g 1366x768'
         alias nixvm='rdesktop -u root -p lab 192.168.139.44 -g 1366x768'
+        
+        # Capture last command in playbook
+        alias plb="history | tail -n -1 | sed 's/^ *[0-9]* *//g' >> plb"
+
     fi
 fi
 
