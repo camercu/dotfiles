@@ -123,6 +123,9 @@ if [[ "$OS" == "linux" ]]; then
     # fd-find alias
     alias fd='fdfind'
 
+    # nmap as root
+    alias nmap='sudo nmap'
+
     # display tun0 ip addr
     alias vpnip="ip a s tun0 | grep -w inet | awk '{print \$2}' | cut -d '/' -f 1"
     # export VPNIP=$(ip -f inet addr show tun0 | grep -Po 'inet \\K\[\\d.\]+')
@@ -131,8 +134,8 @@ if [[ "$OS" == "linux" ]]; then
     alias lsn='sudo nc -lnvp'
 
     # create a pattern with metasploit's pattern_create.rb
-    alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb'
-    alias msp='pattcreat'
+    alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
+    alias pattoffs='/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q'
 
     # start web server on port 80 or 443
     alias http80='sudo python3 -m http.server 80'
@@ -149,7 +152,10 @@ if [[ "$OS" == "linux" ]]; then
         alias cdthm='cd /mnt/vm-share/thm'
         alias cdhtb='cd /mnt/vm-share/htb'
 
-        alias smbsrv='impacket-smbserver'
+        alias smbsrv='impacket-smbserver share .'
+
+        # take notes while you work
+        alias notes='vim -p notes.md plb'
 
         ## openvpn
         alias thmconnect='sudo openvpn /mnt/vm-share/thm/tryhackme-ccu337.ovpn'
@@ -157,8 +163,8 @@ if [[ "$OS" == "linux" ]]; then
         alias pwkconnect='echo OS-80249; sudo openvpn /mnt/vm-share/oscp/lab/connection/OS-80249-PWK.ovpn'
 
         ## rdp to the offsec windows vm
-        alias winvm='rdesktop -u admin -p lab 192.168.139.10 -g 1366x768'
-        alias nixvm='rdesktop -u root -p lab 192.168.139.44 -g 1366x768'
+        alias winvm='rdesktop -u admin -p lab 192.168.144.10 -g 90%'
+        alias nixvm='rdesktop -u root -p lab 192.168.144.44 -g 1366x700'
 
         # Capture last command in playbook
         alias plb="history | tail -n -1 | sed 's/^ *[0-9]* *//g' >> plb"
