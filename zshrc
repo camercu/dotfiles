@@ -93,7 +93,7 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-# export MANPATH="/usr/local/man:$MANPATH"
+export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
@@ -128,15 +128,29 @@ export CLICOLOR=1
 export PATH="$PATH:$(go env GOPATH)/bin"
 export GOPATH=$(go env GOPATH)
 
-export PATH="$PATH:$HOME/.local/bin"
+# set PATH to include user's .local/bin, if it exists
+[[ -d "$HOME/.local/.bin" ]] && export PATH="$PATH:$HOME/.local/bin"
+
+# set PATH so it includes user's private bin if it exists
+[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
+
 
 # enable nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
 # configure pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
 if command -v pyenv &>/dev/null; then
     eval "$(pyenv init -)"
     export PIPENV_IGNORE_VIRTUALENVS=1
+fi
+
+# Python argcomplete
+if command -v register-python-argcomplete &>/dev/null; then
+    autoload -U bashcompinit
+    bashcompinit
+    eval "$(register-python-argcomplete my-awesome-script)"
 fi
 

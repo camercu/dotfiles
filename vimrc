@@ -39,6 +39,8 @@ set showmatch       " Show matching brackets when cursor on them
 set t_Co=256        " full 256 color terminal
 set wrap            " Soft-wrap lines
 syntax on           " syntax highlighting
+set list lcs=tab:\ \    " show whitespace chars, with cursor at end of Tab
+set listchars=eol:⏎,tab:␉·,trail:␠,nbsp:⎵
 
 " Change cursor based on mode
 let &t_SI.="\e[5 q" "SI = INSERT mode

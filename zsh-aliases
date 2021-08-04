@@ -19,7 +19,7 @@ OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 alias l='ls'
 alias la='ls -A'
 alias ll='ls -Alh'
-alias lt='ls -Alhtr'
+alias lt='ls -Alht'
 
 ## grep aliases
 alias grep='grep --color=auto'
@@ -55,17 +55,17 @@ alias ts='tmux new-session -s'
 
 ## encoding/decoding
 alias rot13="python3 -c 'import sys, codecs;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(codecs.encode(s,\"rot_13\"))'"
-alias urlencode="python3 -c 'import sys,os,urllib.parse as url;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(url.quote(os.fsencode(s)))'"
+alias urlencode="python3 -c 'import sys,os,urllib.parse as url;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(url.quote_plus(os.fsencode(s)))'"
 alias urldecode="python3 -c 'import sys,urllib.parse as url;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(url.unquote(s.strip()))'"
 alias b64encode="python3 -c 'import sys,os,base64 as b64;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(b64.b64encode(os.fsencode(s)).decode())'"
 alias b64e='b64encode'
 alias b64decode="python3 -c 'import sys,base64 as b;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();sys.stdout.buffer.write(b.b64decode(s.strip()));'"
 alias b64d='b64decode'
-alias b16encode="python3 -c 'import sys,os,base64 as b16;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(b16.b16encode(os.fsencode(s)).decode())'"
+alias b16encode=$'python3 -c \'import sys,os,base64 as b16;s=" ".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(b16.b16encode(os.fsencode(s)).decode())\''
 alias b16e='b16encode'
 alias b16decode="python3 -c 'import sys, base64 as b;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();sys.stdout.buffer.write(b.b16decode(s.strip().upper()));'"
 alias b16d='b16decode'
-alias bin2sc="python3 -c 'import sys,os,textwrap as tw;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read();[print(f\"\\\"{x}\\\"\") for x in tw.wrap(\"\".join(f\"\\\x{b:02x}\" for b in os.fsencode(s)),75)]'"
+alias bin2sc=$'python3 -c \'import sys,os,textwrap as tw;s=" ".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read();[print(f"\\"{x}\\"") for x in tw.wrap("".join(f"\\\\x{b:02x}" for b in os.fsencode(s)),75)]\''
 
 ###  miscellaneous  ###
 alias df='df -H'
@@ -142,9 +142,10 @@ if [[ "$OS" == "linux" ]]; then
     if [ -d "/mnt/vm-share" ]; then
         alias cdot='cd /mnt/vm-share/dotfiles'
         alias cdshare='cd /mnt/vm-share'
-        alias cdlab='cd /mnt/hgfs/vm-share/oscp/lab'
-        alias cdexer='cd /mnt/hgfs/vm-share/oscp/exercises'
-        alias cdexam='cd /mnt/hgfs/vm-share/oscp/exam'
+        alias cdtools='cd /mnt/vm-share/tools'
+        alias cdlab='cd /mnt/vm-share/oscp/lab'
+        alias cdexer='cd /mnt/vm-share/oscp/exercises'
+        alias cdexam='cd /mnt/vm-share/oscp/exam'
         alias cdthm='cd /mnt/vm-share/thm'
         alias cdhtb='cd /mnt/vm-share/htb'
 
@@ -158,7 +159,7 @@ if [[ "$OS" == "linux" ]]; then
         ## rdp to the offsec windows vm
         alias winvm='rdesktop -u admin -p lab 192.168.139.10 -g 1366x768'
         alias nixvm='rdesktop -u root -p lab 192.168.139.44 -g 1366x768'
-        
+
         # Capture last command in playbook
         alias plb="history | tail -n -1 | sed 's/^ *[0-9]* *//g' >> plb"
 

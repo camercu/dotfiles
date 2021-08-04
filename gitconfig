@@ -25,3 +25,5 @@
 	contributors = shortlog --summary --numbered --email --all
 [pull]
 	rebase = false
+[init]
+	defaultBranch = main
