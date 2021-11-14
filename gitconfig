@@ -7,7 +7,7 @@
 	editor = vim
 	excludesfile = ~/.gitignore-global
 	autocrlf = input
-#	safecrlf = true
+#	safecrlf = warn
 [push]
 	default = upstream
 [merge]
