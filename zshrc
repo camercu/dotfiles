@@ -154,3 +154,6 @@ if command -v register-python-argcomplete &>/dev/null; then
     eval "$(register-python-argcomplete my-awesome-script)"
 fi
 
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /usr/local/bin/terraform terraform
