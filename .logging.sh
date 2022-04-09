@@ -3,7 +3,7 @@
 # Prints a custom-formatted timestamp.
 # The timestamp has no spaces and is lexicographically sortable (filename friendly)
 function now {
-	date "+%Y-%m-%d@%H:%M:%S"
+    date "+%Y%m%d-%T"
 }
 
 function debug {

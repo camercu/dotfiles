@@ -2,6 +2,10 @@
 ##    Custom Zsh Aliases   ##############################################
 #########################################################################
 
+# add simple logging (stderr) functions: debug, warn, error, success
+# also adds 'now' function to get timestamp
+[[ -f "$HOME/.logging.sh" ]] && source "$HOME/.logging.sh"
+
 ####  Variables  #########
 
 # # REGEX's
@@ -87,7 +91,7 @@ alias hex2raw="tr -d '\\\x' | xxd -r -p"
 alias ssh-noverify='ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no"'
 
 # Terminal Logging
-alias startlog='script term-$(date "+%Y%m%d-%T").log'
+alias startlog='script term-$(now).log'
 
 ## easy dotfile editing commands
 DOTFILE_EDITOR=vim
@@ -221,6 +225,3 @@ function ptfwd-add {
     local pubkey=$2
     echo "from=\"$from_addr\",command=\"echo 'This account can only be used for port forwarding'\",no-agent-forwarding,no-X11-forwarding,no-pty $pubkey" >> ~/.ssh/authorized_keys
 }
-
-# add simple logging (stderr) functions: debug, warn, error, success
-source .logging.sh
