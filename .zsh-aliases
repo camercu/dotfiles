@@ -184,31 +184,31 @@ function mcd {
 # history-delete: delete a line (offset) from your zsh-history
 # source: https://stackoverflow.com/a/63494771/5202294
 function hd {
-  # Usage: hd START [STOP]
-  # where START and STOP are history line numbers.
-  # Alternatively, you can do `hd -1` to remove the last line.
-  START=${1}
-  STOP=${2:-$START}
+    # Usage: hd START [STOP]
+    # where START and STOP are history line numbers.
+    # Alternatively, you can do `hd -1` to remove the last line.
+    START=${1}
+    STOP=${2:-$START}
 
-  # Prevent the specified history line from being saved.
-  local HISTORY_IGNORE="${(b)$(fc -ln $START $STOP)}"
-  # Write history to file, excluding lines matching `$HISTORY_IGNORE`
-  fc -W
-  # Dispose of current history and read new history from file.
-  fc -p $HISTFILE $HISTSIZE $SAVEHIST
-  print "Deleted '$HISTORY_IGNORE' from history."
+    # Prevent the specified history line from being saved.
+    local HISTORY_IGNORE="${(b)$(fc -ln $START $STOP)}"
+    # Write history to file, excluding lines matching `$HISTORY_IGNORE`
+    fc -W
+    # Dispose of current history and read new history from file.
+    fc -p $HISTFILE $HISTSIZE $SAVEHIST
+    print "Deleted '$HISTORY_IGNORE' from history."
 }
 
 # overrides builtin zshaddhistory to prevent logging `hd` commands
 function zshaddhistory {
- [[ $1 != 'hd '* ]]
+    [[ $1 != 'hd '* ]]
 }
 
 # fuzzy-search hashcat modes
 # source: https://jonathanh.co.uk/blog/fuzzy-search-hashcat-modes.html
 # NOTE: fzf and hashcat required to be installed
 function hcmode {
-  hashcat --example-hashes | awk -v RS="\n\n" -F "\t" '{gsub("\n","\t",$0); print $1 "\t" $2 "\t" $3}' | sed 's/MODE: //; s/TYPE: //' | fzf -d "\t" --header="Mode Type" --with-nth='1,2' --preview='echo {3}' --preview-window=up:1 --height=40%
+    hashcat --example-hashes | awk -v RS="\n\n" -F "\t" '{gsub("\n","\t",$0); print $1 "\t" $2 "\t" $3}' | sed 's/MODE: //; s/TYPE: //' | fzf -d "\t" --header="Mode Type" --with-nth='1,2' --preview='echo {3}' --preview-window=up:1 --height=40%
 }
 
 # add a pubkey to ssh authorized keys for port fwd only

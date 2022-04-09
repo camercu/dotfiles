@@ -10,9 +10,6 @@ OS="$(uname -s | tr '[:lower:]' '[:upper:]')"
 # simple logging functions for printing output to stderr
 source .logging.sh
 
-# make archive dir if doesn't exist
-[[ -d $ARCHIVE_DIR ]] || mkdir -p "$ARCHIVE_DIR"
-
 # obtain the absolute path of a file/dir
 realpath () {
 	local filename=$1
@@ -83,6 +80,18 @@ install_ohmytmux () {
 	install_dotfile "$HOME/.tmux/.tmux.conf"
 }
 
+# make archive dir if doesn't exist
+mkdir -p "$ARCHIVE_DIR"
+
+# make user-local bin folder
+USER_BIN="$HOME/.local/bin"
+mkdir -p "$USER_BIN"
+
+# install static-get script to user's bin dir
+# static-get is a tool for grabbing static binaries (useful for pentesting)
+install_dotfile bin/static-get "$USER_BIN/static-get"
+
+# tools to make terminal nice
 install_ohmyzsh
 install_ohmytmux
 
