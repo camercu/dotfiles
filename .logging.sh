@@ -6,7 +6,7 @@ function now {
 	date "+%Y-%m-%d@%H:%M:%S"
 }
 
-function info {
+function debug {
     local BLUE=$(tput setaf 4)
     local CLEAR=$(tput sgr0)
     echo "${BLUE}[*] $@${CLEAR}" >&2

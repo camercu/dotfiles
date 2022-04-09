@@ -36,13 +36,13 @@ install_dotfile () {
 	# back up existing file/dir if it exists and isn't a symlink
 	if [[ -e "$dst" && ! -L "$dst" ]]; then
 		backup="$(basename $dst.$(now)~)"
-		info "Backing up '$dst' at '$ARCHIVE_DIR/$backup'"
+		debug "Backing up '$dst' at '$ARCHIVE_DIR/$backup'"
 		mv "$dst" "$ARCHIVE_DIR/$backup"
 	fi
 
 	# symlink dotfile to destination
 	if [[ ! -e "$dst" ]]; then
-		info "Symlinking: '$dst' -> '$src'"
+		debug "Symlinking: '$dst' -> '$src'"
 		ln -sfw "$src" "$dst"
 	fi
 }
@@ -50,7 +50,7 @@ install_dotfile () {
 # installs oh-my-zsh if not present, along with desired theme & plugins
 install_ohmyzsh () {
 	if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-		info "Installing oh-my-zsh"
+		debug "Installing oh-my-zsh"
 		sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 	fi
 
@@ -60,7 +60,7 @@ install_ohmyzsh () {
 		local it_type="${2:-plugin}" # should be either "plugin" or "theme"
 		local parentdir="${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/${it_type}s/${item}"
 		if [[ ! -d "$parentdir" ]]; then
-			info "Installing oh-my-zsh $it_type: $item"
+			debug "Installing oh-my-zsh $it_type: $item"
 			mkdir -p "$(basename "$parentdir")"
 			git clone --depth=1 "$githubpath" "$parentdir"
 		fi
@@ -76,7 +76,7 @@ install_ohmyzsh () {
 
 install_ohmytmux () {
 	if [[ ! -d "$HOME/.tmux" ]]; then
-		info "Installing oh-my-tmux"
+		debug "Installing oh-my-tmux"
 		git clone https://github.com/gpakosz/.tmux.git "$HOME/.tmux"
 	fi
 
