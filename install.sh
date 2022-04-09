@@ -1,5 +1,8 @@
 # !/usr/bin/env bash
 
+# to delete all dotfile symlinks in home folder:
+# find ~ -type l -maxdepth 1 -delete -name '.*'
+
 DOTFILE_DIR=$(\cd $(\dirname ${BASH_SOURCE[0]}) && \pwd -P) # absolute path to dir
 ARCHIVE_DIR="${DOTFILE_DIR}/old"
 OS="$(uname -s | tr '[:lower:]' '[:upper:]')"
@@ -33,13 +36,13 @@ install_dotfile () {
 	# back up existing file/dir if it exists and isn't a symlink
 	if [[ -e "$dst" && ! -L "$dst" ]]; then
 		backup="$(basename $dst.$(now)~)"
-		info "Backing up '$dst' -> '$ARCHIVE_DIR/$backup'"
+		info "Backing up '$dst' at '$ARCHIVE_DIR/$backup'"
 		mv "$dst" "$ARCHIVE_DIR/$backup"
 	fi
 
 	# symlink dotfile to destination
 	if [[ ! -e "$dst" ]]; then
-		info "Installing symlink from '$src' to '$dst'"
+		info "Symlinking: '$dst' -> '$src'"
 		ln -sfw "$src" "$dst"
 	fi
 }
