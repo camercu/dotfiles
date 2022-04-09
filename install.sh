@@ -1,7 +1,7 @@
 # !/usr/bin/env bash
 
-# to delete all dotfile symlinks in home folder:
-# find ~ -type l -maxdepth 1 -delete -name '.*'
+# To delete all dotfile symlinks in home folder (not perfect uninstaller):
+# find ~ -maxdepth 1 -type l -name '.*' -delete
 
 DOTFILE_DIR=$(\cd $(\dirname ${BASH_SOURCE[0]}) && \pwd -P) # absolute path to dir
 ARCHIVE_DIR="${DOTFILE_DIR}/old"
