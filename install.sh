@@ -90,7 +90,6 @@ COMMON_DOTFILES=(
 	.gitignore-global
 	.logging.sh
 	.p10k.zsh
-	.tmux.conf
 	.zsh-aliases
 	.zshrc
 )
