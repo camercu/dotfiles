@@ -46,7 +46,8 @@ install_dotfile () {
 
 # installs oh-my-zsh if not present, along with desired theme & plugins
 install_ohmyzsh () {
-	if [[ ! -d ~/.oh-my-zsh ]]; then
+	if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+		info "Installing oh-my-zsh"
 		sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 	fi
 
@@ -54,8 +55,10 @@ install_ohmyzsh () {
 		local githubpath="https://github.com/$1"
 		local item="$(basename $1)" # get repo name
 		local it_type="${2:-plugin}" # should be either "plugin" or "theme"
-		local parentdir="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/${it_type}s/${item}"
+		local parentdir="${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/${it_type}s/${item}"
 		if [[ ! -d "$parentdir" ]]; then
+			info "Installing oh-my-zsh $it_type: $item"
+			mkdir -p "$(basename "$parentdir")"
 			git clone --depth=1 "$githubpath" "$parentdir"
 		fi
 	}
@@ -65,8 +68,20 @@ install_ohmyzsh () {
 	install_extra zsh-users/zsh-syntax-highlighting
 
 	# hack that installs symlink to custom plugin
-	install_dotfile hashcat-mode-finder "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/"
+	install_dotfile hashcat-mode-finder "${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/plugins/hashcat-mode-finder"
 }
+
+install_ohmytmux () {
+	if [[ ! -d "$HOME/.tmux" ]]; then
+		info "Installing oh-my-tmux"
+		git clone https://github.com/gpakosz/.tmux.git "$HOME/.tmux"
+	fi
+
+	install_dotfile "$HOME/.tmux/.tmux.conf"
+}
+
+install_ohmyzsh
+install_ohmytmux
 
 COMMON_DOTFILES=(
 	.gdbinit
@@ -97,7 +112,14 @@ if [[ "$OS" == "DARWIN" ]]; then
 		install_dotfile "$df"
 	done
 
+	# these require custom destinations, so can't use array (bash doesn't support 2D arrays)
 	install_dotfile .gitconfig-credential-mac ~/.gitconfig-credential
+	install_dotfile .tmux.conf.local.mac ~/.tmux.conf.local
+fi
+
+# install Linux-specific dotfiles
+if [[ "$OS" == "LINUX" ]]; then
+	install_dotfile .tmux.conf.local.linux ~/.tmux.conf.local
 fi
 
 success DONE!
