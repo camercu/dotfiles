@@ -1,8 +1,10 @@
 [user]
 	name = camercu
 	email = cameron.unterberger@gmail.com
-[credential]
-	helper = osxkeychain
+[credential "https://github.com"]
+	username = camercu
+[credential "https://gitlab.com"]
+	username = camercu
 [core]
 	editor = vim
 	excludesfile = ~/.gitignore-global
@@ -14,16 +16,15 @@
 	conflictstyle = diff3
 [include]
     path = ~/.gitconfig-aliases
+	path = ~/.gitconfig-credentail
 [color]
     ui = auto
+[pull]
+	rebase = false
+[init]
+	defaultBranch = main
 
 
 # useful random stuff:
 # disable upstream push
 # git remote set-url --push upstream PUSH_DISABLED
-[alias]
-	contributors = shortlog --summary --numbered --email --all
-[pull]
-	rebase = false
-[init]
-	defaultBranch = main

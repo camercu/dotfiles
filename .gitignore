@@ -2,5 +2,7 @@ old/
 lscolors/
 .github-api-token
 .vim/bundle/
-.vim/autoload/plug.vim.old
+.vim/autoload/
 .vim/sessions/
+.vim/spell/
+.vim/.netrwhist

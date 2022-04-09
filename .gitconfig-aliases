@@ -36,6 +36,9 @@
     # Show list of files in a conflict state.
     conflicts = !git diff --name-only --diff-filter=U
 
+    # show all contributors to a repo
+    contributors = shortlog --summary --numbered --email --all
+
     cp = cherry-pick
 
     delete = branch -d

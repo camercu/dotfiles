@@ -221,5 +221,3 @@ function ptfwd-add {
     local pubkey=$2
     echo "from=\"$from_addr\",command=\"echo 'This account can only be used for port forwarding'\",no-agent-forwarding,no-X11-forwarding,no-pty $pubkey" >> ~/.ssh/authorized_keys
 }
-
-
