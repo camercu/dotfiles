@@ -58,7 +58,6 @@ install_ohmyzsh () {
 		local parentdir="${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/${it_type}s/${item}"
 		if [[ ! -d "$parentdir" ]]; then
 			debug "Installing oh-my-zsh $it_type: $item"
-			mkdir -p "$(basename "$parentdir")"
 			git clone --depth=1 "$githubpath" "$parentdir"
 		fi
 	}
