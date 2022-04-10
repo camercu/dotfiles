@@ -126,9 +126,11 @@ export LANG=en_US.UTF-8
 export CLICOLOR=1
 
 # go path
-export PATH="$PATH:/usr/local/go/bin"
-export PATH="$PATH:$(go env GOPATH)/bin"
-export GOPATH=$(go env GOPATH)
+[[ -d "/usr/local/go/bin" ]] && export PATH="$PATH:/usr/local/go/bin"
+if which go &>/dev/null; then
+    export PATH="$PATH:$(go env GOPATH)/bin"
+    export GOPATH=$(go env GOPATH)
+fi
 
 # set PATH to include user's .local/bin, if it exists
 [[ -d "$HOME/.local/bin" ]] && export PATH="$PATH:$HOME/.local/bin"
