@@ -1,4 +1,4 @@
-# !/usr/bin/env bash
+#!/usr/bin/env bash
 
 # To delete all dotfile symlinks in home folder (not perfect uninstaller):
 # find ~ -maxdepth 1 -type l -name '.*' -delete
