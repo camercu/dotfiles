@@ -3,13 +3,6 @@
 # To delete all dotfile symlinks in home folder (not perfect uninstaller):
 # find ~ -maxdepth 1 -type l -name '.*' -delete
 
-DOTFILE_DIR=$(\cd $(\dirname ${BASH_SOURCE[0]}) && \pwd -P) # absolute path to dir
-ARCHIVE_DIR="${DOTFILE_DIR}/old"
-OS="$(uname -s | tr '[:lower:]' '[:upper:]')"
-
-# simple logging functions for printing output to stderr
-source .logging.sh
-
 # obtain the absolute path of a file/dir
 realpath () {
 	local filename=$1
@@ -21,6 +14,14 @@ realpath () {
 		echo "$(cd "${parentdir}" && pwd -P)/$(basename "$1")"
 	fi
 }
+
+DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
+ARCHIVE_DIR="${DOTFILE_DIR}/old"
+OS="$(uname -s | tr '[:lower:]' '[:upper:]')"
+
+# simple logging functions for printing output to stderr
+source "${DOTFILE_DIR}/.logging.sh"
+
 
 # backs up old dotfile and replaces it with symlink to one here.
 # Usage: install_dotfile FILE [DEST]
@@ -40,7 +41,7 @@ install_dotfile () {
 	# symlink dotfile to destination
 	if [[ ! -e "$dst" ]]; then
 		debug "Symlinking: '$dst' -> '$src'"
-		ln -sfw "$src" "$dst"
+		ln -sf "$src" "$dst"
 	fi
 }
 
