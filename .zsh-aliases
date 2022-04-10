@@ -163,7 +163,7 @@ if [[ "$OS" == "linux" ]]; then
 
         ## openvpn
         alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'
-        alias htbconnect='sudo openvpn /mnt/share/htb/HTB-ccu337.ovpn'
+        alias htbconnect='sudo openvpn /mnt/share/htb/lab_camercu.ovpn'
         alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/oscp/lab/connection/OS-80249-PWK.ovpn'
 
         ## rdp to the offsec windows vm
