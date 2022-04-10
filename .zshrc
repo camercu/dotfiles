@@ -136,7 +136,6 @@ export GOPATH=$(go env GOPATH)
 # set PATH so it includes user's private bin if it exists
 [[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
 
-
 # enable nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -156,6 +155,6 @@ if command -v register-python-argcomplete &>/dev/null; then
     eval "$(register-python-argcomplete my-awesome-script)"
 fi
 
-
+# terraform completions
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /usr/local/bin/terraform terraform
