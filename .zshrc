@@ -131,7 +131,7 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 export GOPATH=$(go env GOPATH)
 
 # set PATH to include user's .local/bin, if it exists
-[[ -d "$HOME/.local/.bin" ]] && export PATH="$PATH:$HOME/.local/bin"
+[[ -d "$HOME/.local/bin" ]] && export PATH="$PATH:$HOME/.local/bin"
 
 # set PATH so it includes user's private bin if it exists
 [[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
