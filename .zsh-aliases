@@ -147,19 +147,12 @@ if [[ "$OS" == "linux" ]]; then
 
     ## If working in hacking vm  ############
     if [ -d "/mnt/share" ]; then
-        alias cdot='cd /mnt/share/dotfiles'
         alias cdshare='cd /mnt/share'
-        alias cdtools='cd /mnt/share/tools'
-        alias cdlab='cd /mnt/share/oscp/lab'
-        alias cdexer='cd /mnt/share/oscp/exercises'
-        alias cdexam='cd /mnt/share/oscp/exam'
-        alias cdthm='cd /mnt/share/thm'
-        alias cdhtb='cd /mnt/share/htb'
 
         alias smbsrv='impacket-smbserver share .'
 
         # take notes while you work
-        alias notes='vim -p notes.md plb'
+        alias notes='vim notes.md'
 
         ## openvpn
         alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'
@@ -167,7 +160,7 @@ if [[ "$OS" == "linux" ]]; then
         alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/oscp/lab/connection/OS-80249-PWK.ovpn'
         alias pgconnect='sudo openvpn /mnt/share/oscp/pg/pg.ovpn'
 
-        ## rdp to the offsec windows vm
+        ## rdp to the offsec practice vms
         alias winvm='rdesktop -u admin -p lab 192.168.144.10 -g 90%'
         alias nixvm='rdesktop -u root -p lab 192.168.144.44 -g 1366x700'
 
@@ -184,6 +177,22 @@ fi
 # Shortcut to make a directory and cd into it
 function mcd {
     mkdir -p $1 && cd $1 && pwd
+}
+
+# start new box
+function newbox {
+    local name="$1"
+    mcd "$1"
+    mkdir -p scan pwn loot img
+    echo "# $1" >> notes.md
+    echo >> notes.md
+    echo "# Scan" >> notes.md
+    echo >> notes.md
+    echo "# Get Access" >> notes.md
+    echo >> notes.md
+    echo "# Privesc" >> notes.md
+    echo >> notes.md
+    vim notes.md
 }
 
 # history-delete: delete a line (offset) from your zsh-history
