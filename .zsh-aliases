@@ -99,12 +99,12 @@ alias erc="$DOTFILE_EDITOR ~/.zshrc"
 alias ea="$DOTFILE_EDITOR ~/.zsh-aliases"
 unset DOTFILE_EDITOR
 alias reload="exec $SHELL"
+alias cdot='cd ~/.dotfiles'
 
 
 ####   Mac Specific:   ##########
 if [[ "$OS" == "darwin" ]]; then
     alias brewup='brew update && brew upgrade && brew cleanup'
-    alias cdot='cd ~/.dotfiles'
     alias md5sum='openssl md5'
     alias sha1sum='openssl sha1'
     alias sha256sum='openssl sha256'
