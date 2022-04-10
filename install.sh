@@ -45,16 +45,6 @@ install_dotfile () {
 	fi
 }
 
-install_omz_extras () {
-	local githubpath="https://github.com/$1"
-	local item="$(basename $1)" # get repo name
-	local it_type="${2:-plugin}" # should be either "plugin" or "theme"
-	local parentdir="${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/${it_type}s/${item}"
-	if [[ ! -d "$parentdir" ]]; then
-		debug "Installing oh-my-zsh $it_type: $item"
-		git clone --depth=1 "$githubpath" "$parentdir"
-	fi
-}
 
 # installs oh-my-zsh if not present, along with desired theme & plugins
 install_ohmyzsh () {
@@ -62,6 +52,17 @@ install_ohmyzsh () {
 		debug "Installing oh-my-zsh"
 		sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 	fi
+
+	install_omz_extras () {
+		local githubpath="https://github.com/$1"
+		local item="$(basename $1)" # get repo name
+		local it_type="${2:-plugin}" # should be either "plugin" or "theme"
+		local parentdir="${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/${it_type}s/${item}"
+		if [[ ! -d "$parentdir" ]]; then
+			debug "Installing oh-my-zsh $it_type: $item"
+			git clone --depth=1 "$githubpath" "$parentdir"
+		fi
+	}
 
 	install_omz_extras romkatv/powerlevel10k theme
 	install_omz_extras zsh-users/zsh-autosuggestions
