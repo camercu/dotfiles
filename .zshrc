@@ -125,6 +125,7 @@ export LANG=en_US.UTF-8
 
 export CLICOLOR=1
 
+# go path
 export PATH="$PATH:/usr/local/go/bin"
 export PATH="$PATH:$(go env GOPATH)/bin"
 export GOPATH=$(go env GOPATH)
