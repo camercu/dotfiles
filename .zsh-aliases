@@ -146,15 +146,15 @@ if [[ "$OS" == "linux" ]]; then
     alias http443='sudo python3 -m http.server 443'
 
     ## If working in hacking vm  ############
-    if [ -d "/mnt/vm-share" ]; then
-        alias cdot='cd /mnt/vm-share/dotfiles'
-        alias cdshare='cd /mnt/vm-share'
-        alias cdtools='cd /mnt/vm-share/tools'
-        alias cdlab='cd /mnt/vm-share/oscp/lab'
-        alias cdexer='cd /mnt/vm-share/oscp/exercises'
-        alias cdexam='cd /mnt/vm-share/oscp/exam'
-        alias cdthm='cd /mnt/vm-share/thm'
-        alias cdhtb='cd /mnt/vm-share/htb'
+    if [ -d "/mnt/share" ]; then
+        alias cdot='cd /mnt/share/dotfiles'
+        alias cdshare='cd /mnt/share'
+        alias cdtools='cd /mnt/share/tools'
+        alias cdlab='cd /mnt/share/oscp/lab'
+        alias cdexer='cd /mnt/share/oscp/exercises'
+        alias cdexam='cd /mnt/share/oscp/exam'
+        alias cdthm='cd /mnt/share/thm'
+        alias cdhtb='cd /mnt/share/htb'
 
         alias smbsrv='impacket-smbserver share .'
 
@@ -162,9 +162,9 @@ if [[ "$OS" == "linux" ]]; then
         alias notes='vim -p notes.md plb'
 
         ## openvpn
-        alias thmconnect='sudo openvpn /mnt/vm-share/thm/tryhackme-ccu337.ovpn'
-        alias htbconnect='sudo openvpn /mnt/vm-share/htb/HTB-ccu337.ovpn'
-        alias pwkconnect='echo OS-80249; sudo openvpn /mnt/vm-share/oscp/lab/connection/OS-80249-PWK.ovpn'
+        alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'
+        alias htbconnect='sudo openvpn /mnt/share/htb/HTB-ccu337.ovpn'
+        alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/oscp/lab/connection/OS-80249-PWK.ovpn'
 
         ## rdp to the offsec windows vm
         alias winvm='rdesktop -u admin -p lab 192.168.144.10 -g 90%'
