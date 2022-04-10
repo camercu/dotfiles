@@ -45,6 +45,17 @@ install_dotfile () {
 	fi
 }
 
+install_omz_extras () {
+	local githubpath="https://github.com/$1"
+	local item="$(basename $1)" # get repo name
+	local it_type="${2:-plugin}" # should be either "plugin" or "theme"
+	local parentdir="${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/${it_type}s/${item}"
+	if [[ ! -d "$parentdir" ]]; then
+		debug "Installing oh-my-zsh $it_type: $item"
+		git clone --depth=1 "$githubpath" "$parentdir"
+	fi
+}
+
 # installs oh-my-zsh if not present, along with desired theme & plugins
 install_ohmyzsh () {
 	if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
@@ -52,20 +63,9 @@ install_ohmyzsh () {
 		sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 	fi
 
-	function install_extra {
-		local githubpath="https://github.com/$1"
-		local item="$(basename $1)" # get repo name
-		local it_type="${2:-plugin}" # should be either "plugin" or "theme"
-		local parentdir="${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/${it_type}s/${item}"
-		if [[ ! -d "$parentdir" ]]; then
-			debug "Installing oh-my-zsh $it_type: $item"
-			git clone --depth=1 "$githubpath" "$parentdir"
-		fi
-	}
-
-	install_extra romkatv/powerlevel10k theme
-	install_extra zsh-users/zsh-autosuggestions
-	install_extra zsh-users/zsh-syntax-highlighting
+	install_omz_extras romkatv/powerlevel10k theme
+	install_omz_extras zsh-users/zsh-autosuggestions
+	install_omz_extras zsh-users/zsh-syntax-highlighting
 
 	# hack that installs symlink to custom plugin
 	install_dotfile hashcat-mode-finder "${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/plugins/hashcat-mode-finder"
