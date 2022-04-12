@@ -146,9 +146,9 @@ export NVM_DIR="$HOME/.nvm"
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 if command -v pyenv &>/dev/null; then
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
-    export PIPENV_IGNORE_VIRTUALENVS=1
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+export PIPENV_IGNORE_VIRTUALENVS=1
 fi
 #
 # terraform completions
