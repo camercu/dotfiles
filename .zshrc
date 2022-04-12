@@ -144,19 +144,13 @@ export NVM_DIR="$HOME/.nvm"
 
 # configure pyenv
 export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/shims:$PATH"
+export PATH="$PYENV_ROOT/bin:$PATH"
 if command -v pyenv &>/dev/null; then
+    eval "$(pyenv init --path)"
     eval "$(pyenv init -)"
     export PIPENV_IGNORE_VIRTUALENVS=1
 fi
-
-# Python argcomplete
-if command -v register-python-argcomplete &>/dev/null; then
-    autoload -U bashcompinit
-    bashcompinit
-    eval "$(register-python-argcomplete my-awesome-script)"
-fi
-
+#
 # terraform completions
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /usr/local/bin/terraform terraform
