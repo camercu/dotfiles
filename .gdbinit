@@ -1,5 +1,6 @@
-# source ~/.gdbinit-gef.py
+# source ~/.pwndbg/gdbinit.py
 source ~/.peda/peda.py
+# source ~/.gdbinit-gef.py
 
 # for OSX Sierra 10.12 or later with SIP enabled:
 set startup-with-shell off
