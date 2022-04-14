@@ -5,7 +5,7 @@
 
 # obtain the absolute path of a file/dir
 realpath () {
-	local filename=$1
+	local filename="$1"
 	local parentdir=$(dirname "${filename}")
 
 	if [ -d "${filename}" ]; then
