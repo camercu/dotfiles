@@ -188,13 +188,14 @@ function newbox {
     mkdir -p scan pwn loot img
     echo "# $1" >> notes.md
     echo >> notes.md
-    echo "# Scan" >> notes.md
+    echo "# scan" >> notes.md
     echo >> notes.md
-    echo "# Get Access" >> notes.md
+    echo "# get access" >> notes.md
     echo >> notes.md
-    echo "# Privesc" >> notes.md
+    echo "# privesc" >> notes.md
     echo >> notes.md
-    vim notes.md
+    cd scan
+    pwd
 }
 
 # history-delete: delete a line (offset) from your zsh-history
