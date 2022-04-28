@@ -15,14 +15,14 @@
 [merge]
 	conflictstyle = diff3
 [include]
-    path = ~/.gitconfig-aliases
-    path = ~/.gitconfig-credentail
+	path = ~/.gitconfig-aliases
+	path = ~/.gitconfig-credentail
 [color]
-    ui = auto
+	ui = auto
 [pull]
-    rebase = false
+	rebase = false
 [init]
-    defaultBranch = main
+	defaultBranch = main
 
 
 # useful random stuff:
