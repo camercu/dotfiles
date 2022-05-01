@@ -15,10 +15,10 @@
 [merge]
 	conflictstyle = diff3
 [include]
-    path = ~/.gitconfig-aliases
-	path = ~/.gitconfig-credentail
+	path = ~/.gitconfig-aliases
+	path = ~/.gitconfig-credential
 [color]
-    ui = auto
+	ui = auto
 [pull]
 	rebase = false
 [init]
