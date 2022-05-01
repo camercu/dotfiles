@@ -124,7 +124,7 @@ if [[ "$OS" == "linux" ]]; then
     alias clip='xclip -sel clip'
 
     # colorize ip command output
-    alias ip='ip --color=auto'
+    alias ip='ip -color=auto'
 
     # fd-find alias
     alias fd='fdfind'
