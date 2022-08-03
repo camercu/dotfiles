@@ -147,6 +147,10 @@ if [[ "$OS" == "linux" ]]; then
     alias http80='sudo python3 -m http.server 80'
     alias http443='sudo python3 -m http.server 443'
 
+    # grep through ps and netstat listings:
+    alias psg='ps -ef | grep -i $1'
+    alias nsg='netstat -natp | grep -i $1'
+
     ## If working in hacking vm  ############
     if [ -d "/mnt/share" ]; then
         alias cdshare='cd /mnt/share'
