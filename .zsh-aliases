@@ -139,6 +139,13 @@ if [[ "$OS" == "linux" ]]; then
     # netcat listener
     alias lsn='sudo nc -lnvp'
 
+    # set up can0 interface
+    alias canup='sudo modprobe can \
+        && sudo modprobe vcan \
+        && sudo modprobe can-isotp \
+        && sudo ip link set up can0 txqueuelen 4000 type can bitrate 500000 \
+        && ip a s can0'
+
     # create a pattern with metasploit's pattern_create.rb
     alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
     alias pattoffs='/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q'
