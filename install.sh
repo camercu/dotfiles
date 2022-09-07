@@ -129,8 +129,16 @@ if [[ "$OS" == "DARWIN" ]]; then
 	install_dotfile .tmux.conf.local.mac ~/.tmux.conf.local
 fi
 
+LINUX_DOTFILES=(
+	.config/terminator/config
+)
+
 # install Linux-specific dotfiles
 if [[ "$OS" == "LINUX" ]]; then
+	for df in "${LINUX_DOTFILES[@]}"; do
+		install_dotfile "$df"
+	done
+
 	install_dotfile .tmux.conf.local.linux ~/.tmux.conf.local
 fi
 
