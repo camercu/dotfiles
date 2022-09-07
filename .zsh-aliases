@@ -120,6 +120,8 @@ if [[ "$OS" == "linux" ]]; then
     # upgrade all packages
     alias maintain='sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get autoremove -y && sudo apt-get autoclean -y'
 
+    alias arp='ip neigh'
+
     # copy to clipboard
     alias clip='xclip -sel clip'
 
@@ -145,6 +147,10 @@ if [[ "$OS" == "linux" ]]; then
         && sudo modprobe can-isotp \
         && sudo ip link set up can0 txqueuelen 4000 type can bitrate 500000 \
         && ip a s can0'
+
+    alias vcanup='sudo ip link add dev vcan0 type vcan \
+        && sudo ip link set dev vcan0 up \
+        && ip a s vcan0'
 
     # create a pattern with metasploit's pattern_create.rb
     alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
