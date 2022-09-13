@@ -69,6 +69,10 @@ alias b16encode=$'python3 -c \'import sys,os,base64 as b16;s=" ".join(sys.argv[1
 alias b16e='b16encode'
 alias b16decode="python3 -c 'import sys, base64 as b;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();sys.stdout.buffer.write(b.b16decode(s.strip().upper()));'"
 alias b16d='b16decode'
+alias hex2dec="python3 -c 'import sys;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(int(s.strip(),16));'"
+alias h2d='hex2dec'
+alias dec2hex="python3 -c 'import sys;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(hex(int(s.strip())));'"
+alias d2h='dec2hex'
 alias bin2sc=$'python3 -c \'import sys,os,textwrap as tw;s=" ".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read();[print(f"\\"{x}\\"") for x in tw.wrap("".join(f"\\\\x{b:02x}" for b in os.fsencode(s)),75)]\''
 
 ###  miscellaneous  ###
@@ -141,13 +145,12 @@ if [[ "$OS" == "linux" ]]; then
     # netcat listener
     alias lsn='sudo nc -lnvp'
 
-    # set up can0 interface
-    alias canup='sudo modprobe can \
-        && sudo modprobe vcan \
-        && sudo modprobe can-isotp \
-        && sudo ip link set up can0 txqueuelen 4000 type can bitrate 500000 \
+    # set up can0 socketCAN interface
+    # before running, add can, vcan, and can-isotp to /etc/modules
+    # and also modprobe those modules
+    alias canup='sudo ip link set up can0 txqueuelen 65535 type can bitrate 500000 \
         && ip a s can0'
-
+    # create and configure vcan0 virtual CAN interface
     alias vcanup='sudo ip link add dev vcan0 type vcan \
         && sudo ip link set dev vcan0 up \
         && ip a s vcan0'
