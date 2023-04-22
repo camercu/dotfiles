@@ -70,9 +70,20 @@ set nrformats-=octal    " ignore octal numbers for Ctrl-A/X (confusing)
 set timeout timeoutlen=1500 ttimeoutlen=100 " Key Mapping and Keycode timeouts
 set ttyfast         " fast terminal connection, helps with copy/paste
 " set undofile        " create <filename>.un~ files to persist undo information
-set wildmenu        " show tab-completions in command line
+set wildmenu        " show tab-completions in command l 
 set wildmode=list:longest   " show all completions, sorted by longest match
 command! W w !sudo tee % > /dev/null " :W to sudo-save
+
+if has("nvim")
+    " system clipboard
+    nmap <c-c> "+y
+    vmap <c-c> "+y
+    nmap <c-v> "+p
+    inoremap <c-v> <c-r>+
+    cnoremap <c-v> <c-r>+
+    " use <c-r> to insert original character without triggering things like auto-pairs
+    inoremap <c-r> <c-v>
+endif
 
 " Delete trailing white space on save, useful for some filetypes ;)
 fun! StripTrailingWhitespace()

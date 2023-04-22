@@ -153,7 +153,7 @@ eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 export PIPENV_IGNORE_VIRTUALENVS=1
 fi
-#
+
 # terraform completions
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /usr/local/bin/terraform terraform

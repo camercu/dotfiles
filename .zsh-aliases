@@ -179,16 +179,8 @@ if [[ "$OS" == "linux" ]]; then
         ## openvpn
         alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'
         alias htbconnect='sudo openvpn /mnt/share/htb/lab_camercu.ovpn'
-        alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/oscp/lab/connection/OS-80249-PWK.ovpn'
-        alias pgconnect='sudo openvpn /mnt/share/oscp/pg/pg.ovpn'
-
-        ## rdp to the offsec practice vms
-        alias winvm='rdesktop -u admin -p lab 192.168.144.10 -g 90%'
-        alias nixvm='rdesktop -u root -p lab 192.168.144.44 -g 1366x700'
-
-        # Capture last command in playbook
-        alias plb="history | tail -n -1 | sed 's/^ *[0-9]* *//g' >> plb"
-
+        alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/offsec/universal.ovpn'
+        alias pgconnect='sudo openvpn /mnt/share/offsec/universal.ovpn'
     fi
 fi
 
