@@ -1,3 +1,7 @@
+# useful random stuff:
+# disable upstream push
+# git remote set-url --push upstream PUSH_DISABLED
+
 [user]
 	name = camercu
 	email = cameron.unterberger@gmail.com
@@ -23,8 +27,6 @@
 	rebase = false
 [init]
 	defaultBranch = main
-
-
-# useful random stuff:
-# disable upstream push
-# git remote set-url --push upstream PUSH_DISABLED
+[safe]
+	directory = /mnt/share/hackbox-init
+	directory = /mnt/share/.dotfiles

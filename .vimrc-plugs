@@ -19,25 +19,6 @@ Plug 'joshdick/onedark.vim'
 " autocompletion engine
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-" Autocomplete Language Servers
-Plug 'neoclide/coc-css', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-git', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-html', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-json', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-lists', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-python', {'do': 'yarn install --frozen-lockfile'}
-" Plug 'neoclide/coc-pair', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-rls', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-snippets', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-tabnine', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc-yaml', {'do': 'yarn install --frozen-lockfile'}
-Plug 'josa42/coc-go', {'do': 'yarn install --frozen-lockfile'}
-
-Plug 'fatih/vim-go'
-
-" Prettier extension for coc.nvim
-Plug 'neoclide/coc-prettier', {'do': 'yarn install --frozen-lockfile'}
-
 " Git commands from inside vim
 Plug 'tpope/vim-fugitive'
 

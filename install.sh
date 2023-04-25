@@ -29,7 +29,7 @@ source "${DOTFILE_DIR}/.logging.sh"
 #  DEST - optional override of destination where dotfile will go. Defaults to home dir.
 install_dotfile () {
 	local src="$(realpath "$1")"
-	local dst="${2:-"$HOME/$(basename "$src")"}"
+	local dst="${2:-"$HOME/$1"}"
 
 	# back up existing file/dir if it exists and isn't a symlink
 	if [[ -e "$dst" && ! -L "$dst" ]]; then
@@ -78,7 +78,7 @@ install_ohmytmux () {
 		git clone https://github.com/gpakosz/.tmux.git "$HOME/.tmux"
 	fi
 
-	install_dotfile "$HOME/.tmux/.tmux.conf"
+	install_dotfile "$HOME/.tmux/.tmux.conf" "$HOME/.tmux.conf"
 }
 
 # make archive dir if doesn't exist
@@ -139,6 +139,7 @@ if [[ "$OS" == "LINUX" ]]; then
 		install_dotfile "$df"
 	done
 
+	install_dotfile .gitconfig-credential-linux ~/.gitconfig-credential
 	install_dotfile .tmux.conf.local.linux ~/.tmux.conf.local
 fi
 
