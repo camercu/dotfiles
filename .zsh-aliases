@@ -142,10 +142,7 @@ if [[ "$OS" == "linux" ]]; then
     alias lsn='sudo nc -lnvp'
 
     # set up can0 interface
-    alias canup='sudo modprobe can \
-        && sudo modprobe vcan \
-        && sudo modprobe can-isotp \
-        && sudo ip link set up can0 txqueuelen 4000 type can bitrate 500000 \
+    alias canup='sudo ip link set up can0 txqueuelen 4000 type can bitrate 500000 \
         && ip a s can0'
 
     alias vcanup='sudo ip link add dev vcan0 type vcan \
