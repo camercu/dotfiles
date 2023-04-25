@@ -139,6 +139,7 @@ if [[ "$OS" == "LINUX" ]]; then
 		install_dotfile "$df"
 	done
 
+	install_dotfile .gitconfig-credential-linux ~/.gitconfig-credential
 	install_dotfile .tmux.conf.local.linux ~/.tmux.conf.local
 fi
 
