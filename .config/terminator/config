@@ -1,23 +1,18 @@
 [global_config]
-  title_transmit_bg_color = "#2ec27e"
-  title_receive_bg_color = "#d41919"
-  title_inactive_fg_color = "#ffffff"
-  title_inactive_bg_color = "#23252e"
-  title_use_system_font = False
-  title_font = MesloLGS NF 9
+  enabled_plugins = Logger, CurrDirOpen, LaunchpadBugURLHandler, LaunchpadCodeURLHandler, APTURLHandler, TerminalShot
 [keybindings]
 [profiles]
   [[default]]
     background_color = "#002b36"
     background_darkness = 0.95
-    background_type = transparent
-    cursor_color = "#aaaaaa"
     font = MesloLGS NF 10
     foreground_color = "#839496"
     scrollback_infinite = True
     palette = "#000000:#aa0000:#00aa00:#aa5500:#0000aa:#aa00aa:#00aaaa:#aaaaaa:#555555:#ff5555:#55ff55:#ffff55:#5555ff:#ff55ff:#55ffff:#ffffff"
     use_system_font = False
     copy_on_selection = True
+    title_use_system_font = False
+    title_font = MesloLGS NF 9
 [layouts]
   [[default]]
     [[[window0]]]

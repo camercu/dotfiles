@@ -29,7 +29,7 @@ source "${DOTFILE_DIR}/.logging.sh"
 #  DEST - optional override of destination where dotfile will go. Defaults to home dir.
 install_dotfile () {
 	local src="$(realpath "$1")"
-	local dst="${2:-"$HOME/$(basename "$src")"}"
+	local dst="${2:-"$HOME/$src"}"
 
 	# back up existing file/dir if it exists and isn't a symlink
 	if [[ -e "$dst" && ! -L "$dst" ]]; then
