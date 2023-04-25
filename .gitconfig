@@ -29,3 +29,4 @@
 	defaultBranch = main
 [safe]
 	directory = /mnt/share/hackbox-init
+	directory = /mnt/share/.dotfiles
