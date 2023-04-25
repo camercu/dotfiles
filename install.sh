@@ -78,7 +78,7 @@ install_ohmytmux () {
 		git clone https://github.com/gpakosz/.tmux.git "$HOME/.tmux"
 	fi
 
-	install_dotfile "$HOME/.tmux/.tmux.conf"
+	install_dotfile "$HOME/.tmux/.tmux.conf" "$HOME/.tmux.conf"
 }
 
 # make archive dir if doesn't exist
