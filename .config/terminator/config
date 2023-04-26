@@ -11,6 +11,7 @@
     palette = "#000000:#c01c28:#00aa00:#aa5500:#1a5fb4:#aa00aa:#00aaaa:#aaaaaa:#555555:#ff5555:#55ff55:#ffff55:#3584e4:#ff55ff:#55ffff:#ffffff"
     use_system_font = False
     copy_on_selection = True
+    title_transmit_bg_color = "#26a269"
     title_use_system_font = False
     title_font = MesloLGS NF 9
 [layouts]

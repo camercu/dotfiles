@@ -131,6 +131,7 @@ fi
 
 LINUX_DOTFILES=(
 	.config/terminator/config
+	.snmp
 )
 
 # install Linux-specific dotfiles
