@@ -38,17 +38,19 @@ alias ....='cd ../../..'
 alias .....="cd ../../../.."
 alias -- -="cd -"
 
-# Easy navigation:
-alias d='dirs -v | head -10'
-alias 1='cd -'
-alias 2='cd -2'
-alias 3='cd -3'
-alias 4='cd -4'
-alias 5='cd -5'
-alias 6='cd -6'
-alias 7='cd -7'
-alias 8='cd -8'
-alias 9='cd -9'
+# Easy navigation in zsh:
+if [[ "$(basename "$(ps -o cmd= -p $$)")" == "zsh" ]]; then
+  alias d='dirs -v | head -10'
+  alias 1='cd -'
+  alias 2='cd -2'
+  alias 3='cd -3'
+  alias 4='cd -4'
+  alias 5='cd -5'
+  alias 6='cd -6'
+  alias 7='cd -7'
+  alias 8='cd -8'
+  alias 9='cd -9'
+fi
 
 ## tmux aliases
 alias tmux="tmux -u"
@@ -97,14 +99,19 @@ alias hex2raw="tr -d '\\\x' | xxd -r -p"
 
 # disable host-key verification and saving when running ssh
 alias ssh-noverify='ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no"'
+alias sshnv=ssh-noverify
 
 # Terminal Logging
 alias startlog='script term-$(now).log'
 
 ## easy dotfile editing commands
 DOTFILE_EDITOR=vim
-alias erc="$DOTFILE_EDITOR ~/.zshrc"
-alias ea="$DOTFILE_EDITOR ~/.zsh-aliases"
+case "$(basename "$(ps -o cmd= -p $$)")" in
+  zsh) alias erc="$DOTFILE_EDITOR ~/.zshrc";;
+  bash) alias erc="$DOTFILE_EDITOR ~/.bashrc";;
+  *) ;;
+esac
+alias ea="$DOTFILE_EDITOR ~/.bash_aliases"
 unset DOTFILE_EDITOR
 alias reload="exec $SHELL"
 alias cdot='cd ~/.dotfiles'
@@ -210,7 +217,7 @@ function newbox {
     pwd
 }
 
-# history-delete: delete a line (offset) from your zsh-history
+# history-delete: delete a line (offset) from your shell history
 # source: https://stackoverflow.com/a/63494771/5202294
 function hd {
     # Usage: hd START [STOP]

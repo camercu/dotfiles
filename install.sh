@@ -103,7 +103,7 @@ COMMON_DOTFILES=(
 	.gitignore-global
 	.logging.sh
 	.p10k.zsh
-	.zsh-aliases
+	.bash_aliases
 	.zshrc
 )
 
