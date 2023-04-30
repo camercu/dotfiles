@@ -131,6 +131,7 @@ fi
 
 LINUX_DOTFILES=(
 	.config/terminator/config
+	.config/xfce4/helpers.rc
 	.snmp
 )
 

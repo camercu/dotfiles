@@ -1,5 +1,6 @@
 [global_config]
   enabled_plugins = Logger, CurrDirOpen, LaunchpadBugURLHandler, LaunchpadCodeURLHandler, APTURLHandler, TerminalShot
+  case_sensitive = False
 [keybindings]
 [profiles]
   [[default]]
