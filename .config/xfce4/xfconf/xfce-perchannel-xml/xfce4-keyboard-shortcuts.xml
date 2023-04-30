@@ -46,8 +46,8 @@
       <property name="override" type="bool" value="true"/>
       <property name="&lt;Primary&gt;&lt;Alt&gt;Print" type="string" value="/usr/share/kali-themes/xfce4-screenshooter --window --clipboard"/>
       <property name="XF86Display" type="string" value="xfce4-display-settings --minimal"/>
-      <property name="Print" type="string" value="flameshot full"/>
       <property name="&lt;Shift&gt;&lt;Alt&gt;dollar" type="string" value="flameshot gui"/>
+      <property name="Print" type="string" value="flameshot screen"/>
     </property>
   </property>
   <property name="xfwm4" type="empty">
