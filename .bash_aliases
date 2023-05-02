@@ -142,15 +142,9 @@ if [[ "$OS" == "linux" ]]; then
     # fd-find alias
     alias fd='fdfind'
 
-    # nmap as root
-    alias nmap='sudo nmap'
-
     # display tun0 ip addr
     alias vpnip="ip a s tun0 | grep -w inet | awk '{print \$2}' | cut -d '/' -f 1"
     # export VPNIP=$(ip -f inet addr show tun0 | grep -Po 'inet \\K\[\\d.\]+')
-
-    # netcat listener
-    alias lsn='sudo nc -lnvp'
 
     # set up can0 socketCAN interface
     # before running, add can, vcan, and can-isotp to /etc/modules
@@ -166,10 +160,6 @@ if [[ "$OS" == "linux" ]]; then
     alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
     alias pattoffs='/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q'
 
-    # start web server on port 80 or 443
-    alias http80='sudo python3 -m http.server 80'
-    alias http443='sudo python3 -m http.server 443'
-
     # grep through ps and netstat listings:
     alias psg='ps -ef | grep -i $1'
     alias nsg='netstat -natp | grep -i $1'
@@ -177,11 +167,6 @@ if [[ "$OS" == "linux" ]]; then
     ## If working in hacking vm  ############
     if [ -d "/mnt/share" ]; then
         alias cdshare='cd /mnt/share'
-
-        alias smbsrv='impacket-smbserver share .'
-
-        # take notes while you work
-        alias notes='vim notes.md'
 
         ## openvpn
         alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'
@@ -203,16 +188,17 @@ function mcd {
 # start new box
 function newbox {
     local name="$1"
-    mcd "$1"
-    mkdir -p scan pwn loot img
-    echo "# $1" >> notes.md
-    echo >> notes.md
-    echo "# scan" >> notes.md
-    echo >> notes.md
-    echo "# get access" >> notes.md
-    echo >> notes.md
-    echo "# privesc" >> notes.md
-    echo >> notes.md
+    mkdir -p "$1"
+    cd "$1"
+    mkdir -p scan pwn loot assets
+    echo "# $1" >> README.md
+    echo >> README.md
+    echo "# scan" >> README.md
+    echo >> README.md
+    echo "# access" >> README.md
+    echo >> README.md
+    echo "# privesc" >> README.md
+    echo >> README.md
     cd scan
     pwd
 }
