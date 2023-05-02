@@ -41,6 +41,7 @@ install_dotfile () {
 	# symlink dotfile to destination
 	if [[ ! -e "$dst" ]]; then
 		debug "Symlinking: '$dst' -> '$src'"
+		mkdir -p "$(dirname "$dst")"
 		ln -sf "$src" "$dst"
 	fi
 }
