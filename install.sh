@@ -135,13 +135,14 @@ LINUX_DOTFILES=(
 	.config/xfce4/helpers.rc
 	.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
 	.config/xfce4/panel/whiskermenu-1.rc
-	.snmp
 	.mozilla/firefox/addons.json
 	.mozilla/firefox/installs.ini
 	.mozilla/firefox/profiles.ini
 	.mozilla/firefox/user.js
 	.mozilla/firefox/extensions/{60f82f00-9ad5-4de5-b31c-b16a47c51558}.xpi
 	.mozilla/firefox/extensions/foxyproxy@eric.h.jung.xpi
+	.snmp
+	.ssh/config
 )
 
 # install Linux-specific dotfiles
