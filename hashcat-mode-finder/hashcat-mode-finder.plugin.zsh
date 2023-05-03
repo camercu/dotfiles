@@ -16,7 +16,7 @@ hashcat-mode-finder() {
     cmd=${tokens[1]}
     if [[ "$cmd" == "hashcat" ]]; then
         if [[ "${tokens[-1]}" == "-m" || "${tokens[-1]}" == "--hash-type" ]]; then
-            append=$(hashcat --example-hashes | grep -E 'MODE:|TYPE:|HASH:|Hash mode #|Name\.*:|Example\.Hash\.*:|^$' | awk -v RS="\n\n" -F "\t" '{gsub("\n","\t",$0); print $1 "\t" $2 "\t" $3}' | sed 's/MODE: \|Hash mode #//; s/TYPE: \| *Name\.*: //; s/Example\.Hash\.*:/HASH:/' | fzf -d "\t" --header="Mode   Type" --with-nth='1,2' --preview='echo {3}' --preview-window=up:1 --reverse --height=40% | awk '{print $1}')
+            append=$(hashcat --example-hashes | grep -E 'MODE:|TYPE:|HASH:|Hash mode #|Name\.*:|Example\.Hash\.*:|^$' | awk -v RS="\n\n" -F "\t" '{gsub("\n","\t",$0); print $1 "\t" $2 "\t" $3}' | sed 's/MODE: //; s/Hash mode #//; s/TYPE: //; s/ *Name\.*: //; s/Example\.Hash\.*://; s/HASH: //' | fzf -d '\t' --header="Mode   Type" --preview='echo HASH: {3}' --preview-window=up:1 --reverse --height=40% | awk '{print $1}')
             if [ -n "$append" ]; then
                 # Make sure that we are adding a space
                 if [[ "${LBUFFER[-1]}" != " " ]]; then
