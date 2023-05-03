@@ -230,7 +230,7 @@ function zshaddhistory {
 # source: https://jonathanh.co.uk/blog/fuzzy-search-hashcat-modes.html
 # NOTE: fzf and hashcat required to be installed
 function hcmode {
-    hashcat --example-hashes | awk -v RS="\n\n" -F "\t" '{gsub("\n","\t",$0); print $1 "\t" $2 "\t" $3}' | sed 's/MODE: //; s/TYPE: //' | fzf -d "\t" --header="Mode Type" --with-nth='1,2' --preview='echo {3}' --preview-window=up:1 --height=40%
+    hashcat --example-hashes | grep -E 'MODE:|TYPE:|HASH:|Hash mode #|Name\.*:|Example\.Hash\.*:|^$' | awk -v RS="\n\n" -F "\t" '{gsub("\n","\t",$0); print $1 "\t" $2 "\t" $3}' | sed 's/MODE: \|Hash mode #//; s/TYPE: \| *Name\.*: //; s/Example\.Hash\.*:/HASH:/' | fzf -d "\t" --header="Mode   Type" --with-nth='1,2' --preview='echo {3}' --preview-window=up:1 --reverse --height=40% | awk '{print $1}
 }
 
 # add a pubkey to ssh authorized keys for port fwd only
