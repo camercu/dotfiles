@@ -142,7 +142,6 @@ LINUX_DOTFILES=(
 	.mozilla/firefox/extensions/{60f82f00-9ad5-4de5-b31c-b16a47c51558}.xpi
 	.mozilla/firefox/extensions/foxyproxy@eric.h.jung.xpi
 	.snmp
-	.ssh/config
 )
 
 # install Linux-specific dotfiles
@@ -153,6 +152,15 @@ if [[ "$OS" == "LINUX" ]]; then
 
 	install_dotfile .gitconfig-credential-linux ~/.gitconfig-credential
 	install_dotfile .tmux.conf.local.linux ~/.tmux.conf.local
+
+	if [[ ! -d ~/.ssh ]]; then
+		mkdir ~/.ssh
+		chmod 700 ~/.ssh
+	fi
+
+	if [[ ! -f ~/.ssh/config ]]; then
+		cp .ssh/config ~/.ssh/config
+	fi
 fi
 
 success DONE!
