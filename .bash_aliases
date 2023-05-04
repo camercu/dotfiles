@@ -39,7 +39,7 @@ alias .....="cd ../../../.."
 alias -- -="cd -"
 
 # Easy navigation in zsh:
-if [[ "$(basename "$(ps -o command= -p $$)")" == "zsh" ]]; then
+if [[ "$(basename "$(ps -o command= -p $$ | sed 's/^-//')")" == "zsh" ]]; then
   alias d='dirs -v | head -10'
   alias 1='cd -'
   alias 2='cd -2'
@@ -106,7 +106,7 @@ alias startlog='script term-$(now).log'
 
 ## easy dotfile editing commands
 DOTFILE_EDITOR=vim
-case "$(basename "$(ps -o command= -p $$)")" in
+case "$(basename "$(ps -o command= -p $$ | sed 's/^-//')")" in
   zsh) alias erc="$DOTFILE_EDITOR ~/.zshrc";;
   bash) alias erc="$DOTFILE_EDITOR ~/.bashrc";;
   *) ;;
