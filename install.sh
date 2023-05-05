@@ -141,6 +141,7 @@ LINUX_DOTFILES=(
 	.mozilla/firefox/user.js
 	.mozilla/firefox/extensions/{60f82f00-9ad5-4de5-b31c-b16a47c51558}.xpi
 	.mozilla/firefox/extensions/foxyproxy@eric.h.jung.xpi
+	.mozilla/firefox/e4vtk5tb.default-esr/bookmarkbackups
 	.snmp
 )
 
