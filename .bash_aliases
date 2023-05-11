@@ -161,7 +161,7 @@ if [[ "$OS" == "linux" ]]; then
     alias pattoffs='/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q'
 
     # grep through ps and netstat listings:
-    alias psg='ps -ef | grep -i $1'
+    alias psg='ps -ef ww | grep -i $1'
     alias nsg='netstat -natp | grep -i $1'
 
     ## If working in hacking vm  ############
@@ -188,17 +188,10 @@ function mcd {
 # start new box
 function newbox {
     local name="$1"
-    mkdir -p "$1"
-    cd "$1"
-    mkdir -p scan pwn loot assets
-    echo "# $1" >> README.md
-    echo >> README.md
-    echo "# scan" >> README.md
-    echo >> README.md
-    echo "# access" >> README.md
-    echo >> README.md
-    echo "# privesc" >> README.md
-    echo >> README.md
+    mkdir "$name"
+    cd "$name"
+    mkdir scan pwn loot assets
+    touch "$name.md"
     cd scan
     pwd
 }
