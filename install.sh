@@ -135,6 +135,7 @@ LINUX_DOTFILES=(
 	.config/xfce4/helpers.rc
 	.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
 	.config/xfce4/panel/whiskermenu-1.rc
+	.config/AutoRecon
 	.mozilla/firefox/addons.json
 	.mozilla/firefox/installs.ini
 	.mozilla/firefox/profiles.ini

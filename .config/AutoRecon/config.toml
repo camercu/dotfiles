@@ -1,0 +1,19 @@
+# Configure regular AutoRecon options at the top of this file.
+verbose = 1
+output = "."
+only-scans-dir = true
+nmap = "-vv --reason --open -Pn -T4"
+
+# Configure global options here.
+[global]
+password-wordlist = '/usr/share/wordlists/fasttrack.txt'
+
+# Configure plugin options here.
+[dirbuster]
+threads = 100
+ext = "txt,htm,html,php,asp,aspx,jsp,cgi,pl,py,sh,doc,docx,pdf,config,conf"
+wordlist = [
+	'/usr/share/seclists/Discovery/Web-Content/common.txt',
+	'/usr/share/seclists/Discovery/Web-Content/big.txt',
+	'/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt'
+]
