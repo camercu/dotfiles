@@ -167,6 +167,7 @@ if [[ "$OS" == "linux" ]]; then
     ## If working in hacking vm  ############
     if [ -d "/mnt/share" ]; then
         alias cdshare='cd /mnt/share'
+        alias cdcheat='cd /mnt/share/cheat'
 
         ## openvpn
         alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'

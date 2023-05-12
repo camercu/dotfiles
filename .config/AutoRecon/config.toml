@@ -14,6 +14,4 @@ threads = 100
 ext = "txt,htm,html,php,asp,aspx,jsp,cgi,pl,py,sh,doc,docx,pdf,config,conf"
 wordlist = [
 	'/usr/share/seclists/Discovery/Web-Content/common.txt',
-	'/usr/share/seclists/Discovery/Web-Content/big.txt',
-	'/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt'
 ]
