@@ -10,8 +10,10 @@ password-wordlist = '/usr/share/wordlists/fasttrack.txt'
 
 # Configure plugin options here.
 [dirbuster]
+tool = "gobuster"
 threads = 100
-ext = "txt,htm,html,php,asp,aspx,jsp,cgi,pl,py,sh,doc,docx,pdf,config,conf"
+ext = "txt,htm,html,php,asp,aspx,jsp,cgi,pl,py,sh,doc,docx,pdf,config,conf,xml,sql,shtml,log,inc,exe,cfm,c,bat,pem,ini,md,zip,tar,tar.gz,7z,bz2,yml,passwd,mf,mysql,pgsql,json,rb,phar,rst"
+extras = '--quiet --timeout 7s --random-agent --discover-backup --status-codes-blacklist 400-599'
 wordlist = [
-	'/usr/share/seclists/Discovery/Web-Content/common.txt',
+	'/mnt/share/cheat/wordlists/webbust-noext.txt',
 ]
