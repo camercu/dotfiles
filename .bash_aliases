@@ -164,10 +164,15 @@ if [[ "$OS" == "linux" ]]; then
     alias psg='ps -ef ww | grep -i $1'
     alias nsg='netstat -natp | grep -i $1'
 
+    # other
+    alias cme='crackmapexec'
+    alias ssploit='searchsploit'
+
     ## If working in hacking vm  ############
     if [ -d "/mnt/share" ]; then
         alias cdshare='cd /mnt/share'
         alias cdcheat='cd /mnt/share/cheat'
+        alias cdtools='cd /mnt/share/cheat/tools'
 
         ## openvpn
         alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'
@@ -190,11 +195,10 @@ function mcd {
 function newbox {
     local name="$1"
     mkdir "$name"
-    cd "$name"
-    mkdir scan pwn loot assets
+    pushd "$name"
+    mkdir scans pwn loot assets
     touch "$name.md"
-    cd scan
-    pwd
+    popd
 }
 
 # history-delete: delete a line (offset) from your shell history
