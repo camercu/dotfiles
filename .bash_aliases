@@ -195,10 +195,10 @@ function mcd {
 function newbox {
     local name="$1"
     mkdir "$name"
-    pushd "$name"
+    pushd -q "$name"
     mkdir scans pwn loot assets
     touch "$name.md"
-    popd
+    popd -q
 }
 
 # history-delete: delete a line (offset) from your shell history
