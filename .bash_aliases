@@ -179,6 +179,10 @@ if [[ "$OS" == "linux" ]]; then
         alias htbconnect='sudo openvpn /mnt/share/htb/lab_camercu.ovpn'
         alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/offsec/universal.ovpn'
         alias pgconnect='sudo openvpn /mnt/share/offsec/universal.ovpn'
+
+	## helpers for upgrading reverse shell
+	alias fixpath='echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"'
+	alias fixterm='echo "export TERM=xterm-256color"'
     fi
 fi
 
