@@ -131,6 +131,7 @@ if [[ "$OS" == "DARWIN" ]]; then
 fi
 
 LINUX_DOTFILES=(
+	.canrc
 	.config/terminator/config
 	.config/xfce4/helpers.rc
 	.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
