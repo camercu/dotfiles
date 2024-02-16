@@ -1,0 +1,212 @@
+{
+  "[c]": {
+    "files.insertFinalNewline": true
+  },
+  "[cpp]": {
+    "files.insertFinalNewline": true
+  },
+  "[hcl]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "files.insertFinalNewline": true
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.formatOnSave": true
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.indentSize": 2,
+    "editor.insertSpaces": true
+  },
+  "editor.acceptSuggestionOnEnter": "off",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "editor.rulers": [
+    80
+  ],
+  "editor.suggestSelection": "recentlyUsedByPrefix",
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "variable.key.table",
+        "settings": {
+          "foreground": "#2EA9D0"
+        }
+      }
+    ]
+  },
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "gitlens.blame.ignoreWhitespace": true,
+  "gitlens.telemetry.enabled": false,
+  "go.formatTool": "goimports",
+  "go.toolsManagement.autoUpdate": true,
+  "rust-analyzer.assist.emitMustUse": true,
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.check.features": "all",
+  "rust-analyzer.completion.fullFunctionSignatures.enable": true,
+  "rust-analyzer.hover.actions.references.enable": true,
+  "rust-analyzer.imports.preferPrelude": true,
+  "rust-analyzer.restartServerOnConfigChange": true,
+  "rust-analyzer.typing.autoClosingAngleBrackets.enable": true,
+  "sync.autoDownload": true,
+  "sync.autoUpload": true,
+  "sync.gist": "c5d2df498bcb85232e678cf47e4670b6",
+  "sync.quietSync": true,
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.fontFamily": "'MesloLGS NF', Menlo, Monaco, 'Courier New', monospace",
+  "vim.cursorStylePerMode.insert": "line-thin",
+  "vim.cursorStylePerMode.normal": "block",
+  "vim.cursorStylePerMode.replace": "underline",
+  "vim.cursorStylePerMode.visual": "block-outline",
+  "vim.cursorStylePerMode.visualblock": "block-outline",
+  "vim.cursorStylePerMode.visualline": "block-outline",
+  "vim.easymotion": true,
+  "vim.foldfix": true,
+  "vim.handleKeys": {},
+  "vim.highlightedyank.enable": true,
+  "vim.hlsearch": true,
+  "vim.insertModeKeyBindings": [
+    {
+      "after": [
+        "<Esc>"
+      ],
+      "before": [
+        "j",
+        "j"
+      ]
+    }
+  ],
+  "vim.leader": "<space>",
+  "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "before": [
+        "<leader>",
+        "h"
+      ],
+      "commands": [
+        ":nohl"
+      ]
+    },
+    {
+      "before": [
+        "leader",
+        "w"
+      ],
+      "commands": [
+        "workbench.action.files.save"
+      ]
+    },
+    {
+      "before": [
+        "leader",
+        "/"
+      ],
+      "commands": [
+        "editor.action.commentLine"
+      ]
+    },
+    {
+      "after": [
+        "O",
+        "<esc>",
+        "j"
+      ],
+      "before": [
+        "<leader>",
+        "<enter>"
+      ]
+    },
+    {
+      "after": [
+        "\"",
+        "_",
+        "d",
+        "i",
+        "w",
+        "P"
+      ],
+      "before": [
+        "<leader>",
+        "r"
+      ]
+    },
+    {
+      "before": [
+        "Z",
+        "Z"
+      ],
+      "commands": [
+        ":wq"
+      ]
+    }
+  ],
+  "vim.replaceWithRegister": true,
+  "vim.showMarksInGutter": true,
+  "vim.sneak": true,
+  "vim.sneakReplacesF": true,
+  "vim.useSystemClipboard": true,
+  "vim.visualModeKeyBindingsNonRecursive": [
+    {
+      "before": [
+        ">"
+      ],
+      "commands": [
+        "editor.action.indentLines"
+      ]
+    },
+    {
+      "before": [
+        "<"
+      ],
+      "commands": [
+        "editor.action.outdentLines"
+      ]
+    },
+    {
+      "before": [
+        "leader",
+        "/"
+      ],
+      "commands": [
+        "editor.action.commentLine"
+      ]
+    },
+    {
+      "after": [
+        "p",
+        "g",
+        "v",
+        "y"
+      ],
+      "before": [
+        "p"
+      ]
+    }
+  ],
+  "vim.visualstar": true,
+  "workbench.colorTheme": "One Dark Pro",
+  "workbench.iconTheme": "vscode-icons",
+  "workbench.startupEditor": "readme"
+}
