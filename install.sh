@@ -89,9 +89,9 @@ mkdir -p "$ARCHIVE_DIR"
 USER_BIN="$HOME/.local/bin"
 mkdir -p "$USER_BIN"
 
-# install static-get script to user's bin dir
-# static-get is a tool for grabbing static binaries (useful for pentesting)
-install_dotfile bin/static-get "$USER_BIN/static-get"
+# make user-local share folder
+USER_SHARE="$HOME/.local/share"
+mkdir -p "$USER_SHARE"
 
 # tools to make terminal nice
 install_ohmyzsh
@@ -106,6 +106,8 @@ COMMON_DOTFILES=(
 	.p10k.zsh
 	.bash_aliases
 	.zshrc
+	.local/bin/static-get
+	.local/share/fonts
 )
 
 # install common dotfiles
@@ -129,6 +131,7 @@ if [[ "$OS" == "DARWIN" ]]; then
 	install_dotfile .gitconfig-credential-mac ~/.gitconfig-credential
 	install_dotfile .tmux.conf.local.mac ~/.tmux.conf.local
         install_dotfile .config/vscode/settings.json "~/Library/Application Support/VSCodium/User/settings.json"
+        install_dotfile .config/vscode/settings.json "~/Library/Application Support/Code/User/settings.json"
 fi
 
 LINUX_DOTFILES=(
