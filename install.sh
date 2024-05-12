@@ -130,13 +130,14 @@ if [[ "$OS" == "DARWIN" ]]; then
 	# these require custom destinations, so can't use array (bash doesn't support 2D arrays)
 	install_dotfile .gitconfig-credential-mac ~/.gitconfig-credential
 	install_dotfile .tmux.conf.local.mac ~/.tmux.conf.local
-        install_dotfile .config/vscode/settings.json "~/Library/Application Support/VSCodium/User/settings.json"
-        install_dotfile .config/vscode/settings.json "~/Library/Application Support/Code/User/settings.json"
+        install_dotfile .config/vscode/settings.json "$HOME/Library/Application Support/VSCodium/User/settings.json"
+        install_dotfile .config/vscode/settings.json "$HOME/Library/Application Support/Code/User/settings.json"
 fi
 
 LINUX_DOTFILES=(
 	.canrc
 	.config/terminator/config
+	.config/vscode/settings.json
 	.config/xfce4/helpers.rc
 	.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
 	.config/xfce4/panel/whiskermenu-1.rc
