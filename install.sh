@@ -108,6 +108,7 @@ COMMON_DOTFILES=(
 	.zshrc
 	.local/bin/static-get
 	.local/share/fonts
+	.config/nvim
 )
 
 # install common dotfiles
