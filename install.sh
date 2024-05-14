@@ -75,7 +75,7 @@ install_ohmyzsh () {
 
 install_tmux_plugin_mgr () {
 	if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
-		debug "Installing oh-my-tmux"
+		debug "Installing tmux plugin manager"
 		git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
 	fi
 }
