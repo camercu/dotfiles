@@ -167,6 +167,15 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagn
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
+-- Custom keymaps
+vim.keymap.set('i', 'jj', '<Esc>', { desc = 'Exit insert mode easily' })
+vim.keymap.set('n', '<leader>w', ':w<Enter>', { desc = 'Save this file' })
+vim.keymap.set('v', '<', '<gv', { desc = 'De-indent and reselect visual region' })
+vim.keymap.set('v', '>', '>gv', { desc = 'Indent and reselect visual region' })
+vim.keymap.set('n', '<leader><Enter>', 'm`O<Esc>``', { desc = 'Insert newline above current line' })
+vim.keymap.set('n', '', 'gcc', { remap = true, desc = 'Toggle line comment with C-/' })
+vim.keymap.set('v', '', 'gcgv', { remap = true, desc = 'Toggle comment linewise (visual) with C-/' })
+
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
@@ -566,9 +575,12 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
+        gopls = {},
+        pyright = {},
+        ruff = {},
+        rust_analyzer = {},
+        bashls = {},
+        dockerls = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
