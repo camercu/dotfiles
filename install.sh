@@ -73,7 +73,7 @@ install_ohmyzsh () {
 	install_dotfile hashcat-mode-finder "${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/plugins/hashcat-mode-finder"
 }
 
-instal_tmux_plugin_mgr () {
+install_tmux_plugin_mgr () {
 	if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
 		debug "Installing oh-my-tmux"
 		git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
