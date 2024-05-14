@@ -73,13 +73,11 @@ install_ohmyzsh () {
 	install_dotfile hashcat-mode-finder "${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/plugins/hashcat-mode-finder"
 }
 
-install_ohmytmux () {
+instal_tmux_plugin_mgr () {
 	if [[ ! -d "$HOME/.tmux" ]]; then
 		debug "Installing oh-my-tmux"
-		git clone https://github.com/gpakosz/.tmux.git "$HOME/.tmux"
+		git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
 	fi
-
-	install_dotfile "$HOME/.tmux/.tmux.conf" "$HOME/.tmux.conf"
 }
 
 # make archive dir if doesn't exist
@@ -95,7 +93,7 @@ mkdir -p "$USER_SHARE"
 
 # tools to make terminal nice
 install_ohmyzsh
-install_ohmytmux
+install_tmux_plugin_mgr
 
 COMMON_DOTFILES=(
 	.gdbinit
@@ -106,6 +104,7 @@ COMMON_DOTFILES=(
 	.p10k.zsh
 	.bash_aliases
 	.zshrc
+	.tmux.conf
 	.local/bin/static-get
 	.local/share/fonts
 	.config/nvim
@@ -130,7 +129,6 @@ if [[ "$OS" == "DARWIN" ]]; then
 
 	# these require custom destinations, so can't use array (bash doesn't support 2D arrays)
 	install_dotfile .gitconfig-credential-mac ~/.gitconfig-credential
-	install_dotfile .tmux.conf.local.mac ~/.tmux.conf.local
         install_dotfile .config/vscode/settings.json "$HOME/Library/Application Support/VSCodium/User/settings.json"
         install_dotfile .config/vscode/settings.json "$HOME/Library/Application Support/Code/User/settings.json"
 fi
@@ -160,7 +158,6 @@ if [[ "$OS" == "LINUX" ]]; then
 	done
 
 	install_dotfile .gitconfig-credential-linux ~/.gitconfig-credential
-	install_dotfile .tmux.conf.local.linux ~/.tmux.conf.local
 
 	if [[ ! -d ~/.ssh ]]; then
 		mkdir ~/.ssh
