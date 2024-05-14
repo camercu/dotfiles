@@ -154,6 +154,12 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- [[ Netrw (default file explorer) ]]
+-- Hide banner by default, can show temporarily with `I`
+vim.g.netrw_banner = 0
+-- Display tree view by default
+vim.g.netrw_liststyle = 3
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
