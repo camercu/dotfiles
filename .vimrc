@@ -1,7 +1,3 @@
-if !empty(glob('~/.vimrc-plugs'))
-    source ~/.vimrc-plugs
-endif
-
 "***************************************************************
 " Personal Settings
 "***************************************************************
@@ -27,6 +23,7 @@ set incsearch       " Incremental search; jump to match as you type
 set smartcase       " Override ignorecase when search pattern has uppercase
 
 " Display settings
+silent! colorscheme solarized
 silent! colorscheme onedark
 set background=dark
 set cursorline      " Highlight current line
@@ -153,10 +150,6 @@ vnoremap <tab> %
 " Show and switch buffers easily
 nnoremap <leader>b :ls<cr>:buffer 
 
-" Toggle display of NERDTree navigation panel
-nnoremap <F6> :NERDTreeToggle<cr>
-vnoremap <F6> :NERDTreeToggle<cr>
-
 " Smart way to move between windows
 noremap <C-j> <C-W>j
 noremap <C-k> <C-W>k
@@ -182,194 +175,3 @@ nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 " Reload vimrc file (update vim behavior based on vimrc changes)
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
-
-"****************************************************************************
-" Plugin-Specific Settings
-"****************************************************************************
-
-" NERDComment settings
-let g:NERDSpaceDelims = 1       " Add spaces after comment delimiters by default
-let g:NERDCompactSexyComs = 1   " Use compact syntax for prettified multi-line comments
-" Align line-wise comment delimiters flush left instead of following code indentation
-let g:NERDDefaultAlign = 'left'
-" Custom C comment format
-let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
-" Allow commenting and inverting empty lines (useful when commenting a region)
-let g:NERDCommentEmptyLines = 1
-" Enable trimming of trailing whitespace when uncommenting
-let g:NERDTrimTrailingWhitespace = 1
-" Enable NERDCommenterToggle to check all selected lines is commented or not
-let g:NERDToggleCheckAllLines = 1
-nnoremap <leader>/ :call NERDComment(0,"toggle")<CR>
-vnoremap <leader>/ :call NERDComment(0,"toggle")<CR>
-
-let NERDTreeIgnore=['\.py[co]$', '\~$'] "ignore files in NERDTree
-
-let g:lightline = {
-            \ 'colorscheme': 'onedark',
-            \ 'active': {
-            \   'left': [ [ 'mode', 'paste' ],
-            \             [ 'fugitive' ],
-            \             [ 'readonly', 'filename', 'modified' ] ],
-            \   'right': [ [ 'lineinfo' ],
-            \              [ 'percent' ],
-            \              [ 'fileformat', 'fileencoding', 'filetype', 'charvaluehex' ] ]
-            \ },
-            \ 'component_function': {
-            \   'gitbranch': 'fugitive#head'
-            \ },
-            \ 'component': {
-            \   'charvaluehex': '0x%B'
-            \ },
-            \ }
-
-let g:move_map_keys = 0
-set <F20>=j
-set <F21>=k
-set <F22>=h
-set <F23>=l
-vmap <F20> <Plug>MoveBlockDown
-vmap <F21> <Plug>MoveBlockUp
-vmap <F22> <Plug>MoveBlockLeft
-vmap <F23> <Plug>MoveBlockRight
-nmap <F20> <Plug>MoveLineDown
-nmap <F21> <Plug>MoveLineUp
-nmap <F22> <Plug>MoveLineLeft
-nmap <F23> <Plug>MoveLineRight
-
-
-"****************************************************************************
-" CoC - Conqueror of Completion Settings
-
-" Some servers have issues with backup files, see #649
-set nobackup
-set nowritebackup
-
-" You will have bad experience for diagnostic messages when it's default 4000.
-set updatetime=300
-
-" don't give |ins-completion-menu| messages.
-set shortmess+=c
-
-" always show signcolumns
-set signcolumn=yes
-
-" Use tab for trigger completion with characters ahead and navigate.
-" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-" Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
-
-" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
-" Coc only does snippet and additional edit on confirm.
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-" Or use `complete_info` if your vim support it, like:
-" inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
-
-" Use `[g` and `]g` to navigate diagnostics
-nnoremap <silent> [g <Plug>(coc-diagnostic-prev)
-nnoremap <silent> ]g <Plug>(coc-diagnostic-next)
-
-" Remap keys for gotos
-nnoremap <silent> gd <Plug>(coc-definition)
-nnoremap <silent> gy <Plug>(coc-type-definition)
-nnoremap <silent> gi <Plug>(coc-implementation)
-nnoremap <silent> gr <Plug>(coc-references)
-
-" Use K to show documentation in preview window
-nnoremap <silent> K :call <SID>show_documentation()<CR>
-
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  else
-    call CocAction('doHover')
-  endif
-endfunction
-
-" Highlight symbol under cursor on CursorHold
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
-" Remap for rename current word
-nnoremap <leader>rn <Plug>(coc-rename)
-
-augroup mygroup
-  autocmd!
-  " Setup formatexpr specified filetype(s).
-  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-  " Update signature help on jump placeholder
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-augroup end
-
-" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
-nnoremap <leader>a  <Plug>(coc-codeaction-selected)
-
-" Remap for do codeAction of current line
-nnoremap <leader>ac  <Plug>(coc-codeaction)
-" Fix autofix problem of current line
-nnoremap <leader>qf  <Plug>(coc-fix-current)
-
-" Create mappings for function text object, requires document symbols feature of languageserver.
-xnoremap if <Plug>(coc-funcobj-i)
-xnoremap af <Plug>(coc-funcobj-a)
-onoremap if <Plug>(coc-funcobj-i)
-onoremap af <Plug>(coc-funcobj-a)
-
-" Use <TAB> for select selections ranges, needs server support, like: coc-tsserver, coc-python
-nnoremap <silent> <TAB> <Plug>(coc-range-select)
-xnoremap <silent> <TAB> <Plug>(coc-range-select)
-
-" Use `:Format` to format current buffer
-command! -nargs=0 Format :call CocAction('format')
-
-" Use `:Fold` to fold current buffer
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
-" use `:OR` for organize import of current buffer
-command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
-
-" Using CocList
-" Show all diagnostics
-nnoremap <silent> <leader>a  :<C-u>CocList diagnostics<cr>
-" Manage extensions
-nnoremap <silent> <leader>x  :<C-u>CocList extensions<cr>
-" Show commands
-nnoremap <silent> <leader>c  :<C-u>CocList commands<cr>
-" Find symbol of current document
-nnoremap <silent> <leader>o  :<C-u>CocList outline<cr>
-" Search workspace symbols
-nnoremap <silent> <leader>sy  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-nnoremap <silent> <leader>j  :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent> <leader>k  :<C-u>CocPrev<CR>
-" Resume latest coc list
-nnoremap <silent> <leader>p  :<C-u>CocListResume<CR>
-
-" keymap to open yank list
-nnoremap <silent> <leader>y  :<C-u>CocList -A --normal yank<cr>
-
-" hi HighlightedyankRegion term=bold ctermbg=11 guibg=#13354A
-
-" add command to format entire document
-command! -nargs=0 Prettier :CocCommand prettier.formatFile
-
-" Remap for format selected region
-vnoremap <leader>f  <Plug>(coc-format-selected)
-nnoremap <leader>f  <Plug>(coc-format-selected)
-
-" get correct comment coloring for jsonc config files
-autocmd FileType json syntax match Comment +\/\/.\+$+
-
-" auto-run goimports on save of Go files
-let g:go_fmt_command = "goimports"

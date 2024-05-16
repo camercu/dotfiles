@@ -55,7 +55,7 @@ fi
 ## tmux aliases
 alias tmux="tmux -u"
 alias tk='tmux kill-session -t'
-alias ta='tmux a -t'
+alias ta='tmux a'
 alias tl='tmux list-sessions'
 alias ts='tmux new-session -s'
 
@@ -90,6 +90,7 @@ alias su='su -'
 alias path='echo $PATH'
 alias nsort='sort | uniq -c | sort -n'
 alias pysrv='python3 -m http.server'
+alias v='nvim'
 
 # update all pip packages
 alias pipup='pip freeze --local | grep -v "^\-e" | cut -d = -f 1  |xargs -n1 pip install -U'
