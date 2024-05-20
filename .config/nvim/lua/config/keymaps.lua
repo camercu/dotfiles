@@ -94,10 +94,14 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<leader>ww', '<C-W>p', { desc = 'Most recent (previous) window', remap = true })
 
 -- Split windows
 vim.keymap.set('n', '<leader>|', ':vsplit<CR>', { desc = 'Split window vertically' })
 vim.keymap.set('n', '<leader>-', ':split<CR>', { desc = 'Split window horizontally' })
+
+-- Delete Window
+vim.keymap.set('n', '<leader>wd', '<C-W>c', { desc = 'Delete Window', remap = true })
 
 -- Resize window using CTRL + arrow keys
 vim.keymap.set('n', '<C-Up>', '<cmd>resize +2<cr>', { desc = 'Increase Window Height' })
