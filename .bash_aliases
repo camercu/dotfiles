@@ -15,7 +15,7 @@
 # IP="($OCTET\.){3}$OCTET"
 
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
-
+DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
 
 ####  Aliases  ###########
 
@@ -161,33 +161,35 @@ if [[ "$OS" == "linux" ]]; then
         && sudo ip link set dev vcan0 up \
         && ip a s vcan0'
 
-    # create a pattern with metasploit's pattern_create.rb
-    alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
-    alias pattoffs='/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q'
-
     # grep through ps and netstat listings:
     alias psg='ps -ef ww | grep -i $1'
     alias nsg='netstat -natp | grep -i $1'
 
-    # other
-    alias cme='crackmapexec'
-    alias ssploit='searchsploit'
+    if [[ "$DISTRO" == "kali" ]]; then
+        # create a pattern with metasploit's pattern_create.rb
+        alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
+        alias pattoffs='/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q'
 
-    ## If working in hacking vm  ############
-    if [ -d "/mnt/share" ]; then
-        alias cdshare='cd /mnt/share'
-        alias cdcheat='cd /mnt/share/cheat'
-        alias cdtools='cd /mnt/share/cheat/tools'
+        # other
+        alias cme='crackmapexec'
+        alias ssploit='searchsploit'
 
-        ## openvpn
-        alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'
-        alias htbconnect='sudo openvpn /mnt/share/htb/lab_camercu.ovpn'
-        alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/offsec/universal.ovpn'
-        alias pgconnect='sudo openvpn /mnt/share/offsec/universal.ovpn'
+        ## If working in hacking vm  ############
+        if [ -d "/mnt/share" ]; then
+            alias cdshare='cd /mnt/share'
+            alias cdcheat='cd /mnt/share/cheat'
+            alias cdtools='cd /mnt/share/cheat/tools'
 
-	## helpers for upgrading reverse shell
-	alias fixpath='echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"'
-	alias fixterm='echo "export TERM=xterm-256color"'
+            ## openvpn
+            alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'
+            alias htbconnect='sudo openvpn /mnt/share/htb/lab_camercu.ovpn'
+            alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/offsec/universal.ovpn'
+            alias pgconnect='sudo openvpn /mnt/share/offsec/universal.ovpn'
+
+            ## helpers for upgrading reverse shell
+            alias fixpath='echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"'
+            alias fixterm='echo "export TERM=xterm-256color"'
+        fi
     fi
 fi
 

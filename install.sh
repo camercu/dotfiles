@@ -18,6 +18,7 @@ realpath () {
 DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
 ARCHIVE_DIR="${DOTFILE_DIR}/old"
 OS="$(uname -s | tr '[:lower:]' '[:upper:]')"
+DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
 
 # simple logging functions for printing output to stderr
 source "${DOTFILE_DIR}/.logging.sh"
@@ -137,6 +138,10 @@ LINUX_DOTFILES=(
   .canrc
   .config/terminator/config
   .config/vscode/settings.json
+  .snmp
+)
+
+KALI_DOTFILES=(
   .config/xfce4/helpers.rc
   .config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
   .config/xfce4/panel/whiskermenu-1.rc
@@ -148,7 +153,6 @@ LINUX_DOTFILES=(
   .mozilla/firefox/extensions/{60f82f00-9ad5-4de5-b31c-b16a47c51558}.xpi
   .mozilla/firefox/extensions/foxyproxy@eric.h.jung.xpi
   .mozilla/firefox/e4vtk5tb.default-esr/bookmarkbackups
-  .snmp
 )
 
 # install Linux-specific dotfiles
@@ -166,6 +170,12 @@ if [[ "$OS" == "LINUX" ]]; then
 
   if [[ ! -f ~/.ssh/config ]]; then
     cp .ssh/config ~/.ssh/config
+  fi
+
+  if [[ "$DISTRO" == "KALI" ]]; then
+    for df in "${KALI_DOTFILES[@]}"; do
+      install_dotfile "$df"
+    done
   fi
 fi
 
