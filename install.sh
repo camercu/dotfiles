@@ -18,7 +18,6 @@ realpath () {
 DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
 ARCHIVE_DIR="${DOTFILE_DIR}/old"
 OS="$(uname -s | tr '[:lower:]' '[:upper:]')"
-DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
 
 # simple logging functions for printing output to stderr
 source "${DOTFILE_DIR}/.logging.sh"
@@ -171,6 +170,8 @@ if [[ "$OS" == "LINUX" ]]; then
   if [[ ! -f ~/.ssh/config ]]; then
     cp .ssh/config ~/.ssh/config
   fi
+
+    DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
 
   if [[ "$DISTRO" == "KALI" ]]; then
     for df in "${KALI_DOTFILES[@]}"; do

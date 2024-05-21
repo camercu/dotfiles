@@ -15,7 +15,6 @@
 # IP="($OCTET\.){3}$OCTET"
 
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
-DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
 
 ####  Aliases  ###########
 
@@ -133,6 +132,8 @@ fi
 
 ####   Linux Specific:  ##########
 if [[ "$OS" == "linux" ]]; then
+    DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
+
     # upgrade all packages
     alias maintain='sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get autoremove -y && sudo apt-get autoclean -y'
 
@@ -165,7 +166,7 @@ if [[ "$OS" == "linux" ]]; then
     alias psg='ps -ef ww | grep -i $1'
     alias nsg='netstat -natp | grep -i $1'
 
-    if [[ "$DISTRO" == "kali" ]]; then
+    if [[ "$DISTRO" == "KALI" ]]; then
         # create a pattern with metasploit's pattern_create.rb
         alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
         alias pattoffs='/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q'
