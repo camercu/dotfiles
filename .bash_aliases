@@ -19,6 +19,11 @@ OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 ####  Aliases  ###########
 
 ## ls aliases
+HAS_LSD=$(command -v lsd)
+if [ -n "$HAS_LSD" ]; then
+    alias ls='lsd'
+    alias tree='ls --tree'
+fi
 alias l='ls'
 alias la='ls -A'
 alias ll='ls -Alh'
@@ -109,7 +114,8 @@ alias sshnv=ssh-noverify
 alias startlog='script term-$(now).log'
 
 ## easy dotfile editing commands
-DOTFILE_EDITOR=vim
+HAS_NEOVIM=$(command -v nvim)
+DOTFILE_EDITOR=$([ -n "$HAS_NEOVIM" ] && echo nvim || echo vim)
 case "$(basename "$(ps -o command= -p $$ | sed 's/^-//')")" in
   zsh) alias erc="$DOTFILE_EDITOR ~/.zshrc";;
   bash) alias erc="$DOTFILE_EDITOR ~/.bashrc";;

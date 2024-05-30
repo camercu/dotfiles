@@ -173,7 +173,7 @@ require('lazy').setup({
         --   },
         -- },
         defaults = {
-          file_ignore_patterns = { '.git/[^h]', '.venv/', '__pycache__/', '.direnv/', '.pytest_cache', '.ruff_cache' },
+          file_ignore_patterns = { '.git/[^h]' },
         },
         pickers = {
           find_files = {

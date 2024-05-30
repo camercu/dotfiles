@@ -9,9 +9,17 @@ return {
   lazy = false,
   branch = 'regexp', -- This is the regexp branch, use this for the new version
   config = function()
-    require('venv-selector').setup()
+    require('venv-selector').setup({
+      -- settings = {
+      --   search = {
+      --     my_venvs = {
+      --       command = "fd 'python$' $CWD -pauLc=never",
+      --     },
+      --   },
+      -- },
+    })
   end,
   keys = {
-    { '<leader>ov', '<cmd>VenvSelect<cr>', '[O]pen/activate Python [V]irtual environment' },
+    { '<leader>ov', '<cmd>VenvSelect<cr>', desc = '[O]pen/activate Python [V]irtual environment', ft = 'python' },
   },
 }
