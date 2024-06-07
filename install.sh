@@ -4,7 +4,7 @@
 # find ~ -maxdepth 1 -type l -name '.*' -delete
 
 # obtain the absolute path of a file/dir
-realpath () {
+realpath() {
   local filename="$1"
   local parentdir=$(dirname "${filename}")
 
@@ -22,12 +22,11 @@ OS="$(uname -s | tr '[:lower:]' '[:upper:]')"
 # simple logging functions for printing output to stderr
 source "${DOTFILE_DIR}/.logging.sh"
 
-
 # backs up old dotfile and replaces it with symlink to one here.
 # Usage: install_dotfile FILE [DEST]
 #  FILE - the dotfile in this directory that you want to install
 #  DEST - optional override of destination where dotfile will go. Defaults to home dir.
-install_dotfile () {
+install_dotfile() {
   local src="$(realpath "$1")"
   local dst="${2:-"$HOME/$1"}"
 
@@ -46,17 +45,16 @@ install_dotfile () {
   fi
 }
 
-
 # installs oh-my-zsh if not present, along with desired theme & plugins
-install_ohmyzsh () {
+install_ohmyzsh() {
   if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     debug "Installing oh-my-zsh"
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
   fi
 
-  install_omz_extras () {
+  install_omz_extras() {
     local githubpath="https://github.com/$1"
-    local item="$(basename $1)" # get repo name
+    local item="$(basename $1)"  # get repo name
     local it_type="${2:-plugin}" # should be either "plugin" or "theme"
     local parentdir="${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/${it_type}s/${item}"
     if [[ ! -d "$parentdir" ]]; then
@@ -73,7 +71,7 @@ install_ohmyzsh () {
   install_dotfile hashcat-mode-finder "${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/plugins/hashcat-mode-finder"
 }
 
-install_tmux_plugin_mgr () {
+install_tmux_plugin_mgr() {
   if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
     debug "Installing tmux plugin manager"
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
@@ -91,23 +89,35 @@ mkdir -p "$USER_BIN"
 USER_SHARE="$HOME/.local/share"
 mkdir -p "$USER_SHARE"
 
+# make standard XDG_*_HOME folders
+# ref: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html#variables
+XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
+mkdir -p "$XDG_CACHE_HOME"
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+mkdir -p "$XDG_CONFIG_HOME"
+XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+mkdir -p "$XDG_DATA_HOME"
+XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
+mkdir -p "$XDG_STATE_HOME"
+
 # tools to make terminal nice
 install_ohmyzsh
 install_tmux_plugin_mgr
 
 COMMON_DOTFILES=(
+  .bash_aliases
+  .config/nvim
   .gdbinit
   .gitconfig
   .gitconfig-aliases
   .gitignore-global
-  .logging.sh
-  .p10k.zsh
-  .bash_aliases
-  .zshrc
-  .tmux.conf
   .local/bin/static-get
   .local/share/fonts
-  .config/nvim
+  .logging.sh
+  .p10k.zsh
+  .tmux.conf
+  .vimrc
+  .zshrc
 )
 
 # install common dotfiles
@@ -115,11 +125,7 @@ for df in "${COMMON_DOTFILES[@]}"; do
   install_dotfile "$df"
 done
 
-MAC_DOTFILES=(
-  .vim
-  .vimrc
-  .vimrc-plugs
-)
+MAC_DOTFILES=()
 
 # install MacOS-specific dotfiles
 if [[ "$OS" == "DARWIN" ]]; then
@@ -131,12 +137,14 @@ if [[ "$OS" == "DARWIN" ]]; then
   install_dotfile .gitconfig-credential-mac ~/.gitconfig-credential
   install_dotfile .config/vscode/settings.json "$HOME/Library/Application Support/VSCodium/User/settings.json"
   install_dotfile .config/vscode/settings.json "$HOME/Library/Application Support/Code/User/settings.json"
+  install_dotfile .config/hatch/config.toml "$HOME/Library/Application Support/hatch/config.toml"
 fi
 
 LINUX_DOTFILES=(
   .canrc
   .config/terminator/config
   .config/vscode/settings.json
+  .config/hatch/config.toml
   .snmp
 )
 
@@ -171,7 +179,7 @@ if [[ "$OS" == "LINUX" ]]; then
     cp .ssh/config ~/.ssh/config
   fi
 
-    DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
+  DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
 
   if [[ "$DISTRO" == "KALI" ]]; then
     for df in "${KALI_DOTFILES[@]}"; do

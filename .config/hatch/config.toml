@@ -1,0 +1,43 @@
+mode = "local"
+project = ""
+shell = ""
+
+[dirs]
+project = []
+python = "isolated"
+data = "$XDG_DATA_HOME/hatch"
+cache = "$XDG_CACHE_HOME/hatch"
+
+[dirs.env]
+virtual = ".direnv"
+
+
+
+[projects]
+
+[publish.index]
+repo = "main"
+
+[template]
+name = "camercu"
+email = "camercu@gatech.edu"
+
+[template.licenses]
+headers = false
+default = [
+    "MIT",
+]
+
+[template.plugins.default]
+tests = true
+ci = false
+src-layout = true
+
+[terminal.styles]
+info = "bold"
+success = "bold cyan"
+error = "bold red"
+warning = "bold yellow"
+waiting = "bold magenta"
+debug = "bold"
+spinner = "simpleDotsScrolling"

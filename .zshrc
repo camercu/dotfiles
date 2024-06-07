@@ -1,3 +1,10 @@
+# Set XDG_*_HOME variables
+# ref: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html#variables
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block, everything else may go below.
@@ -6,8 +13,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+# export PATH=$HOME/.local/bin:/usr/local/bin:$PATH
 
+# Ignore warning for insecure permissions on completion files
 ZSH_DISABLE_COMPFIX=true
 
 # Make sure to expand tilde to home directory
@@ -71,7 +79,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 # or set a custom format using the strftime function format specifications,
 # see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
+# HIST_STAMPS="yyyy-mm-dd"
 
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
@@ -149,9 +157,9 @@ export NVM_DIR="$HOME/.nvm"
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 if command -v pyenv &>/dev/null; then
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
-export PIPENV_IGNORE_VIRTUALENVS=1
+    eval "$(pyenv init --path)"
+    eval "$(pyenv init -)"
+    export PIPENV_IGNORE_VIRTUALENVS=1
 fi
 
 # terraform completions
