@@ -98,7 +98,7 @@ require('lazy').setup({
         ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
         ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
         ['<leader>o'] = { name = '[O]pen', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
+        ['<leader>r'] = { name = '[R]efactor', _ = 'which_key_ignore' },
         ['<leader>s'] = { name = '[S]urround', _ = 'which_key_ignore' },
         ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
         ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
@@ -378,6 +378,7 @@ require('lazy').setup({
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
       -- Enable the following language servers
+      -- See :help lspconfig-setup
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --
       --  Add any additional override configuration in the following tables. Available keys are:
@@ -388,12 +389,12 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        gopls = {},
-        pyright = {},
-        ruff = {},
-        rust_analyzer = {},
+        -- pyright = {},
         bashls = {},
         dockerls = {},
+        gopls = {},
+        ruff = {},
+        rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -478,7 +479,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'ruff_fix', 'ruff_format' },
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.

@@ -45,13 +45,13 @@ vim.keymap.set('i', ';', ';<c-g>u')
 vim.keymap.set('n', '[q', vim.cmd.cprev, { desc = 'Previous [Q]uickfix' })
 vim.keymap.set('n', ']q', vim.cmd.cnext, { desc = 'Next [Q]uickfix' })
 
--- Convert Current line to Title Case
+-- Convert Current word to Title Case
 -- source: https://github.com/mischavandenburg/dotfiles/blob/main/nvim/lua/config/keymaps.lua
 vim.keymap.set(
   'n',
-  '<leader>rlt',
+  '<leader>ct',
   "<cmd>lua require('textcase').current_word('to_title_case')<CR>",
-  { desc = '[R]eplace [L]ine [T]itle Case' }
+  { desc = '[C]ode: Word to [T]itle Case' }
 )
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
