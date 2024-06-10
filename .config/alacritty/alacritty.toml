@@ -1,0 +1,24 @@
+# Config Docs: https://alacritty.org/config-alacritty.html
+
+# NOTE: Default keybindings: `man 5 alacritty-bindings`
+# or: https://alacritty.org/config-alacritty-bindings.html
+
+# themes from https://github.com/alacritty/alacritty-theme/tree/master/themes
+import = ["~/.config/alacritty/themes/solarized_dark.toml"]
+
+[font]
+size = 14
+
+[font.normal]
+family = "MesloLGS Nerd Font"
+
+[cursor.style]
+shape = "Beam"
+blinking = "On"
+
+[cursor]
+thickness = 0.2
+
+[cursor.vi_mode_style]
+shape = "Block"
+blinking = "Off"

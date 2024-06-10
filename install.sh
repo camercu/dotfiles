@@ -106,7 +106,9 @@ install_tmux_plugin_mgr
 
 COMMON_DOTFILES=(
   .bash_aliases
+  .config/alacritty
   .config/nvim
+  .config/wezterm
   .gdbinit
   .gitconfig
   .gitconfig-aliases
