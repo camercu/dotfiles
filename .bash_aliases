@@ -2,6 +2,21 @@
 ##    Custom Zsh Aliases   ##############################################
 #########################################################################
 
+## easy dotfile editing commands
+HAS_NEOVIM=$(command -v nvim)
+DOTFILE_EDITOR=$([ -n "$HAS_NEOVIM" ] && echo nvim || echo vim)
+case "$(basename "$(ps -o command= -p $$ | sed 's/^-//')")" in
+  zsh) alias erc="$DOTFILE_EDITOR ~/.zshrc";;
+  bash) alias erc="$DOTFILE_EDITOR ~/.bashrc";;
+  *) ;;
+esac
+[[ -d "$HOME/.config/nvim/" ]] && alias vce="$DOTFILE_EDITOR ~/.config/nvim/" # neoVim Config Edit
+alias ea="$DOTFILE_EDITOR ~/.bash_aliases"
+unset DOTFILE_EDITOR
+alias reload="exec $SHELL"
+alias cdot='cd ~/.dotfiles'
+
+
 # add simple logging (stderr) functions: debug, warn, error, success
 # also adds 'now' function to get timestamp
 [[ -f "$HOME/.logging.sh" ]] && source "$HOME/.logging.sh"
@@ -112,19 +127,6 @@ alias sshnv=ssh-noverify
 
 # Terminal Logging
 alias startlog='script term-$(now).log'
-
-## easy dotfile editing commands
-HAS_NEOVIM=$(command -v nvim)
-DOTFILE_EDITOR=$([ -n "$HAS_NEOVIM" ] && echo nvim || echo vim)
-case "$(basename "$(ps -o command= -p $$ | sed 's/^-//')")" in
-  zsh) alias erc="$DOTFILE_EDITOR ~/.zshrc";;
-  bash) alias erc="$DOTFILE_EDITOR ~/.bashrc";;
-  *) ;;
-esac
-alias ea="$DOTFILE_EDITOR ~/.bash_aliases"
-unset DOTFILE_EDITOR
-alias reload="exec $SHELL"
-alias cdot='cd ~/.dotfiles'
 
 
 ####   Mac Specific:   ##########

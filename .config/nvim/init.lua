@@ -174,6 +174,14 @@ require('lazy').setup({
         -- },
         defaults = {
           file_ignore_patterns = { '.git/[^h]' },
+          mappings = {
+            i = {
+              -- map actions.which_key to <C-h> (default: <C-/>)
+              -- actions.which_key shows the mappings for your picker,
+              -- e.g. git_{create, delete, ...}_branch for the git_branches picker
+              ['<C-h>'] = 'which_key',
+            },
+          },
         },
         pickers = {
           find_files = {
@@ -204,6 +212,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = '[F]ind [R]esume' })
       vim.keymap.set('n', '<leader>f.', builtin.oldfiles, { desc = '[F]ind Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = '[F]ind existing [B]uffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
