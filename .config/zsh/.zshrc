@@ -1,9 +1,5 @@
-# Set XDG_*_HOME variables
-# ref: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html#variables
-export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
-export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
-export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
+# eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/powerlevel10k_rainbow.omp.json)"
+# eval "$(oh-my-posh init zsh --config ${XDG_CONFIG_HOME}/oh-my-posh/mytheme.omp.yml)"
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -11,6 +7,14 @@ export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+
+#
+# Zsh History
+#
+export HISTFILE="$__zsh_cache_dir/.zsh_history"    # History filepath
+export HISTSIZE=10000                   # Maximum events for internal history
+export SAVEHIST=10000                   # Maximum events in history file
+
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/.local/bin:/usr/local/bin:$PATH
@@ -99,6 +103,9 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ -f "$ZDOTDIR/p10k.zsh" ]] && source "$ZDOTDIR/p10k.zsh"
+
 # User configuration
 
 export MANPATH="/usr/local/man:$MANPATH"
@@ -127,9 +134,6 @@ export LANG=en_US.UTF-8
 
 # Source custom aliases
 [[ -f "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
 
 export CLICOLOR=1
 

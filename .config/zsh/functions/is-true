@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+##? is-true: Check whether a string represents "true" (1, y, yes, t, true, on).
+# function is-true {
+  [[ -n "$1" && "$1:l" == (1|y(es|)|t(rue|)|on|) ]]
+# }

@@ -1,6 +1,15 @@
 #########################################################################
-##    Custom Zsh Aliases   ##############################################
+##    Custom Shell Aliases   ############################################
 #########################################################################
+
+## single character shortcuts - be sparing!
+alias l=ls
+alias g=git
+alias v=nvim
+
+## mask built-ins with better defaults
+alias vi=vim
+alias nv=nvim
 
 ## easy dotfile editing commands
 HAS_NEOVIM=$(command -v nvim)
@@ -10,11 +19,13 @@ case "$(basename "$(ps -o command= -p $$ | sed 's/^-//')")" in
   bash) alias erc="$DOTFILE_EDITOR ~/.bashrc";;
   *) ;;
 esac
-[[ -d "$HOME/.config/nvim/" ]] && alias vce="$DOTFILE_EDITOR ~/.config/nvim/" # neoVim Config Edit
+# neoVim Config Edit
+[[ -d "$HOME/.config/nvim/" ]] && alias vce="$DOTFILE_EDITOR ~/.config/nvim/"
 alias ea="$DOTFILE_EDITOR ~/.bash_aliases"
 unset DOTFILE_EDITOR
 alias reload="exec $SHELL"
 alias cdot='cd ~/.dotfiles'
+alias zdot='cd $ZDOTDIR'
 
 
 # add simple logging (stderr) functions: debug, warn, error, success
@@ -56,6 +67,14 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....="cd ../../../.."
 alias -- -="cd -"
+alias cd..='cd ..'
+
+## date/time
+alias timestamp="date '+%Y-%m-%d %H:%M:%S'"
+alias datestamp="date '+%Y-%m-%d'"
+alias isodate="date +%Y-%m-%dT%H:%M:%S%z"
+alias utc="date -u +%Y-%m-%dT%H:%M:%SZ"
+alias unixepoch="date +%s"
 
 # Easy navigation in zsh:
 if [[ "$(basename "$(ps -o command= -p $$ | sed 's/^-//')")" == "zsh" ]]; then
@@ -106,10 +125,10 @@ alias duff='diff -ur'
 alias mkdir='mkdir -p'
 alias remake='make -B'
 alias su='su -'
-alias path='echo $PATH'
+alias print-path='echo $PATH | tr ":" "\n"'
 alias nsort='sort | uniq -c | sort -n'
 alias pysrv='python3 -m http.server'
-alias v='nvim'
+alias touch='() { if [[ -n  "$1" ]]; then mkdir -p "$1:h" && \touch "$1"; fi }'
 
 # update all pip packages
 alias pipup='pip freeze --local | grep -v "^\-e" | cut -d = -f 1  |xargs -n1 pip install -U'
@@ -132,6 +151,7 @@ alias startlog='script term-$(now).log'
 ####   Mac Specific:   ##########
 if [[ "$OS" == "darwin" ]]; then
     alias brewup='brew update && brew upgrade && brew cleanup'
+    alias brewinfo="brew leaves | xargs brew desc --eval-all"
     alias md5sum='openssl md5'
     alias sha1sum='openssl sha1'
     alias sha256sum='openssl sha256'

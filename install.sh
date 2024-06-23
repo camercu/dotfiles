@@ -1,7 +1,21 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 # To delete all dotfile symlinks in home folder (not perfect uninstaller):
 # find ~ -maxdepth 1 -type l -name '.*' -delete
+
+DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
+
+# load env vars, including XDG_*
+source "$DOTFILE_DIR/.zshenv"
+
+# Ensure Zsh directories exist.
+() {
+  local zdir
+  for zdir in $@; do
+    [[ -d "${(P)zdir}" ]] || \mkdir -p -- "${(P)zdir}"
+  done
+} __zsh_{user_data,cache}_dir XDG_{CACHE,CONFIG,DATA,STATE}_HOME USER_{BIN,SHARE}
+
 
 # obtain the absolute path of a file/dir
 realpath() {
@@ -15,9 +29,12 @@ realpath() {
   fi
 }
 
-DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
-ARCHIVE_DIR="${DOTFILE_DIR}/old"
 OS="$(uname -s | tr '[:lower:]' '[:upper:]')"
+
+# make archive dir if doesn't exist
+ARCHIVE_DIR="${DOTFILE_DIR}/old"
+mkdir -p "$ARCHIVE_DIR"
+
 
 # simple logging functions for printing output to stderr
 source "${DOTFILE_DIR}/.logging.sh"
@@ -78,28 +95,6 @@ install_tmux_plugin_mgr() {
   fi
 }
 
-# make archive dir if doesn't exist
-mkdir -p "$ARCHIVE_DIR"
-
-# make user-local bin folder
-USER_BIN="$HOME/.local/bin"
-mkdir -p "$USER_BIN"
-
-# make user-local share folder
-USER_SHARE="$HOME/.local/share"
-mkdir -p "$USER_SHARE"
-
-# make standard XDG_*_HOME folders
-# ref: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html#variables
-XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
-mkdir -p "$XDG_CACHE_HOME"
-XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-mkdir -p "$XDG_CONFIG_HOME"
-XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
-mkdir -p "$XDG_DATA_HOME"
-XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
-mkdir -p "$XDG_STATE_HOME"
-
 # tools to make terminal nice
 install_ohmyzsh
 install_tmux_plugin_mgr
@@ -107,19 +102,17 @@ install_tmux_plugin_mgr
 COMMON_DOTFILES=(
   .bash_aliases
   .config/alacritty
+  .config/git
   .config/nvim
   .config/wezterm
+  .config/zsh
   .gdbinit
-  .gitconfig
-  .gitconfig-aliases
-  .gitignore-global
   .local/bin/static-get
   .local/share/fonts
   .logging.sh
-  .p10k.zsh
   .tmux.conf
   .vimrc
-  .zshrc
+  .zshenv
 )
 
 # install common dotfiles
@@ -136,7 +129,7 @@ if [[ "$OS" == "DARWIN" ]]; then
   done
 
   # these require custom destinations, so can't use array (bash doesn't support 2D arrays)
-  install_dotfile .gitconfig-credential-mac ~/.gitconfig-credential
+  install_dotfile ".config/git/config-credential-mac" ".config/git/config-credential"
   install_dotfile .config/vscode/settings.json "$HOME/Library/Application Support/VSCodium/User/settings.json"
   install_dotfile .config/vscode/settings.json "$HOME/Library/Application Support/Code/User/settings.json"
   install_dotfile .config/hatch/config.toml "$HOME/Library/Application Support/hatch/config.toml"
@@ -170,15 +163,15 @@ if [[ "$OS" == "LINUX" ]]; then
     install_dotfile "$df"
   done
 
-  install_dotfile .gitconfig-credential-linux ~/.gitconfig-credential
+  install_dotfile ".config/git/config-credential-linux" ".config/git/config-credential"
 
-  if [[ ! -d ~/.ssh ]]; then
-    mkdir ~/.ssh
-    chmod 700 ~/.ssh
+  if [[ ! -d "$HOME/.ssh" ]]; then
+    mkdir "$HOME/.ssh"
+    chmod 700 "$HOME/.ssh"
   fi
 
-  if [[ ! -f ~/.ssh/config ]]; then
-    cp .ssh/config ~/.ssh/config
+  if [[ ! -f "$HOME/.ssh/config" ]]; then
+    cp .ssh/config "$HOME/.ssh/config"
   fi
 
   DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"

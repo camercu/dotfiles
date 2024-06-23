@@ -11,16 +11,15 @@
 	username = camercu
 [core]
 	editor = vim
-	excludesfile = ~/.gitignore-global
+	excludesfile = ~/.config/git/ignore-global
 	autocrlf = input
-#	safecrlf = warn
 [push]
 	default = upstream
 [merge]
 	conflictstyle = diff3
 [include]
-	path = ~/.gitconfig-aliases
-	path = ~/.gitconfig-credential
+	path = ~/.config/git/config-aliases
+	path = ~/.config/git/config-credential
 [color]
 	ui = auto
 [pull]

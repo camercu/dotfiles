@@ -1,7 +1,3 @@
 old/
 .github-api-token
-.vim/bundle/
-.vim/autoload/
-.vim/sessions/
-.vim/spell/
-.vim/.netrwhist
+.DS_Store
