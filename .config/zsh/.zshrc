@@ -8,6 +8,21 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+
+#
+# Environment Variables
+#
+local envfile
+for envfile in $ZDOTDIR/env/*.zsh; do
+    source "$envfile"
+done
+
+#
+# Functions
+#
+[ -r "$ZDOTDIR/functions.zsh" ] && source "$ZDOTDIR/functions.zsh"
+autoload-dir $ZDOTDIR/functions(N/) $ZDOTDIR/functions/*(N/)
+
 #
 # Zsh History
 #
@@ -170,3 +185,5 @@ fi
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /usr/local/bin/terraform terraform
 
+# Ensure path arrays do not contain duplicates.
+typeset -gU cdpath fpath mailpath path

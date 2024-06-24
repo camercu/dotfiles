@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
-# To delete all dotfile symlinks in home folder (not perfect uninstaller):
-# find ~ -maxdepth 1 -type l -name '.*' -delete
+# To delete all dotfile symlinks in home folder (must run from zsh, not perfect uninstaller):
+# rm -iv -- ~/*(D-@); rm -iv -- ~/.config/**/*(D-@); rm -iv -- ~/.local/**/*(D-@)
 
 DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
 
@@ -18,7 +18,7 @@ source "$DOTFILE_DIR/.zshenv"
 
 
 # obtain the absolute path of a file/dir
-realpath() {
+function realpath {
   local filename="$1"
   local parentdir=$(dirname "${filename}")
 
@@ -37,13 +37,36 @@ mkdir -p "$ARCHIVE_DIR"
 
 
 # simple logging functions for printing output to stderr
-source "${DOTFILE_DIR}/.logging.sh"
+function debug {
+    local BLUE=$(tput setaf 4)
+    local CLEAR=$(tput sgr0)
+    echo "${BLUE}[*] $@${CLEAR}" >&2
+}
+
+function warn {
+    local YELLOW=$(tput setaf 3)
+    local CLEAR=$(tput sgr0)
+    echo "${YELLOW}[!] $@${CLEAR}" >&2
+}
+
+function error {
+    local RED=$(tput setaf 1)
+    local CLEAR=$(tput sgr0)
+    echo "${RED}[x] $@${CLEAR}" >&2
+}
+
+function success {
+    local GREEN=$(tput setaf 2)
+    local CLEAR=$(tput sgr0)
+    echo "${GREEN}[+] $@${CLEAR}" >&2
+}
+
 
 # backs up old dotfile and replaces it with symlink to one here.
 # Usage: install_dotfile FILE [DEST]
 #  FILE - the dotfile in this directory that you want to install
 #  DEST - optional override of destination where dotfile will go. Defaults to home dir.
-install_dotfile() {
+function install_dotfile {
   local src="$(realpath "$1")"
   local dst="${2:-"$HOME/$1"}"
 
@@ -63,7 +86,7 @@ install_dotfile() {
 }
 
 # installs oh-my-zsh if not present, along with desired theme & plugins
-install_ohmyzsh() {
+function install_ohmyzsh {
   if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     debug "Installing oh-my-zsh"
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -88,7 +111,7 @@ install_ohmyzsh() {
   install_dotfile hashcat-mode-finder "${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/plugins/hashcat-mode-finder"
 }
 
-install_tmux_plugin_mgr() {
+function install_tmux_plugin_mgr {
   if [[ ! -d "$XDG_CONFIG_HOME/tmux/plugins/tpm" ]]; then
     debug "Installing tmux plugin manager"
     git clone https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" \
@@ -111,7 +134,6 @@ COMMON_DOTFILES=(
   .gdbinit
   .local/bin/static-get
   .local/share/fonts
-  .logging.sh
   .vimrc
   .zshenv
 )
