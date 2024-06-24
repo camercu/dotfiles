@@ -206,7 +206,8 @@
     }
   ],
   "vim.visualstar": true,
+  "vsicons.dontShowNewVersionMessage": true,
   "workbench.colorTheme": "One Dark Pro",
   "workbench.iconTheme": "vscode-icons",
-  "workbench.startupEditor": "readme"
+  "workbench.startupEditor": "readme",
 }

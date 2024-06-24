@@ -151,7 +151,7 @@ fi
 [[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
 
 # set PATH to include user's .cargo dir for Rust, if it exists
-[[ -d "$HOME/.cargo/bin" ]] && export PATH="$HOME/.cargo/bin:$PATH"
+[[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
 # enable nvm
 export NVM_DIR="$HOME/.nvm"
@@ -169,3 +169,4 @@ fi
 # terraform completions
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /usr/local/bin/terraform terraform
+

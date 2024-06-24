@@ -89,9 +89,10 @@ install_ohmyzsh() {
 }
 
 install_tmux_plugin_mgr() {
-  if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
+  if [[ ! -d "$XDG_CONFIG_HOME/tmux/plugins/tpm" ]]; then
     debug "Installing tmux plugin manager"
-    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+    git clone https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" \
+        && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
   fi
 }
 
@@ -104,13 +105,13 @@ COMMON_DOTFILES=(
   .config/alacritty
   .config/git
   .config/nvim
+  .config/tmux/tmux.conf
   .config/wezterm
   .config/zsh
   .gdbinit
   .local/bin/static-get
   .local/share/fonts
   .logging.sh
-  .tmux.conf
   .vimrc
   .zshenv
 )
