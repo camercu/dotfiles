@@ -38,3 +38,6 @@ export EDITOR="nvim"
 export VISUAL="nvim"
 export MANPAGER='nvim +Man!'
 export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
+
+# Language environment
+export LANG=en_US.UTF-8
