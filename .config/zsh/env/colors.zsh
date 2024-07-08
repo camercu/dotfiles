@@ -1,10 +1,15 @@
 #!/usr/bin/env zsh
-export COLOR_BLACK=$(tput setaf 0)
-export COLOR_RED=$(tput setaf 1)
-export COLOR_GREEN=$(tput setaf 2)
-export COLOR_YELLOW=$(tput setaf 3)
-export COLOR_BLUE=$(tput setaf 4)
-export COLOR_MAGENTA=$(tput setaf 5)
-export COLOR_CYAN=$(tput setaf 6)
-export COLOR_WHITE=$(tput setaf 7)
-export COLOR_RESET=$(tput sgr0)
+
+# Load Color constants into terminal
+#
+# To read source of colors function, do:
+# less $^fpath/colors(N)
+#
+# source: https://stackoverflow.com/a/6159885
+
+autoload -U colors && colors
+for COLOR in RED GREEN YELLOW BLUE MAGENTA CYAN BLACK WHITE; do
+    eval export $COLOR='$fg_no_bold[${(L)COLOR}]'
+    eval export BOLD_$COLOR='$fg_bold[${(L)COLOR}]'
+done
+eval export RESET='$reset_color'
