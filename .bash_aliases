@@ -1,23 +1,99 @@
 #########################################################################
-##    Custom Shell Aliases   ############################################
+##    Custom Shell Aliases and Functions  ###############################
 #########################################################################
 
+XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
+
+#
+###  Functions
+#
+
+##? md: shortcut to make a directory and cd into it
+function md {
+    mkdir -p "$1" && cd "$1" && pwd
+}
+
+##? current-shell: get name of current shell executable
+function current-shell {
+    basename "$(ps -o command= -p $$ | cut -d' ' -f1 | sed 's/^-//')"
+}
+
+# Shell checks - return true if current shell is zsh/bash
+function is-zsh { ! (\builtin shopt) &>/dev/null && [ "${ZSH_VERSION+x}" ]; }
+function is-bash { (\builtin shopt) &>/dev/null && [ "${BASH_VERSINFO+x}" ]; }
+
+# OS checks
+function is-macos { [[ "$OSTYPE" == darwin* ]]; }
+function is-linux { [[ "$OSTYPE" == linux* ]]; }
+function is-bsd { [[ "$OSTYPE" == *bsd* ]]; }
+function is-solaris { [[ "$OSTYPE" == solaris* ]]; }
+function is-windows { [[ "$OSTYPE" == cygwin* || "$OSTYPE" == msys ]]; }
+
+##? is-installed: return true if command binary is installed on PATH
+function is-installed { hash "$1" 2>/dev/null; }
+
+# Absolute path to file (does not resolve symlinks)
+! is-installed abspath &&
+    function abspath {
+        python3 -c "import os,sys; print(os.path.abspath(sys.argv[1]))" "$1"
+    }
+# Real (canonical) path to file (resolves symlinks)
+! is-installed realpath &&
+    function realpath {
+        python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$1"
+    }
+
+#
+# Logging Functions - colorized printing of log messages
+#
+function debug {
+    local BLUE=$(tput setaf 4)
+    local CLEAR=$(tput sgr0)
+    echo "${BLUE}[*] $@${CLEAR}" >&2
+}
+
+function warn {
+    local YELLOW=$(tput setaf 3)
+    local CLEAR=$(tput sgr0)
+    echo "${YELLOW}[!] $@${CLEAR}" >&2
+}
+
+function error {
+    local RED=$(tput setaf 1)
+    local CLEAR=$(tput sgr0)
+    echo "${RED}[x] $@${CLEAR}" >&2
+}
+
+function success {
+    local GREEN=$(tput setaf 2)
+    local CLEAR=$(tput sgr0)
+    echo "${GREEN}[+] $@${CLEAR}" >&2
+}
+
+#
+#
+####  Aliases  ###########
+#
+#
+
 ## single character shortcuts - be sparing!
-alias l=ls
 alias g=git
 alias v=nvim
 
 ## mask built-ins with better defaults
-alias vi=vim
-alias nv=nvim
+if is-installed vim; then
+    alias vi=vim
+fi
 
 ## easy dotfile editing commands
-HAS_NEOVIM=$(command -v nvim)
-DOTFILE_EDITOR=$([ -n "$HAS_NEOVIM" ] && echo nvim || echo vim)
-case "$(basename "$(ps -o command= -p $$ | sed 's/^-//')")" in
-  zsh) alias erc="$DOTFILE_EDITOR ~/.zshrc";;
-  bash) alias erc="$DOTFILE_EDITOR ~/.bashrc";;
-  *) ;;
+DOTFILE_EDITOR=$(hash nvim 2>/dev/null && echo nvim || echo vim)
+case "$(current-shell)" in
+zsh) alias erc="$DOTFILE_EDITOR ${ZDOTDIR:-~/.config/zsh}/.zshrc" ;;
+bash) alias erc="$DOTFILE_EDITOR ~/.bashrc" ;;
+*) ;;
 esac
 # neoVim Config Edit
 [[ -d "$HOME/.config/nvim/" ]] && alias vce="$DOTFILE_EDITOR ~/.config/nvim/"
@@ -27,26 +103,8 @@ alias reload="exec $SHELL"
 alias cdot='cd ~/.dotfiles'
 alias zdot='cd $ZDOTDIR'
 
-
-# add simple logging (stderr) functions: debug, warn, error, success
-# also adds 'now' function to get timestamp
-[[ -f "$HOME/.logging.sh" ]] && source "$HOME/.logging.sh"
-
-####  Variables  #########
-
-# # REGEX's
-# DOMAIN='(\w|-)+(\.[a-zA-Z]+)+\b'
-# EMAIL="(\w|-|\.)+@$DOMAIN"
-# OCTET='[012]{0,1}\d{1,2}'
-# IP="($OCTET\.){3}$OCTET"
-
-OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
-
-####  Aliases  ###########
-
 ## ls aliases
-HAS_LSD=$(command -v lsd)
-if [ -n "$HAS_LSD" ]; then
+if is-installed lsd; then
     alias ls='lsd'
     alias tree='ls --tree'
 fi
@@ -77,17 +135,17 @@ alias utc="date -u +%Y-%m-%dT%H:%M:%SZ"
 alias unixepoch="date +%s"
 
 # Easy navigation in zsh:
-if [[ "$(basename "$(ps -o command= -p $$ | sed 's/^-//')")" == "zsh" ]]; then
-  alias d='dirs -v | head -10'
-  alias 1='cd -'
-  alias 2='cd -2'
-  alias 3='cd -3'
-  alias 4='cd -4'
-  alias 5='cd -5'
-  alias 6='cd -6'
-  alias 7='cd -7'
-  alias 8='cd -8'
-  alias 9='cd -9'
+if is-zsh; then
+    alias d='dirs -v | head -10'
+    alias 1='cd -'
+    alias 2='cd -2'
+    alias 3='cd -3'
+    alias 4='cd -4'
+    alias 5='cd -5'
+    alias 6='cd -6'
+    alias 7='cd -7'
+    alias 8='cd -8'
+    alias 9='cd -9'
 fi
 
 ## tmux aliases
@@ -128,7 +186,9 @@ alias su='su -'
 alias print-path='echo $PATH | tr ":" "\n"'
 alias nsort='sort | uniq -c | sort -n'
 alias pysrv='python3 -m http.server'
-alias touch='() { if [[ -n  "$1" ]]; then mkdir -p "$1:h" && \touch "$1"; fi }'
+if is-zsh; then
+    alias touch='() { if [[ -n  "$1" ]]; then mkdir -p "$1:h" && \touch "$1"; fi }'
+fi
 
 # update all pip packages
 alias pipup='pip freeze --local | grep -v "^\-e" | cut -d = -f 1  |xargs -n1 pip install -U'
@@ -147,9 +207,14 @@ alias sshnv=ssh-noverify
 # Terminal Logging
 alias startlog='script term-$(now).log'
 
+#
+#
+# OS-specific Aliases
+#
+#
 
 ####   Mac Specific:   ##########
-if [[ "$OS" == "darwin" ]]; then
+if is-macos; then
     alias brewup='brew update && brew upgrade && brew cleanup'
     alias brewinfo="brew leaves | xargs brew desc --eval-all"
     alias md5sum='openssl md5'
@@ -157,18 +222,14 @@ if [[ "$OS" == "darwin" ]]; then
     alias sha256sum='openssl sha256'
 fi
 
-
 ####   Linux Specific:  ##########
-if [[ "$OS" == "linux" ]]; then
-    DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
+if is-linux; then
+    local DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
 
     # upgrade all packages
     alias maintain='sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get autoremove -y && sudo apt-get autoclean -y'
 
     alias arp='ip neigh'
-
-    # copy to clipboard
-    alias clip='xclip -sel clip'
 
     # colorize ip command output
     alias ip='ip -color=auto'
@@ -178,7 +239,6 @@ if [[ "$OS" == "linux" ]]; then
 
     # display tun0 ip addr
     alias vpnip="ip a s tun0 | grep -w inet | awk '{print \$2}' | cut -d '/' -f 1"
-    # export VPNIP=$(ip -f inet addr show tun0 | grep -Po 'inet \\K\[\\d.\]+')
 
     # set up can0 socketCAN interface
     # before running, add can, vcan, and can-isotp to /etc/modules
@@ -199,9 +259,23 @@ if [[ "$OS" == "linux" ]]; then
         alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
         alias pattoffs='/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q'
 
+        ## helpers for upgrading reverse shell
+        alias fixpath='echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"'
+        alias fixterm='echo "export TERM=xterm-256color"'
+
         # other
         alias cme='crackmapexec'
         alias ssploit='searchsploit'
+
+        ##? newbox: initialize directory for new Hack-The-Box/OSCP/etc. machine
+        function newbox {
+            local name="$1"
+            mkdir "$name"
+            pushd -q "$name"
+            mkdir scans pwn loot assets
+            touch "$name.md"
+            popd -q
+        }
 
         ## If working in hacking vm  ############
         if [ -d "/mnt/share" ]; then
@@ -214,70 +288,6 @@ if [[ "$OS" == "linux" ]]; then
             alias htbconnect='sudo openvpn /mnt/share/htb/lab_camercu.ovpn'
             alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/offsec/universal.ovpn'
             alias pgconnect='sudo openvpn /mnt/share/offsec/universal.ovpn'
-
-            ## helpers for upgrading reverse shell
-            alias fixpath='echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"'
-            alias fixterm='echo "export TERM=xterm-256color"'
         fi
     fi
 fi
-
-########################################################################
-###  Functions     #####################################################
-########################################################################
-
-# Shortcut to make a directory and cd into it
-function mcd {
-    mkdir -p $1 && cd $1 && pwd
-}
-
-# start new box
-function newbox {
-    local name="$1"
-    mkdir "$name"
-    pushd -q "$name"
-    mkdir scans pwn loot assets
-    touch "$name.md"
-    popd -q
-}
-
-# history-delete: delete a line (offset) from your shell history
-# source: https://stackoverflow.com/a/63494771/5202294
-function hd {
-    # Usage: hd START [STOP]
-    # where START and STOP are history line numbers.
-    # Alternatively, you can do `hd -1` to remove the last line.
-    START=${1}
-    STOP=${2:-$START}
-
-    # Prevent the specified history line from being saved.
-    local HISTORY_IGNORE="${(b)$(fc -ln $START $STOP)}"
-    # Write history to file, excluding lines matching `$HISTORY_IGNORE`
-    fc -W
-    # Dispose of current history and read new history from file.
-    fc -p $HISTFILE $HISTSIZE $SAVEHIST
-    print "Deleted '$HISTORY_IGNORE' from history."
-}
-
-# overrides builtin zshaddhistory to prevent logging `hd` commands
-function zshaddhistory {
-    [[ $1 != 'hd '* ]]
-}
-
-# fuzzy-search hashcat modes
-# source: https://jonathanh.co.uk/blog/fuzzy-search-hashcat-modes.html
-# NOTE: fzf and hashcat required to be installed
-function hcmode {
-    hashcat --example-hashes | grep -E 'MODE:|TYPE:|HASH:|Hash mode #|Name\.*:|Example\.Hash\.*:|^$' | awk -v RS="\n\n" -F "\t" '{gsub("\n","\t",$0); print $1 "\t" $2 "\t" $3}' | sed 's/MODE: //; s/Hash mode #//; s/TYPE: //; s/ *Name\.*: //; s/Example\.Hash\.*://; s/HASH: //' | fzf -d '\t' --header="Mode   Type" --preview='echo HASH: {3}' --preview-window=up:1 --reverse --height=40% | awk '{print $1}'
-}
-
-# add a pubkey to ssh authorized keys for port fwd only
-function ptfwd-add {
-    if [ $# -ne 2 ]; then
-        echo "Usage: ptfwd-add  FROM_ADDR  SSH_PUBKEY_TEXT"
-        return 1
-    fi
-    local from_addr=$1
-    local pubkey=$2
-    echo "from=\"$from_addr\",command=\"echo 'This account can only be used for port forwarding'\",no-agent-forwarding,no-X11-forwarding,no-pty $pubkey" >> ~/.ssh/authorized_keys
-}

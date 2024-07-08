@@ -20,7 +20,7 @@ done
 #
 # Functions
 #
-[ -r "$ZDOTDIR/functions.zsh" ] && source "$ZDOTDIR/functions.zsh"
+[ -r "$ZDOTDIR/autoloader.zsh" ] && source "$ZDOTDIR/autoloader.zsh"
 autoload-dir $ZDOTDIR/functions(N/) $ZDOTDIR/functions/*(N/)
 
 #
