@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 ##? is-true: Check whether a string represents "true" (1, y, yes, t, true, on).
 # function is-true {

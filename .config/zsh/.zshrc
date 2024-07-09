@@ -23,7 +23,7 @@ unset envfile
 # Functions
 #
 [ -r "$ZDOTDIR/autoloader.zsh" ] && source "$ZDOTDIR/autoloader.zsh"
-autoload-dir $ZDOTDIR/functions(N/) $ZDOTDIR/functions/*(N/)
+autoload-dir $__zsh_config_dir/functions(N/) $__zsh_config_dir/functions/*(N/)
 
 
 # Ignore warning for insecure permissions on completion files

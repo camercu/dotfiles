@@ -7,10 +7,12 @@
 function autoload-dir {
     local zdir
     local -a zautoloads
+    setopt EXTENDED_GLOB LOCAL_OPTIONS
     for zdir in $@; do
         [[ -d "$zdir" ]] || continue
         fpath=("$zdir" $fpath)
+        # match all plain files except those starting with underscore, grabbing basename of file, with NULL_GLOB set
         zautoloads=($zdir/*~_*(N.:t))
-        (($#zautoloads > 0)) && autoload -Uz $zautoloads
+        (( $#zautoloads > 0 )) && autoload -Uz $zautoloads
     done
 }

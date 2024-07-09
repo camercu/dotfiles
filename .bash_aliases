@@ -210,6 +210,7 @@ alias mkdir='mkdir -p'
 alias remake='make -B'
 alias su='su -'
 alias print-path='echo $PATH | tr ":" "\n"'
+alias print-fpath='echo $FPATH | tr ":" "\n"'
 alias nsort='sort | uniq -c | sort -n'
 alias pysrv='python3 -m http.server'
 if is-zsh; then
