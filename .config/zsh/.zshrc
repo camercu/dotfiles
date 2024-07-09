@@ -14,23 +14,16 @@ fi
 #
 # Environment Variables
 #
-local envfile
 for envfile in $ZDOTDIR/env/*.zsh; do
     source "$envfile"
 done
+unset envfile
 
 #
 # Functions
 #
 [ -r "$ZDOTDIR/autoloader.zsh" ] && source "$ZDOTDIR/autoloader.zsh"
 autoload-dir $ZDOTDIR/functions(N/) $ZDOTDIR/functions/*(N/)
-
-#
-# Zsh History
-#
-export HISTFILE="$__zsh_cache_dir/.zsh_history"    # History filepath
-export HISTSIZE=10000                   # Maximum events for internal history
-export SAVEHIST=10000                   # Maximum events in history file
 
 
 # Ignore warning for insecure permissions on completion files
@@ -93,27 +86,20 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
 # Source custom aliases
 [[ -f "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"
 
-export CLICOLOR=1
+# Makes the "command not found" message more beautiful and informative.
+# source: https://github.com/warbacon/zsh-kickstart/blob/main/.zshrc
+function command_not_found_handler {
+    local RED_UNDERCURL="\033[4:3m\033[58:5:1m"
+    printf "%sERROR:%s command \`%s\` not found.\n" \
+        "$(printf $BOLD_RED)" "$(printf $RESET)" \
+        "$(printf $RED_UNDERCURL)${1}$(printf $RESET)" \
+        >&2
+    return 127
+}
+
 
 # go path
 [[ -d "/usr/local/go/bin" ]] && export PATH="$PATH:/usr/local/go/bin"

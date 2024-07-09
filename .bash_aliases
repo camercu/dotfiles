@@ -177,6 +177,32 @@ alias bin2sc=$'python3 -c \'import sys,os,textwrap as tw;s=" ".join(sys.argv[1:]
 # generate NTLM hash of given password
 alias ntlmhash=$'python3 -c \'import sys as s,hashlib as h;x=" ".join(s.argv[1:]) if len(s.argv)>1 else s.stdin.read().encode();print(h.new("md4", x.encode("utf-16le")).hexdigest())\''
 
+#
+# clipboard: Use pbcopy/pbpaste (macOS) clipboard commands everywhere.
+#
+# source: https://github.com/mattmc3/zdotdir/blob/main/lib/clipboard.zsh
+#
+if ! is-installed pbcopy && ! is-installed pbpaste; then
+    if [[ "$OSTYPE" == cygwin* ]]; then
+        alias pbcopy='tee > /dev/clipboard'
+        alias pbpaste='cat /dev/clipboard'
+    elif [[ "$OSTYPE" == linux-android ]]; then
+        alias pbcopy='termux-clipboard-set'
+        alias pbpaste='termux-clipboard-get'
+    elif is-installed wl-copy && is-installed wl-paste; then
+        alias pbcopy='wl-copy'
+        alias pbpaste='wl-paste'
+    elif [[ -n $DISPLAY ]]; then
+        if is-installed xclip; then
+            alias pbcopy='xclip -selection clipboard -in'
+            alias pbpaste='xclip -selection clipboard -out'
+        elif is-installed xsel; then
+            alias pbcopy='xsel --clipboard --input'
+            alias pbpaste='xsel --clipboard --output'
+        fi
+    fi
+fi
+
 ###  miscellaneous  ###
 alias df='df -H'
 alias duff='diff -ur'
