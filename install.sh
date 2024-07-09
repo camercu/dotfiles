@@ -8,6 +8,10 @@ DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
 # load env vars, including XDG_*
 source "$DOTFILE_DIR/.zshenv"
 
+# load useful functions and aliases
+# (realpath, is-macos, is-linux, logging functions)
+source "$DOTFILE_DIR/.bash_aliases"
+
 # Ensure Zsh directories exist.
 () {
   local zdir
@@ -16,51 +20,12 @@ source "$DOTFILE_DIR/.zshenv"
   done
 } __zsh_{user_data,cache}_dir XDG_{CACHE,CONFIG,DATA,STATE}_HOME USER_{BIN,SHARE}
 
-
-# obtain the absolute path of a file/dir
-function realpath {
-  local filename="$1"
-  local parentdir=$(dirname "${filename}")
-
-  if [ -d "${filename}" ]; then
-    echo "$(cd "${filename}" && pwd -P)"
-  elif [ -d "${parentdir}" ]; then
-    echo "$(cd "${parentdir}" && pwd -P)/$(basename "$1")"
-  fi
-}
-
-OS="$(uname -s | tr '[:lower:]' '[:upper:]')"
+# initialize/update git submodules for dotfiles
+git submodule update --init
 
 # make archive dir if doesn't exist
 ARCHIVE_DIR="${DOTFILE_DIR}/old"
 mkdir -p "$ARCHIVE_DIR"
-
-
-# simple logging functions for printing output to stderr
-function debug {
-    local BLUE=$(tput setaf 4)
-    local CLEAR=$(tput sgr0)
-    echo "${BLUE}[*] $@${CLEAR}" >&2
-}
-
-function warn {
-    local YELLOW=$(tput setaf 3)
-    local CLEAR=$(tput sgr0)
-    echo "${YELLOW}[!] $@${CLEAR}" >&2
-}
-
-function error {
-    local RED=$(tput setaf 1)
-    local CLEAR=$(tput sgr0)
-    echo "${RED}[x] $@${CLEAR}" >&2
-}
-
-function success {
-    local GREEN=$(tput setaf 2)
-    local CLEAR=$(tput sgr0)
-    echo "${GREEN}[+] $@${CLEAR}" >&2
-}
-
 
 # backs up old dotfile and replaces it with symlink to one here.
 # Usage: install_dotfile FILE [DEST]
@@ -137,7 +102,7 @@ done
 MAC_DOTFILES=()
 
 # install MacOS-specific dotfiles
-if [[ "$OS" == "DARWIN" ]]; then
+if is-macos; then
   for df in "${MAC_DOTFILES[@]}"; do
     install_dotfile "$df"
   done
@@ -172,7 +137,7 @@ KALI_DOTFILES=(
 )
 
 # install Linux-specific dotfiles
-if [[ "$OS" == "LINUX" ]]; then
+if is-linux; then
   for df in "${LINUX_DOTFILES[@]}"; do
     install_dotfile "$df"
   done
