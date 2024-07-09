@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 ##? up: Quickly go up any number of directories.
 # function up {

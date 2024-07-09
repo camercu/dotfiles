@@ -1,6 +1,9 @@
 #!/usr/bin/env zsh
 
-# Load Color constants into terminal
+# enable coloring in terminal
+export CLICOLOR=1
+
+# Load Color constants into environment
 #
 # To read source of colors function, do:
 # less $^fpath/colors(N)

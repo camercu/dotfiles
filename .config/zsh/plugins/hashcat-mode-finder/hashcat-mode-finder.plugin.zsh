@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+
 # Fuzzy match hashcat mode search for autocompletion
 # source: https://jonathanh.co.uk/blog/fuzzy-search-hashcat-modes.html
 # Install fzf first for it to work

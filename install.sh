@@ -108,27 +108,18 @@ function install_ohmyzsh {
   install_omz_extras zsh-users/zsh-syntax-highlighting
 
   # hack that installs symlink to custom plugin
-  install_dotfile hashcat-mode-finder "${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/plugins/hashcat-mode-finder"
-}
-
-function install_tmux_plugin_mgr {
-  if [[ ! -d "$XDG_CONFIG_HOME/tmux/plugins/tpm" ]]; then
-    debug "Installing tmux plugin manager"
-    git clone https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" \
-        && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
-  fi
+  install_dotfile "$ZDOTDIR/plugins/hashcat-mode-finder" "${ZSH_CUSTOM:-"$HOME/.oh-my-zsh/custom"}/plugins/hashcat-mode-finder"
 }
 
 # tools to make terminal nice
 install_ohmyzsh
-install_tmux_plugin_mgr
 
 COMMON_DOTFILES=(
   .bash_aliases
   .config/alacritty
   .config/git
   .config/nvim
-  .config/tmux/tmux.conf
+  .config/tmux
   .config/wezterm
   .config/zsh
   .gdbinit
