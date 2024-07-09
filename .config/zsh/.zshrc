@@ -11,6 +11,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 
+# Make sure to expand tilde to home directory
+set -o magicequalsubst
+
 #
 # Environment Variables
 #
@@ -26,67 +29,9 @@ unset envfile
 autoload-dir $__zsh_config_dir/functions(N/) $__zsh_config_dir/functions/*(N/)
 
 
-# Ignore warning for insecure permissions on completion files
-ZSH_DISABLE_COMPFIX=true
-
-# Make sure to expand tilde to home directory
-set -o magicequalsubst
-
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
-
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-# ZSH_THEME="robbyrussell"
-ZSH_THEME="powerlevel10k/powerlevel10k"
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ -f "$ZDOTDIR/p10k.zsh" ]] && source "$ZDOTDIR/p10k.zsh"
-
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-HYPHEN_INSENSITIVE="true"
-
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to automatically update without prompting.
-# DISABLE_UPDATE_PROMPT="true"
-
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-HIST_STAMPS="yyyy-mm-dd"
-
-# Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(
-    colored-man-pages
-    git
-    hashcat-mode-finder
-    zsh-autosuggestions
-    zsh-syntax-highlighting
-)
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# Source custom aliases
+#
+# Aliases
+#
 [[ -f "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"
 
 # Makes the "command not found" message more beautiful and informative.
@@ -100,6 +45,10 @@ function command_not_found_handler {
     return 127
 }
 
+
+#
+# Path
+#
 
 # go path
 [[ -d "/usr/local/go/bin" ]] && export PATH="$PATH:/usr/local/go/bin"
@@ -130,9 +79,30 @@ if command -v pyenv &>/dev/null; then
     export PIPENV_IGNORE_VIRTUALENVS=1
 fi
 
+# Ensure path arrays do not contain duplicates.
+typeset -gU cdpath fpath mailpath path
+
+
+#
+# Tab Completions
+#
+autoload -U compinit && compinit -u -d "$ZSH_COMPDUMP"
+
 # terraform completions
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /usr/local/bin/terraform terraform
 
-# Ensure path arrays do not contain duplicates.
-typeset -gU cdpath fpath mailpath path
+#
+# Prompt
+#
+[ ! -d "$__zsh_cache_dir/powerlevel10k" ] && git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$__zsh_cache_dir/powerlevel10k"
+source "$ZDOTDIR/p10k.zsh"
+source "$__zsh_cache_dir/powerlevel10k/powerlevel10k.zsh-theme"
+
+#
+# Plugins
+#
+for plugin in $ZDOTDIR/plugins/**/*.plugin.zsh; do
+    source $plugin
+done
+unset plugin
