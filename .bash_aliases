@@ -134,20 +134,6 @@ alias isodate="date +%Y-%m-%dT%H:%M:%S%z"
 alias utc="date -u +%Y-%m-%dT%H:%M:%SZ"
 alias unixepoch="date +%s"
 
-# Easy navigation in zsh:
-if is-zsh; then
-    alias d='dirs -v | head -10'
-    alias 1='cd -'
-    alias 2='cd -2'
-    alias 3='cd -3'
-    alias 4='cd -4'
-    alias 5='cd -5'
-    alias 6='cd -6'
-    alias 7='cd -7'
-    alias 8='cd -8'
-    alias 9='cd -9'
-fi
-
 ## tmux aliases
 alias tmux="tmux -u"
 alias tk='tmux kill-session -t'
@@ -213,9 +199,6 @@ alias print-path='echo $PATH | tr ":" "\n"'
 alias print-fpath='echo $FPATH | tr ":" "\n"'
 alias nsort='sort | uniq -c | sort -n'
 alias pysrv='python3 -m http.server'
-if is-zsh; then
-    alias touch='() { if [[ -n  "$1" ]]; then mkdir -p "$1:h" && \touch "$1"; fi }'
-fi
 
 # update all pip packages
 alias pipup='pip freeze --local | grep -v "^\-e" | cut -d = -f 1  |xargs -n1 pip install -U'

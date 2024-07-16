@@ -41,3 +41,4 @@ export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
 
 # Language environment
 export LANG=en_US.UTF-8
+

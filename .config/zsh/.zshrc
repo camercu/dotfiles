@@ -15,24 +15,27 @@ fi
 set -o magicequalsubst
 
 #
-# Environment Variables
+# Helper Functions
 #
-for envfile in $ZDOTDIR/env/*.zsh; do
-    source "$envfile"
-done
-unset envfile
+source "$ZDOTDIR/functions.zsh"
 
 #
-# Functions
+# Environment Variables
+#
+source-dir "$ZDOTDIR/env"
+
+#
+# Configuration Options
+#
+source-dir "$ZDOTDIR/conf.d"
+
+#
+# Auto-loaded Functions
 #
 [ -r "$ZDOTDIR/autoloader.zsh" ] && source "$ZDOTDIR/autoloader.zsh"
 autoload-dir $__zsh_config_dir/functions(N/) $__zsh_config_dir/functions/*(N/)
 
 
-#
-# Aliases
-#
-[[ -f "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"
 
 # Makes the "command not found" message more beautiful and informative.
 # source: https://github.com/warbacon/zsh-kickstart/blob/main/.zshrc
@@ -57,11 +60,6 @@ if which go &>/dev/null; then
     export GOPATH=$(go env GOPATH)
 fi
 
-# set PATH to include user's .local/bin, if it exists
-[[ -d "$HOME/.local/bin" ]] && export PATH="$PATH:$HOME/.local/bin"
-
-# set PATH so it includes user's private bin if it exists
-[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
 
 # set PATH to include user's .cargo dir for Rust, if it exists
 [[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
@@ -82,11 +80,6 @@ fi
 # Ensure path arrays do not contain duplicates.
 typeset -gU cdpath fpath mailpath path
 
-
-#
-# Tab Completions
-#
-autoload -U compinit && compinit -u -d "$ZSH_COMPDUMP"
 
 # terraform completions
 autoload -U +X bashcompinit && bashcompinit
