@@ -91,31 +91,22 @@ require('lazy').setup({
       require('which-key').setup()
 
       -- Document existing key chains
-      require('which-key').register({
+      require('which-key').add({
         { '<leader><tab>', group = '[Tab]' },
-        { '<leader><tab>_', hidden = true },
         { '<leader>c', group = '[C]ode' },
-        { '<leader>c_', hidden = true },
-        { '<leader>d', group = '[D]ocument' },
-        { '<leader>d_', hidden = true },
+        { '<leader>d', group = '[D]ebug' },
         { '<leader>f', group = '[F]ind' },
-        { '<leader>f_', hidden = true },
         { '<leader>h', group = 'Git [H]unk' },
-        { '<leader>h_', hidden = true },
+        { '<leader>l', group = '[L]SP' },
         { '<leader>o', group = '[O]pen' },
-        { '<leader>o_', hidden = true },
         { '<leader>r', group = '[R]efactor' },
-        { '<leader>r_', hidden = true },
         { '<leader>s', group = '[S]urround' },
-        { '<leader>s_', hidden = true },
         { '<leader>t', group = '[T]oggle' },
-        { '<leader>t_', hidden = true },
         { '<leader>w', group = '[W]orkspace' },
-        { '<leader>w_', hidden = true },
       })
       -- visual mode
-      require('which-key').register({
-        { '<leader>h', desc = 'Git [H]unk', mode = 'v' },
+      require('which-key').add({
+        { '<leader>h', group = 'Git [H]unk', mode = 'v' },
       })
     end,
   },
@@ -310,27 +301,31 @@ require('lazy').setup({
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('ld', require('telescope.builtin').lsp_definitions, '[L]SP [D]efinition')
+          --
+          -- WARN: This is not Goto Definition, this is Goto Declaration.
+          --  For example, in C this would take you to the header.
+          map('lD', vim.lsp.buf.declaration, '[L]SP [D]eclaration')
 
           -- Find references for the word under your cursor.
-          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('lr', require('telescope.builtin').lsp_references, '[L]SP [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('lI', require('telescope.builtin').lsp_implementations, '[L]SP [I]mplementation')
 
           -- Jump to the type of the word under your cursor.
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
-          map('<leader>T', require('telescope.builtin').lsp_type_definitions, 'View Symbol [T]ype')
+          map('<leader>lt', require('telescope.builtin').lsp_type_definitions, '[L]SP [T]ypedef')
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
-          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+          map('<leader>ls', require('telescope.builtin').lsp_document_symbols, '[L]SP Doc [S]ymbols')
 
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
-          map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+          map('<leader>lS', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[L]SP Workspace [S]ymbols')
 
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
@@ -343,10 +338,6 @@ require('lazy').setup({
           -- Opens a popup that displays documentation about the word under your cursor
           --  See `:help K` for why this keymap.
           map('K', vim.lsp.buf.hover, 'Hover Documentation')
-
-          -- WARN: This is not Goto Definition, this is Goto Declaration.
-          --  For example, in C this would take you to the header.
-          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
           -- The following two autocommands are used to highlight references of the
           -- word under your cursor when your cursor rests there for a little while.
