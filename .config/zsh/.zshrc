@@ -2,7 +2,7 @@
 
 # If not in tmux, start tmux.
 if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
-  exec tmux
+  exec tmux attach
 fi
 
 # eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/powerlevel10k_rainbow.omp.json)"
