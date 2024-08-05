@@ -1,5 +1,10 @@
 #!/usr/bin/env zsh
 
+# If not in tmux, start tmux.
+if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
+  exec tmux
+fi
+
 # eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/powerlevel10k_rainbow.omp.json)"
 # eval "$(oh-my-posh init zsh --config ${XDG_CONFIG_HOME}/oh-my-posh/mytheme.omp.yml)"
 
@@ -32,7 +37,6 @@ source-dir "$ZDOTDIR/conf.d"
 #
 # Auto-loaded Functions
 #
-[ -r "$ZDOTDIR/autoloader.zsh" ] && source "$ZDOTDIR/autoloader.zsh"
 autoload-dir $__zsh_config_dir/functions(N/) $__zsh_config_dir/functions/*(N/)
 
 
@@ -66,24 +70,11 @@ fi
 
 # enable nvm
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-
-# configure pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-if command -v pyenv &>/dev/null; then
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
-    export PIPENV_IGNORE_VIRTUALENVS=1
-fi
+[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
 
 # Ensure path arrays do not contain duplicates.
 typeset -gU cdpath fpath mailpath path
 
-
-# terraform completions
-autoload -U +X bashcompinit && bashcompinit
-complete -o nospace -C /usr/local/bin/terraform terraform
 
 #
 # Prompt

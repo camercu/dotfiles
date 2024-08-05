@@ -20,8 +20,9 @@ function is-solaris { [[ "$OSTYPE" == solaris* ]]; }
 function is-windows { [[ "$OSTYPE" == cygwin* || "$OSTYPE" == msys ]]; }
 
 # Command checks - check if command binary is installed on PATH / is defined
-function is-installed { hash "$1" 2>/dev/null; }
-function is-command-defined { command -v "$1" >/dev/null 2>&1; }
+function is-installed { hash -- "$1" &>/dev/null; }
+function is-command-defined { command -v -- "$1" &>/dev/null; }
+function is-function { declare -f -- "$1" &>/dev/null; }
 
 #
 # Logging Functions - colorized printing of log messages
@@ -29,25 +30,25 @@ function is-command-defined { command -v "$1" >/dev/null 2>&1; }
 function debug {
     local BLUE=$(tput setaf 4)
     local CLEAR=$(tput sgr0)
-    echo "${BLUE}[*] $@${CLEAR}" >&2
+    echo -- "${BLUE}[*] $@${CLEAR}" >&2
 }
 
 function warn {
     local YELLOW=$(tput setaf 3)
     local CLEAR=$(tput sgr0)
-    echo "${YELLOW}[!] $@${CLEAR}" >&2
+    echo -- "${YELLOW}[!] $@${CLEAR}" >&2
 }
 
 function error {
     local RED=$(tput setaf 1)
     local CLEAR=$(tput sgr0)
-    echo "${RED}[x] $@${CLEAR}" >&2
+    echo -- "${RED}[x] $@${CLEAR}" >&2
 }
 
 function success {
     local GREEN=$(tput setaf 2)
     local CLEAR=$(tput sgr0)
-    echo "${GREEN}[+] $@${CLEAR}" >&2
+    echo -- "${GREEN}[+] $@${CLEAR}" >&2
 }
 
 # autoload-dir: Autoload function files in directory by adding

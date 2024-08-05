@@ -84,7 +84,7 @@ COMMON_DOTFILES=(
   .config/alacritty
   .config/git
   .config/nvim
-  .config/tmux
+  .config/tmux/tmux.conf
   .config/wezterm
   .config/zsh
   .gdbinit

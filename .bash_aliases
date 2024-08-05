@@ -11,11 +11,6 @@ XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 ###  Functions
 #
 
-##? md: shortcut to make a directory and cd into it
-function md {
-    mkdir -p "$1" && cd "$1" && pwd
-}
-
 ##? current-shell: get name of current shell executable
 function current-shell {
     basename "$(ps -o command= -p $$ | cut -d' ' -f1 | sed 's/^-//')"
@@ -33,17 +28,20 @@ function is-solaris { [[ "$OSTYPE" == solaris* ]]; }
 function is-windows { [[ "$OSTYPE" == cygwin* || "$OSTYPE" == msys ]]; }
 
 ##? is-installed: return true if command binary is installed on PATH
-function is-installed { hash "$1" 2>/dev/null; }
+function is-installed { hash -- "$1" 2>/dev/null; }
+
+# return true if function is defined
+function is-function { declare -f -- "$1" &>/dev/null; }
 
 # Absolute path to file (does not resolve symlinks)
 ! is-installed abspath &&
     function abspath {
-        python3 -c "import os,sys; print(os.path.abspath(sys.argv[1]))" "$1"
+        python3 -c "import os,sys; print(os.path.abspath(sys.argv[1]))" -- "$1"
     }
 # Real (canonical) path to file (resolves symlinks)
 ! is-installed realpath &&
     function realpath {
-        python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$1"
+        python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" -- "$1"
     }
 
 #
@@ -52,25 +50,30 @@ function is-installed { hash "$1" 2>/dev/null; }
 function debug {
     local BLUE=$(tput setaf 4)
     local CLEAR=$(tput sgr0)
-    echo "${BLUE}[*] $@${CLEAR}" >&2
+    echo -- "${BLUE}[*] $@${CLEAR}" >&2
 }
 
 function warn {
     local YELLOW=$(tput setaf 3)
     local CLEAR=$(tput sgr0)
-    echo "${YELLOW}[!] $@${CLEAR}" >&2
+    echo -- "${YELLOW}[!] $@${CLEAR}" >&2
 }
 
 function error {
     local RED=$(tput setaf 1)
     local CLEAR=$(tput sgr0)
-    echo "${RED}[x] $@${CLEAR}" >&2
+    echo -- "${RED}[x] $@${CLEAR}" >&2
 }
 
 function success {
     local GREEN=$(tput setaf 2)
     local CLEAR=$(tput sgr0)
-    echo "${GREEN}[+] $@${CLEAR}" >&2
+    echo -- "${GREEN}[+] $@${CLEAR}" >&2
+}
+
+##? md: shortcut to make a directory and cd into it
+function md {
+    [[ $# == 1 ]] && mkdir -p -- "$1" && cd -- "$1" && pwd
 }
 
 #
@@ -82,6 +85,12 @@ function success {
 ## single character shortcuts - be sparing!
 alias g=git
 alias v=nvim
+
+## neovim distros
+alias lazyvim="NVIM_APPNAME=lazyvim nvim"
+alias lunarvim="NVIM_APPNAME=lunarvim nvim"
+alias nvchad="NVIM_APPNAME=nvchad nvim"
+alias astronvim="NVIM_APPNAME=astronvim nvim"
 
 ## mask built-ins with better defaults
 if is-installed vim; then
@@ -125,7 +134,7 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....="cd ../../../.."
 alias -- -="cd -"
-alias cd..='cd ..'
+alias cd..='cd ..' # typo fixer
 
 ## date/time
 alias timestamp="date '+%Y-%m-%d %H:%M:%S'"
@@ -135,9 +144,9 @@ alias utc="date -u +%Y-%m-%dT%H:%M:%SZ"
 alias unixepoch="date +%s"
 
 ## tmux aliases
-alias tmux="tmux -u"
+alias tmux="tmux -u" # force UTF-8
 alias tk='tmux kill-session -t'
-alias ta='tmux a'
+alias ta='tmux attach'
 alias tl='tmux list-sessions'
 alias ts='tmux new-session -s'
 
@@ -234,8 +243,6 @@ fi
 
 ####   Linux Specific:  ##########
 if is-linux; then
-    local DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
-
     # upgrade all packages
     alias maintain='sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get autoremove -y && sudo apt-get autoclean -y'
 
@@ -264,6 +271,7 @@ if is-linux; then
     alias psg='ps -ef ww | grep -i $1'
     alias nsg='netstat -natp | grep -i $1'
 
+    local DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
     if [[ "$DISTRO" == "KALI" ]]; then
         # create a pattern with metasploit's pattern_create.rb
         alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
