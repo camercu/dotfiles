@@ -32,11 +32,10 @@ export __zsh_config_dir="${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}"
 export __zsh_user_data_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh"
 
 #
-# Editors & Pagers
+# Editor
 #
 export EDITOR="nvim"
 export VISUAL="nvim"
-export MANPAGER='nvim +Man!'
 export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
 
 # Language environment
