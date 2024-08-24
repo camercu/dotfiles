@@ -399,10 +399,11 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        pyright = {},
         bashls = {},
+        biome = {},
         dockerls = {},
         gopls = {},
+        pyright = {},
         ruff = {
           -- cmd = { 'ruff', 'server', '--preview', '--config', "lint.extend-select = ['W', 'I']" },
           -- settings = { fix = true, lint = { ['extend-select'] = { 'W', 'I' } } },
@@ -432,6 +433,8 @@ require('lazy').setup({
           },
         },
       }
+
+      require('lspconfig').biome.setup({})
 
       -- Ensure the servers and tools above are installed
       --  To check the current status of installed tools and/or manually install
@@ -496,7 +499,10 @@ require('lazy').setup({
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
-        -- javascript = { { "prettierd", "prettier" } },
+        javascript = { { 'biome', 'prettierd', 'prettier' } },
+        typescript = { { 'biome', 'prettierd', 'prettier' } },
+        json = { 'biome' },
+        jsonc = { 'biome' },
       },
     },
   },

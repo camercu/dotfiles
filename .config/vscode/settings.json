@@ -10,10 +10,10 @@
     "editor.tabSize": 2
   },
   "[json]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[markdown]": {
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
@@ -39,9 +39,8 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit"
   },
-  "editor.rulers": [
-    80
-  ],
+  "editor.fontFamily": "'MesloLGS Nerd Font', Menlo, Monaco, 'Courier New', monospace",
+  "editor.rulers": [80],
   "editor.suggestSelection": "recentlyUsedByPrefix",
   "editor.tokenColorCustomizations": {
     "textMateRules": [
@@ -75,7 +74,7 @@
   "sync.quietSync": true,
   "terminal.integrated.defaultProfile.linux": "zsh",
   "terminal.integrated.defaultProfile.osx": "zsh",
-  "terminal.integrated.fontFamily": "'MesloLGS NF', Menlo, Monaco, 'Courier New', monospace",
+  "terminal.integrated.fontFamily": "'MesloLGS Nerd Font',  Menlo, Monaco, 'Courier New', monospace",
   "vim.cursorStylePerMode.insert": "line-thin",
   "vim.cursorStylePerMode.normal": "block",
   "vim.cursorStylePerMode.replace": "underline",
@@ -89,77 +88,35 @@
   "vim.hlsearch": true,
   "vim.insertModeKeyBindings": [
     {
-      "after": [
-        "<Esc>"
-      ],
-      "before": [
-        "j",
-        "j"
-      ]
+      "after": ["<Esc>"],
+      "before": ["j", "j"]
     }
   ],
   "vim.leader": "<space>",
   "vim.normalModeKeyBindingsNonRecursive": [
     {
-      "before": [
-        "<leader>",
-        "h"
-      ],
-      "commands": [
-        ":nohl"
-      ]
+      "before": ["<leader>", "h"],
+      "commands": [":nohl"]
     },
     {
-      "before": [
-        "leader",
-        "w"
-      ],
-      "commands": [
-        "workbench.action.files.save"
-      ]
+      "before": ["leader", "w"],
+      "commands": ["workbench.action.files.save"]
     },
     {
-      "before": [
-        "leader",
-        "/"
-      ],
-      "commands": [
-        "editor.action.commentLine"
-      ]
+      "before": ["leader", "/"],
+      "commands": ["editor.action.commentLine"]
     },
     {
-      "after": [
-        "O",
-        "<esc>",
-        "j"
-      ],
-      "before": [
-        "<leader>",
-        "<enter>"
-      ]
+      "after": ["O", "<esc>", "j"],
+      "before": ["<leader>", "<enter>"]
     },
     {
-      "after": [
-        "\"",
-        "_",
-        "d",
-        "i",
-        "w",
-        "P"
-      ],
-      "before": [
-        "<leader>",
-        "r"
-      ]
+      "after": ["\"", "_", "d", "i", "w", "P"],
+      "before": ["<leader>", "r"]
     },
     {
-      "before": [
-        "Z",
-        "Z"
-      ],
-      "commands": [
-        ":wq"
-      ]
+      "before": ["Z", "Z"],
+      "commands": [":wq"]
     }
   ],
   "vim.replaceWithRegister": true,
@@ -169,45 +126,25 @@
   "vim.useSystemClipboard": true,
   "vim.visualModeKeyBindingsNonRecursive": [
     {
-      "before": [
-        ">"
-      ],
-      "commands": [
-        "editor.action.indentLines"
-      ]
+      "before": [">"],
+      "commands": ["editor.action.indentLines"]
     },
     {
-      "before": [
-        "<"
-      ],
-      "commands": [
-        "editor.action.outdentLines"
-      ]
+      "before": ["<"],
+      "commands": ["editor.action.outdentLines"]
     },
     {
-      "before": [
-        "leader",
-        "/"
-      ],
-      "commands": [
-        "editor.action.commentLine"
-      ]
+      "before": ["leader", "/"],
+      "commands": ["editor.action.commentLine"]
     },
     {
-      "after": [
-        "p",
-        "g",
-        "v",
-        "y"
-      ],
-      "before": [
-        "p"
-      ]
+      "after": ["p", "g", "v", "y"],
+      "before": ["p"]
     }
   ],
   "vim.visualstar": true,
   "vsicons.dontShowNewVersionMessage": true,
   "workbench.colorTheme": "One Dark Pro",
   "workbench.iconTheme": "vscode-icons",
-  "workbench.startupEditor": "readme",
+  "workbench.startupEditor": "readme"
 }

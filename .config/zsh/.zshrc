@@ -1,12 +1,9 @@
 #!/usr/bin/env zsh
 
-# If not in tmux, start tmux.
-if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
-  exec tmux attach
-fi
-
-# eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/powerlevel10k_rainbow.omp.json)"
-# eval "$(oh-my-posh init zsh --config ${XDG_CONFIG_HOME}/oh-my-posh/mytheme.omp.yml)"
+# # If not in tmux, start tmux.
+# if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
+#   exec tmux attach
+# fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
