@@ -60,6 +60,7 @@
   "gitlens.telemetry.enabled": false,
   "go.formatTool": "goimports",
   "go.toolsManagement.autoUpdate": true,
+  "redhat.telemetry.enabled": false,
   "rust-analyzer.assist.emitMustUse": true,
   "rust-analyzer.check.command": "clippy",
   "rust-analyzer.check.features": "all",
