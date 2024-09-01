@@ -183,11 +183,21 @@ require('lazy').setup({
               ['<C-h>'] = 'which_key',
             },
           },
+          -- configure to use ripgrep
+          vimgrep_arguments = {
+            'rg',
+            '--hidden', -- Search for hidden files
+            '--color=never', -- Don't colorize the output
+            '--no-heading', -- Don't group matches by each file
+            '--with-filename', -- Print the file path with the matched lines
+            '--line-number', -- Show line numbers
+            '--column', -- Show column numbers
+            '--smart-case', -- Smart case search
+          },
         },
         pickers = {
           find_files = {
             hidden = true,
-            -- no_ignore = true,
           },
         },
         extensions = {
