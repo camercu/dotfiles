@@ -36,13 +36,11 @@ zstyle ':completion:*' complete-options true
 # sort files by modification datetime instead of alphabetically
 zstyle ':completion:*' file-sort modification
 
-# try case insensitive, allow partial completion before ._-,
+# prefer exact match first (`''` after matcher-list),
+# try case & hyphen/underscore insensitive,
+# allow partial completion before ._-,
 # allow partial completion from end of word
-# to prefer exact match first, add `''` after matcher-list
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-
-# complete . and .. special directories
-zstyle ':completion:*' special-dirs true
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
 # formatted labels on groups in completion menu
 zstyle ':completion:*:*:*:*:corrections' format '%F{yellow}!- %d (errors: %e) -!%f'
@@ -90,9 +88,6 @@ zstyle ':completion:*:*:*:users' ignored-patterns \
 # ... unless we really want to.
 zstyle '*' single-ignored show
 
-# completions can include hidden files
-# _comp_options+=(globdots)
-
 
 #
 # Initialize completions
@@ -101,6 +96,9 @@ zstyle '*' single-ignored show
 # initialize completions with caching
 autoload -U compinit && compinit -u -d "$ZSH_COMPDUMP"
 autoload -U +X bashcompinit && bashcompinit
+
+# completions can include hidden files
+_comp_options+=(globdots)
 
 # 'md' function: completes with directories
 if is-function md; then
