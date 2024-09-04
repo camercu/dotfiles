@@ -7,3 +7,4 @@ setopt EXTENDED_GLOB        # extra globbing features
 setopt C_BASES              # output hex numbers in std C format (e.g. 0xFF)
 setopt NO_LIST_TYPES        # don't show file type mark when listing autocomplete
 setopt NO_BG_NICE           # don't run background jobs at lower priority
+setopt MAGIC_EQUAL_SUBST    # expand tilde to home directory in scripts

@@ -13,9 +13,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 
-# Make sure to expand tilde to home directory
-set -o magicequalsubst
-
 #
 # Helper Functions
 #
