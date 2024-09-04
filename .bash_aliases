@@ -48,27 +48,27 @@ function is-function { declare -f -- "$1" &>/dev/null; }
 # Logging Functions - colorized printing of log messages
 #
 function debug {
-    local BLUE=$(tput setaf 4)
-    local CLEAR=$(tput sgr0)
-    echo -- "${BLUE}[*] $@${CLEAR}" >&2
+    local -r BLUE=$(tput setaf 4)
+    local -r CLEAR=$(tput sgr0)
+    echo "${BLUE}[*] $*${CLEAR}" >&2
 }
 
 function warn {
-    local YELLOW=$(tput setaf 3)
-    local CLEAR=$(tput sgr0)
-    echo -- "${YELLOW}[!] $@${CLEAR}" >&2
+    local -r YELLOW=$(tput setaf 3)
+    local -r CLEAR=$(tput sgr0)
+    echo "${YELLOW}[!] $*${CLEAR}" >&2
 }
 
 function error {
-    local RED=$(tput setaf 1)
-    local CLEAR=$(tput sgr0)
-    echo -- "${RED}[x] $@${CLEAR}" >&2
+    local -r RED=$(tput setaf 1)
+    local -r CLEAR=$(tput sgr0)
+    echo "${RED}[x] $*${CLEAR}" >&2
 }
 
 function success {
-    local GREEN=$(tput setaf 2)
-    local CLEAR=$(tput sgr0)
-    echo -- "${GREEN}[+] $@${CLEAR}" >&2
+    local -r GREEN=$(tput setaf 2)
+    local -r CLEAR=$(tput sgr0)
+    echo "${GREEN}[+] $*${CLEAR}" >&2
 }
 
 ##? md: shortcut to make a directory and cd into it
@@ -100,15 +100,15 @@ fi
 ## easy dotfile editing commands
 DOTFILE_EDITOR=$(hash nvim 2>/dev/null && echo nvim || echo vim)
 case "$(current-shell)" in
-zsh) alias erc="$DOTFILE_EDITOR ${ZDOTDIR:-~/.config/zsh}/.zshrc" ;;
+zsh) alias erc="$DOTFILE_EDITOR \$ZDOTDIR/.zshrc --cmd 'cd \$ZDOTDIR'" ;;
 bash) alias erc="$DOTFILE_EDITOR ~/.bashrc" ;;
 *) ;;
 esac
 # neoVim Config Edit
-[[ -d "$HOME/.config/nvim/" ]] && alias vce="$DOTFILE_EDITOR ~/.config/nvim/"
-alias ea="$DOTFILE_EDITOR ~/.bash_aliases"
+[[ -d "$HOME/.config/nvim/" ]] && alias vce="$DOTFILE_EDITOR ~/.config/nvim/ --cmd 'cd %:p:h'"
+alias ea="$DOTFILE_EDITOR ~/.bash_aliases --cmd 'cd ~/.dotfiles/'"
 unset DOTFILE_EDITOR
-alias reload="exec $SHELL"
+alias reload='exec $SHELL'
 alias cdot='cd ~/.dotfiles'
 alias zdot='cd $ZDOTDIR'
 
@@ -254,9 +254,6 @@ if is-linux; then
     # fd-find alias
     alias fd='fdfind'
 
-    # display tun0 ip addr
-    alias vpnip="ip a s tun0 | grep -w inet | awk '{print \$2}' | cut -d '/' -f 1"
-
     # set up can0 socketCAN interface
     # before running, add can, vcan, and can-isotp to /etc/modules
     # and also modprobe those modules
@@ -267,11 +264,7 @@ if is-linux; then
         && sudo ip link set dev vcan0 up \
         && ip a s vcan0'
 
-    # grep through ps and netstat listings:
-    alias psg='ps -ef ww | grep -i $1'
-    alias nsg='netstat -natp | grep -i $1'
-
-    local DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
+    DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
     if [[ "$DISTRO" == "KALI" ]]; then
         # create a pattern with metasploit's pattern_create.rb
         alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
@@ -289,10 +282,10 @@ if is-linux; then
         function newbox {
             local name="$1"
             mkdir "$name"
-            pushd -q "$name"
+            pushd -q "$name" || return
             mkdir scans pwn loot assets
             touch "$name.md"
-            popd -q
+            popd -q || return
         }
 
         ## If working in hacking vm  ############
@@ -308,4 +301,5 @@ if is-linux; then
             alias pgconnect='sudo openvpn /mnt/share/offsec/universal.ovpn'
         fi
     fi
+    unset DISTRO
 fi
