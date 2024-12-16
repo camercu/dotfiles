@@ -147,5 +147,10 @@
   "vsicons.dontShowNewVersionMessage": true,
   "workbench.colorTheme": "One Dark Pro",
   "workbench.iconTheme": "vscode-icons",
-  "workbench.startupEditor": "readme"
+  "workbench.startupEditor": "readme",
+  "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+  "java.format.settings.profile": "GoogleStyle",
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java"
+  }
 }

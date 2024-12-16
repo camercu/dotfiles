@@ -13,7 +13,6 @@ return {
       'pyright',
       'ruff',
       'shellcheck',
-      'taplo',
       'trivy',
     })
   end,

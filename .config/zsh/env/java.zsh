@@ -1,3 +1,3 @@
 #!/usr/bin/env zsh
 
-export JAVA_HOME="$(dirname $(dirname $(realpath $(which javac))))"
+export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
