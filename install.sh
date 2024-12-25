@@ -26,10 +26,6 @@ fi
 # initialize/update git submodules for dotfiles
 git submodule update --init
 
-# make archive dir if doesn't exist
-ARCHIVE_DIR="${DOTFILE_DIR}/old"
-mkdir -p "$ARCHIVE_DIR"
-
 stow common
 
 if is-macos; then
