@@ -136,3 +136,7 @@ if is-function md; then
     compdef _directories md
 fi
 
+# Enable tab completion for `g` by marking it as an alias for `git`
+if type _git &> /dev/null && alias g &> /dev/null; then
+	complete -o default -o nospace -F _git g;
+fi;

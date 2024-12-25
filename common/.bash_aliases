@@ -76,6 +76,14 @@ function md {
     [[ $# == 1 ]] && mkdir -p -- "$1" && cd -- "$1" && pwd
 }
 
+## (MacOS) Change directory to the top-most Finder window location
+function cdf {
+    is-macos &&
+        cd "$(osascript -e '
+            tell app "Finder" to POSIX path of (insertion location as alias)
+            ')" || return
+}
+
 #
 #
 ####  Aliases  ###########
@@ -142,6 +150,7 @@ alias datestamp="date '+%Y-%m-%d'"
 alias isodate="date +%Y-%m-%dT%H:%M:%S%z"
 alias utc="date -u +%Y-%m-%dT%H:%M:%SZ"
 alias unixepoch="date +%s"
+alias now="date '+%Y%m%d%H%M%S'"
 
 ## tmux aliases
 alias tmux="tmux -u" # force UTF-8
@@ -198,16 +207,39 @@ if ! is-installed pbcopy && ! is-installed pbpaste; then
     fi
 fi
 
+#
+# open: Use `open` (macOS) command everywhere.
+#
+# source: https://github.com/mathiasbynens/dotfiles/blob/main/.functions
+if ! is-macos; then
+    if grep -q Microsoft /proc/version; then
+        # Ubuntu on Windows using the Linux subsystem
+        alias open='explorer.exe'
+    else
+        alias open='xdg-open'
+    fi
+fi
+
+# `o` with no arguments opens the current directory,
+# otherwise opens the given location
+function o() {
+    if [ $# -eq 0 ]; then
+        open .
+    else
+        open "$@"
+    fi
+}
+
 ###  miscellaneous  ###
 alias df='df -H'
 alias duff='diff -ur'
 alias mkdir='mkdir -p'
 alias remake='make -B'
 alias su='su -'
-alias print-path='echo $PATH | tr ":" "\n"'
-alias print-fpath='echo $FPATH | tr ":" "\n"'
+alias path='echo $PATH | tr ":" "\n"'
+alias fpath='echo $FPATH | tr ":" "\n"'
 alias nsort='sort | uniq -c | sort -n'
-alias pysrv='python3 -m http.server'
+alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 
 # update all pip packages
 alias pipup='pip freeze --local | grep -v "^\-e" | cut -d = -f 1  |xargs -n1 pip install -U'
@@ -239,6 +271,10 @@ if is-macos; then
     alias md5sum='openssl md5'
     alias sha1sum='openssl sha1'
     alias sha256sum='openssl sha256'
+
+    # Show/Hide hidden files in Finder
+    alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
+    alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
 fi
 
 ####   Linux Specific:  ##########
