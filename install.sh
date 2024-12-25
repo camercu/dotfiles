@@ -31,7 +31,7 @@ stow common
 if is-macos; then
     stow macos
     scripts/macos-config.zsh
-elif [[ is-linux ]]; then
+elif is-linux; then
     stow is-linux
 fi
 
