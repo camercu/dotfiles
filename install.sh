@@ -3,11 +3,11 @@
 DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
 
 # load env vars, including XDG_*
-source "$DOTFILE_DIR/.zshenv"
+source "$DOTFILE_DIR/common/.zshenv"
 
 # load useful functions and aliases
 # (realpath, is-macos, is-linux, logging functions)
-source "$DOTFILE_DIR/.bash_aliases"
+source "$DOTFILE_DIR/common/.bash_aliases"
 
 # Ensure Zsh directories exist.
 () {
