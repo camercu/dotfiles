@@ -7,6 +7,7 @@
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # https://discourse.nixos.org/t/declarative-package-management-on-macos-without-home-manager-or-nix-darwin/43467/3
     flake-utils.url = "github:numtide/flake-utils";
   };
 
