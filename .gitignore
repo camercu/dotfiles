@@ -1,3 +1,9 @@
 old/
 .github-api-token
 .DS_Store
+flake.lock
+
+# Ignore vim files:
+*~
+*.swp
+*.swo

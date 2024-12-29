@@ -33,6 +33,7 @@ function is-installed { hash -- "$1" 2>/dev/null; }
 # return true if function is defined
 function is-function { declare -f -- "$1" &>/dev/null; }
 
+
 # Absolute path to file (does not resolve symlinks)
 ! is-installed abspath &&
     function abspath {
@@ -271,6 +272,7 @@ if is-macos; then
     alias md5sum='openssl md5'
     alias sha1sum='openssl sha1'
     alias sha256sum='openssl sha256'
+    alias is-admin='groups | grep -qw admin;'
 
     # Show/Hide hidden files in Finder
     alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"

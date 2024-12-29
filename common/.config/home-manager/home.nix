@@ -2,13 +2,11 @@
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
-  unsupported = builtins.abort "Unsupported platform";
-  username = if isLinux then "cr4nk" else if isDarwin then "cameron" else unsupported;
 in
 {
   # Define username and home directory to manage
-  home.username = username;
-  home.homeDirectory = if isLinux then "/home/${username}" else if isDarwin then "/Users/${username}" else unsupported;
+  home.username = builtins.getEnv "USER";
+  home.homeDirectory = builtins.getEnv "HOME"
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -27,20 +25,21 @@ in
     git
     lazygit
     neovim
-    nerdfonts
     ripgrep
     stow
     tmux
+    tree-sitter
   ]
 
-  # ++ lib.optional (isDarwin) [
-  #     # MacOS only packages
-  #   ]
-  #
-  # ++ lib.optional (isLinux) [
-  #     # Linux only packages
-  #   ]
-  );
+  ++ lib.optionals (isDarwin) [
+      # MacOS only packages
+    ]
+
+  ++ lib.optionals (isLinux) [
+      # Linux only packages
+    ]
+  # Install Nerd Fonts
+  ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts)  );
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;

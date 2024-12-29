@@ -16,24 +16,44 @@
 
       # Legacy Intel-based MacOS machines
       "cameron@Camerons-MacBook-Pro.local" = home-manager.lib.homeManagerConfiguration ({
-        modules = [ (import ./home.nix) ];
+        modules = [ (import ./home.nix)
+                    {
+                        config.home = {
+                            username = builtins.getEnv "USER";
+                            homeDirectory = builtins.getEnv "HOME";
+                        };
+                    }
+                ];
         pkgs = import nixpkgs {
           system = "x86_64-darwin";
         };
       });
 
       # Apple Silicon Machines
-      "cameron@TheRoci" = home-manager.lib.homeManagerConfiguration ({
-        modules = [ (import ./home.nix) ];
-        pkgs = import nixpkgs {
+      "TheRoci" = home-manager.lib.homeManagerConfiguration ({
+        modules = [ (import ./home.nix)
+                    {
+                        config.home = {
+                            username = builtins.getEnv "USER";
+                            homeDirectory = builtins.getEnv "HOME";
+                        };
+                    }
+                ];
+        pkgs = import nixpkgs rec {
           system = "aarch64-darwin";
         };
       });
 
-
       # Linux Machines
       "cr4nk@somnambulist" = home-manager.lib.homeManagerConfiguration ({
-        modules = [ (import ./home.nix) ];
+        modules = [ (import ./home.nix)
+                    {
+                        config.home = {
+                            username = builtins.getEnv "USER";
+                            homeDirectory = builtins.getEnv "HOME";
+                        };
+                    }
+                ];
         pkgs = import nixpkgs {
           system = "x86_64-linux";
           config.allowUnfree = true;

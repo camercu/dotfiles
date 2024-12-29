@@ -1,0 +1,3 @@
+{
+    nix.useXdgBaseDirectories = true;
+}
