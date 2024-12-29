@@ -11,55 +11,60 @@
     };
   };
 
-  outputs = { nixpkgs, home-manager, ... }: {
+  outputs = {
+    nixpkgs,
+    home-manager,
+    ...
+  }: {
     homeConfigurations = {
-
       # Legacy Intel-based MacOS machines
-      "cameron@Camerons-MacBook-Pro.local" = home-manager.lib.homeManagerConfiguration ({
-        modules = [ (import ./home.nix)
-                    {
-                        config.home = {
-                            username = builtins.getEnv "USER";
-                            homeDirectory = builtins.getEnv "HOME";
-                        };
-                    }
-                ];
+      "cameron@Camerons-MacBook-Pro.local" = home-manager.lib.homeManagerConfiguration {
+        modules = [
+          (import ./home.nix)
+          {
+            config.home = {
+              username = builtins.getEnv "USER";
+              homeDirectory = builtins.getEnv "HOME";
+            };
+          }
+        ];
         pkgs = import nixpkgs {
           system = "x86_64-darwin";
         };
-      });
+      };
 
       # Apple Silicon Machines
-      "TheRoci" = home-manager.lib.homeManagerConfiguration ({
-        modules = [ (import ./home.nix)
-                    {
-                        config.home = {
-                            username = builtins.getEnv "USER";
-                            homeDirectory = builtins.getEnv "HOME";
-                        };
-                    }
-                ];
+      "TheRoci" = home-manager.lib.homeManagerConfiguration {
+        modules = [
+          (import ./home.nix)
+          {
+            config.home = {
+              username = builtins.getEnv "USER";
+              homeDirectory = builtins.getEnv "HOME";
+            };
+          }
+        ];
         pkgs = import nixpkgs rec {
           system = "aarch64-darwin";
         };
-      });
+      };
 
       # Linux Machines
-      "cr4nk@somnambulist" = home-manager.lib.homeManagerConfiguration ({
-        modules = [ (import ./home.nix)
-                    {
-                        config.home = {
-                            username = builtins.getEnv "USER";
-                            homeDirectory = builtins.getEnv "HOME";
-                        };
-                    }
-                ];
+      "cr4nk@somnambulist" = home-manager.lib.homeManagerConfiguration {
+        modules = [
+          (import ./home.nix)
+          {
+            config.home = {
+              username = builtins.getEnv "USER";
+              homeDirectory = builtins.getEnv "HOME";
+            };
+          }
+        ];
         pkgs = import nixpkgs {
           system = "x86_64-linux";
           config.allowUnfree = true;
         };
-      });
-
+      };
     };
   };
 }

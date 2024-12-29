@@ -1,36 +1,46 @@
 {
-  description = "Example nix-darwin system flake";
+  description = "My nix-darwin system flake";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nix-darwin.url = "github:LnL7/nix-darwin";
-    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs }:
-  let
-    configuration = { pkgs, lib, ... }: {
+  outputs = inputs @ {
+    self,
+    nix-darwin,
+    nixpkgs,
+    flake-utils,
+  }: let
+    configuration = {
+      pkgs,
+      lib,
+      ...
+    }: {
       # List packages installed in system profile. To search by name, run:
       # $ nix-env -qaP | grep wget
-      environment.systemPackages = with pkgs;
-        [
-            clang
-            fd
-            fzf
-            git
-            git-credential-manager
-            go
-            lazygit
-            neovim
-            nodejs
-            nodenv
-            ripgrep
-            rustup
-            stow
-            tmux
-            tree-sitter
-            zsh
-        ];
+      environment.systemPackages = with pkgs; [
+        alejandra # nix formatter
+        clang # LazyVim dependency
+        fd # LazyVim dependency
+        fzf # LazyVim dependency
+        git
+        go # LazyVim dependency
+        lazygit # LazyVim dependency
+        neovim
+        nodejs # LazyVim dependency
+        nodenv
+        ripgrep # LazyVim dependency
+        rustup
+        stow # for stowing dotfiles
+        tmux
+        tree-sitter # LazyVim dependency
+        zsh
+      ];
 
       # Install Nerd Fonts
       fonts.packages = builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
@@ -40,7 +50,9 @@
         enable = true;
         onActivation.cleanup = "uninstall";
         casks = [
-            "wezterm"
+          "1password"
+          "1password-cli"
+          "wezterm"
         ];
       };
 
@@ -60,7 +72,7 @@
       };
 
       # Nixpkgs
-      nixpkgs.config = { allowUnfree = true; };
+      nixpkgs.config = {allowUnfree = true;};
 
       # Set Git commit hash for darwin-version.
       system.configurationRevision = self.rev or self.dirtyRev or null;
@@ -75,15 +87,14 @@
     macos-intel = {
       nixpkgs.hostPlatform = "x86_64-darwin";
     };
-  in
-  {
+  in {
     # Build darwin flake using:
     # $ darwin-rebuild build --flake .#TheRoci
     darwinConfigurations."TheRoci" = nix-darwin.lib.darwinSystem {
       modules = [
-            configuration
-            macos-apple-silicon
-        ];
+        configuration
+        macos-apple-silicon
+      ];
     };
   };
 }

@@ -1,3 +1,3 @@
 {
-    nix.useXdgBaseDirectories = true;
+  nix.useXdgBaseDirectories = true;
 }
