@@ -18,6 +18,7 @@
             fd
             fzf
             git
+            git-credential-manager
             go
             lazygit
             neovim
