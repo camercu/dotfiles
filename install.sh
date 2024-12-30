@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+set -e
 
 DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
 
