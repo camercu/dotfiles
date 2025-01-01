@@ -51,20 +51,8 @@ function command_not_found_handler {
 # Path
 #
 
-# go path
-[[ -d "/usr/local/go/bin" ]] && export PATH="$PATH:/usr/local/go/bin"
-if which go &>/dev/null; then
-    export PATH="$PATH:$(go env GOPATH)/bin"
-    export GOPATH=$(go env GOPATH)
-fi
-
-
 # set PATH to include user's .cargo dir for Rust, if it exists
 [[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
-
-# enable nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
 
 # Ensure path arrays do not contain duplicates.
 typeset -gU cdpath fpath mailpath path
@@ -77,6 +65,7 @@ typeset -gU cdpath fpath mailpath path
 source "$ZDOTDIR/p10k.zsh"
 source "$__zsh_cache_dir/powerlevel10k/powerlevel10k.zsh-theme"
 
+
 #
 # Plugins
 #
@@ -84,3 +73,14 @@ for plugin in $ZDOTDIR/plugins/**/*.plugin.zsh; do
     source $plugin
 done
 unset plugin
+
+
+#
+# Initialize completions (must be last step)
+#
+
+# initialize completions with caching
+autoload -U compinit && compinit -u -d "$ZSH_COMPDUMP"
+autoload -U +X bashcompinit && bashcompinit
+
+

@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+alias is-admin='groups | grep -qw admin;'
+
 # Close any open System Preferences panes, to prevent them
 # from overriding settings we’re about to change
 osascript -e 'tell application "System Preferences" to quit'
@@ -23,10 +25,12 @@ defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock "mru-spaces" -bool false
 defaults write com.apple.dock orientation bottom
 defaults write com.apple.dock "show-recents" -bool false
+defaults write com.apple.dock "expose-group-apps" '1'
 
 # Control Center Settings
 defaults write com.apple.controlcenter "NSStatusItem Visible Battery" -bool true
 defaults write com.apple.controlcenter "NSStatusItem Visible Bluetooth" -bool true
+defaults write com.apple.controlcenter "NSStatusItem Preferred Position Bluetooth" -int 303
 defaults write com.apple.controlcenter "NSStatusItem Visible WiFi" -bool true
 
 # Hot corners
@@ -65,6 +69,11 @@ defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
 # Disable personalized ads
 defaults write com.apple.AdPlatforms personalizedAdsDefaulted -bool false
+
+# Show location icon in Control Center when app is using location
+if is-admin; then
+    sudo defaults write /Library/Preferences/com.apple.locationmenu.plist ShowSystemServices -bool true;
+fi
 
 # Restart Finder and Dock for settings to take effect
 killall Finder Dock

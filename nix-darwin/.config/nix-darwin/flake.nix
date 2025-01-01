@@ -26,6 +26,7 @@
       # $ nix-env -qaP | grep wget
       environment.systemPackages = with pkgs; [
         alejandra # nix formatter
+        cargo # LazyVim dependency
         clang # LazyVim dependency
         fd # LazyVim dependency
         fzf # LazyVim dependency
@@ -36,7 +37,7 @@
         nodejs # LazyVim dependency
         nodenv
         ripgrep # LazyVim dependency
-        rustup
+        rustup # LazyVim dependency
         stow # for stowing dotfiles
         tmux
         tree-sitter # LazyVim dependency

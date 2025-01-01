@@ -22,6 +22,11 @@ setopt COMPLETE_IN_WORD     # cursor stays put, completion from both ends
 unsetopt FLOWCONTROL        # Disable output flow control via start/stop chars (usually ^S/^Q)
 unsetopt MENU_COMPLETE      # Do not autoselect the first completion entry
 
+# completions can include hidden files
+_comp_options+=(globdots)
+
+
+
 #
 # Matcher Options
 #
@@ -33,7 +38,7 @@ unsetopt MENU_COMPLETE      # Do not autoselect the first completion entry
 zstyle ':completion:*' completer _extensions _complete _approximate
 
 # use select-style menu to pick completion
-zstyle ':completion:*:*:*:*:*' menu select interactive
+zstyle ':completion:*:*:*:*:*' menu select
 
 # autocomplete options instead of directory stack when doing hyphen-TAB
 zstyle ':completion:*' complete-options true
@@ -90,6 +95,8 @@ zstyle ':completion:*:*:*:users' ignored-patterns \
 # ... unless we really want to.
 zstyle '*' single-ignored show
 
+
+
 #
 # Colors
 #
@@ -121,15 +128,11 @@ bindkey -M menuselect '/' history-incremental-search-forward        # prev searc
 
 
 #
-# Initialize completions
+# Custom Completions
 #
 
-# initialize completions with caching
-autoload -U compinit && compinit -u -d "$ZSH_COMPDUMP"
-autoload -U +X bashcompinit && bashcompinit
-
-# completions can include hidden files
-_comp_options+=(globdots)
+# Load personal completion functions onto fpath
+fpath+="${HOME}/.config/zsh/completions"
 
 # 'md' function: completes with directories
 if is-function md; then
@@ -140,3 +143,4 @@ fi
 if type _git &> /dev/null && alias g &> /dev/null; then
 	complete -o default -o nospace -F _git g;
 fi;
+
