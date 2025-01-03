@@ -30,7 +30,7 @@ defaults write com.apple.dock "expose-group-apps" '1'
 # Control Center Settings
 defaults write com.apple.controlcenter "NSStatusItem Visible Battery" -bool true
 defaults write com.apple.controlcenter "NSStatusItem Visible Bluetooth" -bool true
-defaults write com.apple.controlcenter "NSStatusItem Preferred Position Bluetooth" -int 303
+defaults -currentHost write com.apple.controlcenter Bluetooth -int 2
 defaults write com.apple.controlcenter "NSStatusItem Visible WiFi" -bool true
 
 # Hot corners
@@ -70,6 +70,8 @@ defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
 # Disable personalized ads
 defaults write com.apple.AdPlatforms personalizedAdsDefaulted -bool false
+defaults -currentHost write com.apple.coreservices.useractivityd ActivityAdvertisingAllowed -bool false
+defaults -currentHost write com.apple.coreservices.useractivityd ActivityReceivingAllowed -bool false
 
 # Show location icon in Control Center when app is using location
 if is-admin; then
@@ -79,12 +81,14 @@ fi
 # Set computer name
 if is-admin; then
     local computername
-    if [[ $(uname -m) == "arm64"]]; then
+    if [[ "$(uname -m)" == "arm64" ]]; then
         computername="TheRoci"
     else
         computername="Tachi"
     fi
-    sudo systemsetup -setcomputername "${computername}" && sudo systemsetup -setlocalsubnetname "${computername}"
+    scutil --set ComputerName "${computername}" &&
+        sudo scutil --set LocalHostName "${computername}" &&
+        sudo scutil --set HostName "${computername}"
 fi
 
 # Restart Finder and Dock for settings to take effect
