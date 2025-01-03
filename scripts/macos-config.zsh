@@ -55,6 +55,7 @@ defaults write com.apple.dock "wvous-bl-modifier" -int 0
 defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
 defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool true
 defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool true
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool true
 
 # Autocorrect Settings
 # Disable autocorrect because it interferes with coding
@@ -72,7 +73,18 @@ defaults write com.apple.AdPlatforms personalizedAdsDefaulted -bool false
 
 # Show location icon in Control Center when app is using location
 if is-admin; then
-    sudo defaults write /Library/Preferences/com.apple.locationmenu.plist ShowSystemServices -bool true;
+    sudo defaults write /Library/Preferences/com.apple.locationmenu.plist ShowSystemServices -bool true
+fi
+
+# Set computer name
+if is-admin; then
+    local computername
+    if [[ $(uname -m) == "arm64"]]; then
+        computername="TheRoci"
+    else
+        computername="Tachi"
+    fi
+    sudo systemsetup -setcomputername "${computername}" && sudo systemsetup -setlocalsubnetname "${computername}"
 fi
 
 # Restart Finder and Dock for settings to take effect

@@ -26,7 +26,6 @@
       # $ nix-env -qaP | grep wget
       environment.systemPackages = with pkgs; [
         alejandra # nix formatter
-        cargo # LazyVim dependency
         clang # LazyVim dependency
         fd # LazyVim dependency
         fzf # LazyVim dependency
@@ -36,6 +35,7 @@
         neovim
         nodejs # LazyVim dependency
         nodenv
+        python3
         ripgrep # LazyVim dependency
         rustup # LazyVim dependency
         stow # for stowing dotfiles
@@ -43,6 +43,12 @@
         tree-sitter # LazyVim dependency
         zsh
       ];
+
+      # Activation scripts to run on switch
+      system.activationScripts.postActivation.text = ''
+        # Install rust toolchain
+        rustup default stable
+      '';
 
       # Install Nerd Fonts
       fonts.packages = builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
