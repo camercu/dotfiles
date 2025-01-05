@@ -101,6 +101,8 @@
       services.nix-daemon.enable = true;
 
       # Nix settings
+      nix.configureBuildUsers = true;
+      nix.useDaemon = true;
       nix.settings = {
         use-xdg-base-directories = true;
         experimental-features = "nix-command flakes";
