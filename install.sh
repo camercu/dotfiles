@@ -47,18 +47,18 @@ nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
 nix-channel --update
 
 # Stow dotfiles
-nix-shell -p stow --run 'stow common'
+nix-shell -p stow --run 'stow -R common'
 if is-macos; then
-    nix-shell -p stow --run 'stow macos'
+    nix-shell -p stow --run 'stow -R macos'
     scripts/macos-config.zsh
     if is-admin; then
-        nix-shell -p stow --run 'stow nix-darwin'
+        nix-shell -p stow --run 'stow -R nix-darwin'
         if ! is-installed darwin-rebuild; then
             nix run nix-darwin -- switch --flake $(realpath ~/.config/nix-darwin)
             zsh -c 'darwin-rebuild switch --flake $(realpath ~/.config/nix-darwin)'
         fi
     fi
 elif is-linux; then
-    nix-shell -p stow --run 'stow is-linux'
+    nix-shell -p stow --run 'stow -R linux'
 fi
 
