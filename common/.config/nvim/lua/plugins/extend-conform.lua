@@ -5,7 +5,6 @@ return {
       markdown = { 'prettier' },
       python = { 'isort', 'ruff' },
       nix = { 'alejandra' },
-      zsh = { 'shfmt' },
     },
   },
 }

@@ -26,12 +26,12 @@
       # $ nix-env -qaP | grep wget
       environment.systemPackages = with pkgs; [
         alejandra # nix formatter
-        clang # LazyVim dependency
         fd # LazyVim dependency
         fzf # LazyVim dependency
         git
         go # LazyVim dependency
         lazygit # LazyVim dependency
+        lsd # used by zshrc
         neovim
         nodejs # LazyVim dependency
         nodenv
@@ -60,11 +60,38 @@
         casks = [
           "1password"
           "1password-cli"
+          "adobe-acrobat-reader"
+          "amethyst"
+          # "appgate-sdp-client"
+          "arduino-ide"
+          "cleanmymac"
+          # "cutter"
+          "discord"
+          "docker"
+          "dropbox"
+          "firefox"
+          "folx"
+          "google-chrome"
+          "gpg-suite"
+          # "handbrake"
+          # "imhex"
+          "microsoft-office"
+          "obsidian"
+          "private-internet-access"
+          "qflipper"
+          "raspberry-pi-imager"
+          "signal"
+          "the-unarchiver"
+          "tor-browser"
+          # "vagrant"
+          # "virtualbox"
           "wezterm"
+          "wireshark"
+          "zoom"
         ];
       };
 
-      # Keep zsh updated
+      # Manage zsh, source nix environment in /etc/zshenv
       programs.zsh.enable = true;
 
       # Enable touch ID for sudo
@@ -97,11 +124,17 @@
     };
   in {
     # Build darwin flake using:
-    # $ darwin-rebuild build --flake .#TheRoci
-    darwinConfigurations."TheRoci" = nix-darwin.lib.darwinSystem {
+    # $ darwin-rebuild build --flake .#Roci
+    darwinConfigurations."Roci" = nix-darwin.lib.darwinSystem {
       modules = [
         configuration
         macos-apple-silicon
+      ];
+    };
+    darwinConfigurations."Tachi" = nix-darwin.lib.darwinSystem {
+      modules = [
+        configuration
+        macos-intel
       ];
     };
   };

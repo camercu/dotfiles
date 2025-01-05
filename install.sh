@@ -41,6 +41,11 @@ if ! is-installed brew && is-macos && is-admin ; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+# Add Nix Channels
+nix-channel --add https://nixos.org/channels/nixpkgs-24.11-darwin nixpkgs
+nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
+nix-channel --update
+
 # Stow dotfiles
 nix-shell -p stow --run 'stow common'
 if is-macos; then
