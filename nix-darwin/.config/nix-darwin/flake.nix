@@ -102,10 +102,14 @@
 
       # Nix settings
       nix.configureBuildUsers = true;
-      nix.useDaemon = true;
       nix.settings = {
         use-xdg-base-directories = true;
-        experimental-features = "nix-command flakes";
+        experimental-features = ["nix-command" "flakes"];
+        build-users-group = "nixbld";
+        trusted-users = [
+          "root"
+          "@admin"
+        ];
       };
 
       # Nixpkgs
