@@ -62,7 +62,11 @@ typeset -gU cdpath fpath mailpath path
 # Prompt
 #
 [ ! -d "$__zsh_cache_dir/powerlevel10k" ] && git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$__zsh_cache_dir/powerlevel10k"
-source "$ZDOTDIR/p10k.zsh"
+if [[ $(whoami) == "root" ]] || groups | grep -qw admin; then
+    source "$ZDOTDIR/p10k-admin.zsh"
+else
+    source "$ZDOTDIR/p10k.zsh"
+fi
 source "$__zsh_cache_dir/powerlevel10k/powerlevel10k.zsh-theme"
 
 
