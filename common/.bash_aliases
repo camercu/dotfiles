@@ -13,7 +13,7 @@ XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 
 ##? current-shell: get name of current shell executable
 function current-shell {
-    basename "$(ps -o command= -p $$ | cut -d' ' -f1 | sed 's/^-//')"
+  basename "$(ps -o command= -p $$ | cut -d' ' -f1 | sed 's/^-//')"
 }
 
 # Shell checks - return true if current shell is zsh/bash
@@ -35,51 +35,51 @@ function is-function { declare -f -- "$1" &>/dev/null; }
 
 # Absolute path to file (does not resolve symlinks)
 ! is-installed abspath &&
-    function abspath {
-        python3 -c "import os,sys; print(os.path.abspath(sys.argv[1]))" -- "$1"
-    }
+  function abspath {
+    python3 -c "import os,sys; print(os.path.abspath(sys.argv[1]))" -- "$1"
+  }
 # Real (canonical) path to file (resolves symlinks)
 ! is-installed realpath &&
-    function realpath {
-        python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" -- "$1"
-    }
+  function realpath {
+    python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" -- "$1"
+  }
 
 #
 # Logging Functions - colorized printing of log messages
 #
 function debug {
-    local -r BLUE=$(tput setaf 4)
-    local -r CLEAR=$(tput sgr0)
-    echo "${BLUE}[*] $*${CLEAR}" >&2
+  local -r BLUE=$(tput setaf 4)
+  local -r CLEAR=$(tput sgr0)
+  echo "${BLUE}[*] $*${CLEAR}" >&2
 }
 
 function warn {
-    local -r YELLOW=$(tput setaf 3)
-    local -r CLEAR=$(tput sgr0)
-    echo "${YELLOW}[!] $*${CLEAR}" >&2
+  local -r YELLOW=$(tput setaf 3)
+  local -r CLEAR=$(tput sgr0)
+  echo "${YELLOW}[!] $*${CLEAR}" >&2
 }
 
 function error {
-    local -r RED=$(tput setaf 1)
-    local -r CLEAR=$(tput sgr0)
-    echo "${RED}[x] $*${CLEAR}" >&2
+  local -r RED=$(tput setaf 1)
+  local -r CLEAR=$(tput sgr0)
+  echo "${RED}[x] $*${CLEAR}" >&2
 }
 
 function success {
-    local -r GREEN=$(tput setaf 2)
-    local -r CLEAR=$(tput sgr0)
-    echo "${GREEN}[+] $*${CLEAR}" >&2
+  local -r GREEN=$(tput setaf 2)
+  local -r CLEAR=$(tput sgr0)
+  echo "${GREEN}[+] $*${CLEAR}" >&2
 }
 
 ##? md: shortcut to make a directory and cd into it
 function md {
-    [[ $# == 1 ]] && mkdir -p -- "$1" && cd -- "$1" && pwd
+  [[ $# == 1 ]] && mkdir -p -- "$1" && cd -- "$1" && pwd
 }
 
 ## (MacOS) Change directory to the top-most Finder window location
 function cdf {
-    is-macos &&
-        cd "$(osascript -e '
+  is-macos &&
+    cd "$(osascript -e '
             tell app "Finder" to POSIX path of (insertion location as alias)
             ')" || return
 }
@@ -102,7 +102,7 @@ alias astronvim="NVIM_APPNAME=astronvim nvim"
 
 ## mask built-ins with better defaults
 if is-installed vim; then
-    alias vi=vim
+  alias vi=vim
 fi
 
 ## easy dotfile editing commands
@@ -112,8 +112,8 @@ zsh) alias erc="$DOTFILE_EDITOR \$ZDOTDIR/.zshrc --cmd 'cd \$ZDOTDIR'" ;;
 bash) alias erc="$DOTFILE_EDITOR ~/.bashrc" ;;
 *) ;;
 esac
-# neoVim Config Edit
-alias vce="$DOTFILE_EDITOR ~/.config/nvim/ --cmd 'cd %:p:h'"
+# Edit (Neo)Vim Config
+alias ev="$DOTFILE_EDITOR ~/.config/nvim/ --cmd 'cd %:p:h'"
 alias ea="$DOTFILE_EDITOR ~/.bash_aliases --cmd 'cd ~/.dotfiles/'"
 unset DOTFILE_EDITOR
 alias reload='exec $SHELL'
@@ -122,8 +122,8 @@ alias zdot='cd $ZDOTDIR'
 
 ## ls aliases
 if is-installed lsd; then
-    alias ls='lsd'
-    alias tree='ls --tree'
+  alias ls='lsd'
+  alias tree='lsd --tree'
 fi
 alias l='ls'
 alias la='ls -A'
@@ -187,24 +187,24 @@ alias ntlmhash=$'python3 -c \'import sys as s,hashlib as h;x=" ".join(s.argv[1:]
 # source: https://github.com/mattmc3/zdotdir/blob/main/lib/clipboard.zsh
 #
 if ! is-installed pbcopy && ! is-installed pbpaste; then
-    if [[ "$OSTYPE" == cygwin* ]]; then
-        alias pbcopy='tee > /dev/clipboard'
-        alias pbpaste='cat /dev/clipboard'
-    elif [[ "$OSTYPE" == linux-android ]]; then
-        alias pbcopy='termux-clipboard-set'
-        alias pbpaste='termux-clipboard-get'
-    elif is-installed wl-copy && is-installed wl-paste; then
-        alias pbcopy='wl-copy'
-        alias pbpaste='wl-paste'
-    elif [[ -n $DISPLAY ]]; then
-        if is-installed xclip; then
-            alias pbcopy='xclip -selection clipboard -in'
-            alias pbpaste='xclip -selection clipboard -out'
-        elif is-installed xsel; then
-            alias pbcopy='xsel --clipboard --input'
-            alias pbpaste='xsel --clipboard --output'
-        fi
+  if [[ "$OSTYPE" == cygwin* ]]; then
+    alias pbcopy='tee > /dev/clipboard'
+    alias pbpaste='cat /dev/clipboard'
+  elif [[ "$OSTYPE" == linux-android ]]; then
+    alias pbcopy='termux-clipboard-set'
+    alias pbpaste='termux-clipboard-get'
+  elif is-installed wl-copy && is-installed wl-paste; then
+    alias pbcopy='wl-copy'
+    alias pbpaste='wl-paste'
+  elif [[ -n $DISPLAY ]]; then
+    if is-installed xclip; then
+      alias pbcopy='xclip -selection clipboard -in'
+      alias pbpaste='xclip -selection clipboard -out'
+    elif is-installed xsel; then
+      alias pbcopy='xsel --clipboard --input'
+      alias pbpaste='xsel --clipboard --output'
     fi
+  fi
 fi
 
 #
@@ -212,22 +212,22 @@ fi
 #
 # source: https://github.com/mathiasbynens/dotfiles/blob/main/.functions
 if ! is-macos; then
-    if grep -q Microsoft /proc/version; then
-        # Ubuntu on Windows using the Linux subsystem
-        alias open='explorer.exe'
-    else
-        alias open='xdg-open'
-    fi
+  if grep -q Microsoft /proc/version; then
+    # Ubuntu on Windows using the Linux subsystem
+    alias open='explorer.exe'
+  else
+    alias open='xdg-open'
+  fi
 fi
 
 # `o` with no arguments opens the current directory,
 # otherwise opens the given location
 function o() {
-    if [ $# -eq 0 ]; then
-        open .
-    else
-        open "$@"
-    fi
+  if [ $# -eq 0 ]; then
+    open .
+  else
+    open "$@"
+  fi
 }
 
 ###  miscellaneous  ###
@@ -267,78 +267,78 @@ alias startlog='script term-$(now).log'
 
 ####   Mac Specific:   ##########
 if is-macos; then
-    alias brewup='brew update && brew upgrade && brew cleanup'
-    alias brewinfo="brew leaves | xargs brew desc --eval-all"
-    alias md5sum='openssl md5'
-    alias sha1sum='openssl sha1'
-    alias sha256sum='openssl sha256'
-    alias is-admin='groups | grep -qw admin;'
-    alias maintain='make -C ~/.config/nix-darwin'
+  alias brewup='brew update && brew upgrade && brew cleanup'
+  alias brewinfo="brew leaves | xargs brew desc --eval-all"
+  alias md5sum='openssl md5'
+  alias sha1sum='openssl sha1'
+  alias sha256sum='openssl sha256'
+  alias is-admin='groups | grep -qw admin;'
+  alias maintain='make -C ~/.config/nix-darwin'
 
-    # Show/Hide hidden files in Finder
-    alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
-    alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
+  # Show/Hide hidden files in Finder
+  alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
+  alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
 fi
 
 ####   Linux Specific:  ##########
 if is-linux; then
-    # upgrade all packages
-    alias maintain='sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get autoremove -y && sudo apt-get autoclean -y'
+  # upgrade all packages
+  alias maintain='sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get autoremove -y && sudo apt-get autoclean -y'
 
-    alias arp='ip neigh'
+  alias arp='ip neigh'
 
-    # colorize ip command output
-    alias ip='ip -color=auto'
+  # colorize ip command output
+  alias ip='ip -color=auto'
 
-    # fd-find alias
-    alias fd='fdfind'
+  # fd-find alias
+  alias fd='fdfind'
 
-    # set up can0 socketCAN interface
-    # before running, add can, vcan, and can-isotp to /etc/modules
-    # and also modprobe those modules
-    alias canup='sudo ip link set up can0 txqueuelen 65535 type can bitrate 500000 \
+  # set up can0 socketCAN interface
+  # before running, add can, vcan, and can-isotp to /etc/modules
+  # and also modprobe those modules
+  alias canup='sudo ip link set up can0 txqueuelen 65535 type can bitrate 500000 \
         && ip a s can0'
-    # create and configure vcan0 virtual CAN interface
-    alias vcanup='sudo ip link add dev vcan0 type vcan \
+  # create and configure vcan0 virtual CAN interface
+  alias vcanup='sudo ip link add dev vcan0 type vcan \
         && sudo ip link set dev vcan0 up \
         && ip a s vcan0'
 
-    DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
-    if [[ "$DISTRO" == "KALI" ]]; then
-        # create a pattern with metasploit's pattern_create.rb
-        alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
-        alias pattoffs='/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q'
+  DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
+  if [[ "$DISTRO" == "KALI" ]]; then
+    # create a pattern with metasploit's pattern_create.rb
+    alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'
+    alias pattoffs='/usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q'
 
-        ## helpers for upgrading reverse shell
-        alias fixpath='echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"'
-        alias fixterm='echo "export TERM=xterm-256color"'
+    ## helpers for upgrading reverse shell
+    alias fixpath='echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"'
+    alias fixterm='echo "export TERM=xterm-256color"'
 
-        # other
-        alias cme='crackmapexec'
-        alias ssploit='searchsploit'
+    # other
+    alias cme='crackmapexec'
+    alias ssploit='searchsploit'
 
-        ##? newbox: initialize directory for new Hack-The-Box/OSCP/etc. machine
-        function newbox {
-            local name="$1"
-            mkdir "$name"
-            pushd -q "$name" || return
-            mkdir scans pwn loot assets
-            touch "$name.md"
-            popd -q || return
-        }
+    ##? newbox: initialize directory for new Hack-The-Box/OSCP/etc. machine
+    function newbox {
+      local name="$1"
+      mkdir "$name"
+      pushd -q "$name" || return
+      mkdir scans pwn loot assets
+      touch "$name.md"
+      popd -q || return
+    }
 
-        ## If working in hacking vm  ############
-        if [ -d "/mnt/share" ]; then
-            alias cdshare='cd /mnt/share'
-            alias cdcheat='cd /mnt/share/cheat'
-            alias cdtools='cd /mnt/share/cheat/tools'
+    ## If working in hacking vm  ############
+    if [ -d "/mnt/share" ]; then
+      alias cdshare='cd /mnt/share'
+      alias cdcheat='cd /mnt/share/cheat'
+      alias cdtools='cd /mnt/share/cheat/tools'
 
-            ## openvpn
-            alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'
-            alias htbconnect='sudo openvpn /mnt/share/htb/lab_camercu.ovpn'
-            alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/offsec/universal.ovpn'
-            alias pgconnect='sudo openvpn /mnt/share/offsec/universal.ovpn'
-        fi
+      ## openvpn
+      alias thmconnect='sudo openvpn /mnt/share/thm/tryhackme-ccu337.ovpn'
+      alias htbconnect='sudo openvpn /mnt/share/htb/lab_camercu.ovpn'
+      alias pwkconnect='echo OS-80249; sudo openvpn /mnt/share/offsec/universal.ovpn'
+      alias pgconnect='sudo openvpn /mnt/share/offsec/universal.ovpn'
     fi
-    unset DISTRO
+  fi
+  unset DISTRO
 fi
