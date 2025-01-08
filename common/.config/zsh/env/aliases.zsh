@@ -5,6 +5,10 @@
 #
 [[ -r "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"
 
+#
+# Zsh-specific Aliases
+#
+
 # Easy navigation
 alias d='dirs -v | head -10'
 alias 1='cd -'
@@ -19,3 +23,5 @@ alias 8='cd -8'
 # better touch: auto-create parent dirs to touchfile
 alias touch='() { if [[ -n  "$1" ]]; then mkdir -p -- "$1:h" && command touch -- "$1"; fi }'
 
+# share/sync zsh-history between sessions
+alias share-hist='fc -RI'

@@ -113,7 +113,7 @@ bash) alias erc="$DOTFILE_EDITOR ~/.bashrc" ;;
 *) ;;
 esac
 # neoVim Config Edit
-[[ -d "$HOME/.config/nvim/" ]] && alias vce="$DOTFILE_EDITOR ~/.config/nvim/ --cmd 'cd %:p:h'"
+alias vce="$DOTFILE_EDITOR ~/.config/nvim/ --cmd 'cd %:p:h'"
 alias ea="$DOTFILE_EDITOR ~/.bash_aliases --cmd 'cd ~/.dotfiles/'"
 unset DOTFILE_EDITOR
 alias reload='exec $SHELL'
@@ -240,6 +240,7 @@ alias path='echo $PATH | tr ":" "\n"'
 alias fpath='echo $FPATH | tr ":" "\n"'
 alias nsort='sort | uniq -c | sort -n'
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias 2b="$EDITOR ~/second-brain"
 
 # update all pip packages
 alias pipup='pip freeze --local | grep -v "^\-e" | cut -d = -f 1  |xargs -n1 pip install -U'
