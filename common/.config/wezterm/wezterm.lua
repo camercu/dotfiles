@@ -1,6 +1,6 @@
 local wezterm = require("wezterm")
-
 local config = wezterm.config_builder()
+local act = wezterm.action
 
 config.font = wezterm.font("MesloLGS Nerd Font")
 config.color_scheme = "Catppuccin Macchiato"
@@ -16,14 +16,23 @@ config.mouse_bindings = {
   {
     event = { Up = { streak = 1, button = "Left" } },
     mods = "NONE",
-    action = wezterm.action.CompleteSelection("ClipboardAndPrimarySelection"),
+    action = act.CompleteSelection("ClipboardAndPrimarySelection"),
   },
 
   -- and make CTRL-Click open hyperlinks
   {
     event = { Up = { streak = 1, button = "Left" } },
     mods = "CTRL",
-    action = wezterm.action.OpenLinkAtMouseCursor,
+    action = act.OpenLinkAtMouseCursor,
+  },
+}
+
+config.keys = {
+  -- don't intercept COMMAND+/, used for commenting in neovim
+  {
+    key = "/",
+    mods = "CTRL|ALT",
+    action = act.SendKey({ key = "/", mods = "CTRL|ALT" }),
   },
 }
 

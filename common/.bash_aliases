@@ -113,8 +113,8 @@ bash) alias erc="$DOTFILE_EDITOR ~/.bashrc" ;;
 *) ;;
 esac
 # Edit (Neo)Vim Config
-alias ev="$DOTFILE_EDITOR ~/.config/nvim/ --cmd 'cd %:p:h'"
-alias ea="$DOTFILE_EDITOR ~/.bash_aliases --cmd 'cd ~/.dotfiles/'"
+alias ev="$DOTFILE_EDITOR --cmd 'cd ~/.config/nvim'"
+alias ea="$DOTFILE_EDITOR ~/.bash_aliases --cmd 'cd ~/.dotfiles'"
 unset DOTFILE_EDITOR
 alias reload='exec $SHELL'
 alias cdot='cd ~/.dotfiles'
