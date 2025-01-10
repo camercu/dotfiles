@@ -27,13 +27,4 @@ config.mouse_bindings = {
   },
 }
 
-config.keys = {
-  -- don't intercept COMMAND+/, used for commenting in neovim
-  {
-    key = "/",
-    mods = "CTRL|ALT",
-    action = act.SendKey({ key = "/", mods = "CTRL|ALT" }),
-  },
-}
-
 return config
