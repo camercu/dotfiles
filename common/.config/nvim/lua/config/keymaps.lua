@@ -15,3 +15,9 @@ vim.keymap.set('n', '<leader><S-Enter>', 'm`o<Esc>``', { desc = 'Insert newline 
 -- Keep search matches in center
 vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Next Search Result' })
 vim.keymap.set('n', 'N', 'Nzzzv', { desc = 'Prev Search Result' })
+
+-- Title case entire line
+-- built referenceing :help ordinary-atom
+vim.keymap.set('n', 'gat', 'm`guu<cmd>s/\\<\\a/\\u&/g<cr><cmd>noh<cr>``', { desc = 'Title Case Line' })
+-- Sentence case entire line (capitalize first letter, rest lowercase)
+vim.keymap.set('n', 'gaT', 'm`guu<cmd>s/\\<\\a/\\u&/<cr><cmd>noh<cr>``', { desc = 'Sentence case line' })
