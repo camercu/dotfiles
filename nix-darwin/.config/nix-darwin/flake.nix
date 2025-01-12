@@ -41,6 +41,7 @@
         stow # for stowing dotfiles
         tmux
         tree-sitter # LazyVim dependency
+        uv # python pip replacement
         zsh
       ];
 
