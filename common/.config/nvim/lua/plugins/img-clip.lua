@@ -1,3 +1,5 @@
+require('which-key').add({ '<leader>i', group = 'images' })
+
 return {
   'HakonHarnes/img-clip.nvim',
   dependencies = { 'nvim-telescope/telescope.nvim' },
@@ -33,8 +35,19 @@ return {
     },
   },
   opts = {
-    drag_and_drop = {
-      insert_mode = true,
+    default = {
+      dir_path = 'assets',
+      use_absolute_path = false,
+      drag_and_drop = {
+        enabled = true,
+        insert_mode = true,
+      },
     },
+  },
+
+  -- filetype specific options
+  markdown = {
+    download_images = true,
+    template = vim.g.neovim_mode == 'skitty' and '![i](./$FILE_PATH)' or '![$CURSOR](./$FILE_PATH)',
   },
 }
