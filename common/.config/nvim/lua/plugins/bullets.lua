@@ -23,7 +23,7 @@
 return {
   {
     'bullets-vim/bullets.vim',
-    ft = { 'markdown', 'text', 'gitcommit', 'scratch' },
+    ft = { 'markdown', 'text', 'plaintex', 'gitcommit', 'scratch' },
     config = function()
       vim.g.bullets_enabled_file_types = { 'markdown', 'text', 'gitcommit', 'scratch' }
       vim.g.bullets_pad_right = 0
