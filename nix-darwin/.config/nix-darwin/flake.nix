@@ -71,6 +71,7 @@
           "dropbox"
           "firefox"
           "folx"
+          "ghostty"
           "google-chrome"
           "gpg-suite"
           # "handbrake"
@@ -86,7 +87,6 @@
           # "vagrant"
           # "virtualbox"
           "vmware-fusion"
-          "wezterm"
           "wireshark"
           "zoom"
         ];
