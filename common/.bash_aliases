@@ -241,6 +241,7 @@ alias fpath='echo $FPATH | tr ":" "\n"'
 alias nsort='sort | uniq -c | sort -n'
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias 2b="$EDITOR -c 'cd ~/second-brain'"
+is-installed lazygit && alias lg='lazygit'
 
 # update all pip packages
 alias pipup='pip freeze --local | grep -v "^\-e" | cut -d = -f 1  |xargs -n1 pip install -U'
