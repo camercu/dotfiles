@@ -19,7 +19,10 @@ if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
 fi
 
 # Use emacs key bindings
-bindkey -e
+# bindkey -e
+
+# Use vim key bindings
+bindkey -v
 
 # [PageUp] - Up a line of history
 if [[ -n "${terminfo[kpp]}" ]]; then
@@ -99,10 +102,17 @@ else
   bindkey -M vicmd "^[3;5~" delete-char
 fi
 
-# [Ctrl-Delete] - delete whole forward-word
+# [Ctrl-Delete] - delete whole word (forward)
+# (on MacOS, this is [Ctrl-Fn-Delete])
 bindkey -M emacs '^[[3;5~' kill-word
 bindkey -M viins '^[[3;5~' kill-word
 bindkey -M vicmd '^[[3;5~' kill-word
+
+# [Ctrl-Backspace] - delete whole word (backward)
+# (on MacOS, this is [Ctrl-Delete])
+bindkey -M emacs '^H' backward-kill-word
+bindkey -M viins '^H' backward-kill-word
+bindkey -M vicmd '^H' backward-kill-word
 
 # [Ctrl-RightArrow] - move forward one word
 bindkey -M emacs '^[[1;5C' forward-word
@@ -113,18 +123,36 @@ bindkey -M emacs '^[[1;5D' backward-word
 bindkey -M viins '^[[1;5D' backward-word
 bindkey -M vicmd '^[[1;5D' backward-word
 
+# [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
+bindkey -M emacs '^r' history-incremental-search-backward
+bindkey -M viins '^r' history-incremental-search-backward
 
-bindkey '\ew' kill-region                             # [Esc-w] - Kill from the cursor to the mark
-bindkey -s '\el' 'ls\n'                               # [Esc-l] - run command: ls
-bindkey '^r' history-incremental-search-backward      # [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
-bindkey ' ' magic-space                               # [Space] - don't do history expansion
+# [Space] - do history expansion on <Space>
+bindkey -M emacs ' ' magic-space
+bindkey -M viins ' ' magic-space
 
+# [Alt-.] - insert last arg of previous command
+bindkey -M emacs '^[.' insert-last-word
+bindkey -M viins '^[.' insert-last-word
+
+# [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
+bindkey -M emacs '^r' history-incremental-search-backward
+bindkey -M viins '^r' history-incremental-search-backward
 
 # Edit the current command line in $EDITOR
 autoload -U edit-command-line
 zle -N edit-command-line
 bindkey -M emacs '\C-x\C-e' edit-command-line
+bindkey -M viins '\C-x\C-e' edit-command-line
+bindkey -M vicmd '^e' edit-command-line
 
 # file rename magic
-bindkey "^[m" copy-prev-shell-word
+bindkey -M emacs "^[m" copy-prev-shell-word
+bindkey -M viins "^[m" copy-prev-shell-word
+
+# # move through autocomplete menu with vi motions
+# bindkey -M menuselect 'h' vi-backward-char
+# bindkey -M menuselect 'k' vi-up-line-or-history
+# bindkey -M menuselect 'l' vi-forward-char
+# bindkey -M menuselect 'j' vi-down-line-or-history
 

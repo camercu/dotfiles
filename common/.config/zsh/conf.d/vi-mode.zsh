@@ -1,13 +1,9 @@
 #!/usr/bin/env zsh
 
 #
-# Vi Mode for Zsh
+# Vi Mode enhancements for Zsh
 #
-bindkey -v
 export KEYTIMEOUT=1
-
-# fix backspace to work like before vi-mode
-bindkey '^?' backward-delete-char
 
 # change cursor shape based on mode
 function cursor_mode {
@@ -39,17 +35,6 @@ function cursor_mode {
 }
 cursor_mode
 unfunction cursor_mode
-
-# # move through autocomplete menu with vi motions
-# bindkey -M menuselect 'h' vi-backward-char
-# bindkey -M menuselect 'k' vi-up-line-or-history
-# bindkey -M menuselect 'l' vi-forward-char
-# bindkey -M menuselect 'j' vi-down-line-or-history
-
-# edit command line using vim (vi-mode, 'ctrl+v')
-autoload -Uz edit-command-line
-zle -N edit-command-line
-bindkey -M vicmd '^v' edit-command-line
 
 # Add Vi text-objects for brackets and quotes
 # source: https://thevaluable.dev/zsh-install-configure-mouseless/
