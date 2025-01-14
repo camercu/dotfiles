@@ -9,14 +9,19 @@
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block, everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+  builtin source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Ghostty shell integration for zsh. This should be at the top of zshrc!
+if [ -n "${GHOSTTY_RESOURCES_DIR}" ]; then
+    builtin source "${GHOSTTY_RESOURCES_DIR}/shell-integration/zsh/ghostty-integration"
 fi
 
 
 #
 # Helper Functions
 #
-source "$ZDOTDIR/functions.zsh"
+builtin source "$ZDOTDIR/functions.zsh"
 
 #
 # Environment Variables
@@ -63,18 +68,18 @@ typeset -gU cdpath fpath mailpath path
 #
 [ ! -d "$__zsh_cache_dir/powerlevel10k" ] && git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$__zsh_cache_dir/powerlevel10k"
 if [[ $(whoami) == "root" ]] || groups | grep -qw admin; then
-    source "$ZDOTDIR/p10k-admin.zsh"
+    builtin source "$ZDOTDIR/p10k-admin.zsh"
 else
-    source "$ZDOTDIR/p10k.zsh"
+    builtin source "$ZDOTDIR/p10k.zsh"
 fi
-source "$__zsh_cache_dir/powerlevel10k/powerlevel10k.zsh-theme"
+builtin source "$__zsh_cache_dir/powerlevel10k/powerlevel10k.zsh-theme"
 
 
 #
 # Plugins
 #
 for plugin in $ZDOTDIR/plugins/**/*.plugin.zsh; do
-    source $plugin
+    builtin source $plugin
 done
 unset plugin
 

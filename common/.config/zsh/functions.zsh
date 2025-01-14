@@ -78,6 +78,6 @@ function source-dir {
         return 1
     fi
     for scriptfile in $zdir/*.(sh|zsh)(N.); do
-        source $scriptfile
+        builtin source $scriptfile
     done
 }

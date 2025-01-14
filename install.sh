@@ -4,11 +4,11 @@ set -e
 DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
 
 # load env vars, including XDG_*
-source "$DOTFILE_DIR/common/.zshenv"
+builtin source "$DOTFILE_DIR/common/.zshenv"
 
 # load useful functions and aliases
 # (realpath, is-macos, is-linux, logging functions)
-source "$DOTFILE_DIR/common/.bash_aliases"
+builtin source "$DOTFILE_DIR/common/.bash_aliases"
 
 # Ensure Zsh directories exist.
 () {
@@ -38,7 +38,7 @@ fi
 # install homebrew if admin user on MacOS
 if ! is-installed brew && is-macos && is-admin ; then
     scripts/install-homebrew.sh
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+    builtin eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
 # Add Nix Channels
