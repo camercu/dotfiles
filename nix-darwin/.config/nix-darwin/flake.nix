@@ -45,6 +45,12 @@
         zsh
       ];
 
+      # necessary hack for "su -" to work with Ghostty
+      environment.variables = {
+        GHOSTTY_RESOURCES_DIR = "/Applications/Ghostty.app/Contents/Resources/ghostty";
+        TERMINFO_DIRS = ["/Applications/Ghostty.app/Contents/Resources/terminfo"];
+      };
+
       # Activation scripts to run on switch
       system.activationScripts.postActivation.text = ''
         # Install rust toolchain
