@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 set -e
 
-DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
+export DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
 
 # load env vars, including XDG_*
 builtin source "$DOTFILE_DIR/common/.zshenv"
@@ -46,19 +46,14 @@ nix-channel --add https://nixos.org/channels/nixpkgs-24.11-darwin nixpkgs
 nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
 nix-channel --update
 
-# Stow dotfiles
-nix-shell -p stow --run 'stow -R common'
-if is-macos; then
-    nix-shell -p stow --run 'stow -R macos'
-    scripts/macos-config.zsh
-    if is-admin; then
-        nix-shell -p stow --run 'stow -R nix-darwin'
-        if ! is-installed darwin-rebuild; then
-            nix run nix-darwin -- switch --flake $(realpath ~/.config/nix-darwin)
-            zsh -c 'darwin-rebuild switch --flake $(realpath ~/.config/nix-darwin)'
-        fi
-    fi
-elif is-linux; then
-    nix-shell -p stow --run 'stow -R linux'
+# isntall dotfiles
+scripts/install-dotfiles.sh
+
+# Install nix-darwin (must do after dotfiles are installed)
+if is-macos && is-admin; then
+  if ! is-installed darwin-rebuild; then
+    nix run nix-darwin -- switch --flake $(realpath ~/.config/nix-darwin)
+    zsh -c 'darwin-rebuild switch --flake $(realpath ~/.config/nix-darwin)'
+  fi
 fi
 
