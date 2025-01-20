@@ -30,6 +30,7 @@
         fzf # LazyVim dependency
         git
         go # LazyVim dependency
+        git-credential-osxkeychain
         lazygit # LazyVim dependency
         lsd # used by zshrc
         neovim
