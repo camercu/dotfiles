@@ -48,8 +48,8 @@
 
       # necessary hack for "su -" to work with Ghostty
       environment.variables = {
-        GHOSTTY_RESOURCES_DIR = "/Applications/Ghostty.app/Contents/Resources/ghostty";
         TERMINFO_DIRS = ["/Applications/Ghostty.app/Contents/Resources/terminfo"];
+        GHOSTTY_RESOURCES_DIR = "/Applications/Ghostty.app/Contents/Resources/ghostty";
       };
 
       # Activation scripts to run on switch
