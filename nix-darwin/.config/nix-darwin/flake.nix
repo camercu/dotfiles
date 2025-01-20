@@ -26,6 +26,7 @@
       # $ nix-env -qaP | grep wget
       environment.systemPackages = with pkgs; [
         alejandra # nix formatter
+        direnv
         fd # LazyVim dependency
         fzf # LazyVim dependency
         git
