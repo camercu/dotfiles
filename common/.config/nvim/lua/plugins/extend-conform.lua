@@ -5,6 +5,7 @@ return {
       markdown = { 'prettier' },
       python = { 'isort', 'ruff' },
       nix = { 'alejandra' },
+      rust = { 'rustfmt' },
     },
   },
 }
