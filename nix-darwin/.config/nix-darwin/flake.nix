@@ -89,6 +89,7 @@
           "qflipper"
           "raspberry-pi-imager"
           "signal"
+          "syncthing"
           "the-unarchiver"
           "tor-browser"
           # "vagrant"
