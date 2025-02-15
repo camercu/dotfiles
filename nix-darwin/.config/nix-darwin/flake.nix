@@ -106,11 +106,7 @@
       # Enable touch ID for sudo
       security.pam.enableSudoTouchIdAuth = true;
 
-      # Manage the nix-daemon
-      services.nix-daemon.enable = true;
-
       # Nix settings
-      nix.configureBuildUsers = true;
       nix.settings = {
         use-xdg-base-directories = true;
         experimental-features = ["nix-command" "flakes"];
