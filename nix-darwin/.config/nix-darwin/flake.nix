@@ -108,17 +108,17 @@
 
       # Nix settings
       nix.settings = {
-        use-xdg-base-directories = true;
-        experimental-features = ["nix-command" "flakes"];
-        build-users-group = "nixbld";
-        trusted-users = [
-          "@admin"
-        ];
         allowed-users = [
           "@admin"
           "cameron"
           "crank"
         ];
+        build-users-group = "nixbld";
+        experimental-features = ["nix-command" "flakes"];
+        trusted-users = [
+          "@admin"
+        ];
+        use-xdg-base-directories = true;
       };
 
       # Nixpkgs
