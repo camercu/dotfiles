@@ -112,8 +112,12 @@
         experimental-features = ["nix-command" "flakes"];
         build-users-group = "nixbld";
         trusted-users = [
-          "root"
           "@admin"
+        ];
+        allowed-users = [
+          "@admin"
+          "cameron"
+          "crank"
         ];
       };
 
