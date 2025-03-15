@@ -17,7 +17,7 @@ function do_stow() {
   fi
 }
 
-nix-shell -p stow --run 'stow -R common'
+do_stow common
 if is-macos; then
   do_stow macos
   if is-admin; then
