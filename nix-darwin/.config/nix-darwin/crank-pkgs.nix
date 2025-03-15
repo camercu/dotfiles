@@ -13,7 +13,7 @@
     lsd # ls replacement, used by zshrc
     procs # ps alternative
     sad # sed alternative
-    tealdear # tldr replacement
+    tealdeer # tldr replacement
     tokei # show code stats
     watchexec # run arbitrary commands on file change
     xh # curl alternative
