@@ -46,8 +46,13 @@ nix-channel --add https://nixos.org/channels/nixpkgs-24.11-darwin nixpkgs
 nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
 nix-channel --update
 
-# isntall dotfiles
+# install dotfiles
 scripts/install-dotfiles.sh
+
+# configure macos default settings
+if is-macos; then
+    scripts/config-macos.zsh
+fi
 
 # Install nix-darwin (must do after dotfiles are installed)
 if is-macos && is-admin; then

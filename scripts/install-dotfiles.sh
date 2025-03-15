@@ -20,7 +20,6 @@ function do_stow() {
 nix-shell -p stow --run 'stow -R common'
 if is-macos; then
   do_stow macos
-  scripts/config-macos.zsh
   if is-admin; then
     do_stow nix-darwin
   fi
