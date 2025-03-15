@@ -26,7 +26,6 @@
       # $ nix-env -qaP | grep wget
       environment.systemPackages = with pkgs; [
         alejandra # nix formatter
-        direnv
         fd # LazyVim dependency
         fzf # LazyVim dependency
         git
@@ -68,7 +67,6 @@
         casks = [
           "1password"
           "1password-cli"
-          "adobe-acrobat-reader"
           # "appgate-sdp-client"
           "arduino-ide"
           "cleanmymac"
@@ -147,6 +145,7 @@
     # $ darwin-rebuild build --flake .#Roci
     darwinConfigurations."Roci" = nix-darwin.lib.darwinSystem {
       modules = [
+        ./crank-pkgs.nix
         configuration
         macos-apple-silicon
       ];
