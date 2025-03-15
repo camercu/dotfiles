@@ -22,7 +22,7 @@
       lib,
       ...
     }: {
-      # List packages installed in system profile. To search by name, run:
+      # Packages installed in every profile. To search by name, run:
       # $ nix-env -qaP | grep wget
       environment.systemPackages = with pkgs; [
         alejandra # nix formatter
@@ -31,7 +31,6 @@
         git
         go # LazyVim dependency
         lazygit # LazyVim dependency
-        lsd # used by zshrc
         neovim
         nodejs # LazyVim dependency
         nodenv
@@ -60,41 +59,16 @@
       # Install Nerd Fonts
       fonts.packages = builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
 
-      # Manage Homebrew Casks
+      # Manage core Homebrew Casks
       homebrew = {
         enable = true;
         onActivation.cleanup = "uninstall";
         casks = [
           "1password"
           "1password-cli"
-          # "appgate-sdp-client"
-          "arduino-ide"
-          "cleanmymac"
-          # "cutter"
-          "discord"
-          "docker"
-          "dropbox"
           "firefox"
-          "folx"
           "ghostty"
           "google-chrome"
-          "gpg-suite"
-          # "handbrake"
-          # "imhex"
-          "microsoft-office"
-          "obsidian"
-          "private-internet-access"
-          "qflipper"
-          "raspberry-pi-imager"
-          "signal"
-          "syncthing"
-          "the-unarchiver"
-          "tor-browser"
-          # "vagrant"
-          # "virtualbox"
-          "vmware-fusion"
-          "wireshark"
-          "zoom"
         ];
       };
 
