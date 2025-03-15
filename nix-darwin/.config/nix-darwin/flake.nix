@@ -102,7 +102,7 @@
       programs.zsh.enable = true;
 
       # Enable touch ID for sudo
-      security.pam.enableSudoTouchIdAuth = true;
+      security.pam.services.sudo_local.touchIdAuth = true;
 
       # Nix settings
       nix.settings = {
