@@ -46,6 +46,7 @@
     # "vagrant"
     # "virtualbox"
     "vmware-fusion"
+    "wezterm"
     "wireshark"
     "zoom"
   ];
