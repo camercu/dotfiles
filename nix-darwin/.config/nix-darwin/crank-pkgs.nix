@@ -2,7 +2,7 @@
   environment.systemPackages = with pkgs; [
     bandwhich # display network usage by process
     bat # cat alternative
-    bottom # top alternative
+    bottom # top alternative; command 'btm'
     delta # diff viewer
     deno # node.js alternative
     direnv # change env config on cd to directory
