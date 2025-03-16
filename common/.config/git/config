@@ -13,13 +13,15 @@
 	editor = vim
 	excludesfile = ~/.config/git/ignore-global
 	autocrlf = input
+	pager = delta
 [push]
 	default = upstream
 [merge]
-	conflictstyle = diff3
+	conflictStyle = zdiff3
 [include]
 	path = ~/.config/git/config-aliases
 	path = ~/.config/git/config-credential
+    path = ~/.config/delta/themes/catppuccin.gitconfig
 [color]
 	ui = auto
 [pull]
@@ -29,3 +31,12 @@
 [safe]
 	directory = /mnt/share/hackbox-init
 	directory = /mnt/share/.dotfiles
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+    dark = true
+    features = catppuccin-mocha
+    line-numbers = true
+	navigate = true
+    side-by-side = true
+    syntax-theme = catppuccin-mocha
