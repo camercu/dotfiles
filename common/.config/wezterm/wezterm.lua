@@ -28,4 +28,19 @@ config.mouse_bindings = {
   },
 }
 
+config.keys = {
+  -- Change ToggleFullScreen to use Cmd+Shift+F instead of Alt+Enter
+  -- (lazygit uses alt-enter to commit from inside the description box)
+  {
+    key = "f",
+    mods = "CMD|SHIFT",
+    action = wezterm.action.ToggleFullScreen,
+  },
+  {
+    key = "Enter",
+    mods = "ALT",
+    action = wezterm.action.DisableDefaultAssignment,
+  },
+}
+
 return config
