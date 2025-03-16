@@ -17,11 +17,13 @@ builtin source "$DOTFILE_DIR/common/.bash_aliases"
 
 function do_stow() {
   debug "symlinking dotfiles: $@"
+  pushd $DOTFILE_DIR  # to use .stowrc
   if is-installed stow; then
     stow -R "$@"
   else
     nix-shell -p stow --run "stow -R $@"
   fi
+  popd $DOTFILE_DIR
 }
 
 do_stow common
