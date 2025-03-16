@@ -1,6 +1,11 @@
 #!/usr/bin/env zsh
+if command -v realpath &>/dev/null; then
+    function realpath {
+        python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$1"
+    }
+fi
 
-DOTFILE_DIR="$(cd "$(dirname ${0})/.." && pwd -P)" # absolute path to dir
+DOTFILE_DIR="$(cd $(dirname $(realpath "$0"))/../../.. && pwd)"
 
 # load env vars, including XDG_*
 builtin source "$DOTFILE_DIR/common/.zshenv"
@@ -17,12 +22,18 @@ function do_stow() {
   fi
 }
 
+debug "symlinking dotfiles: common"
 do_stow common
 if is-macos; then
+  debug "symlinking dotfiles: MacOS"
   do_stow macos
   if is-admin; then
+    debug "symlinking dotfiles: nix-darwin"
     do_stow nix-darwin
   fi
 elif is-linux; then
+  debug "symlinking dotfiles: Linux"
   do_stow linux
 fi
+
+success "DONE!"
