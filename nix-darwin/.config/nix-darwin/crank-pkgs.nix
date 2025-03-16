@@ -10,14 +10,18 @@
     entr # run arbitrary commands on file change
     grex # auto-generate gnu regular expressions based on supplied test cases
     hyperfine # benchmarking tool
+    imagemagick # image edit/convert
     lsd # ls replacement, used by zshrc
+    mermaid-cli # generate diagrams from text (neovim)
     procs # ps alternative
     sad # sed alternative
     tealdeer # tldr replacement
+    tectonic # TeX engine for rendering math in neovim
     tokei # show code stats
     watchexec # run arbitrary commands on file change
     wget # web file downloader
     xh # curl alternative
+    zellij # terminal multiplexer/workspace; tmux alternative
     zoxide # cd alternative; z and zq commands
   ];
 
