@@ -112,19 +112,6 @@ if is-admin; then
   sudo defaults write /Library/Preferences/com.apple.locationmenu.plist ShowSystemServices -bool true
 fi
 
-# Set computer name
-if is-admin; then
-  local computername
-  if [[ "$(uname -m)" == "arm64" ]]; then
-    computername="Roci"
-  else
-    computername="Tachi"
-  fi
-  scutil --set ComputerName "${computername}" &&
-    sudo scutil --set LocalHostName "${computername}" &&
-    sudo scutil --set HostName "${computername}"
-fi
-
 # Disable chime on startup
 if is-admin; then
   sudo nvram StartupMute=%01
