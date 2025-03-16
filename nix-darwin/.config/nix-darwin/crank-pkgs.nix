@@ -16,6 +16,7 @@
     tealdeer # tldr replacement
     tokei # show code stats
     watchexec # run arbitrary commands on file change
+    wget # web file downloader
     xh # curl alternative
     zoxide # cd alternative; z and zq commands
   ];
