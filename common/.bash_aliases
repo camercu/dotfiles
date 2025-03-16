@@ -36,12 +36,12 @@ function is-function { declare -f -- "$1" &>/dev/null; }
 # Absolute path to file (does not resolve symlinks)
 ! is-installed abspath &&
   function abspath {
-    python3 -c "import os,sys; print(os.path.abspath(sys.argv[1]))" -- "$1"
+    python3 -c "import os,sys; print(os.path.abspath(sys.argv[1]))" "$1"
   }
 # Real (canonical) path to file (resolves symlinks)
 ! is-installed realpath &&
   function realpath {
-    python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" -- "$1"
+    python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$1"
   }
 
 #
@@ -119,6 +119,7 @@ unset DOTFILE_EDITOR
 alias reload='exec $SHELL'
 alias cdot='cd ~/.dotfiles'
 alias zdot='cd $ZDOTDIR'
+alias dotfiledir='dirname $(dirname $(realpath ~/.zshenv))'
 
 ## ls aliases
 if is-installed lsd; then
