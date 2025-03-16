@@ -35,7 +35,7 @@
 	diffFilter = delta --color-only
 [delta]
     dark = true
-    features = catppuccin-mocha
+    features = catppuccin-frappe
     line-numbers = true
 	navigate = true
     side-by-side = true
