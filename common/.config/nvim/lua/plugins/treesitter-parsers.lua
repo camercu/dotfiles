@@ -17,6 +17,7 @@ return {
       'ini',
       'java',
       'just',
+      'kdl',
       'latex',
       'make',
       'rust',
