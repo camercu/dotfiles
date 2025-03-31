@@ -56,9 +56,6 @@
         rustup default stable
       '';
 
-      # Install Nerd Fonts
-      fonts.packages = builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
-
       # Manage core Homebrew Casks
       homebrew = {
         enable = true;
