@@ -66,7 +66,6 @@
         casks = [
           "1password"
           "1password-cli"
-          "firefox"
           "ghostty"
           "google-chrome"
         ];
