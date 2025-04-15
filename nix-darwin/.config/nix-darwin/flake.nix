@@ -64,7 +64,6 @@
           "1password"
           "1password-cli"
           "ghostty"
-          "google-chrome"
         ];
       };
 
