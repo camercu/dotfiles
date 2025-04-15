@@ -131,6 +131,10 @@ bindkey -M menuselect '/' history-incremental-search-forward        # prev searc
 # Custom Completions
 #
 
+# initialize completions with caching
+autoload -U compinit && compinit -u -d "$ZSH_COMPDUMP"
+autoload -U +X bashcompinit && bashcompinit
+
 # Load personal completion functions onto fpath
 fpath+="${HOME}/.config/zsh/completions"
 
