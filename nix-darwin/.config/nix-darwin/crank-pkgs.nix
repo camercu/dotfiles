@@ -1,5 +1,6 @@
 {pkgs, ...}: {
   environment.systemPackages = with pkgs; [
+    arduino-cli # arduino IDE alternative
     bandwhich # display network usage by process
     bat # cat alternative
     bottom # top alternative; command 'btm'
