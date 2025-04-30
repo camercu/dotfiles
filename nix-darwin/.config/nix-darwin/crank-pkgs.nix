@@ -50,6 +50,7 @@
     "tor-browser"
     # "vagrant"
     # "virtualbox"
+    "visual-studio-code"
     "vmware-fusion"
     "wezterm"
     "wireshark"
