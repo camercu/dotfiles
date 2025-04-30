@@ -1,0 +1,5 @@
+board_manager:
+    additional_urls: []
+directories:
+    data: /Users/cameron/.local/share/arduino
+    user: /Users/cameron/dev/Arduino
