@@ -125,5 +125,11 @@
         macos-intel
       ];
     };
+    darwinConfigurations."Jessie's Laptop" = nix-darwin.lib.darwinSystem {
+      modules = [
+        configuration
+        macos-apple-silicon
+      ];
+    };
   };
 }

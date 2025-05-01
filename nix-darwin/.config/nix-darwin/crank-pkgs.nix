@@ -14,6 +14,7 @@
     imagemagick # image edit/convert
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
+    openjdk # Java SDK
     procs # ps alternative
     sad # sed alternative
     tealdeer # tldr replacement
