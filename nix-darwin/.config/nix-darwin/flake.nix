@@ -63,7 +63,7 @@
         casks = [
           "1password"
           "1password-cli"
-          "ghostty"
+          "wezterm"
         ];
       };
 

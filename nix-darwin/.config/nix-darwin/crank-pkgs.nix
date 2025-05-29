@@ -37,6 +37,7 @@
     "docker"
     "dropbox"
     "folx"
+    "ghostty"
     "gpg-suite"
     # "handbrake"
     # "imhex"
@@ -53,7 +54,6 @@
     # "virtualbox"
     "visual-studio-code"
     "vmware-fusion"
-    "wezterm"
     "wireshark"
     "zoom"
   ];
