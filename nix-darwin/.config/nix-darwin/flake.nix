@@ -52,8 +52,7 @@
 
       # Activation scripts to run on switch
       system.activationScripts.postActivation.text = ''
-        # Install rust toolchain
-        rustup default stable
+        # nothing for now...
       '';
 
       # Manage core Homebrew Casks
