@@ -114,6 +114,7 @@
     # $ darwin-rebuild build --flake .#Roci
     darwinConfigurations."Roci" = nix-darwin.lib.darwinSystem {
       modules = [
+        {system.primaryUser = "cadmin";}
         ./crank-pkgs.nix
         configuration
         macos-apple-silicon

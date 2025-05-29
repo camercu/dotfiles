@@ -1,7 +1,7 @@
 .PHONY: update
 update:
 	nix --extra-experimental-features 'nix-command flakes' flake update --flake $$(realpath ~/.config/nix-darwin)
-	darwin-rebuild switch --flake $$(realpath ~/.config/nix-darwin)
+	sudo darwin-rebuild switch --flake $$(realpath ~/.config/nix-darwin)
 
 .PHONY: uninstall
 uninstall:
