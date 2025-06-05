@@ -1,10 +1,9 @@
 #!/usr/bin/env zsh
 
 if command -v bat &>/dev/null; then
-  BAT_THEME="Catppuccin Frappe"
+  export BAT_THEME="Catppuccin Frappe"
 
   alias bathelp='bat --plain --language=help'
-
   function help {
       "$@" --help 2>&1 | bathelp
   }
