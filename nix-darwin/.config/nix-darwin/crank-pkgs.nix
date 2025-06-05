@@ -3,6 +3,7 @@
     arduino-cli # arduino IDE alternative
     bandwhich # display network usage by process
     bat # cat alternative
+    binwalk # firmware / binary file analysis tool
     bottom # top alternative; command 'btm'
     delta # diff viewer
     deno # node.js alternative
@@ -55,6 +56,7 @@
     "visual-studio-code"
     "vmware-fusion"
     "wireshark"
+    "zed"
     "zoom"
   ];
 }
