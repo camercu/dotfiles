@@ -23,3 +23,5 @@ indent_size = 2
 [*.{sh,bash,zsh}]
 indent_size = 2
 
+[.bash_aliases]
+indent_size = 2
