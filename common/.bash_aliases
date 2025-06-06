@@ -1,5 +1,5 @@
 #########################################################################
-##    Custom Shell Aliases and Functions  ###############################
+##   Custom Shell Aliases and Functions   ###############################
 #########################################################################
 
 XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
@@ -241,7 +241,7 @@ alias path='echo $PATH | tr ":" "\n"'
 alias fpath='echo $FPATH | tr ":" "\n"'
 alias nsort='sort | uniq -c | sort -n'
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
-alias 2b="$EDITOR -c 'cd ~/second-brain'"
+alias 2b="cd ~/second-brain && $EDITOR"
 is-installed lazygit && alias lg='lazygit'
 
 # update all pip packages
