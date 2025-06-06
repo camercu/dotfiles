@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Get the title from argv[1] or prompt user
+TITLE="${1}"
+if [ -z "${TITLE}" ]; then
+    read -rp "What is the title of the new note? " TITLE
+fi
+
+# kebab-case: Convert a string to kebab-case
+kebab-case() { tr '[:upper:]' '[:lower:]' <<<"$@" | tr '[:blank:][:punct:]' '-' | sed -E 's/-+/-/g'; }
+
+ZETTELKASTEN_DIR="${ZETTELKASTEN_DIR:-${HOME}/second-brain}"
+FILENAME="${ZETTELKASTEN_DIR}/$(kebab-case "${TITLE}").md"
+
+# create file according to template
+cat >"${FILENAME}" <<EOF
+---
+title: "${TITLE}"
+date: "$(date +"%Y-%m-%dT%H:%M:%S%z")"
+id: "$(kebab-case "${TITLE}")_$(date -u "+%Y%m%d%H%M%S")"
+tags:
+---
+
+# ${TITLE}
+
+CURSOR_HERE
+
+## Links {.unnumbered .unlisted}
+
+-
+EOF
+
+# open file in neovim for editing
+cd "$ZETTELKASTEN_DIR" || exit
+nvim "+/CURSOR_HERE" "+normal C" "$FILENAME"
