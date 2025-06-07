@@ -32,7 +32,7 @@
   homebrew.casks = [
     "adobe-acrobat-reader"
     # "appgate-sdp-client"
-    "arduino-ide"
+    # "arduino-ide"  # only works on Intel CPUs
     "cleanmymac"
     # "cutter"
     "discord"
