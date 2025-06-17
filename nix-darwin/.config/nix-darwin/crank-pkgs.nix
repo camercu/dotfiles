@@ -13,6 +13,7 @@
     grex # auto-generate gnu regular expressions based on supplied test cases
     hyperfine # benchmarking tool
     imagemagick # image edit/convert
+    jadx # Dex to Java Decompiler (Android RE)
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
     openjdk # Java SDK
