@@ -17,7 +17,7 @@
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
     openjdk # Java SDK
-    pngpaste # paste images into terminal
+    # pngpaste # paste images into terminal
     procs # ps alternative
     sad # sed alternative
     tealdeer # tldr replacement
