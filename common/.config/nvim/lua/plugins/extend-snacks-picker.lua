@@ -1,6 +1,6 @@
 local function directory_finder(_opts, _ctx)
   local dirs = {}
-  local fd = io.popen('fd --type d --hidden --exclude .git/ .', 'r')
+  local fd = io.popen("fd --type d --hidden --exclude .git/ .", "r")
   if not fd then
     return dirs
   end
@@ -12,7 +12,7 @@ local function directory_finder(_opts, _ctx)
 end
 
 return {
-  'folke/snacks.nvim',
+  "folke/snacks.nvim",
   opts = {
     picker = {
       matcher = {
@@ -26,15 +26,17 @@ return {
   },
   keys = {
     {
-      '<leader>fd',
+      "<leader>fd",
       function()
-        require('snacks').picker.pick({
-          title = 'Find Directories',
-          layout = 'select',
+        require("snacks").picker.pick({
+          title = "Find Directories",
+          layout = "select",
           finder = directory_finder,
         })
       end,
-      desc = 'Find Directories',
+      desc = "Find Directories",
     },
+    { "<leader><space>", false },
+    { "<space><space>", false },
   },
 }
