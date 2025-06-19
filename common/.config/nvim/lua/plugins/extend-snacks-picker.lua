@@ -36,7 +36,6 @@ return {
       end,
       desc = "Find Directories",
     },
-    { "<leader><space>", false },
-    { "<space><space>", false },
+    { "<leader><leader>", false },
   },
 }
