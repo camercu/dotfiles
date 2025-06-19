@@ -1,19 +1,21 @@
 return {
   {
-    'saghen/blink.cmp',
+    "saghen/blink.cmp",
+    optional = true,
     opts = {
       keymap = {
-        preset = 'super-tab',
+        -- preset = "super-tab",
       },
       sources = {
-        default = { 'emoji' },
+        -- add emoji autocompletion
+        default = { "emoji" },
         providers = {
           emoji = {
-            name = 'emoji',
-            module = 'blink.compat.source',
+            name = "emoji",
+            module = "blink.compat.source",
             -- overwrite kind of suggestion
             transform_items = function(ctx, items)
-              local kind = require('blink.cmp.types').CompletionItemKind.Text
+              local kind = require("blink.cmp.types").CompletionItemKind.Text
               for i = 1, #items do
                 items[i].kind = kind
               end
@@ -23,6 +25,6 @@ return {
         },
       },
     },
-    dependencies = { 'allaman/emoji.nvim', 'saghen/blink.compat' },
+    dependencies = { "allaman/emoji.nvim", "saghen/blink.compat" },
   },
 }

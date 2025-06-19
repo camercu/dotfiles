@@ -1,5 +1,5 @@
 return {
-  'goropikari/lua-repl.nvim',
+  "goropikari/lua-repl.nvim",
   config = true,
-  cmd = { 'LuaREPL' },
+  cmd = { "LuaREPL" },
 }

@@ -1,5 +1,5 @@
 return {
-  'nvim-neo-tree/neo-tree.nvim',
+  "nvim-neo-tree/neo-tree.nvim",
 
   init = function()
     vim.g.neotree = {
@@ -12,7 +12,7 @@ return {
 
   opts = {
     close_if_last_window = true,
-    hijack_netrw_behavior = 'disabled',
+    hijack_netrw_behavior = "disabled",
 
     filesystem = {
       filtered_items = {

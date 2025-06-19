@@ -1,4 +1,4 @@
 return {
-  'echasnovski/mini.nvim',
-  version = '*',
+  "echasnovski/mini.nvim",
+  version = "*",
 }
