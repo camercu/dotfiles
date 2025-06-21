@@ -13,10 +13,12 @@
     exiftool # read/edit file metadata
     ffmpeg # audio and video tools
     grex # auto-generate gnu regular expressions based on supplied test cases
+    hashcat # fast password cracker
     hyperfine # benchmarking tool
     imagemagick # image edit/convert
-    inetutils # installs: dnsdomainname ftp hostname ifconfig logger ping ping6 rcp rexec rlogin rsh talk telnet tftp traceroute whois
+    # inetutils # installs: dnsdomainname ftp hostname ifconfig logger ping ping6 rcp rexec rlogin rsh talk telnet tftp traceroute whois
     jadx # Dex to Java Decompiler (Android RE)
+    john # password cracker (John the Ripper)
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
     openjdk # Java SDK
