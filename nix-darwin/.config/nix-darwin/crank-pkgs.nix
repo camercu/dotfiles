@@ -10,6 +10,8 @@
     direnv # change env config on cd to directory
     dust # du alternative (disk usage)
     entr # run arbitrary commands on file change
+    exiftool # read/edit file metadata
+    ffmpeg # audio and video tools
     grex # auto-generate gnu regular expressions based on supplied test cases
     hyperfine # benchmarking tool
     imagemagick # image edit/convert
