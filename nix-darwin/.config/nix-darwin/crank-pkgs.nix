@@ -19,6 +19,7 @@
     inetutils # installs: dnsdomainname ftp hostname ifconfig logger ping ping6 rcp rexec rlogin rsh talk telnet tftp traceroute whois
     jadx # Dex to Java Decompiler (Android RE)
     john # password cracker (John the Ripper)
+    jujutsu # git-compatible VCS system ('jj' tool)
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
     nushell # modern shell written in Rust
