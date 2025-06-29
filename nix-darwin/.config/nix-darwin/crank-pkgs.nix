@@ -16,13 +16,14 @@
     hashcat # fast password cracker
     hyperfine # benchmarking tool
     imagemagick # image edit/convert
-    # inetutils # installs: dnsdomainname ftp hostname ifconfig logger ping ping6 rcp rexec rlogin rsh talk telnet tftp traceroute whois
+    inetutils # installs: dnsdomainname ftp hostname ifconfig logger ping ping6 rcp rexec rlogin rsh talk telnet tftp traceroute whois
     jadx # Dex to Java Decompiler (Android RE)
     john # password cracker (John the Ripper)
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
+    nushell # modern shell written in Rust
     openjdk # Java SDK
-    # pngpaste # paste images into terminal
+    pngpaste # paste images into terminal
     procs # ps alternative
     sad # sed alternative
     tealdeer # tldr replacement
