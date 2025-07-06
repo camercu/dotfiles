@@ -7,3 +7,5 @@ flake.lock
 *~
 *.swp
 *.swo
+
+linux/.mozilla/firefox/*
