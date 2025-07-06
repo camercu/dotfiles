@@ -23,9 +23,9 @@ function do_stow() {
   else
     if is-installed nix-shell; then
       nix-shell -p stow --run "stow -R $@"
-    elif is-installed apt; then
-      sudo apt update && sudo apt install -y stow
-      stow -R "$@"
+    else;
+       error "missing dependency 'stow' for dotfile installation"
+       exit 1
     fi
   fi
   popd $DOTFILE_DIR
