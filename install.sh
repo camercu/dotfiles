@@ -27,12 +27,16 @@ fi
 # initialize/update git submodules for dotfiles
 git submodule update --init
 
-# Ensure nix is installed
-if ! is-installed nix; then
+# Ensure nix is installed on MacOS
+if ! is-installed nix && is-macos; then
     scripts/install-nix.sh
 fi
 if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
     . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+    # Add Nix Channels
+    nix-channel --add https://nixos.org/channels/nixpkgs-24.11-darwin nixpkgs
+    nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
+    nix-channel --update
 fi
 
 # install homebrew if admin user on MacOS
@@ -40,11 +44,6 @@ if ! is-installed brew && is-macos && is-admin ; then
     scripts/install-homebrew.sh
     builtin eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
-
-# Add Nix Channels
-nix-channel --add https://nixos.org/channels/nixpkgs-24.11-darwin nixpkgs
-nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
-nix-channel --update
 
 # install dotfiles
 scripts/install-dotfiles.sh

@@ -21,7 +21,12 @@ function do_stow() {
   if is-installed stow; then
     stow -R "$@"
   else
-    nix-shell -p stow --run "stow -R $@"
+    if is-installed nix-shell; then
+      nix-shell -p stow --run "stow -R $@"
+    elif is-installed apt; then
+      sudo apt update && sudo apt install -y stow
+      stow -R "$@"
+    fi
   fi
   popd $DOTFILE_DIR
 }
