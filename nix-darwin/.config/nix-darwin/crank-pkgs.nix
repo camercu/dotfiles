@@ -30,6 +30,7 @@
     tealdeer # tldr replacement
     tectonic # TeX engine for rendering math in neovim
     tokei # show code stats
+    urh # universal radio hacker
     watchexec # run arbitrary commands on file change
     wget # web file downloader
     xh # curl alternative
