@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# kebab-case: Convert a string to kebab-case
+
+tr '[:upper:]' '[:lower:]' <<<"$@" | tr '[:blank:][:punct:]' '-' | sed -E 's/-+/-/g'

@@ -1,0 +1,11 @@
+#!/usr/bin/env zsh
+
+for f in "$@"
+do
+  dir="${f:h}" # dirname
+  ext="${f:t:e}" # file extension (without dot)
+  old="${f:t:r}" # old basename
+  new="$(kebab-case "${old}")" # new basename
+  mv -iv "${f}" "${dir}/${new}.${ext}"
+done
+

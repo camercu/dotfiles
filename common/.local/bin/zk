@@ -1,13 +1,13 @@
 #!/bin/bash
 
+# exit on error
+set -e
+
 # Get the title from argv[1] or prompt user
 TITLE="${1}"
 if [ -z "${TITLE}" ]; then
     read -rp "What is the title of the new note? " TITLE
 fi
-
-# kebab-case: Convert a string to kebab-case
-kebab-case() { tr '[:upper:]' '[:lower:]' <<<"$@" | tr '[:blank:][:punct:]' '-' | sed -E 's/-+/-/g'; }
 
 ZETTELKASTEN_DIR="${ZETTELKASTEN_DIR:-${HOME}/second-brain}"
 FILENAME="${ZETTELKASTEN_DIR}/$(kebab-case "${TITLE}").md"
