@@ -6,6 +6,8 @@ do
   ext="${f:t:e}" # file extension (without dot)
   old="${f:t:r}" # old basename
   new="$(kebab-case "${old}")" # new basename
-  mv -iv "${f}" "${dir}/${new}.${ext}"
+  if [[ "${old}" != "${new}" ]]; then
+    mv -iv "${f}" "${dir}/${new}.${ext}"
+  fi
 done
 
