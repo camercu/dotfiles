@@ -30,7 +30,8 @@
 	defaultBranch = main
 [safe]
 	directory = /mnt/share/hackbox-init
-	directory = /mnt/share/.dotfiles
+	directory = /mnt/share/dotfiles
+	directory = /mnt/share/htb
 [interactive]
 	diffFilter = delta --color-only
 [delta]
