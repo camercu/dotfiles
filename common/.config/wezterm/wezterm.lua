@@ -4,6 +4,7 @@ local config = wezterm.config_builder()
 local act = wezterm.action
 
 config.font = wezterm.font("MesloLGS Nerd Font")
+config.font_size = 10.0
 config.color_scheme = "Catppuccin Macchiato"
 config.hide_tab_bar_if_only_one_tab = true
 config.switch_to_last_active_tab_when_closing_tab = true
