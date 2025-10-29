@@ -1,1 +1,13 @@
-# This file contains Wireshark display filters
+"Ethernet broadcast" eth.addr == ff:ff:ff:ff:ff:ff
+"No ARP" not arp
+"IPv4 only" ip
+"IPv6 only" ipv6
+"TCP only" tcp
+"UDP only" udp
+"HTTP" http
+"No ARP and no DNS" not arp and not dns
+"No chatter" !(arp or lldp or stp or nbns or eth.dst == ff:ff:ff:ff:ff:ff)
+"Plaintext creds" (http or telnet or ftp or smtp or rlogin or rsh or pop or imap or snmp or nntp or ldap or socks or xmpp or irc or ospf or bfd or stun or tcp.port == 1433 or tcp.port == 5432) && frame matches "auth|user|pass|login|pwd|pw=|credential"
+"Local traffic" (ip.src == 10.0.0.0/8 or ip.src == 172.16.0.0/12 or ip.src == 192.168.0.0/16 or ip.src == 224.0.0.0/4 or ipv6.src == fc00::/7 or ipv6.src == fe80::/10) and (ip.dst == 10.0.0.0/8 or ip.dst == 172.16.0.0/12 or ip.dst == 192.168.0.0/16 or ip.dst == 224.0.0.0/4 or ipv6.dst == fc00::/7 or ipv6.dst == fe80::/10)
+"External traffic" !((ip.src == 10.0.0.0/8 or ip.src == 172.16.0.0/12 or ip.src == 192.168.0.0/16 or ip.src == 224.0.0.0/4 or ipv6.src == fc00::/7 or ipv6.src == fe80::/10) and (ip.dst == 10.0.0.0/8 or ip.dst == 172.16.0.0/12 or ip.dst == 192.168.0.0/16 or ip.dst == 224.0.0.0/4 or ipv6.dst == fc00::/7 or ipv6.dst == fe80::/10))
+"WiFi Handshake" eapol
