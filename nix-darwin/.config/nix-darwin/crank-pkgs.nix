@@ -64,7 +64,7 @@
     # "virtualbox"
     "visual-studio-code"
     "vmware-fusion"
-    "wireshark-app"
+    "wireshark"
     "zed"
     "zoom"
   ];
