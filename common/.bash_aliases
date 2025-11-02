@@ -161,26 +161,26 @@ alias tl='tmux list-sessions'
 alias ts='tmux new-session -s'
 
 ## encoding/decoding
-alias rot13="python3 -c 'import sys, codecs;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(codecs.encode(s,\"rot_13\"))'"
-alias urlencode="python3 -c 'import sys,os,urllib.parse as url;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(url.quote_plus(os.fsencode(s)))'"
-alias urldecode="python3 -c 'import sys,urllib.parse as url;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(url.unquote(s.strip()))'"
-alias b64encode="python3 -c 'import sys,os,base64 as b64;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(b64.b64encode(os.fsencode(s)).decode())'"
+alias rot13="python3 -c 'import sys, codecs;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read();print(codecs.encode(s,\"rot_13\"))'"
+alias urlencode="python3 -c 'import sys,os,urllib.parse as url;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.buffer.read();print(url.quote_plus(os.fsencode(s)))'"
+alias urldecode="python3 -c 'import sys,urllib.parse as url;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read();print(url.unquote(s.strip()))'"
+alias b64encode="python3 -c 'import sys,os,base64 as b64;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.buffer.read();print(b64.b64encode(os.fsencode(s)).decode())'"
 alias b64e='b64encode'
-alias b64decode="python3 -c 'import sys,base64 as b;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();sys.stdout.buffer.write(b.b64decode(s.strip()));'"
+alias b64decode="python3 -c 'import sys,base64 as b;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read();sys.stdout.buffer.write(b.b64decode(s.strip()));'"
 alias b64d='b64decode'
-alias b16encode=$'python3 -c \'import sys,os,base64 as b16;s=" ".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(b16.b16encode(os.fsencode(s)).decode())\''
+alias b16encode=$'python3 -c \'import sys,os,base64 as b16;s=" ".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.buffer.read();print(b16.b16encode(os.fsencode(s)).decode())\''
 alias b16e='b16encode'
-alias b16decode="python3 -c 'import sys, base64 as b;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();sys.stdout.buffer.write(b.b16decode(s.strip().upper()));'"
+alias b16decode="python3 -c 'import sys, base64 as b;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read();sys.stdout.buffer.write(b.b16decode(s.strip().upper()));'"
 alias b16d='b16decode'
 # hex to decimal conversion (and visa-versa)
-alias hex2dec="python3 -c 'import sys;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(int(s.strip(),16));'"
+alias hex2dec="python3 -c 'import sys;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read();print(int(s.strip(),16));'"
 alias h2d='hex2dec'
-alias dec2hex="python3 -c 'import sys;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read().encode();print(hex(int(s.strip())));'"
+alias dec2hex="python3 -c 'import sys;s=\" \".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read();print(hex(int(s.strip())));'"
 alias d2h='dec2hex'
 # convert binary file to escaped shellcode string format (e.g. "\x90")
 alias bin2sc=$'python3 -c \'import sys,os,textwrap as tw;s=" ".join(sys.argv[1:]) if len(sys.argv)>1 else sys.stdin.read();[print(f"\\"{x}\\"") for x in tw.wrap("".join(f"\\\\x{b:02x}" for b in os.fsencode(s)),75)]\''
 # generate NTLM hash of given password
-alias ntlmhash=$'python3 -c \'import sys as s,hashlib as h;x=" ".join(s.argv[1:]) if len(s.argv)>1 else s.stdin.read().encode();print(h.new("md4", x.encode("utf-16le")).hexdigest())\''
+alias ntlmhash=$'python3 -c \'import sys as s,hashlib as h;x=" ".join(s.argv[1:]) if len(s.argv)>1 else s.stdin.read();print(h.new("md4", x.encode("utf-16le")).hexdigest())\''
 
 #
 # clipboard: Use pbcopy/pbpaste (macOS) clipboard commands everywhere.
