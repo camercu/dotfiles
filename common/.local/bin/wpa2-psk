@@ -58,7 +58,14 @@ def main() -> None:
     fmt_group.add_argument("-c", "--config-format", action="store_true", help="Output wpa_supplicant config format")
     args = parser.parse_args()
 
-    passphrase = args.passphrase or getpass.getpass("Enter passphrase: ")
+    passphrase = args.passphrase
+    while not passphrase:
+        passphrase = getpass.getpass("Enter passphrase: ")
+        confirm = getpass.getpass("Re-enter passphrase: ")
+        if not passphrase == confirm:
+            print("Passphrases do not match. Try again.")
+            passphrase = ""
+
     psk = wpa2_psk(passphrase, args.ssid, raw=args.raw)
 
     if args.raw:
