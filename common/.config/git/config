@@ -21,7 +21,7 @@
 [include]
 	path = ~/.config/git/config-aliases
 	path = ~/.config/git/config-credential
-    path = ~/.config/delta/themes/catppuccin.gitconfig
+	path = ~/.config/delta/themes/catppuccin.gitconfig
 [color]
 	ui = auto
 [pull]
@@ -35,8 +35,8 @@
 [interactive]
 	diffFilter = delta --color-only
 [delta]
-    dark = true
-    features = catppuccin-frappe
-    line-numbers = true
+  dark = true
+	features = catppuccin-frappe
+	line-numbers = true
 	navigate = true
-    side-by-side = true
+	side-by-side = true
