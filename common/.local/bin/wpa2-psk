@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import argparse
+import getpass
+import hashlib
+import sys
+
+WPA_SUPPLICANT_CONFIG_FORMAT = """\
+network={{
+    ssid="{ssid}"
+    #psk="{passphrase}"
+    psk={psk}
+}}
+"""
+
+def wpa2_psk(passphrase: str, ssid: str, *, raw: bool = False) -> bytes | str:
+    """
+    Derive the WPA/WPA2 PSK from passphrase and ssid.
+
+    Args:
+        passphrase: ASCII passphrase (8..63 chars typical).
+        ssid: SSID string used as the salt.
+        raw: if True return raw 32 bytes; else return hex string (lowercase).
+
+    Returns:
+        32 bytes (raw) or 64-char hex string.
+    """
+    if len(passphrase.encode("utf-8")) < 8 or len(passphrase) > 63:
+        raise ValueError("passphrase must be 8..63 bytes")
+
+    if len(ssid.encode("utf-8")) > 32:
+        raise ValueError("ssid must be <= 32 bytes")
+
+    # PBKDF2-HMAC-SHA1, 4096 iterations, 32-byte key
+    psk = hashlib.pbkdf2_hmac(
+        hash_name="sha1",
+        password=passphrase.encode("utf-8"),
+        salt=ssid.encode("utf-8"),
+        iterations=4096,
+        dklen=32,
+    )
+    return psk if raw else psk.hex()
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Compute WPA2 PSK (Pairwise Master Key) from passphrase and SSID."
+    )
+    parser.add_argument("ssid", help="SSID string (used as PBKDF2 salt)")
+    parser.add_argument(
+        "-p", "--passphrase", help="Passphrase (prompted securely if omitted)"
+    )
+    fmt_group = parser.add_mutually_exclusive_group()
+    fmt_group.add_argument(
+        "-r", "--raw", action="store_true", help="Output raw 32 bytes instead of hex"
+    )
+    fmt_group.add_argument("-c", "--config-format", action="store_true", help="Output wpa_supplicant config format")
+    args = parser.parse_args()
+
+    passphrase = args.passphrase or getpass.getpass("Enter passphrase: ")
+    psk = wpa2_psk(passphrase, args.ssid, raw=args.raw)
+
+    if args.raw:
+        assert isinstance(psk, bytes)
+        sys.stdout.buffer.write(psk)
+    elif args.config_format:
+        print(WPA_SUPPLICANT_CONFIG_FORMAT.format(ssid=args.ssid, passphrase=passphrase, psk=psk))
+    else:
+        print(psk)
+
+if __name__ == "__main__":
+    main()
+
