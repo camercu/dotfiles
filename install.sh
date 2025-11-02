@@ -10,13 +10,13 @@ builtin source "$DOTFILE_DIR/common/.zshenv"
 # (realpath, is-macos, is-linux, logging functions)
 builtin source "$DOTFILE_DIR/common/.bash_aliases"
 
-# Ensure Zsh directories exist.
+# Ensure Zsh and XDG directories exist.
 () {
   local zdir
   for zdir in $@; do
     [[ -d "${(P)zdir}" ]] || \mkdir -p -- "${(P)zdir}"
   done
-} __zsh_{user_data,cache}_dir XDG_{CACHE,CONFIG,DATA,STATE}_HOME USER_{BIN,SHARE}
+} __zsh_{user_data,cache}_dir XDG_{BIN,CACHE,CONFIG,DATA,LIB,STATE}_HOME
 
 # Also create .ssh dir
 if [[ ! -d "$HOME/.ssh" ]]; then

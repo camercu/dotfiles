@@ -11,18 +11,15 @@ export ZDOTDIR=$HOME/.config/zsh
 #
 # XDG_*_HOME variables
 #
-# ref: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html#variables
+# ref: https://specifications.freedesktop.org/basedir/latest/
+# plus some extensions for BIN and LIB dirs.
 #
+export XDG_BIN_HOME="$HOME/.local/bin"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_LIB_HOME="$HOME/.local/lib"
 export XDG_STATE_HOME="$HOME/.local/state"
-
-#
-# other user-specific dirs
-#
-export USER_BIN="$HOME/.local/bin"
-export USER_SHARE="$HOME/.local/share"
 
 #
 # Fish-like zsh dirs
