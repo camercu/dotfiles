@@ -11,3 +11,4 @@
 "Local traffic" (ip.src == 10.0.0.0/8 or ip.src == 172.16.0.0/12 or ip.src == 192.168.0.0/16 or ip.src == 224.0.0.0/4 or ipv6.src == fc00::/7 or ipv6.src == fe80::/10) and (ip.dst == 10.0.0.0/8 or ip.dst == 172.16.0.0/12 or ip.dst == 192.168.0.0/16 or ip.dst == 224.0.0.0/4 or ipv6.dst == fc00::/7 or ipv6.dst == fe80::/10)
 "External traffic" !((ip.src == 10.0.0.0/8 or ip.src == 172.16.0.0/12 or ip.src == 192.168.0.0/16 or ip.src == 224.0.0.0/4 or ipv6.src == fc00::/7 or ipv6.src == fe80::/10) and (ip.dst == 10.0.0.0/8 or ip.dst == 172.16.0.0/12 or ip.dst == 192.168.0.0/16 or ip.dst == 224.0.0.0/4 or ipv6.dst == fc00::/7 or ipv6.dst == fe80::/10))
 "WiFi Handshake" eapol
+"WiFi Probe Requests" wlan.fc.type_subtype == 4
