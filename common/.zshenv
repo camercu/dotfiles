@@ -27,6 +27,12 @@ export XDG_STATE_HOME="$HOME/.local/state"
 export __zsh_cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
 export __zsh_config_dir="${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}"
 export __zsh_user_data_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh"
+#
+# and bash-like equivalents
+#
+export ZSH_CACHE_DIR="$__zsh_cache_dir"
+export ZSH_CONFIG_DIR="$__zsh_config_dir"
+export ZSH_USER_DATA_DIR="$__zsh_user_data_dir"
 
 #
 # Editor
