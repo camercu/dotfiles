@@ -7,14 +7,20 @@
     bottom # top alternative; command 'btm'
     delta # diff viewer
     deno # node.js alternative
+    difftastic # syntax aware diff viewer
     direnv # change env config on cd to directory
+    dua # disk usage analyzer (du replacement)
     dust # du alternative (disk usage)
     entr # run arbitrary commands on file change
     exiftool # read/edit file metadata
     ffmpeg # audio and video tools
+    gitu # git TUI
     grex # auto-generate gnu regular expressions based on supplied test cases
     hashcat # fast password cracker
+    helix # text editor (vim alternative)
+    hexyl # CLI hex viewer
     hyperfine # benchmarking tool
+    hyx # hex editor
     imagemagick # image edit/convert
     inetutils # installs: dnsdomainname ftp hostname ifconfig logger ping ping6 rcp rexec rlogin rsh talk telnet tftp traceroute whois
     jadx # Dex to Java Decompiler (Android RE)
@@ -26,7 +32,10 @@
     openjdk # Java SDK
     pngpaste # paste images into terminal
     procs # ps alternative
+    repgrep # interactive replacement with ripgrep
     sad # sed alternative
+    sd # sed alternative
+    simple-http-server # simple HTTP server
     tealdeer # tldr replacement
     tectonic # TeX engine for rendering math in neovim
     tokei # show code stats
