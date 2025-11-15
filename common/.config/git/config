@@ -5,38 +5,40 @@
 [user]
 	name = camercu
 	email = cameron.unterberger@gmail.com
-[credential "https://github.com"]
-	username = camercu
-[credential "https://gitlab.com"]
-	username = camercu
+[color]
+	ui = auto
+[commit]
+	verbose = true
 [core]
 	editor = vim
 	excludesfile = ~/.config/git/ignore-global
 	autocrlf = input
 	pager = delta
-[push]
-	default = upstream
-[merge]
-	conflictStyle = zdiff3
-[include]
-	path = ~/.config/git/config-aliases
-	path = ~/.config/git/config-credential
-	path = ~/.config/delta/themes/catppuccin.gitconfig
-[color]
-	ui = auto
-[pull]
-	rebase = false
-[init]
-	defaultBranch = main
-[safe]
-	directory = /mnt/share/hackbox-init
-	directory = /mnt/share/dotfiles
-	directory = /mnt/share/htb
-[interactive]
-	diffFilter = delta --color-only
+[credential "https://github.com"]
+	username = camercu
+[credential "https://gitlab.com"]
+	username = camercu
 [delta]
-  dark = true
+	dark = true
 	features = catppuccin-frappe
 	line-numbers = true
 	navigate = true
 	side-by-side = true
+[include]
+	path = ~/.config/git/config-aliases
+	path = ~/.config/git/config-credential
+	path = ~/.config/delta/themes/catppuccin.gitconfig
+[init]
+	defaultBranch = main
+[interactive]
+	diffFilter = delta --color-only
+[merge]
+	conflictStyle = zdiff3
+[pull]
+	rebase = false
+[push]
+	default = upstream
+[safe]
+	directory = /mnt/share/hackbox-init
+	directory = /mnt/share/dotfiles
+	directory = /mnt/share/htb
