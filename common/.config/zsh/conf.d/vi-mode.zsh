@@ -36,6 +36,12 @@ function cursor_mode {
 cursor_mode
 unfunction cursor_mode
 
+# move through autocomplete menu with vi-like motions (ctrl-h/j/k/l)
+bindkey -M menuselect '^h' vi-backward-char
+bindkey -M menuselect '^k' vi-up-line-or-history
+bindkey -M menuselect '^l' vi-forward-char
+bindkey -M menuselect '^j' vi-down-line-or-history
+
 # Add Vi text-objects for brackets and quotes
 # source: https://thevaluable.dev/zsh-install-configure-mouseless/
 autoload -Uz select-bracketed select-quoted

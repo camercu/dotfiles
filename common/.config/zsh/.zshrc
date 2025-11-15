@@ -89,7 +89,7 @@ unset plugin
 #
 
 # initialize completions with caching
-autoload -U compinit && compinit -u -d "$ZSH_COMPDUMP"
+autoload -Uz compinit && compinit -u -d "$ZSH_COMPDUMP"
 autoload -U +X bashcompinit && bashcompinit
 
 
