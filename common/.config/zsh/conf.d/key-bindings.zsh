@@ -126,7 +126,8 @@ bindkey -M emacs '^[[1;5D' backward-word
 bindkey -M viins '^[[1;5D' backward-word
 bindkey -M vicmd '^[[1;5D' backward-word
 
-# [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
+# [Ctrl-r] - Search backward incrementally for a specified string.
+# The string may begin with ^ to anchor the search to the beginning of the line.
 bindkey -M emacs '^r' history-incremental-search-backward
 bindkey -M viins '^r' history-incremental-search-backward
 
@@ -138,7 +139,8 @@ bindkey -M viins ' ' magic-space
 bindkey -M emacs '^[.' insert-last-word
 bindkey -M viins '^[.' insert-last-word
 
-# [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
+# [Ctrl-r] - Search backward incrementally for a specified string.
+# The string may begin with ^ to anchor the search to the beginning of the line.
 bindkey -M emacs '^r' history-incremental-search-backward
 bindkey -M viins '^r' history-incremental-search-backward
 
@@ -149,7 +151,7 @@ bindkey -M emacs '\C-x\C-e' edit-command-line
 bindkey -M viins '\C-x\C-e' edit-command-line
 bindkey -M vicmd '^e' edit-command-line
 
-# file rename magic
+# [Alt-m] file rename magic
 bindkey -M emacs "^[m" copy-prev-shell-word
 bindkey -M viins "^[m" copy-prev-shell-word
 
