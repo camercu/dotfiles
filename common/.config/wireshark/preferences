@@ -322,7 +322,8 @@ gui.column.format:
 	"DstPort", "%D",
 	"Proto", "%p",
 	"Len", "%L",
-	"Info", "%i"
+	"Info", "%i",
+	"seq", "%Cus:icmp.seq:0:U"
 
 ####### User Interface: Font ########
 
@@ -609,7 +610,7 @@ capture.monitor_mode: TRUE
 
 # Remote capture filter
 # A string
-#extcap.ciscodump.remotefilter: deny tcp host fe80::ce81:b1c:bd2c:69e any eq 22, deny tcp any eq 22 host fe80::ce81:b1c:bd2c:69e, deny tcp host fe80::660e:416b:3926:ea0d any eq 22, deny tcp any eq 22 host fe80::660e:416b:3926:ea0d, deny tcp host fe80::3cbd:1aff:feef:50ef any eq 22, deny tcp any eq 22 host fe80::3cbd:1aff:feef:50ef, deny tcp host fe80::3cbd:1aff:feef:50ef any eq 22, deny tcp any eq 22 host fe80::3cbd:1aff:feef:50ef, deny tcp host 192.168.0.85 any eq 22, deny tcp any eq 22 host 192.168.0.85, deny tcp host fe80::1832:5a00:c5bf:2899 any eq 22, deny tcp any eq 22 host fe80::1832:5a00:c5bf:2899, deny tcp host fe80::f4ad:7485:e530:4cce any eq 22, deny tcp any eq 22 host fe80::f4ad:7485:e530:4cce, deny tcp host fe80::d219:1750:63ac:1816 any eq 22, deny tcp any eq 22 host fe80::d219:1750:63ac:1816, deny tcp host fe80::1 any eq 22, deny tcp any eq 22 host fe80::1, permit ip any any
+#extcap.ciscodump.remotefilter: deny tcp host fe80::842f:57ff:fe92:9f65 any eq 22, deny tcp any eq 22 host fe80::842f:57ff:fe92:9f65, deny tcp host 192.168.218.1 any eq 22, deny tcp any eq 22 host 192.168.218.1, deny tcp host fe80::842f:57ff:fe92:9f64 any eq 22, deny tcp any eq 22 host fe80::842f:57ff:fe92:9f64, deny tcp host 172.16.182.1 any eq 22, deny tcp any eq 22 host 172.16.182.1, deny tcp host fe80::c821:e1b9:8fc8:ad3b any eq 22, deny tcp any eq 22 host fe80::c821:e1b9:8fc8:ad3b, deny tcp host fe80::ce81:b1c:bd2c:69e any eq 22, deny tcp any eq 22 host fe80::ce81:b1c:bd2c:69e, deny tcp host fe80::660e:416b:3926:ea0d any eq 22, deny tcp any eq 22 host fe80::660e:416b:3926:ea0d, deny tcp host fe80::943b:72ff:fe91:f679 any eq 22, deny tcp any eq 22 host fe80::943b:72ff:fe91:f679, deny tcp host fe80::943b:72ff:fe91:f679 any eq 22, deny tcp any eq 22 host fe80::943b:72ff:fe91:f679, deny tcp host 192.168.0.85 any eq 22, deny tcp any eq 22 host 192.168.0.85, deny tcp host fe80::1832:5a00:c5bf:2899 any eq 22, deny tcp any eq 22 host fe80::1832:5a00:c5bf:2899, deny tcp host fe80::f4ad:7485:e530:4cce any eq 22, deny tcp any eq 22 host fe80::f4ad:7485:e530:4cce, deny tcp host fe80::d219:1750:63ac:1816 any eq 22, deny tcp any eq 22 host fe80::d219:1750:63ac:1816, deny tcp host fe80::1 any eq 22, deny tcp any eq 22 host fe80::1, permit ip any any
 
 # Packets to capture
 # A string
@@ -697,7 +698,7 @@ capture.monitor_mode: TRUE
 
 # Remote capture filter
 # A string
-#extcap.sshdump.remotefilter: not ((host fe80::ce81:b1c:bd2c:69e or host fe80::660e:416b:3926:ea0d or host fe80::3cbd:1aff:feef:50ef or host fe80::3cbd:1aff:feef:50ef or host 192.168.0.85 or host fe80::1832:5a00:c5bf:2899 or host fe80::f4ad:7485:e530:4cce or host fe80::d219:1750:63ac:1816 or host fe80::1) and port 22)
+#extcap.sshdump.remotefilter: not ((host fe80::842f:57ff:fe92:9f65 or host 192.168.218.1 or host fe80::842f:57ff:fe92:9f64 or host 172.16.182.1 or host fe80::c821:e1b9:8fc8:ad3b or host fe80::ce81:b1c:bd2c:69e or host fe80::660e:416b:3926:ea0d or host fe80::943b:72ff:fe91:f679 or host fe80::943b:72ff:fe91:f679 or host 192.168.0.85 or host fe80::1832:5a00:c5bf:2899 or host fe80::f4ad:7485:e530:4cce or host fe80::d219:1750:63ac:1816 or host fe80::1) and port 22)
 
 # Packets to capture
 # A string
