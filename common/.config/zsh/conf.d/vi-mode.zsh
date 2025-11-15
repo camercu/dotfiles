@@ -66,3 +66,9 @@ autoload -Uz incarg
 zle -N incarg
 bindkey -M vicmd '^a' incarg
 
+# But in insert mode, 'ctrl-a' moves to beginning of line like emacs
+bindkey -M viins '^a' beginning-of-line
+
+# and 'ctrl-e' goes to end of line like emacs
+bindkey -M viins '^e' end-of-line
+
