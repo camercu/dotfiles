@@ -5,7 +5,11 @@ return {
       -- java = { 'google-java-format' },
       markdown = { "prettier" },
       nix = { "alejandra" },
-      python = { "isort", "ruff" },
+      python = {
+        "ruff_fix", -- Fix auto-fixable lint errors
+        "ruff_format", -- Run the Ruff formatter
+        "ruff_organize_imports", -- Organize imports
+      },
       rust = { "rustfmt" },
     })
   end,
