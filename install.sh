@@ -34,7 +34,7 @@ fi
 if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
     . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
     # Add Nix Channels
-    nix-channel --add https://nixos.org/channels/nixpkgs-24.11-darwin nixpkgs
+    nix-channel --add https://nixos.org/channels/nixpkgs-25.05-darwin nixpkgs
     nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
     nix-channel --update
 fi

@@ -2,9 +2,10 @@
   description = "My nix-darwin system flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-25.05-darwin";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nix-darwin = {
-      url = "github:LnL7/nix-darwin";
+      url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # https://discourse.nixos.org/t/declarative-package-management-on-macos-without-home-manager-or-nix-darwin/43467/3
@@ -15,6 +16,7 @@
     self,
     nix-darwin,
     nixpkgs,
+    nixpkgs-unstable,
     flake-utils,
   }: let
     configuration = {
