@@ -32,7 +32,7 @@ env.CARGO_TERM_COLOR = "always"
 # - success
 [sound]
 enabled = true
-base_volume = "50%"
+base_volume = "100%"
 on_success = "play-sound(name=90s-game-ui-6,volume=50)"
 on_failure = "play-sound(name=beep-warning,volume=100)"
 
