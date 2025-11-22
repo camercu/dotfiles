@@ -34,7 +34,7 @@ env.CARGO_TERM_COLOR = "always"
 enabled = true
 base_volume = "100%"
 on_success = "play-sound(name=90s-game-ui-6,volume=50)"
-on_failure = "play-sound(name=beep-warning,volume=100)"
+on_failure = "play-sound(name=slash,volume=100)"
 
 
 # Uncomment to have bacon listen for commands on
@@ -111,12 +111,15 @@ line_format = "{kind} {path}:{line}:{column} {message}"
 # Uncomment and change the key-bindings you want to define
 # (some of those ones are the defaults and are just here for illustration)
 [keybindings]
-# esc = "back"
-# g = "scroll-to-top"
-# shift-g = "scroll-to-bottom"
-# k = "scroll-lines(-1)"
-# j = "scroll-lines(1)"
-# ctrl-c = "quit"
+esc = "back"
+g = "scroll-to-top"
+shift-g = "scroll-to-bottom"
+k = "scroll-lines(-1)"
+j = "scroll-lines(1)"
+ctrl-u = "scroll-page(-1)"
+ctrl-d = "scroll-page(1)"
+ctrl-c = "quit"
+ctrl-b = "play-sound" # beep
 # ctrl-c = "copy-unstyled-output"
 # ctrl-q = "quit"
 # q = "quit"
@@ -139,3 +142,20 @@ line_format = "{kind} {path}:{line}:{column} {message}"
 # t = "job:test"
 # r = "job:run"
 # ctrl-e = "export:analysis"
+
+
+[jobs.test]
+command = ["cargo", "test"]
+need_stdout = true
+on_success = "play-sound(name=90s-game-ui-6,volume=50)"
+on_failure = "play-sound(name=slash,volume=100)"
+
+[jobs.nextest]
+command = [
+    "cargo", "nextest", "run",
+    "--hide-progress-bar", "--failure-output", "final"
+]
+need_stdout = true
+analyzer = "nextest"
+on_success = "play-sound(name=90s-game-ui-6,volume=50)"
+on_failure = "play-sound(name=slash,volume=100)"
