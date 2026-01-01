@@ -9,3 +9,4 @@ flake.lock
 *.swo
 
 linux/.mozilla/firefox/*
+common/.config/tmux/plugins
