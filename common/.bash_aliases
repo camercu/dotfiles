@@ -28,7 +28,7 @@ function is-solaris { [[ "$OSTYPE" == solaris* ]]; }
 function is-windows { [[ "$OSTYPE" == cygwin* || "$OSTYPE" == msys ]]; }
 
 ##? is-installed: return true if command binary is installed on PATH
-function is-installed { command -v "$1" 2>/dev/null; }
+function is-installed { command -v "$1" &>/dev/null; }
 
 # return true if function is defined
 function is-function { declare -f -- "$1" &>/dev/null; }
@@ -106,7 +106,7 @@ if is-installed vim; then
 fi
 
 ## easy dotfile editing commands
-DOTFILE_EDITOR=$(command -v nvim 2>/dev/null && echo nvim || echo vim)
+DOTFILE_EDITOR=$(command -v nvim || command -v vim || command -v vi)
 case "$(current-shell)" in
 zsh) alias erc="$DOTFILE_EDITOR \$ZDOTDIR/.zshrc --cmd 'cd \$ZDOTDIR'" ;;
 bash) alias erc="$DOTFILE_EDITOR ~/.bashrc" ;;
