@@ -147,6 +147,7 @@ ctrl-b = "play-sound" # beep
 [jobs.test]
 command = ["cargo", "test"]
 need_stdout = true
+allow_warnings = true
 on_success = "play-sound(name=90s-game-ui-6,volume=50)"
 on_failure = "play-sound(name=slash,volume=100)"
 
@@ -156,6 +157,7 @@ command = [
     "--hide-progress-bar", "--failure-output", "final"
 ]
 need_stdout = true
+allow_warnings = true
 analyzer = "nextest"
 on_success = "play-sound(name=90s-game-ui-6,volume=50)"
 on_failure = "play-sound(name=slash,volume=100)"
