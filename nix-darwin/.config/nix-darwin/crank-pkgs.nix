@@ -73,6 +73,7 @@
     # "virtualbox"
     "visual-studio-code"
     "vmware-fusion"
+    "warp"
     "wireshark-app"
     "zed"
     "zoom"
