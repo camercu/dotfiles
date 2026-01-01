@@ -18,6 +18,27 @@
 	username = camercu
 [credential "https://gitlab.com"]
 	username = camercu
+[push]
+	default = upstream
+[merge]
+	conflictStyle = zdiff3
+[include]
+	path = ~/.config/git/config-aliases
+	path = ~/.config/git/config-credential
+	path = ~/.config/delta/themes/catppuccin.gitconfig
+[color]
+	ui = auto
+[pull]
+	rebase = false
+[init]
+	defaultBranch = main
+[safe]
+	directory = /mnt/share/dotfiles
+	directory = /mnt/share/dotfiles/common/.config/tmux/plugins/tpm
+	directory = /mnt/share/hackbox-init
+	directory = /mnt/share/htb
+[interactive]
+	diffFilter = delta --color-only
 [delta]
 	dark = true
 	features = catppuccin-frappe
