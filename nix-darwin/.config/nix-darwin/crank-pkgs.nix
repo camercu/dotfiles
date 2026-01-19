@@ -7,6 +7,7 @@
     bottom # top alternative; command 'btm'
     delta # diff viewer
     deno # node.js alternative
+    devbox # easy shells/containers for dev
     difftastic # syntax aware diff viewer
     direnv # change env config on cd to directory
     dua # disk usage analyzer (du replacement)
