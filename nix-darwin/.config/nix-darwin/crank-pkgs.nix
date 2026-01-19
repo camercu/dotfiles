@@ -8,6 +8,7 @@
     delta # diff viewer
     deno # node.js alternative
     devbox # easy shells/containers for dev
+    devcontainer # dev container CLI
     difftastic # syntax aware diff viewer
     direnv # change env config on cd to directory
     dua # disk usage analyzer (du replacement)
