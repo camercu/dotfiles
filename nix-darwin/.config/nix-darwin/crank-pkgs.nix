@@ -62,6 +62,7 @@
     # "imhex"
     "microsoft-office"
     "obsidian"
+    "podman-desktop"
     "private-internet-access"
     "qflipper"
     "raspberry-pi-imager"
