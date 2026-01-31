@@ -31,13 +31,14 @@
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
     nushell # modern shell written in Rust
+    ollama # local LLM runner/manager
     openjdk # Java SDK
     pngpaste # paste images into terminal
     procs # ps alternative
     repgrep # interactive replacement with ripgrep
     sad # sed alternative
     sd # sed alternative
-    simple-http-server # simple HTTP server
+    simple-http-server # simple HTTP server with upload and HTTPS
     tealdeer # tldr replacement
     tectonic # TeX engine for rendering math in neovim
     tokei # show code stats
