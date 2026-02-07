@@ -31,6 +31,7 @@
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
     nushell # modern shell written in Rust
+    opencode # AI coding agent (Claude Code alternative)
     openjdk # Java SDK
     pngpaste # paste images into terminal
     procs # ps alternative
@@ -64,8 +65,7 @@
     # "imhex"
     "microsoft-office"
     "obsidian"
-    "ollama" # local LLM runner/manager
-    "opencode" # AI coding agent (Claude Code alternative)
+    "ollama-app" # local LLM runner/manager
     "podman-desktop"
     "private-internet-access"
     "qflipper"
