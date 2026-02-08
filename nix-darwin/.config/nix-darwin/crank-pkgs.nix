@@ -48,8 +48,12 @@
     zoxide # cd alternative; z and zq commands
   ];
 
+  homebrew.taps = [
+    "anomalyco/tap" # AI coding agent (Claude Code alternative)
+  ];
+
   homebrew.brews = [
-    "anomalyco/tap/opencode" # AI coding agent (Claude Code alternative)
+    "opencode" # AI coding agent (Claude Code alternative)
   ];
 
   homebrew.casks = [
