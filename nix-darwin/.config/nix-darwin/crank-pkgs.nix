@@ -31,7 +31,6 @@
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
     nushell # modern shell written in Rust
-    opencode # AI coding agent (Claude Code alternative)
     openjdk # Java SDK
     pngpaste # paste images into terminal
     procs # ps alternative
@@ -47,6 +46,10 @@
     xh # curl alternative
     zellij # terminal multiplexer/workspace; tmux alternative
     zoxide # cd alternative; z and zq commands
+  ];
+
+  homebrew.brews = [
+    "anomalyco/tap/opencode" # AI coding agent (Claude Code alternative)
   ];
 
   homebrew.casks = [
