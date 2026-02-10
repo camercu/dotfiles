@@ -43,11 +43,17 @@ return {
         insert_mode = true,
       },
     },
-  },
-
-  -- filetype specific options
-  markdown = {
-    download_images = true,
-    template = vim.g.neovim_mode == "skitty" and "![i](./$FILE_PATH)" or "![$CURSOR](./$FILE_PATH)",
+    -- filetype specific options
+    filetypes = {
+      markdown = {
+        download_images = true,
+        template = vim.g.neovim_mode == "skitty" and "![i](./$FILE_PATH)" or "![$CURSOR](./$FILE_PATH)",
+      },
+      codecompanion = {
+        prompt_for_file_name = false,
+        template = "[Image]($FILE_PATH)",
+        use_absolute_path = true,
+      },
+    },
   },
 }
