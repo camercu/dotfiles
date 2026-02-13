@@ -4,12 +4,6 @@
 -- make netrw default to tree view
 vim.g.netrw_liststyle = 3
 
--- 1 - open files in new horizontal split
--- 2 - open files in new vertical split
--- 3 - open files in new tab
--- 4 - open files in previous window
-vim.g.netrw_browse_split = 4
-
 -- make netrw split open on right
 vim.g.netrw_altv = 1
 
