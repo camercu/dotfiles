@@ -62,6 +62,7 @@
       # "appgate-sdp-client"
       # "arduino-ide"  # only works on Intel CPUs
       "cleanmymac"
+      "codex" # OpenAI's coding agent that runs in your terminal
       # "cutter"
       "discord"
       "docker-desktop"
