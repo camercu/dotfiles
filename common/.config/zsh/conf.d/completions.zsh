@@ -175,6 +175,6 @@ if is-function d; then
 fi
 
 # Enable tab completion for `g` by marking it as an alias for `git`
-if type _git &> /dev/null && alias g &> /dev/null; then
-	complete -o default -o nospace -F _git g
+if (( $+functions[_git] )) && alias g &> /dev/null; then
+  compdef _git g=git
 fi

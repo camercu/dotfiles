@@ -17,6 +17,11 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   builtin source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# Internal config/cache roots (with fallbacks for portability)
+: "${__zsh_config_dir:=${ZDOTDIR:-$HOME/.config/zsh}}"
+: "${__zsh_cache_dir:=${XDG_CACHE_HOME:-$HOME/.cache}/zsh}"
+[[ -d "${__zsh_cache_dir}" ]] || mkdir -p -- "${__zsh_cache_dir}"
+
 
 #
 # Helper Functions
@@ -38,26 +43,9 @@ source-dir "$ZDOTDIR/conf.d"
 #
 autoload-dir $__zsh_config_dir/functions(N/) $__zsh_config_dir/functions/*(N/)
 
-
-
-# Makes the "command not found" message more beautiful and informative.
-# source: https://github.com/warbacon/zsh-kickstart/blob/main/.zshrc
-function command_not_found_handler {
-    local RED_UNDERCURL="\033[4:3m\033[58:5:1m"
-    printf "%sERROR:%s command \`%s\` not found.\n" \
-        "$(printf $BOLD_RED)" "$(printf $RESET)" \
-        "$(printf $RED_UNDERCURL)${1}$(printf $RESET)" \
-        >&2
-    return 127
-}
-
-
 #
 # Path
 #
-
-# set PATH to include user's .cargo dir for Rust, if it exists
-[[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
 # Ensure path arrays do not contain duplicates.
 typeset -gU cdpath fpath mailpath path
@@ -66,20 +54,25 @@ typeset -gU cdpath fpath mailpath path
 #
 # Prompt
 #
-[ ! -d "$__zsh_cache_dir/powerlevel10k" ] && git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$__zsh_cache_dir/powerlevel10k"
-if [[ $(whoami) == "root" ]] || groups | grep -qw admin; then
+typeset -g P10K_DIR="${__zsh_cache_dir}/powerlevel10k"
+if [[ "${ZSH_ADMIN_PROMPT:-0}" == "1" ]] || (( EUID == 0 )) || [[ " $(groups 2>/dev/null) " == *" admin "* ]]; then
     builtin source "$ZDOTDIR/p10k-admin.zsh"
 else
     builtin source "$ZDOTDIR/p10k.zsh"
 fi
-builtin source "$__zsh_cache_dir/powerlevel10k/powerlevel10k.zsh-theme"
+if [[ -s "${P10K_DIR}/powerlevel10k.zsh-theme" ]]; then
+  builtin source "${P10K_DIR}/powerlevel10k.zsh-theme"
+else
+  print -P "%F{yellow}powerlevel10k not installed.%f Run: git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \"${P10K_DIR}\"" >&2
+fi
 
 
 #
 # Plugins
 #
-for plugin in $ZDOTDIR/plugins/**/*.plugin.zsh; do
-    builtin source $plugin
+for plugin in "$ZDOTDIR"/plugins/**/*.plugin.zsh(N); do
+    [[ "$plugin" == */zsh-syntax-highlighting.plugin.zsh ]] && continue # must be last
+    builtin source "$plugin"
 done
 unset plugin
 
@@ -89,10 +82,17 @@ unset plugin
 #
 
 # initialize completions with caching
-autoload -Uz compinit && compinit -u -d "$ZSH_COMPDUMP"
-autoload -U +X bashcompinit && bashcompinit
+[[ -n "$ZSH_COMPDUMP" ]] || export ZSH_COMPDUMP="${XDG_CACHE_HOME:-${XDG_CACHE:-$HOME/.cache}}/zsh/.zcompdump-${HOST}"
+[[ -d "${ZSH_COMPDUMP:h}" ]] || mkdir -p -- "${ZSH_COMPDUMP:h}"
+autoload -Uz compinit
+if [[ -s "$ZSH_COMPDUMP" ]]; then
+  # fast load from cache
+  compinit -C -u -d "$ZSH_COMPDUMP"
+else
+  compinit -u -d "$ZSH_COMPDUMP"
+fi
 
-# Force custom zsh completion for devcontainer (can be shadowed by bash-style completion).
-complete -r devcontainer 2>/dev/null
-compdef _devcontainer devcontainer
-
+# must be sourced at end of .zshrc
+if [[ -s "$ZDOTDIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]]; then
+  builtin source "$ZDOTDIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
+fi

@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
-if [[ -e /usr/lib/java_home ]]; then
-    export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
+if [[ -x /usr/libexec/java_home ]]; then
+    if JAVA_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null)"; then
+        export JAVA_HOME
+    fi
 fi

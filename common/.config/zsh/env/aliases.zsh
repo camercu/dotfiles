@@ -3,7 +3,7 @@
 #
 # Bash Aliases
 #
-[[ -r "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"
+[[ -s "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"
 
 #
 # Zsh-specific Aliases

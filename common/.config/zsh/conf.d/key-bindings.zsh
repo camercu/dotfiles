@@ -8,11 +8,17 @@
 # Make sure that the terminal is in application mode when zle is active, since
 # only then values from $terminfo are valid
 if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
-  function zle-line-init() {
+  function __zle_line_init_application_mode() {
     echoti smkx
   }
-  function zle-line-finish() {
+  function __zle_line_finish_application_mode() {
     echoti rmkx
+  }
+  function zle-line-init() {
+    __zle_line_init_application_mode
+  }
+  function zle-line-finish() {
+    __zle_line_finish_application_mode
   }
   zle -N zle-line-init
   zle -N zle-line-finish
@@ -160,4 +166,3 @@ bindkey -M viins "^[m" copy-prev-shell-word
 # bindkey -M menuselect 'k' vi-up-line-or-history
 # bindkey -M menuselect 'l' vi-forward-char
 # bindkey -M menuselect 'j' vi-down-line-or-history
-

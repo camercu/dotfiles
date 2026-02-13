@@ -8,10 +8,10 @@ export CLICOLOR=1
 # To read source of colors function, do:
 # less $^fpath/colors(N)
 #
-# source: https://stackoverflow.com/a/6159885
+# adapted from: https://stackoverflow.com/a/6159885
 autoload -U colors && colors
 for COLOR in RED GREEN YELLOW BLUE MAGENTA CYAN BLACK WHITE; do
-    eval export $COLOR='$fg_no_bold[${(L)COLOR}]'
-    eval export BOLD_$COLOR='$fg_bold[${(L)COLOR}]'
+    typeset -gx "${COLOR}=${fg_no_bold[${(L)COLOR}]}"
+    typeset -gx "BOLD_${COLOR}=${fg_bold[${(L)COLOR}]}"
 done
-eval export RESET='$reset_color'
+typeset -gx RESET="$reset_color"

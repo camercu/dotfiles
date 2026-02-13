@@ -1,27 +1,78 @@
 #compdef devcontainer
 
-# Helper: Get cached help output (cache in /tmp to avoid repeated calls)
-_devcontainer_get_help() {
-  local cmd_name="$1"
-  local cache_file="/tmp/devcontainer_help_${cmd_name//\//_}.cache"
+typeset -gr _DEVCONTAINER_CACHE_TTL=3600
+typeset -gr _DEVCONTAINER_CACHE_ROOT="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/devcontainer"
+typeset -ga _DEVCONTAINER_FALLBACK_SUBCOMMANDS=(
+  'attach[Attach to a running container]'
+  'build[Build a devcontainer]'
+  'exec[Run a command in the container]'
+  'list[List devcontainers or images]'
+  'open[Open folder in devcontainer]'
+  'rebuild[Rebuild the devcontainer]'
+  'shell[Open an interactive shell in container]'
+  'start[Start the devcontainer]'
+  'stop[Stop the devcontainer]'
+  'help[Show help for a command]'
+)
 
-  # Return cache if fresh (< 1 hour old)
-  if [[ -f "$cache_file" ]] && [[ $(( $(date +%s) - $(stat -f%m "$cache_file") )) -lt 3600 ]]; then
+_devcontainer_cache_file_for() {
+  local subcommand="$1"
+  local cache_key="${subcommand//\//_}"
+
+  printf "%s/help_%s.cache\n" "$_DEVCONTAINER_CACHE_ROOT" "$cache_key"
+}
+
+_devcontainer_cache_is_fresh() {
+  local cache_file="$1"
+  local -a zstat_out
+  local -i now mtime
+
+  [[ -f "$cache_file" ]] || return 1
+
+  now=${EPOCHSECONDS}
+  zmodload -F zsh/stat b:zstat 2>/dev/null || zmodload zsh/stat 2>/dev/null
+  if (( ${+builtins[zstat]} )) && zstat -A zstat_out +mtime -- "$cache_file" 2>/dev/null; then
+    mtime=${zstat_out[1]}
+  else
+    mtime=0
+  fi
+
+  (( now - mtime < _DEVCONTAINER_CACHE_TTL ))
+}
+
+_devcontainer_fetch_help() {
+  local subcommand="$1"
+
+  if [[ -z "$subcommand" ]]; then
+    devcontainer --help 2>/dev/null
+  else
+    devcontainer "$subcommand" --help 2>/dev/null
+  fi
+}
+
+_devcontainer_read_help() {
+  local subcommand="$1"
+  local cache_file cache_tmp
+
+  command -v devcontainer &>/dev/null || return 1
+
+  [[ -d "$_DEVCONTAINER_CACHE_ROOT" ]] || mkdir -p -- "$_DEVCONTAINER_CACHE_ROOT" 2>/dev/null || return 1
+
+  cache_file="$(_devcontainer_cache_file_for "$subcommand")"
+  cache_tmp="${cache_file}.tmp.$$"
+
+  if _devcontainer_cache_is_fresh "$cache_file"; then
     cat "$cache_file"
     return 0
   fi
 
-  # Fetch and cache
-  if [[ -z "$cmd_name" ]]; then
-    devcontainer --help 2>/dev/null | tee "$cache_file"
-  else
-    devcontainer "$cmd_name" --help 2>/dev/null | tee "$cache_file"
-  fi
+  _devcontainer_fetch_help "$subcommand" >|"$cache_tmp" || return 1
+  mv -f -- "$cache_tmp" "$cache_file" 2>/dev/null || return 1
+  cat "$cache_file"
 }
 
-# Parse subcommands from help output (POSIX awk compatible)
-_devcontainer_list_subcommands() {
-  _devcontainer_get_help '' | awk '
+_devcontainer_parse_subcommands_from_help() {
+  awk '
     /^Commands:/ { in_commands=1; next }
     in_commands && /^[[:space:]]*devcontainer[[:space:]]+/ {
       # Remove ANSI colors
@@ -49,10 +100,8 @@ _devcontainer_list_subcommands() {
   '
 }
 
-# Parse options from subcommand help output (POSIX awk compatible)
-_devcontainer_list_options() {
-  local subcommand="$1"
-  _devcontainer_get_help "$subcommand" | awk '
+_devcontainer_parse_options_from_help() {
+  awk '
     /^Options:/ || /^Flags:/ { in_options=1; next }
     in_options && /^[[:space:]]*-/ {
       # Remove ANSI colors
@@ -109,36 +158,45 @@ _devcontainer_list_options() {
   '
 }
 
-# Main completion function
-_devcontainer() {
-  # First argument after `devcontainer` is always the subcommand.
-  if (( CURRENT == 2 )); then
-    local -a subcmds
-    subcmds=( ${(f)"$(_devcontainer_list_subcommands)"} )
-    if (( ${#subcmds[@]} > 0 )); then
-      compstate[list]=list
-      _values 'devcontainer subcommand' "${subcmds[@]}"
-    else
-      echo "Warning: Failed to parse subcommands from help output. Using fallback list." >&2
-      compstate[list]=list
-      _values 'devcontainer subcommand' \
-        'attach[Attach to a running container]' \
-        'build[Build a devcontainer]' \
-        'exec[Run a command in the container]' \
-        'list[List devcontainers or images]' \
-        'open[Open folder in devcontainer]' \
-        'rebuild[Rebuild the devcontainer]' \
-        'shell[Open an interactive shell in container]' \
-        'start[Start the devcontainer]' \
-        'stop[Stop the devcontainer]' \
-        'help[Show help for a command]'
-    fi
-    return
+_devcontainer_list_subcommands() {
+  _devcontainer_read_help '' | _devcontainer_parse_subcommands_from_help
+}
+
+_devcontainer_list_options() {
+  local subcommand="$1"
+  _devcontainer_read_help "$subcommand" | _devcontainer_parse_options_from_help
+}
+
+_devcontainer_warn_parse_fallback() {
+  echo "Warning: Failed to parse subcommands from help output. Using fallback list." >&2
+}
+
+_devcontainer_complete_subcommand() {
+  local -a subcommands
+  subcommands=( ${(f)"$(_devcontainer_list_subcommands)"} )
+
+  if (( ${#subcommands[@]} == 0 )); then
+    _devcontainer_warn_parse_fallback
+    subcommands=( "${_DEVCONTAINER_FALLBACK_SUBCOMMANDS[@]}" )
   fi
 
-  # Remaining args belong to the selected subcommand.
-  local subcommand="$words[2]"
+  compstate[list]=list
+  _values 'devcontainer subcommand' "${subcommands[@]}"
+}
+
+_devcontainer_complete_option_names() {
   local -a opts opt_names
+  opts=( "$@" )
+  opt_names=( "${(@)opts%%\[*}" )
+  opt_names=( "${(@)opt_names%=}" )
+
+  compstate[list]=list
+  compadd -Q -- "${opt_names[@]}"
+}
+
+_devcontainer_complete_args() {
+  local subcommand="$words[2]"
+  local -a opts
   opts=( ${(f)"$(_devcontainer_list_options "$subcommand")"} )
 
   if (( ${#opts[@]} == 0 )); then
@@ -148,10 +206,7 @@ _devcontainer() {
 
   # Complete flag names for both "-" and "--" prefixes.
   if [[ "$words[$CURRENT]" == -* ]]; then
-    opt_names=( "${(@)opts%%\[*}" )
-    opt_names=( "${(@)opt_names%=}" )
-    compstate[list]=list
-    compadd -Q -- "${opt_names[@]}"
+    _devcontainer_complete_option_names "${opts[@]}"
     return
   fi
 
@@ -161,5 +216,19 @@ _devcontainer() {
     '*: :_files'
 }
 
-# For autoloaded completion files that define a function body, invoke it on first load.
-_devcontainer "$@"
+# Main entry point for completion.
+_devcontainer() {
+  if (( CURRENT == 2 )); then
+    _devcontainer_complete_subcommand
+    return
+  fi
+
+  _devcontainer_complete_args
+}
+
+if [[ "$funcstack[1]" == "_devcontainer" ]]; then
+  _devcontainer "$@"
+elif (( $+functions[compdef] )); then
+  # Register the completion function for the 'devcontainer' command.
+  compdef _devcontainer devcontainer
+fi

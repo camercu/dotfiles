@@ -20,9 +20,9 @@ function is-solaris { [[ "$OSTYPE" == solaris* ]]; }
 function is-windows { [[ "$OSTYPE" == cygwin* || "$OSTYPE" == msys ]]; }
 
 # Command checks - check if command binary is installed on PATH / is defined
-function is-installed { hash -- "$1" &>/dev/null; }
-function is-command-defined { command -v -- "$1" &>/dev/null; }
-function is-function { declare -f -- "$1" &>/dev/null; }
+function is-installed { (( $+commands[$1] )); }
+function is-command-defined { whence -w -- "$1" &>/dev/null; }
+function is-function { (( $+functions[$1] )); }
 
 #
 # Logging Functions - colorized printing of log messages
@@ -58,7 +58,7 @@ function autoload-dir {
     local zdir
     local -a zautoloads
     setopt EXTENDED_GLOB LOCAL_OPTIONS
-    for zdir in $@; do
+    for zdir in "$@"; do
         [[ -d "$zdir" ]] || continue
         fpath=("$zdir" $fpath)
         # match all plain files except those starting with underscore, grabbing basename of file, with NULL_GLOB set
@@ -78,6 +78,46 @@ function source-dir {
         return 1
     fi
     for scriptfile in $zdir/*.(sh|zsh)(N.); do
-        builtin source $scriptfile
+        builtin source "$scriptfile"
     done
+}
+
+# zsh-health: quick syntax and dependency check for this zsh config.
+function zsh-health {
+    local root="${ZDOTDIR:-$HOME/.config/zsh}"
+    local -a files deps missing insecure
+
+    files=(
+        "$root/.zshrc"
+        "$root/functions.zsh"
+        "$root"/env/*.zsh(N)
+        "$root"/conf.d/*.zsh(N)
+        "$root"/completions/_*(N)
+        "$root"/plugins/**/*.plugin.zsh(N)
+    )
+
+    if ! command zsh -n -- $files; then
+        error "syntax check failed"
+        return 1
+    fi
+
+    deps=(git awk sed grep)
+    missing=()
+    for dep in $deps; do
+        (( $+commands[$dep] )) || missing+="$dep"
+    done
+
+    if (( $#missing > 0 )); then
+        warn "missing recommended tools: ${missing[*]}"
+    fi
+
+    autoload -Uz compaudit
+    insecure=( ${(f)"$(compaudit 2>/dev/null)"} )
+    if (( $#insecure > 0 )); then
+        warn "compaudit found insecure paths:"
+        print -l -- "${insecure[@]}" >&2
+    fi
+
+    success "zsh config health check passed"
+    return 0
 }

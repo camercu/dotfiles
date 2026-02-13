@@ -14,24 +14,26 @@ function cursor_mode {
     function zle-keymap-select {
         if [[ ${KEYMAP} == vicmd ]] ||
             [[ $1 = 'block' ]]; then
-            echo -ne $cursor_block
+            echo -ne "$cursor_block"
         elif [[ ${KEYMAP} == main ]] ||
             [[ ${KEYMAP} == viins ]] ||
             [[ ${KEYMAP} = '' ]] ||
             [[ $1 = 'beam' ]]; then
-            echo -ne $cursor_beam
+            echo -ne "$cursor_beam"
         fi
     }
 
     function zle-line-init {
-        echo -ne $cursor_beam
+        if (( $+functions[__zle_line_init_application_mode] )); then
+            __zle_line_init_application_mode
+        fi
+        echo -ne "$cursor_beam"
     }
 
     zle -N zle-keymap-select
     zle -N zle-line-init
 
-    unset cursor_beam
-    unset cursor_block
+    unset cursor_block cursor_beam
 }
 cursor_mode
 unfunction cursor_mode
@@ -77,4 +79,3 @@ bindkey -M viins '^a' beginning-of-line
 
 # and 'ctrl-e' goes to end of line like emacs
 bindkey -M viins '^e' end-of-line
-
