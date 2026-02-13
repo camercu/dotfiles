@@ -1,13 +1,21 @@
 local function directory_finder(_opts, _ctx)
   local dirs = {}
-  local fd = io.popen("fd --type d --hidden --exclude .git/ .", "r")
-  if not fd then
+
+  if vim.fn.executable("fd") ~= 1 then
+    vim.notify("`fd` is not installed; directory picker is unavailable", vim.log.levels.WARN)
     return dirs
   end
-  for line in fd:lines() do
+
+  local proc = vim.system({ "fd", "--type", "d", "--hidden", "--exclude", ".git", "." }, { text = true }):wait()
+  if proc.code ~= 0 then
+    vim.notify("Failed to list directories with fd", vim.log.levels.WARN)
+    return dirs
+  end
+
+  for line in vim.gsplit(proc.stdout or "", "\n", { trimempty = true }) do
     table.insert(dirs, { file = line, text = line })
   end
-  fd:close()
+
   return dirs
 end
 
@@ -36,6 +44,7 @@ return {
       end,
       desc = "Find Directories",
     },
+    -- Disable Snacks' default <leader><leader> picker mapping so config/keymaps.lua can own it.
     { "<leader><leader>", false },
   },
 }

@@ -8,7 +8,7 @@ return {
       },
     })
     local map = LazyVim.safe_keymap_set
-    map("n", "!", ":BaconLoad<CR>:w<CR>:BaconNext<CR>", { desc = "Navigate to next bacon location" })
+    map("n", "<leader>cn", ":BaconLoad<CR>:w<CR>:BaconNext<CR>", { desc = "Navigate to next bacon location" })
     map("n", "<leader>cb", ":BaconList<CR>", { desc = "Open bacon locations list" })
   end,
 }
