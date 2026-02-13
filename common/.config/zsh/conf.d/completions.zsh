@@ -161,10 +161,6 @@ bindkey -M menuselect '^R' history-incremental-search-forward       # [Ctrl-R] p
 # Custom Completions
 #
 
-# initialize completions with caching
-autoload -Uz compinit && compinit -u -d "$ZSH_COMPDUMP"
-autoload -U +X bashcompinit && bashcompinit
-
 # Load personal completion functions onto fpath
 fpath+="${ZDOTDIR}/completions"
 
@@ -182,4 +178,3 @@ fi
 if type _git &> /dev/null && alias g &> /dev/null; then
 	complete -o default -o nospace -F _git g
 fi
-

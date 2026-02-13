@@ -92,4 +92,7 @@ unset plugin
 autoload -Uz compinit && compinit -u -d "$ZSH_COMPDUMP"
 autoload -U +X bashcompinit && bashcompinit
 
+# Force custom zsh completion for devcontainer (can be shadowed by bash-style completion).
+complete -r devcontainer 2>/dev/null
+compdef _devcontainer devcontainer
 
