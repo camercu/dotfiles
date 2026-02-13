@@ -24,6 +24,18 @@ return {
             },
           })
         end,
+acp = {
+      codex = function()
+        return require("codecompanion.adapters").extend("codex", {
+          defaults = {
+            auth_method = "chatgpt", -- "openai-api-key"|"codex-api-key"|"chatgpt"
+          },
+          -- env = {
+          --   OPENAI_API_KEY = "my-api-key",
+          -- },
+        })
+      end,
+    },
       },
       interactions = {
         chat = {
