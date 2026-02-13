@@ -39,6 +39,7 @@
         python3
         ripgrep # LazyVim dependency
         rustup # LazyVim dependency
+        statix # nix linter, for neovim
         stow # for stowing dotfiles
         tmux
         tree-sitter # LazyVim dependency
