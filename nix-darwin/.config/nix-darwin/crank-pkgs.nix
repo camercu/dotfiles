@@ -48,46 +48,48 @@
     zoxide # cd alternative; z and zq commands
   ];
 
-  homebrew.taps = [
-    "anomalyco/tap" # AI coding agent (Claude Code alternative)
-  ];
+  homebrew = {
+    taps = [
+      "anomalyco/tap" # AI coding agent (Claude Code alternative)
+    ];
 
-  homebrew.brews = [
-    "opencode" # AI coding agent (Claude Code alternative)
-  ];
+    brews = [
+      "opencode" # AI coding agent (Claude Code alternative)
+    ];
 
-  homebrew.casks = [
-    "adobe-acrobat-reader"
-    # "appgate-sdp-client"
-    # "arduino-ide"  # only works on Intel CPUs
-    "cleanmymac"
-    # "cutter"
-    "discord"
-    "docker-desktop"
-    "dropbox"
-    "folx"
-    "ghostty"
-    "gpg-suite"
-    # "handbrake"
-    # "imhex"
-    "microsoft-office"
-    "obsidian"
-    "ollama-app" # local LLM runner/manager
-    "podman-desktop"
-    "private-internet-access"
-    "qflipper"
-    "raspberry-pi-imager"
-    "signal"
-    "syncthing-app"
-    "the-unarchiver"
-    "tor-browser"
-    # "vagrant"
-    # "virtualbox"
-    "visual-studio-code"
-    "vmware-fusion"
-    "warp"
-    "wireshark-app"
-    "zed"
-    "zoom"
-  ];
+    casks = [
+      "adobe-acrobat-reader"
+      # "appgate-sdp-client"
+      # "arduino-ide"  # only works on Intel CPUs
+      "cleanmymac"
+      # "cutter"
+      "discord"
+      "docker-desktop"
+      "dropbox"
+      "folx"
+      "ghostty"
+      "gpg-suite"
+      # "handbrake"
+      # "imhex"
+      "microsoft-office"
+      "obsidian"
+      "ollama-app" # local LLM runner/manager
+      "podman-desktop"
+      "private-internet-access"
+      "qflipper"
+      "raspberry-pi-imager"
+      "signal"
+      "syncthing-app"
+      "the-unarchiver"
+      "tor-browser"
+      # "vagrant"
+      # "virtualbox"
+      "visual-studio-code"
+      "vmware-fusion"
+      "warp"
+      "wireshark-app"
+      "zed"
+      "zoom"
+    ];
+  };
 }
