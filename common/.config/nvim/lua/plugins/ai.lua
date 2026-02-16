@@ -13,18 +13,51 @@ return {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
+
+    init = function()
+      vim.cmd("cnoreabbrev cc CodeCompanion") -- inline prompt
+      vim.cmd("cnoreabbrev ccc CodeCompanionChat")
+    end,
+
+    keys = {
+      { "<leader>cp", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "CodeCompanion Actions picker" },
+      {
+        "<LocalLeader>c",
+        "<cmd>CodeCompanionChat Toggle<cr>",
+        mode = { "n", "v" },
+        desc = "CodeCompanion Chat Toggle",
+      },
+      {
+        "<LocalLeader>a",
+        "<cmd>CodeCompanionChat Add<cr>",
+        mode = { "n", "v" },
+        desc = "CodeCompanion Chat Add <selection>",
+      },
+    },
     opts = {
+
       adapters = {
-        ollama = function()
-          return require("codecompanion.adapters").extend("ollama", {
-            schema = {
-              model = {
-                default = "glm-4.7-flash:latest",
+        http = {
+          ollama = function()
+            return require("codecompanion.adapters.http").extend("ollama", {
+              schema = {
+                model = {
+                  default = "glm-4.7-flash:latest",
+                },
               },
-            },
-          })
-        end,
+            })
+          end,
+        },
         acp = {
+          opencode = function()
+            return require("codecompanion.adapters.acp").extend("opencode", {
+              schema = {
+                model = {
+                  default = "anthropic/claude-opus-4-6/high",
+                },
+              },
+            })
+          end,
           codex = function()
             local command
 
@@ -39,7 +72,7 @@ return {
               command = { "codex-acp" }
             end
 
-            return require("codecompanion.adapters").extend("codex", {
+            return require("codecompanion.adapters.acp").extend("codex", {
               commands = {
                 default = command,
               },
@@ -50,30 +83,34 @@ return {
                 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY"),
                 CODEX_API_KEY = os.getenv("CODEX_API_KEY"),
               },
+              schema = {
+                model = {
+                  default = "gpt-5.3-codex/high",
+                },
+              },
             })
           end,
         },
       },
+
       interactions = {
         chat = {
-          adapter = "ollama",
+          adapter = "opencode",
         },
         inline = {
-          adapter = {
-            name = "ollama",
-            model = "codellama:7b-code",
-          },
+          adapter = "opencode",
         },
         background = {
-          adapter = {
-            name = "ollama",
-            model = "ministral-3:14b",
-          },
-        },
-        cmd = {
           adapter = "ollama",
         },
+        cmd = {
+          adapter = {
+            name = "ollama",
+            model = "qwen2.5-coder:7b-base-q6_K",
+          },
+        },
       },
+
       prompt_library = {
         markdown = {
           dirs = {
