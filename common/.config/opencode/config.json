@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/dolphin3:latest",
+  "model": "anthropic/claude-opus-4-6",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
@@ -27,5 +27,17 @@
         }
       }
     }
-  }
+  },
+  "permission": {
+    "edit": "ask",
+    "bash": "ask",
+    "read": "allow",
+    "grep": "allow",
+    "glob": "allow",
+    "list": "allow",
+    "lsp": "allow",
+    "skill": "allow",
+    "webfetch": "allow",
+    "question": "allow",
+  },
 }
