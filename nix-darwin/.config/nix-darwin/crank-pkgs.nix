@@ -61,6 +61,7 @@
       "adobe-acrobat-reader"
       # "appgate-sdp-client"
       # "arduino-ide"  # only works on Intel CPUs
+      "claude-code" # Anthropic's coding agent CLI
       "cleanmymac"
       "codex" # OpenAI's coding agent that runs in your terminal
       # "cutter"
