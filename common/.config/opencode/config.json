@@ -1,0 +1,31 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/dolphin3:latest",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama",
+      "options": {
+        "baseURL": "http://127.0.0.1:11434/v1"
+      },
+      "models": {
+        "qwen2.5-coder:7b-base-q6_K": {
+          "name": "Qwen 2.5 Coder 7b (Base, q6_K)",
+          "reasoning": false,
+          "tool_call": false
+        },
+        "codellama:7b-code": {
+          "name": "CodeLamma 7b Code",
+          "reasoning": false,
+          "tool_call": false
+        },
+        "glm-4.7-flash:latest": {
+          "name": "GLM 4.7 Flash",
+          "reasoning": true,
+          "tool_call": true,
+          "temperature": true,
+        }
+      }
+    }
+  }
+}
