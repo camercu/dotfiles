@@ -1,0 +1,377 @@
+{
+  "version": 3,
+  "skills": {
+    "conventional-commits": {
+      "source": "sundial-org/awesome-openclaw-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/sundial-org/awesome-openclaw-skills.git",
+      "skillPath": "skills/conventional-commits/SKILL.md",
+      "skillFolderHash": "f4b50e0033f6089cef6edd7c2ddd07d8526e0d2b",
+      "installedAt": "2026-02-22T13:19:11.299Z",
+      "updatedAt": "2026-02-22T13:19:11.299Z"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "c2f31172b6f256272305a5e6e7228b258446899f",
+      "installedAt": "2026-02-22T13:19:26.080Z",
+      "updatedAt": "2026-02-22T13:19:26.080Z"
+    },
+    "1password": {
+      "source": "openclaw/openclaw",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openclaw/openclaw.git",
+      "skillPath": "skills/1password/SKILL.md",
+      "skillFolderHash": "6ee7e52bb2d37e98d9515d0eb6a70690e23235f9",
+      "installedAt": "2026-02-22T13:36:42.151Z",
+      "updatedAt": "2026-02-22T13:36:42.151Z"
+    },
+    "github": {
+      "source": "openclaw/openclaw",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openclaw/openclaw.git",
+      "skillPath": "skills/github/SKILL.md",
+      "skillFolderHash": "93bdde3f3a9bf83391c7a688b4cd8cd0fdae1c3e",
+      "installedAt": "2026-02-22T13:36:42.267Z",
+      "updatedAt": "2026-02-22T13:36:42.267Z"
+    },
+    "obsidian": {
+      "source": "openclaw/openclaw",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openclaw/openclaw.git",
+      "skillPath": "skills/obsidian/SKILL.md",
+      "skillFolderHash": "2df79afb3d74115e292d71524ed64bff7693c3d5",
+      "installedAt": "2026-02-22T13:36:42.339Z",
+      "updatedAt": "2026-02-22T13:36:42.339Z"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "skillFolderHash": "a01fbe3fa7f17f64173bd4fdcfecea86a3fd664c",
+      "installedAt": "2026-02-22T13:36:42.413Z",
+      "updatedAt": "2026-02-22T13:45:16.784Z"
+    },
+    "summarize": {
+      "source": "openclaw/openclaw",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openclaw/openclaw.git",
+      "skillPath": "skills/summarize/SKILL.md",
+      "skillFolderHash": "49dc6809bdf16e0e7e3ab478302389d419bcc19f",
+      "installedAt": "2026-02-22T13:36:42.487Z",
+      "updatedAt": "2026-02-22T13:36:42.487Z"
+    },
+    "tmux": {
+      "source": "openclaw/openclaw",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openclaw/openclaw.git",
+      "skillPath": "skills/tmux/SKILL.md",
+      "skillFolderHash": "fe5794748cd8df81a85802357f34233531b3efd4",
+      "installedAt": "2026-02-22T13:36:42.555Z",
+      "updatedAt": "2026-02-22T13:36:42.555Z"
+    },
+    "gh-issues": {
+      "source": "openclaw/openclaw",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openclaw/openclaw.git",
+      "skillPath": "skills/gh-issues/SKILL.md",
+      "skillFolderHash": "8024228c2bf6518acde362d45169398b7bee60cb",
+      "installedAt": "2026-02-22T13:36:42.625Z",
+      "updatedAt": "2026-02-22T13:36:42.625Z"
+    },
+    "apple-reminders": {
+      "source": "openclaw/openclaw",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openclaw/openclaw.git",
+      "skillPath": "skills/apple-reminders/SKILL.md",
+      "skillFolderHash": "e8d4a8f03699dba784ebfe192a3ac0d65c9dffc4",
+      "installedAt": "2026-02-22T13:36:42.696Z",
+      "updatedAt": "2026-02-22T13:36:42.696Z"
+    },
+    "apple-notes": {
+      "source": "openclaw/openclaw",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openclaw/openclaw.git",
+      "skillPath": "skills/apple-notes/SKILL.md",
+      "skillFolderHash": "9690bd37e606640796aa7c44b9344b13c341afd4",
+      "installedAt": "2026-02-22T13:36:42.768Z",
+      "updatedAt": "2026-02-22T13:36:42.768Z"
+    },
+    "academic-researcher": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/academic-researcher/SKILL.md",
+      "skillFolderHash": "8baeb5b85d10e8c8ac55b16bb456a3607c75b07a",
+      "installedAt": "2026-02-22T13:40:16.037Z",
+      "updatedAt": "2026-02-22T13:40:16.037Z"
+    },
+    "code-reviewer": {
+      "source": "google-gemini/gemini-cli",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/google-gemini/gemini-cli.git",
+      "skillPath": ".gemini/skills/code-reviewer/SKILL.md",
+      "skillFolderHash": "e580e60f488d74811fbec80427183553295d7ceb",
+      "installedAt": "2026-02-22T13:40:16.149Z",
+      "updatedAt": "2026-02-22T13:42:36.507Z"
+    },
+    "data-analyst": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/data-analyst/SKILL.md",
+      "skillFolderHash": "c3ad43d6b6231f90a0a81edcc18c07bd1148f956",
+      "installedAt": "2026-02-22T13:40:16.212Z",
+      "updatedAt": "2026-02-22T13:40:16.212Z"
+    },
+    "debugger": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/debugger/SKILL.md",
+      "skillFolderHash": "9cb42b0a90cddf7d829c023314f7407a28bf993e",
+      "installedAt": "2026-02-22T13:40:16.275Z",
+      "updatedAt": "2026-02-22T13:40:16.275Z"
+    },
+    "decision-helper": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/decision-helper/SKILL.md",
+      "skillFolderHash": "3e3391deb9fd9c3087f0e93519f89afc46dae8f7",
+      "installedAt": "2026-02-22T13:40:16.336Z",
+      "updatedAt": "2026-02-22T13:40:16.336Z"
+    },
+    "deep-research": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/deep-research/SKILL.md",
+      "skillFolderHash": "e81c0bc308c9d5d9b1a9ecaa3acd7ff515e1126b",
+      "installedAt": "2026-02-22T13:40:16.398Z",
+      "updatedAt": "2026-02-22T13:40:16.398Z"
+    },
+    "editor": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/editor/SKILL.md",
+      "skillFolderHash": "75cdf2f935827765a258a68a761e72d3711a4d7a",
+      "installedAt": "2026-02-22T13:40:16.458Z",
+      "updatedAt": "2026-02-22T13:40:16.458Z"
+    },
+    "fact-checker": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/fact-checker/SKILL.md",
+      "skillFolderHash": "8999ea20ff3c3e8bef9f2a448cb59377b5fd193a",
+      "installedAt": "2026-02-22T13:40:16.528Z",
+      "updatedAt": "2026-02-22T13:40:16.528Z"
+    },
+    "meeting-notes": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/meeting-notes/SKILL.md",
+      "skillFolderHash": "dbe675653ee204259b5dc8957641c0e8af88b410",
+      "installedAt": "2026-02-22T13:40:16.587Z",
+      "updatedAt": "2026-02-22T13:40:16.587Z"
+    },
+    "project-planner": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/project-planner/SKILL.md",
+      "skillFolderHash": "bd19980f5791f5536eb1d60a4dd921aa7e89a5ad",
+      "installedAt": "2026-02-22T13:40:16.647Z",
+      "updatedAt": "2026-02-22T13:40:16.647Z"
+    },
+    "python-expert": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/python-expert/SKILL.md",
+      "skillFolderHash": "80f84590861b1c640ce66be984e7b1fb33b880a6",
+      "installedAt": "2026-02-22T13:40:16.709Z",
+      "updatedAt": "2026-02-22T13:40:16.709Z"
+    },
+    "strategy-advisor": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/strategy-advisor/SKILL.md",
+      "skillFolderHash": "a59ab6dd4981cd0fe9f43d2d60c3d52440a2b4e5",
+      "installedAt": "2026-02-22T13:40:16.770Z",
+      "updatedAt": "2026-02-22T13:40:16.770Z"
+    },
+    "technical-writer": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/technical-writer/SKILL.md",
+      "skillFolderHash": "1cd11b34ae0ce44a0c6b75c3e889a56e45f024a5",
+      "installedAt": "2026-02-22T13:40:16.828Z",
+      "updatedAt": "2026-02-22T13:40:16.828Z"
+    },
+    "visualization-expert": {
+      "source": "Shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Shubhamsaboo/awesome-llm-apps.git",
+      "skillPath": "awesome_agent_skills/visualization-expert/SKILL.md",
+      "skillFolderHash": "b2b3d5ceed66856db340ca37c5d704735be51248",
+      "installedAt": "2026-02-22T13:40:16.887Z",
+      "updatedAt": "2026-02-22T13:40:16.887Z"
+    },
+    "docs-changelog": {
+      "source": "google-gemini/gemini-cli",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/google-gemini/gemini-cli.git",
+      "skillPath": ".gemini/skills/docs-changelog/SKILL.md",
+      "skillFolderHash": "6963287316f4b820306af448257cc546d0441147",
+      "installedAt": "2026-02-22T13:42:36.570Z",
+      "updatedAt": "2026-02-22T13:42:36.570Z"
+    },
+    "docs-writer": {
+      "source": "google-gemini/gemini-cli",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/google-gemini/gemini-cli.git",
+      "skillPath": ".gemini/skills/docs-writer/SKILL.md",
+      "skillFolderHash": "69404ca382f3f7cc97e5785aadb1407ea517269f",
+      "installedAt": "2026-02-22T13:42:36.636Z",
+      "updatedAt": "2026-02-22T13:42:36.636Z"
+    },
+    "pr-address-comments": {
+      "source": "google-gemini/gemini-cli",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/google-gemini/gemini-cli.git",
+      "skillPath": ".gemini/skills/pr-address-comments/SKILL.md",
+      "skillFolderHash": "c6378ddd609602d36f357f4f53505713eb6b9acc",
+      "installedAt": "2026-02-22T13:42:36.706Z",
+      "updatedAt": "2026-02-22T13:42:36.706Z"
+    },
+    "pr-creator": {
+      "source": "google-gemini/gemini-cli",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/google-gemini/gemini-cli.git",
+      "skillPath": ".gemini/skills/pr-creator/SKILL.md",
+      "skillFolderHash": "69c2447f95d7078f6c4c46034ef2b62f060c7009",
+      "installedAt": "2026-02-22T13:42:36.772Z",
+      "updatedAt": "2026-02-22T13:42:36.772Z"
+    },
+    "Home Assistant Integration knowledge": {
+      "source": "home-assistant/core",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/home-assistant/core.git",
+      "skillPath": ".agent/skills/integrations/SKILL.md",
+      "skillFolderHash": "",
+      "installedAt": "2026-02-22T13:43:34.855Z",
+      "updatedAt": "2026-02-22T13:43:34.855Z"
+    },
+    "doc-coauthoring": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/doc-coauthoring/SKILL.md",
+      "skillFolderHash": "d9df960e61fe2bafe9183e37de6f9f6b73b74087",
+      "installedAt": "2026-02-22T13:45:16.372Z",
+      "updatedAt": "2026-02-22T13:45:16.372Z"
+    },
+    "canvas-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/canvas-design/SKILL.md",
+      "skillFolderHash": "928af0a3279dc4e0c0e6ceaf407a8542a2bb2aa2",
+      "installedAt": "2026-02-22T13:45:16.431Z",
+      "updatedAt": "2026-02-22T13:45:16.431Z"
+    },
+    "docx": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/docx/SKILL.md",
+      "skillFolderHash": "f205dbd3e057dccac222685f76e3b410e34bc2f8",
+      "installedAt": "2026-02-22T13:45:16.485Z",
+      "updatedAt": "2026-02-22T13:45:16.485Z"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "skillFolderHash": "928950704df8a8b885c03de5da626331e6f29cf8",
+      "installedAt": "2026-02-22T13:45:16.542Z",
+      "updatedAt": "2026-02-22T13:45:16.542Z"
+    },
+    "mcp-builder": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/mcp-builder/SKILL.md",
+      "skillFolderHash": "9173e2c2107aac82d4ca6c726d71e89d11760470",
+      "installedAt": "2026-02-22T13:45:16.600Z",
+      "updatedAt": "2026-02-22T13:45:16.600Z"
+    },
+    "pdf": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/pdf/SKILL.md",
+      "skillFolderHash": "6369f4649de69bd6857c9bc3b058a77206009238",
+      "installedAt": "2026-02-22T13:45:16.662Z",
+      "updatedAt": "2026-02-22T13:45:16.662Z"
+    },
+    "pptx": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/pptx/SKILL.md",
+      "skillFolderHash": "10b3d70962e489867ddfee7da92f7da6b0eccc4f",
+      "installedAt": "2026-02-22T13:45:16.719Z",
+      "updatedAt": "2026-02-22T13:45:16.719Z"
+    },
+    "theme-factory": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/theme-factory/SKILL.md",
+      "skillFolderHash": "007940e80de6ae577a87b2b343b1a5eae715df2b",
+      "installedAt": "2026-02-22T13:45:16.843Z",
+      "updatedAt": "2026-02-22T13:45:16.843Z"
+    },
+    "web-artifacts-builder": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/web-artifacts-builder/SKILL.md",
+      "skillFolderHash": "9ecbeae7c17caa478c5b753ba1bd258688075b5f",
+      "installedAt": "2026-02-22T13:45:16.901Z",
+      "updatedAt": "2026-02-22T13:45:16.901Z"
+    },
+    "xlsx": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/xlsx/SKILL.md",
+      "skillFolderHash": "f5fb1cdb7993b2feee8367e983e9d4d58d2eedd4",
+      "installedAt": "2026-02-22T13:45:16.967Z",
+      "updatedAt": "2026-02-22T13:45:16.967Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "codex",
+    "cursor",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-cli",
+    "opencode"
+  ]
+}
