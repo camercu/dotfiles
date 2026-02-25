@@ -34,9 +34,17 @@ fi
 if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
     . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
     # Add Nix Channels
-    nix-channel --add https://nixos.org/channels/nixpkgs-25.05-darwin nixpkgs
-    nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
-    nix-channel --update
+    typeset -i __nix_channels_changed=0
+    if ! nix-channel --list 2>/dev/null | grep -q '^nixpkgs '; then
+      nix-channel --add https://nixos.org/channels/nixpkgs-25.05-darwin nixpkgs
+      __nix_channels_changed=1
+    fi
+    if ! nix-channel --list 2>/dev/null | grep -q '^nixpkgs-unstable '; then
+      nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
+      __nix_channels_changed=1
+    fi
+    (( __nix_channels_changed )) && nix-channel --update
+    unset __nix_channels_changed
 fi
 
 # install homebrew if admin user on MacOS
@@ -60,4 +68,3 @@ if is-macos && is-admin; then
     zsh -c 'darwin-rebuild switch --flake $(realpath ~/.config/nix-darwin)'
   fi
 fi
-

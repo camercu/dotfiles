@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 # set DOTFILE_DIR
-if command -v realpath &>/dev/null; then
+if ! command -v realpath &>/dev/null; then
   function realpath {
     python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$1"
   }
