@@ -69,15 +69,31 @@ function autoload-dir {
 
 
 # source-dir: Source all *.sh and *.zsh files in a
-# directory (non-recursive)
+# directory (non-recursive). Skips files not owned by the current
+# user or that are world-writable.
 function source-dir {
     local zdir=$1
-    local scriptfile
+    local scriptfile owner perms
     if [[ ! -d $zdir ]]; then
         error "directory not found: $zdir"
         return 1
     fi
     for scriptfile in $zdir/*.(sh|zsh)(N.); do
+        if is-macos; then
+            owner=$(stat -f '%u' "$scriptfile" 2>/dev/null)
+            perms=$(stat -f '%OLp' "$scriptfile" 2>/dev/null)
+        else
+            owner=$(stat -c '%u' "$scriptfile" 2>/dev/null)
+            perms=$(stat -c '%a' "$scriptfile" 2>/dev/null)
+        fi
+        if [[ "$owner" != "$UID" ]]; then
+            warn "skipping file not owned by current user: $scriptfile"
+            continue
+        fi
+        if (( 8#$perms & 0002 )); then
+            warn "skipping world-writable file: $scriptfile"
+            continue
+        fi
         builtin source "$scriptfile"
     done
 }
