@@ -145,11 +145,6 @@ bindkey -M viins ' ' magic-space
 bindkey -M emacs '^[.' insert-last-word
 bindkey -M viins '^[.' insert-last-word
 
-# [Ctrl-r] - Search backward incrementally for a specified string.
-# The string may begin with ^ to anchor the search to the beginning of the line.
-bindkey -M emacs '^r' history-incremental-search-backward
-bindkey -M viins '^r' history-incremental-search-backward
-
 # Edit the current command line in $EDITOR
 autoload -U edit-command-line
 zle -N edit-command-line

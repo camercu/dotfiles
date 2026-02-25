@@ -187,7 +187,7 @@ alias ntlmhash=$'python3 -c \'import sys as s,hashlib as h;x=" ".join(s.argv[1:]
 #
 # source: https://github.com/mattmc3/zdotdir/blob/main/lib/clipboard.zsh
 #
-if ! is-installed pbcopy && ! is-installed pbpaste; then
+if ! is-installed pbcopy || ! is-installed pbpaste; then
   if [[ "$OSTYPE" == cygwin* ]]; then
     alias pbcopy='tee > /dev/clipboard'
     alias pbpaste='cat /dev/clipboard'
