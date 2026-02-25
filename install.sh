@@ -18,6 +18,9 @@ builtin source "$DOTFILE_DIR/common/.bash_aliases"
   done
 } __zsh_{user_data,cache}_dir XDG_{BIN,CACHE,CONFIG,DATA,LIB,STATE}_HOME
 
+# Migrate legacy Claude config into XDG config dir and keep compatibility symlink.
+scripts/migrate-claude-config.zsh
+
 # Also create .ssh dir
 if [[ ! -d "$HOME/.ssh" ]]; then
     mkdir "$HOME/.ssh"
