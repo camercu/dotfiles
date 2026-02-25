@@ -28,6 +28,8 @@
 	path = ~/.config/git/config-aliases
 	path = ~/.config/git/config-credential
 	path = ~/.config/delta/themes/catppuccin.gitconfig
+[includeIf "gitdir:/mnt/share/"]
+	path = ~/.config/git/config-no-hooks
 [init]
 	defaultBranch = main
 [interactive]

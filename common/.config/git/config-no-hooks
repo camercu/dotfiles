@@ -1,0 +1,4 @@
+# Disable hook execution for repos on VM shared mounts (/mnt/share/).
+# Prevents a compromised guest from running malicious .git/hooks/ scripts.
+[core]
+	hooksPath = /dev/null
