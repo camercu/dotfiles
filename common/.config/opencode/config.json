@@ -23,7 +23,7 @@
           "name": "GLM 4.7 Flash",
           "reasoning": true,
           "tool_call": true,
-          "temperature": true,
+          "temperature": true
         }
       }
     }
@@ -38,6 +38,6 @@
     "lsp": "allow",
     "skill": "allow",
     "webfetch": "allow",
-    "question": "allow",
-  },
+    "question": "allow"
+  }
 }
