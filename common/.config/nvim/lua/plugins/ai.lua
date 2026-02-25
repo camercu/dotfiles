@@ -58,6 +58,39 @@ return {
               },
             })
           end,
+
+          claude_code = function()
+            local command
+
+            if vim.fn.executable("claude-code-acp") == 1 then
+              command = { vim.fn.exepath("claude-code-acp") }
+            elseif vim.fn.executable("npx") == 1 then
+              command = { "npx", "-y", "claude-code-acp" }
+            else
+              vim.schedule(function()
+                vim.notify(
+                  "CodeCompanion claude_code adapter requires `claude-code-acp` or `npx`.",
+                  vim.log.levels.ERROR
+                )
+              end)
+              command = { "claude-code-acp" }
+            end
+
+            return require("codecompanion.adapters.acp").extend("claude_code", {
+              commands = {
+                default = command,
+              },
+              env = {
+                CLAUDE_CODE_OAUTH_TOKEN = os.getenv("CLAUDE_CODE_OAUTH_TOKEN"),
+              },
+              schema = {
+                model = {
+                  default = "anthropic/claude-opus-4-6/high",
+                },
+              },
+            })
+          end,
+
           codex = function()
             local command
 
