@@ -84,12 +84,13 @@
       "syncthing-app"
       "the-unarchiver"
       "tor-browser"
-      # "vagrant"
-      # "virtualbox"
+      "vagrant"
+      "virtualbox"
       "visual-studio-code"
       "vmware-fusion"
       "warp"
       "wireshark-app"
+      "wispr-flow" # AI Voice Transcription
       "zed"
       "zoom"
     ];
