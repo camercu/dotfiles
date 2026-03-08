@@ -92,6 +92,10 @@ else
   compinit -u -d "$ZSH_COMPDUMP"
 fi
 
+if (( $+functions[__zsh_register_custom_compdefs] )); then
+  __zsh_register_custom_compdefs
+fi
+
 # must be sourced at end of .zshrc
 if [[ -s "$ZDOTDIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]]; then
   builtin source "$ZDOTDIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"

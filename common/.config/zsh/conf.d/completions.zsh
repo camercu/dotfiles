@@ -164,17 +164,22 @@ bindkey -M menuselect '^R' history-incremental-search-forward       # [Ctrl-R] p
 # Load personal completion functions onto fpath
 fpath+="${ZDOTDIR}/completions"
 
-# 'md' function: completes with directories
-if is-function md; then
-  compdef _directories md
-fi
+function __zsh_register_custom_compdefs {
+  # `compdef` is defined by `compinit`, which runs after conf.d is sourced.
+  (( $+functions[compdef] )) || return 0
 
-# 'd' function: complete with directories
-if is-function d; then
-  compdef _directories d
-fi
+  # 'md' function: completes with directories
+  if is-function md; then
+    compdef _directories md
+  fi
 
-# Enable tab completion for `g` by marking it as an alias for `git`
-if (( $+functions[_git] )) && alias g &> /dev/null; then
-  compdef _git g=git
-fi
+  # 'd' function: complete with directories
+  if is-function d; then
+    compdef _directories d
+  fi
+
+  # Enable tab completion for `g` by marking it as an alias for `git`
+  if (( $+functions[_git] )) && alias g &> /dev/null; then
+    compdef _git g=git
+  fi
+}
