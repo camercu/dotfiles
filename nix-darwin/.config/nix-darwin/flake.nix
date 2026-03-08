@@ -3,21 +3,16 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-25.05-darwin";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # https://discourse.nixos.org/t/declarative-package-management-on-macos-without-home-manager-or-nix-darwin/43467/3
-    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = inputs @ {
+  outputs = {
     self,
     nix-darwin,
     nixpkgs,
-    nixpkgs-unstable,
-    flake-utils,
   }: let
     configuration = {
       pkgs,
@@ -53,11 +48,6 @@
         GHOSTTY_RESOURCES_DIR = "/Applications/Ghostty.app/Contents/Resources/ghostty";
       };
 
-      # Activation scripts to run on switch
-      system.activationScripts.postActivation.text = ''
-        # nothing for now...
-      '';
-
       # Manage core Homebrew Casks
       homebrew = {
         enable = true;
@@ -65,7 +55,7 @@
         casks = [
           "1password"
           "1password-cli"
-          "wezterm"
+          "ghostty"
         ];
       };
 
@@ -98,41 +88,55 @@
       # Nixpkgs
       nixpkgs.config = {allowUnfree = true;};
 
-      # Set Git commit hash for darwin-version.
-      system.configurationRevision = self.rev or self.dirtyRev or null;
+      system = {
+        # Activation scripts to run on switch
+        activationScripts.postActivation.text = ''
+          # nothing for now...
+        '';
 
-      # Used for backwards compatibility, please read the changelog before changing.
-      # $ darwin-rebuild changelog
-      system.stateVersion = 5;
+        # Set Git commit hash for darwin-version.
+        configurationRevision = self.rev or self.dirtyRev or null;
+
+        # Used for backwards compatibility, please read the changelog before changing.
+        # $ darwin-rebuild changelog
+        stateVersion = 5;
+      };
     };
-    macos-apple-silicon = {
-      nixpkgs.hostPlatform = "aarch64-darwin";
-    };
-    macos-intel = {
-      nixpkgs.hostPlatform = "x86_64-darwin";
+    mkHost = {
+      platform,
+      primaryUser ? null,
+      extraModules ? [],
+    }:
+      nix-darwin.lib.darwinSystem {
+        modules =
+          [
+            configuration
+            {nixpkgs.hostPlatform = platform;}
+          ]
+          ++ nixpkgs.lib.optional (primaryUser != null) {system.primaryUser = primaryUser;}
+          ++ extraModules;
+      };
+    hosts = {
+      "Roci" = {
+        platform = "aarch64-darwin";
+        primaryUser = "cadmin";
+        extraModules = [./crank-pkgs.nix];
+      };
+      "Tachi" = {
+        platform = "x86_64-darwin";
+      };
+      "TheArk" = {
+        # kids laptop
+        platform = "aarch64-darwin";
+      };
+
+      "Jessie's Laptop" = {
+        platform = "aarch64-darwin";
+      };
     };
   in {
     # Build darwin flake using:
     # $ darwin-rebuild build --flake .#Roci
-    darwinConfigurations."Roci" = nix-darwin.lib.darwinSystem {
-      modules = [
-        {system.primaryUser = "cadmin";}
-        ./crank-pkgs.nix
-        configuration
-        macos-apple-silicon
-      ];
-    };
-    darwinConfigurations."Tachi" = nix-darwin.lib.darwinSystem {
-      modules = [
-        configuration
-        macos-intel
-      ];
-    };
-    darwinConfigurations."Jessie's Laptop" = nix-darwin.lib.darwinSystem {
-      modules = [
-        configuration
-        macos-apple-silicon
-      ];
-    };
+    darwinConfigurations = nixpkgs.lib.mapAttrs (_: mkHost) hosts;
   };
 }
