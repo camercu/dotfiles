@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-25.05-darwin";
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -11,6 +12,7 @@
 
   outputs = {
     self,
+    determinate,
     nix-darwin,
     nixpkgs,
   }: let
@@ -65,24 +67,28 @@
       # Enable touch ID for sudo
       security.pam.services.sudo_local.touchIdAuth = true;
 
-      # Nix settings
-      nix.settings = {
-        allowed-users = [
-          "@admin"
-          "cameron"
-          "crank"
-        ];
-        always-allow-substitutes = true; # from determinate-systems nix installer
-        build-users-group = "nixbld";
-        experimental-features = ["nix-command" "flakes"];
-        extra-nix-path = "nixpkgs=flake:nixpkgs"; # from determinate-systems nix installer
-        extra-trusted-public-keys = "cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM= cache.flakehub.com-4:Asi8qIv291s0aYLyH6IOnr5Kf6+OF14WVjkE6t3xMio= cache.flakehub.com-5:zB96CRlL7tiPtzA9/WKyPkp3A2vqxqgdgyTVNGShPDU= cache.flakehub.com-6:W4EGFwAGgBj3he7c5fNh9NkOXw0PUVaxygCVKeuvaqU= cache.flakehub.com-7:mvxJ2DZVHn/kRxlIaxYNMuDG1OvMckZu32um1TadOR8= cache.flakehub.com-8:moO+OVS0mnTjBTcOUh2kYLQEd59ExzyoW1QgQ8XAARQ= cache.flakehub.com-9:wChaSeTI6TeCuV/Sg2513ZIM9i0qJaYsF+lZCXg0J6o= cache.flakehub.com-10:2GqeNlIp6AKp4EF2MVbE1kBOp9iBSyo0UPR9KoR0o1Y="; # from determinate-systems nix installer
-        extra-trusted-substituters = "https://cache.flakehub.com"; # from determinate-systems nix installer
-        trusted-users = [
-          "@admin"
-        ];
-        upgrade-nix-store-path-url = "https://install.determinate.systems/nix-upgrade/stable/universal"; # from determinate-systems nix installer
-        use-xdg-base-directories = true;
+      # The installer uses Determinate Nix, so nix-darwin must not manage the
+      # Nix daemon or /etc/nix/nix.conf on these hosts.
+      nix.enable = false;
+
+      determinateNix = {
+        enable = true;
+        customSettings = {
+          allowed-users = [
+            "@admin"
+            "cameron"
+            "crank"
+          ];
+          always-allow-substitutes = "true";
+          build-users-group = "nixbld";
+          experimental-features = "nix-command flakes";
+          extra-nix-path = "nixpkgs=flake:nixpkgs";
+          extra-trusted-public-keys = "cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM= cache.flakehub.com-4:Asi8qIv291s0aYLyH6IOnr5Kf6+OF14WVjkE6t3xMio= cache.flakehub.com-5:zB96CRlL7tiPtzA9/WKyPkp3A2vqxqgdgyTVNGShPDU= cache.flakehub.com-6:W4EGFwAGgBj3he7c5fNh9NkOXw0PUVaxygCVKeuvaqU= cache.flakehub.com-7:mvxJ2DZVHn/kRxlIaxYNMuDG1OvMckZu32um1TadOR8= cache.flakehub.com-8:moO+OVS0mnTjBTcOUh2kYLQEd59ExzyoW1QgQ8XAARQ= cache.flakehub.com-9:wChaSeTI6TeCuV/Sg2513ZIM9i0qJaYsF+lZCXg0J6o= cache.flakehub.com-10:2GqeNlIp6AKp4EF2MVbE1kBOp9iBSyo0UPR9KoR0o1Y=";
+          extra-trusted-substituters = "https://cache.flakehub.com";
+          trusted-users = "@admin";
+          upgrade-nix-store-path-url = "https://install.determinate.systems/nix-upgrade/stable/universal";
+          use-xdg-base-directories = "true";
+        };
       };
 
       # Nixpkgs
@@ -111,6 +117,7 @@
         modules =
           [
             configuration
+            determinate.darwinModules.default
             {nixpkgs.hostPlatform = platform;}
           ]
           ++ nixpkgs.lib.optional (primaryUser != null) {system.primaryUser = primaryUser;}
