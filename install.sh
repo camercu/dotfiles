@@ -67,7 +67,8 @@ fi
 # Install nix-darwin (must do after dotfiles are installed)
 if is-macos && is-admin; then
   if ! is-installed darwin-rebuild; then
-    nix run nix-darwin -- switch --flake $(realpath ~/.config/nix-darwin)
-    zsh -c 'darwin-rebuild switch --flake $(realpath ~/.config/nix-darwin)'
+    typeset -r nix_bin="$(command -v nix)"
+    typeset -r nix_darwin_flake="$(realpath ~/.config/nix-darwin)"
+    sudo "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "$nix_darwin_flake"
   fi
 fi
