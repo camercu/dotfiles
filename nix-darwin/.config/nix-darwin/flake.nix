@@ -135,6 +135,7 @@
         # kids laptop
         platform = "aarch64-darwin";
         primaryUser = "kadmin";
+        extraModules = [./ark-pkgs.nix];
       };
 
       "Jessie's Laptop" = {
