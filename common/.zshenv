@@ -21,6 +21,9 @@ export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_LIB_HOME="$HOME/.local/lib"
 export XDG_STATE_HOME="$HOME/.local/state"
 
+# Disable Apple Terminal session restore files such as ~/.zsh_sessions.
+export SHELL_SESSIONS_DISABLE=1
+
 #
 # Fish-like zsh dirs
 #
@@ -43,4 +46,3 @@ export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
 
 # Language environment
 export LANG=en_US.UTF-8
-
