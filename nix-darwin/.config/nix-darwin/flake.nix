@@ -54,9 +54,6 @@
       homebrew = {
         enable = true;
         onActivation.cleanup = "uninstall";
-        taps = [
-          "homebrew/cask-fonts"
-        ];
         casks = [
           "1password"
           "1password-cli"
