@@ -128,10 +128,12 @@
       "TheArk" = {
         # kids laptop
         platform = "aarch64-darwin";
+        primaryUser = "kadmin";
       };
 
       "Jessie's Laptop" = {
         platform = "aarch64-darwin";
+        primaryUser = "jadmin";
       };
     };
   in {
