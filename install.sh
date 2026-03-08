@@ -69,6 +69,6 @@ if is-macos && is-admin; then
   if ! is-installed darwin-rebuild; then
     typeset -r nix_bin="$(command -v nix)"
     typeset -r nix_darwin_flake="$(realpath ~/.config/nix-darwin)"
-    sudo "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "$nix_darwin_flake"
+    sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "$nix_darwin_flake"
   fi
 fi
