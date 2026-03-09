@@ -55,7 +55,6 @@
 
     brews = [
       "opencode" # AI coding agent (Claude Code alternative)
-      "vagrant-vmware-utility"
     ];
 
     casks = [
@@ -86,6 +85,7 @@
       "the-unarchiver"
       "tor-browser"
       "vagrant"
+      "vagrant-vmware-utility"
       "visual-studio-code"
       "vmware-fusion"
       "warp"
