@@ -8,7 +8,6 @@ FLAKE_DIR=${HOME_MANAGER_FLAKE_DIR:-$DOTFILE_DIR}
 FLAKE_URI=${HOME_MANAGER_FLAKE_URI:-path:$FLAKE_DIR}
 HOSTS_FILE=${HOME_MANAGER_HOSTS_FILE:-$DOTFILE_DIR/common/.config/home-manager/hosts.tsv}
 HOST_HELPER=$SCRIPT_DIR/home-manager-host.sh
-UNINSTALL_DOTFILES=$SCRIPT_DIR/uninstall-dotfiles.sh
 
 if ! command -v nix >/dev/null 2>&1; then
   error "nix is required before Home Manager can be applied"
@@ -38,7 +37,3 @@ fi
 nix --extra-experimental-features 'nix-command flakes' \
   run home-manager/release-25.05 -- \
   switch -b hm-backup --flake "$FLAKE_URI#$CONFIG_NAME" "$@"
-
-if [ -x "$UNINSTALL_DOTFILES" ] && ! "$UNINSTALL_DOTFILES"; then
-  warn "Home Manager applied but bootstrap dotfile cleanup failed"
-fi

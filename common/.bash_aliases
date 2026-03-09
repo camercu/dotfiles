@@ -282,7 +282,7 @@ if is-macos; then
   alias sha256sum='openssl sha256'
   alias is-admin='groups | grep -qw admin;'
   if is-admin; then
-    alias maintain='make -C ~/.config/nix-darwin && brewup'
+    alias maintain='dotsync && make -C ~/.config/nix-darwin update && brewup'
   fi
 
   # Show/Hide hidden files in Finder

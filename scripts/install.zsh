@@ -104,10 +104,6 @@ install_dotfiles() {
   "$DOTSYNC_BIN"
 }
 
-remove_bootstrap_dotfiles() {
-  "$SCRIPTS_DIR/uninstall-dotfiles.sh"
-}
-
 configure_macos_defaults() {
   if is-macos; then
     "$SCRIPTS_DIR/config-macos.zsh"
@@ -137,7 +133,6 @@ ensure_nix_darwin() {
   fi
 
   sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "path:$DOTFILE_DIR#$darwin_config"
-  remove_bootstrap_dotfiles || warn "nix-darwin applied but bootstrap dotfile cleanup failed"
 }
 
 maybe_apply_home_manager() {
