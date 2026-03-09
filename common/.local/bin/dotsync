@@ -49,74 +49,9 @@ has_command() {
   command -v "$1" >/dev/null 2>&1
 }
 
-resolve_path() {
-  path=$1
-
-  if has_command realpath; then
-    realpath "$path"
-    return
-  fi
-
-  if has_command python3; then
-    python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$path"
-    return
-  fi
-
-  error "missing dependency 'realpath' or 'python3' for path resolution"
-  exit 1
-}
-
-resolve_link_source() {
-  target=$1
-  source=$(readlink "$target" 2>/dev/null || printf '')
-
-  case "$source" in
-    "")
-      return 1
-      ;;
-    /*)
-      resolve_path "$source"
-      ;;
-    *)
-      resolve_path "$(dirname "$target")/$source"
-      ;;
-  esac
-}
-
-remove_legacy_target_if_needed() {
-  src=$1
-  rel=$2
-  target=$HOME/$rel
-
-  [ -L "$target" ] || return 0
-
-  current=$(resolve_link_source "$target" 2>/dev/null || printf '')
-  [ -n "$current" ] || return 0
-
-  expected=$(resolve_path "$src")
-  if [ "$current" = "$expected" ]; then
-    rm -f "$target"
-    info "removed legacy symlink $rel"
-  fi
-}
-
-prepare_legacy_links_for_stow() {
-  package_name=$1
-  package_dir=$DOTFILE_DIR/$package_name
-
-  find "$package_dir" -mindepth 1 | LC_ALL=C sort | while IFS= read -r src; do
-    rel=${src#$package_dir/}
-    remove_legacy_target_if_needed "$src" "$rel"
-  done
-}
-
 run_stow() {
   action=$1
   package_name=$2
-
-  if [ "$action" = "-R" ]; then
-    prepare_legacy_links_for_stow "$package_name"
-  fi
 
   info "stow $action $package_name"
   (
