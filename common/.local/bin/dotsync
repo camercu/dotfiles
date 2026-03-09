@@ -15,6 +15,7 @@ done
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
 DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd -P)
 IGNORE_DIR=$DOTFILE_DIR/lib/dotfiles-ignore
+. "$DOTFILE_DIR/scripts/lib/logging.sh"
 BACKUP_STAMP=${DOTFILES_BACKUP_STAMP:-$(date +%Y%m%d%H%M%S 2>/dev/null || printf 'bootstrap')}
 BACKUP_ROOT=${DOTFILES_BACKUP_DIR:-$HOME/.dotfiles-backups/$BACKUP_STAMP}
 BACKUP_BASE=$(dirname "$BACKUP_ROOT")
@@ -27,22 +28,6 @@ IGNORE_PREFIXES=
 IGNORE_SUFFIXES=
 IGNORE_PATH_SEGMENTS=
 packages=
-
-log() {
-  printf '%s\n' "$*" >&2
-}
-
-info() {
-  log "[*] $*"
-}
-
-warn() {
-  log "[!] $*"
-}
-
-success() {
-  log "[+] $*"
-}
 
 usage() {
   cat <<'EOF'
@@ -380,7 +365,7 @@ parse_args() {
         exit 0
         ;;
       *)
-        printf '%s\n' "unknown option: $1" >&2
+        error "unknown option: $1"
         usage >&2
         exit 1
         ;;

@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+source "$(cd "$(dirname "$0")" && pwd -P)/lib/logging.sh"
+
 is_admin() {
   groups | grep -qw admin
 }
@@ -27,8 +29,8 @@ configure_finder() {
   defaults write com.apple.finder "FXDefaultSearchScope" -string SCcf
   defaults write com.apple.universalaccess "showWindowTitlebarIcons" -bool true ||
     (
-      echo "[x] To always show Titlebar icons in Finder, you must grant your terminal full disk access in "
-      echo "    System Preferences → Security & Privacy → Full Disk Access"
+      error "To always show Titlebar icons in Finder, you must grant your terminal full disk access."
+      info "System Preferences -> Security & Privacy -> Full Disk Access"
     )
 }
 

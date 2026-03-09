@@ -85,7 +85,7 @@
       "the-unarchiver"
       "tor-browser"
       "vagrant"
-      "virtualbox"
+      "vagrant-vmware-utility"
       "visual-studio-code"
       "vmware-fusion"
       "warp"

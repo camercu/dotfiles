@@ -47,10 +47,14 @@ function is-function { declare -f -- "$1" &>/dev/null; }
 #
 # Logging Functions - colorized printing of log messages
 #
-function debug {
+function info {
   local -r BLUE=$(tput setaf 4)
   local -r CLEAR=$(tput sgr0)
   echo "${BLUE}[*] $*${CLEAR}" >&2
+}
+
+function debug {
+  info "$@"
 }
 
 function warn {

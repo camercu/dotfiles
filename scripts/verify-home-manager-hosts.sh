@@ -3,6 +3,7 @@ set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P)
+. "$SCRIPT_DIR/lib/logging.sh"
 HOSTS_FILE=${HOME_MANAGER_HOSTS_FILE:-$DOTFILE_DIR/common/.config/home-manager/hosts.tsv}
 HOST_HELPER=$SCRIPT_DIR/home-manager-host.sh
 HOSTS_NIX=$DOTFILE_DIR/common/.config/home-manager/lib/hosts.nix
@@ -17,7 +18,7 @@ cleanup() {
 trap cleanup EXIT HUP INT TERM
 
 fail() {
-  printf '%s\n' "$*" >&2
+  error "$*"
   exit 1
 }
 

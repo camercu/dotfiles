@@ -106,8 +106,8 @@ ensure_nix_darwin() {
       darwin_config="$("$SCRIPTS_DIR/home-manager-host.sh" current-name)"
     fi
 
-    remove_bootstrap_dotfiles
     sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "path:$DOTFILE_DIR#$darwin_config"
+    remove_bootstrap_dotfiles || warn "nix-darwin applied but bootstrap dotfile cleanup failed"
   fi
 }
 

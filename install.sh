@@ -2,6 +2,7 @@
 set -eu
 
 DOTFILE_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+. "$DOTFILE_DIR/scripts/lib/logging.sh"
 
 have_cmd() {
   command -v "$1" >/dev/null 2>&1
@@ -13,7 +14,7 @@ run_as_root() {
   elif have_cmd sudo; then
     sudo "$@"
   else
-    printf '%s\n' "sudo is required to install bootstrap packages" >&2
+    error "sudo is required to install bootstrap packages"
     exit 1
   fi
 }
@@ -41,12 +42,12 @@ install_linux_bootstrap_packages() {
       elif have_cmd apk; then
         run_as_root apk add ca-certificates $missing_packages
       else
-        printf '%s\n' "bootstrap packages are required but no supported package manager was found" >&2
+        error "bootstrap packages are required but no supported package manager was found"
         exit 1
       fi
       ;;
     *)
-      printf '%s\n' "unsupported OS for install.sh bootstrap: $(uname -s)" >&2
+      error "unsupported OS for install.sh bootstrap: $(uname -s)"
       exit 1
       ;;
   esac
@@ -55,7 +56,7 @@ install_linux_bootstrap_packages() {
 case "$(uname -s)" in
   Darwin)
     if ! have_cmd zsh; then
-      printf '%s\n' "zsh is required but was not found on macOS" >&2
+      error "zsh is required but was not found on macOS"
       exit 1
     fi
     ;;
@@ -63,7 +64,7 @@ case "$(uname -s)" in
     install_linux_bootstrap_packages
     ;;
   *)
-    printf '%s\n' "unsupported OS for install.sh bootstrap: $(uname -s)" >&2
+    error "unsupported OS for install.sh bootstrap: $(uname -s)"
     exit 1
     ;;
 esac
