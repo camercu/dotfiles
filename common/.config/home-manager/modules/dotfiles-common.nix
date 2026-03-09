@@ -13,6 +13,7 @@ in {
       ".config/home-manager" = {
         source = helpers.cleanSource (dotfilesRoot + "/common/.config/home-manager");
         recursive = true;
+        force = true;
       };
     };
 

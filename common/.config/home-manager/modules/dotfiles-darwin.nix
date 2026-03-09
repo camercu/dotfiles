@@ -7,13 +7,7 @@ in
   lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
   home.file = helpers.mkDiscoveredDirLinks darwinRoot [
     ".config"
-  ] // {
-    "Library" = {
-      source = helpers.cleanSource (darwinRoot + "/Library");
-      recursive = true;
-      force = true;
-    };
-  };
+  ];
 
   xdg.configFile =
     helpers.mkDiscoveredDirLinks (darwinRoot + "/.config") [

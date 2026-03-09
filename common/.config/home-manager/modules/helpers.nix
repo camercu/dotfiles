@@ -46,6 +46,7 @@
         value =
           {
             source = cleanSource (root + "/${name}");
+            force = true;
           }
           // lib.optionalAttrs recursive {inherit recursive;};
       })
