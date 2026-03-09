@@ -16,12 +16,17 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
 DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd -P)
 IGNORE_DIR=$DOTFILE_DIR/lib/dotfiles-ignore
 . "$DOTFILE_DIR/scripts/lib/logging.sh"
+STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
+MANIFEST_FILE=${DOTFILES_MANIFEST_FILE:-$STATE_HOME/dotsync/managed-targets.txt}
 BACKUP_STAMP=${DOTFILES_BACKUP_STAMP:-$(date +%Y%m%d%H%M%S 2>/dev/null || printf 'bootstrap')}
 BACKUP_ROOT=${DOTFILES_BACKUP_DIR:-$HOME/.dotfiles-backups/$BACKUP_STAMP}
 BACKUP_BASE=$(dirname "$BACKUP_ROOT")
 BACKUP_CREATED=0
 MODE=sync
+AUTO_DISCOVER=0
+HAVE_MANIFEST=0
 MANAGED_TARGETS_FILE=
+PREVIOUS_MANAGED_FILE=
 FILE_IGNORE_NAMES=
 DIR_IGNORE_NAMES=
 IGNORE_PREFIXES=
@@ -31,13 +36,14 @@ packages=
 
 usage() {
   cat <<'EOF'
-Usage: dotsync [--unlink]
+Usage: dotsync [--unlink] [--auto-discover]
 
 Without options, dotsync links the managed dotfiles and prunes stale managed
 symlinks that no longer exist in the active package set.
 
 Options:
   --unlink  remove all managed dotfile symlinks for the active package set
+  --auto-discover  scan all symlinks under $HOME instead of using the manifest
   -h, --help  show this help message
 EOF
 }
@@ -45,6 +51,9 @@ EOF
 cleanup() {
   if [ -n "${MANAGED_TARGETS_FILE:-}" ] && [ -f "$MANAGED_TARGETS_FILE" ]; then
     rm -f "$MANAGED_TARGETS_FILE"
+  fi
+  if [ -n "${PREVIOUS_MANAGED_FILE:-}" ] && [ -f "$PREVIOUS_MANAGED_FILE" ]; then
+    rm -f "$PREVIOUS_MANAGED_FILE"
   fi
 }
 
@@ -231,11 +240,33 @@ is_desired_target() {
   grep -Fqx -- "$rel" "$MANAGED_TARGETS_FILE"
 }
 
+load_previous_manifest() {
+  PREVIOUS_MANAGED_FILE=$(mktemp "${TMPDIR:-/tmp}/dotsync-previous.XXXXXX")
+
+  if [ -f "$MANIFEST_FILE" ]; then
+    HAVE_MANIFEST=1
+    cp "$MANIFEST_FILE" "$PREVIOUS_MANAGED_FILE"
+    return
+  fi
+
+  : > "$PREVIOUS_MANAGED_FILE"
+}
+
 managed_link_find() {
   find_args=
   case "$BACKUP_BASE" in
     "$HOME"/*)
       find_args="-path $BACKUP_BASE -o -path $BACKUP_BASE/*"
+      ;;
+  esac
+
+  case "$DOTFILE_DIR" in
+    "$HOME"/*)
+      if [ -n "$find_args" ]; then
+        find_args="$find_args -o -path $DOTFILE_DIR -o -path $DOTFILE_DIR/*"
+      else
+        find_args="-path $DOTFILE_DIR -o -path $DOTFILE_DIR/*"
+      fi
       ;;
   esac
 
@@ -246,8 +277,49 @@ managed_link_find() {
   fi
 }
 
+is_repo_target() {
+  target=$1
+
+  case "$target" in
+    "$DOTFILE_DIR"|"$DOTFILE_DIR"/*)
+      return 0
+      ;;
+  esac
+
+  return 1
+}
+
+prune_manifest_links() {
+  [ "$HAVE_MANIFEST" -eq 1 ] || return 1
+
+  info "pruning managed links from manifest"
+
+  while IFS= read -r rel; do
+    [ -n "$rel" ] || continue
+    target=$HOME/$rel
+
+    is_repo_target "$target" && continue
+    [ -L "$target" ] || continue
+    is_managed_link "$target" || continue
+
+    if [ "$MODE" = "unlink" ] || ! is_desired_target "$rel"; then
+      rm "$target"
+      info "removed managed link $rel"
+      cleanup_empty_parents "$target"
+    fi
+  done < "$PREVIOUS_MANAGED_FILE"
+
+  return 0
+}
+
 prune_managed_links() {
+  if [ "$AUTO_DISCOVER" -eq 0 ] && prune_manifest_links; then
+    return
+  fi
+
+  info "pruning managed links by auto-discovery"
   managed_link_find | LC_ALL=C sort | while IFS= read -r target; do
+    is_repo_target "$target" && continue
     rel=${target#$HOME/}
 
     is_managed_link "$target" || continue
@@ -258,6 +330,18 @@ prune_managed_links() {
       cleanup_empty_parents "$target"
     fi
   done
+}
+
+write_manifest() {
+  manifest_dir=$(dirname "$MANIFEST_FILE")
+  mkdir -p "$manifest_dir"
+
+  if [ "$MODE" = "unlink" ]; then
+    rm -f "$MANIFEST_FILE"
+    return
+  fi
+
+  LC_ALL=C sort -u "$MANAGED_TARGETS_FILE" > "$MANIFEST_FILE"
 }
 
 ensure_backup_root() {
@@ -360,6 +444,9 @@ parse_args() {
       --unlink)
         MODE=unlink
         ;;
+      --auto-discover)
+        AUTO_DISCOVER=1
+        ;;
       -h|--help)
         usage
         exit 0
@@ -408,8 +495,10 @@ report_result() {
 parse_args "$@"
 load_ignore_patterns
 select_packages
+load_previous_manifest
 
 MANAGED_TARGETS_FILE=$(mktemp "${TMPDIR:-/tmp}/dotsync-targets.XXXXXX")
 sync_packages
 prune_managed_links
+write_manifest
 report_result

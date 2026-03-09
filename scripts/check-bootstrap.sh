@@ -6,6 +6,7 @@ DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P)
 
 run_dotsync_smoke_test() {
   tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/dotsync-home.XXXXXX")
+  manifest_file="$tmp_home/.local/state/dotsync/managed-targets.txt"
   rel_target=$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' \
     "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home")
 
@@ -14,9 +15,16 @@ run_dotsync_smoke_test() {
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >/dev/null 2>&1
   [ -L "$tmp_home/.bash_aliases" ]
   [ "$(readlink "$tmp_home/.bash_aliases")" = "$rel_target" ]
+  [ -f "$manifest_file" ]
+  grep -Fqx ".bash_aliases" "$manifest_file"
 
   HOME="$tmp_home" "$SCRIPT_DIR/uninstall-dotfiles.sh" >/dev/null 2>&1
   [ ! -L "$tmp_home/.bash_aliases" ]
+  [ ! -f "$manifest_file" ]
+
+  ln -s "$rel_target" "$tmp_home/.bash_aliases"
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" --auto-discover >/dev/null 2>&1
+  [ -L "$tmp_home/.bash_aliases" ]
 
   rm -rf "$tmp_home"
 }

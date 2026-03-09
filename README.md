@@ -22,7 +22,10 @@ The script links `common/` plus the current OS-specific tree. If it finds an
 existing file at a target path, it moves that file into
 `~/.dotfiles-backups/<timestamp>/` before linking the repository version.
 It also prunes stale managed symlinks when their dotfile entry has been
-removed from the active package set.
+removed from the active package set. By default it uses a manifest under
+`$XDG_STATE_HOME/dotsync/managed-targets.txt` (or `~/.local/state/...`) to
+avoid scanning all of `HOME`; pass `--auto-discover` to force the older
+full-home symlink scan.
 
 Use the unlink helper when you want to remove shell-managed dotfile symlinks
 that point back into this repository:
