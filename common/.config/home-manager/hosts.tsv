@@ -1,0 +1,6 @@
+# config_name|system|username|home_directory|aliases
+roci|aarch64-darwin|cameron||roci,theroci
+theark|aarch64-darwin|kadmin||theark
+jessieslaptop|aarch64-darwin|jadmin||jessieslaptop
+tachi|x86_64-darwin|cameron||tachi
+somnambulist|x86_64-linux|cr4nk||somnambulist

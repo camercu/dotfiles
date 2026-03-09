@@ -1,5 +1,5 @@
 {
-  description = "Cross-platform Home Manager configuration";
+  description = "Linux standalone Home Manager configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
@@ -14,6 +14,8 @@
     home-manager,
     ...
   }: let
+    lib = nixpkgs.lib;
+    hostData = import ./lib/hosts.nix {inherit lib;};
     mkHome = {
       system,
       username,
@@ -41,31 +43,17 @@
           ++ extraModules;
       };
   in {
-    homeConfigurations = {
-      roci = mkHome {
-        system = "aarch64-darwin";
-        username = "cameron";
-      };
-
-      theark = mkHome {
-        system = "aarch64-darwin";
-        username = "kadmin";
-      };
-
-      jessieslaptop = mkHome {
-        system = "aarch64-darwin";
-        username = "jadmin";
-      };
-
-      tachi = mkHome {
-        system = "x86_64-darwin";
-        username = "cameron";
-      };
-
-      somnambulist = mkHome {
-        system = "x86_64-linux";
-        username = "cr4nk";
-      };
-    };
+    homeConfigurations =
+      builtins.listToAttrs (map (host: {
+          name = host.configName;
+          value = mkHome {
+            inherit (host) system username;
+            homeDirectory =
+              if host.homeDirectory == ""
+              then null
+              else host.homeDirectory;
+          };
+        })
+        hostData.linuxHosts);
   };
 }

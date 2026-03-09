@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-25.05-darwin";
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
+    home-manager = {
+      url = "github:nix-community/home-manager/release-25.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -13,9 +17,13 @@
   outputs = {
     self,
     determinate,
+    home-manager,
     nix-darwin,
     nixpkgs,
   }: let
+    hmRoot = ../../../common/.config/home-manager;
+    hmHostData = import (hmRoot + "/lib/hosts.nix") {lib = nixpkgs.lib;};
+    hmCommonModule = hmRoot + "/home.nix";
     configuration = {
       pkgs,
       lib,
@@ -110,37 +118,62 @@
     mkHost = {
       platform,
       primaryUser ? null,
+      homeManagerConfigName ? null,
       extraModules ? [],
     }:
-      nix-darwin.lib.darwinSystem {
-        modules =
-          [
-            configuration
-            determinate.darwinModules.default
-            {nixpkgs.hostPlatform = platform;}
-          ]
-          ++ nixpkgs.lib.optional (primaryUser != null) {system.primaryUser = primaryUser;}
-          ++ extraModules;
-      };
+      let
+        homeHost =
+          if homeManagerConfigName == null
+          then null
+          else hmHostData.byName.${hmHostData.normalizeName homeManagerConfigName} or null;
+      in
+        nix-darwin.lib.darwinSystem {
+          modules =
+            [
+              configuration
+              determinate.darwinModules.default
+              home-manager.darwinModules.home-manager
+              {nixpkgs.hostPlatform = platform;}
+              {
+                home-manager.useGlobalPkgs = true;
+                home-manager.useUserPackages = true;
+              }
+            ]
+            ++ nixpkgs.lib.optional (primaryUser != null) {system.primaryUser = primaryUser;}
+            ++ nixpkgs.lib.optional (homeHost != null) {
+              home-manager.users.${homeHost.username} = {
+                imports = [hmCommonModule];
+                home.homeDirectory =
+                  if homeHost.homeDirectory != ""
+                  then homeHost.homeDirectory
+                  else "/Users/${homeHost.username}";
+              };
+            }
+            ++ extraModules;
+        };
     hosts = {
       "Roci" = {
         platform = "aarch64-darwin";
         primaryUser = "cadmin";
+        homeManagerConfigName = "roci";
         extraModules = [./crank-pkgs.nix];
       };
       "Tachi" = {
         platform = "x86_64-darwin";
+        homeManagerConfigName = "tachi";
       };
       "TheArk" = {
         # kids laptop
         platform = "aarch64-darwin";
         primaryUser = "kadmin";
+        homeManagerConfigName = "theark";
         extraModules = [./ark-pkgs.nix];
       };
 
       "Jessie's Laptop" = {
         platform = "aarch64-darwin";
         primaryUser = "jadmin";
+        homeManagerConfigName = "jessieslaptop";
       };
     };
   in {

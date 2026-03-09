@@ -2,9 +2,17 @@ CONFIG ?= $(shell sh -c 'if [ -n "$$HOME_MANAGER_CONFIG" ]; then printf "%s" "$$
 
 .PHONY: switch
 switch:
+	@if [ "$$(uname -s)" = "Darwin" ]; then \
+		printf '%s\n' "Use nix-darwin on macOS: make -C ~/.config/nix-darwin update"; \
+		exit 1; \
+	fi
 	../../../../scripts/apply-home-manager.sh "$(CONFIG)"
 
 .PHONY: update
 update:
-	nix --extra-experimental-features 'nix-command flakes' flake update --flake .
+	@if [ "$$(uname -s)" = "Darwin" ]; then \
+		printf '%s\n' "Use nix-darwin on macOS: make -C ~/.config/nix-darwin update"; \
+		exit 1; \
+	fi
+	nix --extra-experimental-features 'nix-command flakes' flake update --flake path:.
 	../../../../scripts/apply-home-manager.sh "$(CONFIG)"
