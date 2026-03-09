@@ -3,6 +3,7 @@ set -e
 
 export DOTFILE_DIR="$(cd "$(dirname ${0})/.." && pwd -P)"
 typeset -r SCRIPTS_DIR="$DOTFILE_DIR/scripts"
+typeset -r DOTSYNC_BIN="$DOTFILE_DIR/common/.local/bin/dotsync"
 
 # load env vars, including XDG_*
 builtin source "$DOTFILE_DIR/common/.zshenv"
@@ -100,7 +101,7 @@ ensure_homebrew() {
 }
 
 install_dotfiles() {
-  "$SCRIPTS_DIR/install-dotfiles.sh"
+  "$DOTSYNC_BIN"
 }
 
 remove_bootstrap_dotfiles() {
