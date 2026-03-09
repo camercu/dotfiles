@@ -4,9 +4,9 @@ DOTFILE_DIR ?= $(shell realpath $$HOME/.dotfiles)
 .PHONY: update
 update:
 	nix --extra-experimental-features 'nix-command flakes' flake update --flake path:$(DOTFILE_DIR)
-	../../../../scripts/uninstall-dotfiles.sh || printf '%s\n' "warning: bootstrap dotfile cleanup failed before nix-darwin switch" >&2
+	"$(DOTFILE_DIR)/scripts/uninstall-dotfiles.sh" || sh -c '. "$$1/scripts/lib/logging.sh"; warn "$$2"' -- "$(DOTFILE_DIR)" "bootstrap dotfile cleanup failed before nix-darwin switch"
 	sudo darwin-rebuild switch --flake path:$(DOTFILE_DIR)#$(CONFIG)
-	../../../../scripts/uninstall-dotfiles.sh || printf '%s\n' "warning: nix-darwin applied but bootstrap dotfile cleanup failed" >&2
+	"$(DOTFILE_DIR)/scripts/uninstall-dotfiles.sh" || sh -c '. "$$1/scripts/lib/logging.sh"; warn "$$2"' -- "$(DOTFILE_DIR)" "nix-darwin applied but bootstrap dotfile cleanup failed"
 	rustup default stable
 
 .PHONY: uninstall
@@ -15,8 +15,8 @@ uninstall:
 
 .PHONY: install
 install:
-	../../../../scripts/uninstall-dotfiles.sh || printf '%s\n' "warning: bootstrap dotfile cleanup failed before nix-darwin switch" >&2
+	"$(DOTFILE_DIR)/scripts/uninstall-dotfiles.sh" || sh -c '. "$$1/scripts/lib/logging.sh"; warn "$$2"' -- "$(DOTFILE_DIR)" "bootstrap dotfile cleanup failed before nix-darwin switch"
 	nix run nix-darwin -- switch --flake path:$(DOTFILE_DIR)#$(CONFIG)
 	zsh -c 'sudo darwin-rebuild switch --flake path:$(DOTFILE_DIR)#$(CONFIG)'
-	../../../../scripts/uninstall-dotfiles.sh || printf '%s\n' "warning: nix-darwin applied but bootstrap dotfile cleanup failed" >&2
+	"$(DOTFILE_DIR)/scripts/uninstall-dotfiles.sh" || sh -c '. "$$1/scripts/lib/logging.sh"; warn "$$2"' -- "$(DOTFILE_DIR)" "nix-darwin applied but bootstrap dotfile cleanup failed"
 	rustup default stable
