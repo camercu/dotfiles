@@ -8,7 +8,7 @@ in
   home.file = helpers.mkDiscoveredDirLinks darwinRoot [
     ".config"
   ] // {
-    "Library/Application Support/org.dystroy.bacon/prefs.toml".force = true;
+    "Library".force = true;
   };
 
   xdg.configFile =
