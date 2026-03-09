@@ -14,9 +14,18 @@ done
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
 DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd -P)
+IGNORE_DIR=$DOTFILE_DIR/lib/dotfiles-ignore
 BACKUP_STAMP=${DOTFILES_BACKUP_STAMP:-$(date +%Y%m%d%H%M%S 2>/dev/null || printf 'bootstrap')}
 BACKUP_ROOT=${DOTFILES_BACKUP_DIR:-$HOME/.dotfiles-backups/$BACKUP_STAMP}
+BACKUP_BASE=$(dirname "$BACKUP_ROOT")
 BACKUP_CREATED=0
+MODE=sync
+MANAGED_TARGETS_FILE=
+FILE_IGNORE_NAMES=$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$IGNORE_DIR/file-names.txt")
+DIR_IGNORE_NAMES=$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$IGNORE_DIR/dir-names.txt")
+IGNORE_PREFIXES=$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$IGNORE_DIR/prefixes.txt")
+IGNORE_SUFFIXES=$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$IGNORE_DIR/suffixes.txt")
+IGNORE_PATH_SEGMENTS=$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$IGNORE_DIR/path-segments.txt")
 
 log() {
   printf '%s\n' "$*" >&2
@@ -34,6 +43,27 @@ success() {
   log "[+] $*"
 }
 
+usage() {
+  cat <<'EOF'
+Usage: dotsync [--unlink]
+
+Without options, dotsync links the managed dotfiles and prunes stale managed
+symlinks that no longer exist in the active package set.
+
+Options:
+  --unlink  remove all managed dotfile symlinks for the active package set
+  -h, --help  show this help message
+EOF
+}
+
+cleanup() {
+  if [ -n "${MANAGED_TARGETS_FILE:-}" ] && [ -f "$MANAGED_TARGETS_FILE" ]; then
+    rm -f "$MANAGED_TARGETS_FILE"
+  fi
+}
+
+trap cleanup EXIT HUP INT TERM
+
 is_macos() {
   [ "$(uname -s)" = "Darwin" ]
 }
@@ -47,14 +77,127 @@ is_admin() {
 }
 
 should_skip() {
-  case "$1" in
-    */.DS_Store|*/.gitignore|*/.nvimlog|*/.zcompdump|*/Crash\ Reports|*/Crash\ Reports/*)
+  path=$1
+  base=${path##*/}
+  old_ifs=$IFS
+  IFS='
+'
+
+  for name in $FILE_IGNORE_NAMES $DIR_IGNORE_NAMES; do
+    if [ "$base" = "$name" ]; then
+      IFS=$old_ifs
       return 0
-      ;;
+    fi
+  done
+
+  for prefix in $IGNORE_PREFIXES; do
+    case "$base" in
+      "$prefix"*)
+        IFS=$old_ifs
+        return 0
+        ;;
+    esac
+  done
+
+  for suffix in $IGNORE_SUFFIXES; do
+    case "$base" in
+      *"$suffix")
+        IFS=$old_ifs
+        return 0
+        ;;
+    esac
+  done
+
+  for segment in $IGNORE_PATH_SEGMENTS; do
+    case "$path" in
+      */"$segment"|*/"$segment"/*)
+        IFS=$old_ifs
+        return 0
+        ;;
+    esac
+  done
+
+  IFS=$old_ifs
+  return 1
+}
+
+record_managed_target() {
+  printf '%s\n' "$1" >> "$MANAGED_TARGETS_FILE"
+}
+
+cleanup_empty_parents() {
+  path=$1
+  dir=$(dirname "$path")
+
+  while [ "$dir" != "$HOME" ] && [ "$dir" != "/" ]; do
+    if rmdir "$dir" 2>/dev/null; then
+      info "removed empty directory ${dir#$HOME/}"
+      dir=$(dirname "$dir")
+      continue
+    fi
+    break
+  done
+}
+
+is_managed_link() {
+  target=$1
+  source=$(readlink "$target" 2>/dev/null || printf '')
+
+  case "$source" in
+    "") return 1 ;;
+    /*) ;;
     *)
       return 1
       ;;
   esac
+
+  if [ "$MODE" = "unlink" ]; then
+    case "$source" in
+      "$DOTFILE_DIR"/*)
+        return 0
+        ;;
+    esac
+  fi
+
+  for package_name in $packages; do
+    case "$source" in
+      "$DOTFILE_DIR/$package_name"/*)
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
+is_desired_target() {
+  rel=$1
+  grep -Fqx -- "$rel" "$MANAGED_TARGETS_FILE"
+}
+
+prune_managed_links() {
+  find_args=
+  case "$BACKUP_BASE" in
+    "$HOME"/*)
+      find_args="-path $BACKUP_BASE -o -path $BACKUP_BASE/*"
+      ;;
+  esac
+
+  if [ -n "$find_args" ]; then
+    find "$HOME" \( $find_args \) -prune -o -type l -print
+  else
+    find "$HOME" -type l -print
+  fi | LC_ALL=C sort | while IFS= read -r target; do
+    rel=${target#$HOME/}
+
+    is_managed_link "$target" || continue
+
+    if [ "$MODE" = "unlink" ] || ! is_desired_target "$rel"; then
+      rm "$target"
+      info "removed managed link $rel"
+      cleanup_empty_parents "$target"
+    fi
+  done
 }
 
 ensure_backup_root() {
@@ -106,6 +249,8 @@ link_target() {
   rel=$2
   target=$HOME/$rel
 
+  record_managed_target "$rel"
+
   mkdir -p "$(dirname "$target")"
 
   if [ -L "$target" ]; then
@@ -141,6 +286,24 @@ link_package() {
   done
 }
 
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --unlink)
+      MODE=unlink
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      printf '%s\n' "unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+
 packages="common"
 
 if is_macos; then
@@ -152,11 +315,19 @@ elif is_linux; then
   packages="$packages linux"
 fi
 
-for package_name in $packages; do
-  link_package "$package_name"
-done
+MANAGED_TARGETS_FILE=$(mktemp "${TMPDIR:-/tmp}/dotsync-targets.XXXXXX")
 
-if [ "$BACKUP_CREATED" -eq 1 ]; then
+if [ "$MODE" != "unlink" ]; then
+  for package_name in $packages; do
+    link_package "$package_name"
+  done
+fi
+
+prune_managed_links
+
+if [ "$MODE" = "unlink" ]; then
+  success "managed dotfile links removed"
+elif [ "$BACKUP_CREATED" -eq 1 ]; then
   success "dotfiles linked with backups stored under $BACKUP_ROOT"
 else
   success "dotfiles linked"

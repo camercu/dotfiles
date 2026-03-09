@@ -3,9 +3,7 @@
   linuxRoot = ../../../../linux;
 in {
   home.file =
-    helpers.mkDiscoveredFileLinks linuxRoot [
-      ".DS_Store"
-    ]
+    helpers.mkDiscoveredFileLinks linuxRoot []
     // helpers.mkDiscoveredDirLinks linuxRoot [
       ".config"
     ];

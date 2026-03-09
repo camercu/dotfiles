@@ -1,11 +1,25 @@
 {lib}: let
+  ignoreDir = ../../../../lib/dotfiles-ignore;
+  readPatterns = file:
+    builtins.filter (line:
+      line != ""
+      && !lib.hasPrefix "#" line) (lib.splitString "\n" (builtins.readFile file));
+
+  exactNames =
+    readPatterns (ignoreDir + "/file-names.txt")
+    ++ readPatterns (ignoreDir + "/dir-names.txt");
+  prefixes = readPatterns (ignoreDir + "/prefixes.txt");
+  suffixes = readPatterns (ignoreDir + "/suffixes.txt");
+  pathSegments = readPatterns (ignoreDir + "/path-segments.txt");
+
   shouldIgnore = rel: base:
-    base == ".DS_Store"
-    || base == ".gitignore"
-    || base == ".nvimlog"
-    || base == ".zcompdump"
-    || rel == "Crash Reports"
-    || lib.hasInfix "/Crash Reports/" rel;
+    lib.any (name: base == name) exactNames
+    || lib.any (prefix: lib.hasPrefix prefix base) prefixes
+    || lib.any (suffix: lib.hasSuffix suffix base) suffixes
+    || lib.any (segment:
+      rel == segment
+      || lib.hasInfix "/${segment}/" rel
+      || lib.hasSuffix "/${segment}" rel) pathSegments;
 
   cleanSource = root:
     builtins.path {
@@ -39,7 +53,9 @@
 
   topLevelNamesByType = root: expectedType: exclude:
     lib.attrNames (lib.filterAttrs (name: entryType:
-      entryType == expectedType && !(builtins.elem name exclude)) (builtins.readDir root));
+      entryType == expectedType
+      && !(builtins.elem name exclude)
+      && !(shouldIgnore name name)) (builtins.readDir root));
 in {
   inherit cleanSource;
   mkFileLinks = root: names: mkLinksWithPrefix "" root names false;

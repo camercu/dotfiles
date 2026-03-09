@@ -3,9 +3,7 @@
   commonRoot = ../../..;
 in {
   home.file =
-    helpers.mkDiscoveredFileLinks commonRoot [
-      ".DS_Store"
-    ]
+    helpers.mkDiscoveredFileLinks commonRoot []
     // helpers.mkDiscoveredDirLinks commonRoot [
       ".config"
     ]
