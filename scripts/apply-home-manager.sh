@@ -3,10 +3,11 @@ set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P)
-FLAKE_DIR=${HOME_MANAGER_FLAKE_DIR:-$DOTFILE_DIR/common/.config/home-manager}
+FLAKE_DIR=${HOME_MANAGER_FLAKE_DIR:-$DOTFILE_DIR}
 FLAKE_URI=${HOME_MANAGER_FLAKE_URI:-path:$FLAKE_DIR}
-HOSTS_FILE=${HOME_MANAGER_HOSTS_FILE:-$FLAKE_DIR/hosts.tsv}
+HOSTS_FILE=${HOME_MANAGER_HOSTS_FILE:-$DOTFILE_DIR/common/.config/home-manager/hosts.tsv}
 HOST_HELPER=$SCRIPT_DIR/home-manager-host.sh
+UNINSTALL_DOTFILES=$SCRIPT_DIR/uninstall-dotfiles.sh
 
 if ! command -v nix >/dev/null 2>&1; then
   printf '%s\n' "nix is required before Home Manager can be applied" >&2
@@ -31,6 +32,10 @@ if HOST_SYSTEM=$("$HOST_HELPER" lookup-system "$RAW_NAME" 2>/dev/null); then
       exit 1
       ;;
   esac
+fi
+
+if [ -x "$UNINSTALL_DOTFILES" ]; then
+  "$UNINSTALL_DOTFILES"
 fi
 
 exec nix --extra-experimental-features 'nix-command flakes' \

@@ -64,7 +64,8 @@ verify_nix_hosts() {
     $1 != "" && $1 !~ /^#/ { print $1 "|" $2 }
   ' "$HOSTS_FILE" | LC_ALL=C sort > "$EXPECTED_FILE"
 
-  nix-instantiate --eval --strict --json --expr "
+  nix-instantiate --extra-experimental-features flakes \
+    --eval --strict --json --expr "
     let
       lib = import <nixpkgs/lib>;
       hosts = import $HOSTS_NIX { inherit lib; };

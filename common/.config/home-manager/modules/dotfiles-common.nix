@@ -1,6 +1,8 @@
-{lib, ...}: let
-  helpers = import ./helpers.nix {inherit lib;};
-  commonRoot = ../../..;
+{lib, dotfilesRoot, ...}: let
+  helpers = import ./helpers.nix {
+    inherit lib dotfilesRoot;
+  };
+  commonRoot = dotfilesRoot + "/common";
 in {
   home.file =
     helpers.mkDiscoveredFileLinks commonRoot []
@@ -9,7 +11,7 @@ in {
     ]
     // {
       ".config/home-manager" = {
-        source = helpers.cleanSource ../.;
+        source = helpers.cleanSource (dotfilesRoot + "/common/.config/home-manager");
         recursive = true;
       };
     };

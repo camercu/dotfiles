@@ -62,7 +62,9 @@ configure_nix_channels() {
     nix_channels_changed=1
   fi
 
-  (( nix_channels_changed )) && nix-channel --update
+  if (( nix_channels_changed )); then
+    nix-channel --update
+  fi
 }
 
 load_nix_environment() {
@@ -83,6 +85,10 @@ install_dotfiles() {
   "$SCRIPTS_DIR/install-dotfiles.sh"
 }
 
+remove_bootstrap_dotfiles() {
+  "$SCRIPTS_DIR/uninstall-dotfiles.sh"
+}
+
 configure_macos_defaults() {
   if is-macos; then
     "$SCRIPTS_DIR/config-macos.zsh"
@@ -92,8 +98,16 @@ configure_macos_defaults() {
 ensure_nix_darwin() {
   if is-macos && is-admin && ! is-installed darwin-rebuild; then
     typeset -r nix_bin="$(command -v nix)"
-    typeset -r nix_darwin_flake="$(realpath ~/.config/nix-darwin)"
-    sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "path:$nix_darwin_flake"
+    local darwin_config
+
+    if darwin_config="$("$SCRIPTS_DIR/home-manager-host.sh" current-config 2>/dev/null)"; then
+      :
+    else
+      darwin_config="$("$SCRIPTS_DIR/home-manager-host.sh" current-name)"
+    fi
+
+    remove_bootstrap_dotfiles
+    sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "path:$DOTFILE_DIR#$darwin_config"
   fi
 }
 

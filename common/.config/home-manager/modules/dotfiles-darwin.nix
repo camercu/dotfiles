@@ -1,7 +1,10 @@
-{lib, ...}: let
-  helpers = import ./helpers.nix {inherit lib;};
-  darwinRoot = ../../../../macos;
-in {
+{lib, pkgs, dotfilesRoot, ...}: let
+  helpers = import ./helpers.nix {
+    inherit lib dotfilesRoot;
+  };
+  darwinRoot = dotfilesRoot + "/macos";
+in
+  lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
   home.file = helpers.mkDiscoveredDirLinks darwinRoot [
     ".config"
   ];

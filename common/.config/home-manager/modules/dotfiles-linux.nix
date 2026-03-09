@@ -1,7 +1,10 @@
-{lib, ...}: let
-  helpers = import ./helpers.nix {inherit lib;};
-  linuxRoot = ../../../../linux;
-in {
+{lib, pkgs, dotfilesRoot, ...}: let
+  helpers = import ./helpers.nix {
+    inherit lib dotfilesRoot;
+  };
+  linuxRoot = dotfilesRoot + "/linux";
+in
+  lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
   home.file =
     helpers.mkDiscoveredFileLinks linuxRoot []
     // helpers.mkDiscoveredDirLinks linuxRoot [

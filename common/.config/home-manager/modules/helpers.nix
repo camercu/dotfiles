@@ -1,5 +1,5 @@
-{lib}: let
-  ignoreDir = ../../../../lib/dotfiles-ignore;
+{lib, dotfilesRoot}: let
+  ignoreDir = dotfilesRoot + "/lib/dotfiles-ignore";
   readPatterns = file:
     builtins.filter (line:
       line != ""
@@ -24,7 +24,7 @@
   cleanSource = root:
     builtins.path {
       path = root;
-      name = builtins.baseNameOf (toString root);
+      name = builtins.unsafeDiscardStringContext (builtins.baseNameOf (toString root));
       filter = path: _type: let
         rootStr = toString root;
         pathStr = toString path;
