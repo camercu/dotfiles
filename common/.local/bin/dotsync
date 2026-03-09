@@ -253,25 +253,28 @@ load_previous_manifest() {
 }
 
 managed_link_find() {
-  find_args=
+  set --
+  have_prune_args=0
+
   case "$BACKUP_BASE" in
     "$HOME"/*)
-      find_args="-path $BACKUP_BASE -o -path $BACKUP_BASE/*"
+      set -- "$@" -path "$BACKUP_BASE" -o -path "$BACKUP_BASE/*"
+      have_prune_args=1
       ;;
   esac
 
   case "$DOTFILE_DIR" in
     "$HOME"/*)
-      if [ -n "$find_args" ]; then
-        find_args="$find_args -o -path $DOTFILE_DIR -o -path $DOTFILE_DIR/*"
-      else
-        find_args="-path $DOTFILE_DIR -o -path $DOTFILE_DIR/*"
+      if [ "$have_prune_args" -eq 1 ]; then
+        set -- "$@" -o
       fi
+      set -- "$@" -path "$DOTFILE_DIR" -o -path "$DOTFILE_DIR/*"
+      have_prune_args=1
       ;;
   esac
 
-  if [ -n "$find_args" ]; then
-    find "$HOME" \( $find_args \) -prune -o -type l -print
+  if [ "$have_prune_args" -eq 1 ]; then
+    find "$HOME" \( "$@" \) -prune -o -type l -print
   else
     find "$HOME" -type l -print
   fi
