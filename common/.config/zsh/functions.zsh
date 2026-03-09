@@ -62,7 +62,7 @@ function autoload-dir {
         [[ -d "$zdir" ]] || continue
         fpath=("$zdir" $fpath)
         # match all plain files except those starting with underscore, grabbing basename of file, with NULL_GLOB set
-        zautoloads=($zdir/*~_*(N.:t))
+        zautoloads=($zdir/*~_*(N-:t))
         (( $#zautoloads > 0 )) && autoload -Uz $zautoloads
     done
 }
@@ -74,11 +74,12 @@ function autoload-dir {
 function source-dir {
     local zdir=$1
     local scriptfile owner perms
+    setopt EXTENDED_GLOB LOCAL_OPTIONS
     if [[ ! -d $zdir ]]; then
         error "directory not found: $zdir"
         return 1
     fi
-    for scriptfile in $zdir/*.(sh|zsh)(N.); do
+    for scriptfile in $zdir/*.(sh|zsh)(N-); do
         if is-macos; then
             owner=$(stat -f '%u' "$scriptfile" 2>/dev/null)
             perms=$(stat -f '%OLp' "$scriptfile" 2>/dev/null)
