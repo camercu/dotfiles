@@ -104,7 +104,8 @@ configure_admin_settings() {
 }
 
 restart_affected_services() {
-  killall Finder Dock
+  killall Finder >/dev/null 2>&1 || info "Finder was not running; skipping restart"
+  killall Dock >/dev/null 2>&1 || info "Dock was not running; skipping restart"
 }
 
 main() {
