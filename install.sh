@@ -1,74 +1,53 @@
-#!/usr/bin/env zsh
-set -e
+#!/bin/sh
+set -eu
 
-export DOTFILE_DIR="$(cd "$(dirname ${0})" && pwd -P)" # absolute path to dir
+DOTFILE_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 
-# load env vars, including XDG_*
-builtin source "$DOTFILE_DIR/common/.zshenv"
+have_cmd() {
+  command -v "$1" >/dev/null 2>&1
+}
 
-# load useful functions and aliases
-# (realpath, is-macos, is-linux, logging functions)
-builtin source "$DOTFILE_DIR/common/.bash_aliases"
-
-# Ensure Zsh and XDG directories exist.
-() {
-  local zdir
-  for zdir in $@; do
-    [[ -d "${(P)zdir}" ]] || \mkdir -p -- "${(P)zdir}"
-  done
-} __zsh_{user_data,cache}_dir XDG_{BIN,CACHE,CONFIG,DATA,LIB,STATE}_HOME
-
-# Migrate legacy Claude config into XDG config dir and keep compatibility symlink.
-scripts/migrate-claude-config.zsh
-
-# Also create .ssh dir
-if [[ ! -d "$HOME/.ssh" ]]; then
-    mkdir "$HOME/.ssh"
-    chmod 700 "$HOME/.ssh"
-fi
-
-# initialize/update git submodules for dotfiles
-git submodule update --init
-
-# Ensure nix is installed on MacOS
-if ! is-installed nix && is-macos; then
-    scripts/install-nix.sh
-fi
-if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-    . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-    # Add Nix Channels
-    typeset -i __nix_channels_changed=0
-    if ! nix-channel --list 2>/dev/null | grep -q '^nixpkgs '; then
-      nix-channel --add https://nixos.org/channels/nixpkgs-25.05-darwin nixpkgs
-      __nix_channels_changed=1
-    fi
-    if ! nix-channel --list 2>/dev/null | grep -q '^nixpkgs-unstable '; then
-      nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
-      __nix_channels_changed=1
-    fi
-    (( __nix_channels_changed )) && nix-channel --update
-    unset __nix_channels_changed
-fi
-
-# install homebrew if admin user on MacOS
-if ! is-installed brew && is-macos && is-admin ; then
-    scripts/install-homebrew.sh
-    builtin eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
-
-# install dotfiles
-scripts/install-dotfiles.sh
-
-# configure macos default settings
-if is-macos; then
-    scripts/config-macos.zsh
-fi
-
-# Install nix-darwin (must do after dotfiles are installed)
-if is-macos && is-admin; then
-  if ! is-installed darwin-rebuild; then
-    typeset -r nix_bin="$(command -v nix)"
-    typeset -r nix_darwin_flake="$(realpath ~/.config/nix-darwin)"
-    sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "$nix_darwin_flake"
+run_as_root() {
+  if [ "$(id -u)" -eq 0 ]; then
+    "$@"
+  elif have_cmd sudo; then
+    sudo "$@"
+  else
+    printf '%s\n' "sudo is required to install zsh for the bootstrap phase" >&2
+    exit 1
   fi
+}
+
+install_zsh() {
+  case "$(uname -s)" in
+    Darwin)
+      printf '%s\n' "zsh is required but was not found on macOS" >&2
+      exit 1
+      ;;
+    Linux)
+      if have_cmd apt-get; then
+        run_as_root apt-get update
+        run_as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y zsh
+      elif have_cmd dnf; then
+        run_as_root dnf install -y zsh
+      elif have_cmd pacman; then
+        run_as_root pacman -Sy --noconfirm zsh
+      elif have_cmd apk; then
+        run_as_root apk add zsh
+      else
+        printf '%s\n' "zsh is required but no supported package manager was found" >&2
+        exit 1
+      fi
+      ;;
+    *)
+      printf '%s\n' "unsupported OS for install.sh bootstrap: $(uname -s)" >&2
+      exit 1
+      ;;
+  esac
+}
+
+if ! have_cmd zsh; then
+  install_zsh
 fi
+
+exec zsh "$DOTFILE_DIR/scripts/install.zsh" "$@"

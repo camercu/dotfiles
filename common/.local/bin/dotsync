@@ -1,44 +1,163 @@
-#!/usr/bin/env zsh
+#!/bin/sh
+set -eu
 
-# set DOTFILE_DIR
-if ! command -v realpath &>/dev/null; then
-  function realpath {
-    python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$1"
-  }
-fi
-DOTFILE_DIR="$(cd $(dirname $(realpath "$0"))/../../.. && pwd)"
+SCRIPT_PATH=$0
 
-# load env vars, including XDG_*
-builtin source "$DOTFILE_DIR/common/.zshenv"
+while [ -L "$SCRIPT_PATH" ]; do
+  LINK_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
+  SCRIPT_PATH=$(readlink "$SCRIPT_PATH")
+  case "$SCRIPT_PATH" in
+    /*) ;;
+    *) SCRIPT_PATH=$LINK_DIR/$SCRIPT_PATH ;;
+  esac
+done
 
-# load useful functions and aliases
-# (realpath, is-macos, is-linux, logging functions)
-builtin source "$DOTFILE_DIR/common/.bash_aliases"
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
+DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd -P)
+BACKUP_STAMP=${DOTFILES_BACKUP_STAMP:-$(date +%Y%m%d%H%M%S 2>/dev/null || printf 'bootstrap')}
+BACKUP_ROOT=${DOTFILES_BACKUP_DIR:-$HOME/.dotfiles-backups/$BACKUP_STAMP}
+BACKUP_CREATED=0
 
-function do_stow() {
-  debug "symlinking dotfiles: $@"
-  pushd $DOTFILE_DIR  # to use .stowrc
-  if is-installed stow; then
-    stow -R "$@"
-  else
-    if is-installed nix-shell; then
-      nix-shell -p stow --run "stow -R $@"
-    else;
-       error "missing dependency 'stow' for dotfile installation"
-       exit 1
-    fi
-  fi
-  popd $DOTFILE_DIR
+log() {
+  printf '%s\n' "$*" >&2
 }
 
-do_stow common
-if is-macos; then
-  do_stow macos
-  if is-admin; then
-    do_stow nix-darwin
+info() {
+  log "[*] $*"
+}
+
+warn() {
+  log "[!] $*"
+}
+
+success() {
+  log "[+] $*"
+}
+
+is_macos() {
+  [ "$(uname -s)" = "Darwin" ]
+}
+
+is_linux() {
+  [ "$(uname -s)" = "Linux" ]
+}
+
+is_admin() {
+  id -Gn 2>/dev/null | tr ' ' '\n' | grep -qx 'admin'
+}
+
+should_skip() {
+  case "$1" in
+    */.DS_Store|*/.gitignore|*/.nvimlog|*/.zcompdump|*/Crash\ Reports|*/Crash\ Reports/*)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+ensure_backup_root() {
+  if [ "$BACKUP_CREATED" -eq 0 ]; then
+    mkdir -p "$BACKUP_ROOT"
+    BACKUP_CREATED=1
   fi
-elif is-linux; then
-  do_stow linux
+}
+
+backup_target() {
+  target=$1
+  rel=$2
+
+  ensure_backup_root
+  mkdir -p "$BACKUP_ROOT/$(dirname "$rel")"
+  mv "$target" "$BACKUP_ROOT/$rel"
+  warn "backed up $HOME/$rel to $BACKUP_ROOT/$rel"
+}
+
+ensure_target_directory() {
+  src=$1
+  rel=$2
+  target=$HOME/$rel
+
+  if [ -L "$target" ]; then
+    if [ -d "$target" ] && [ "$(cd "$target" && pwd -P)" = "$(cd "$src" && pwd -P)" ]; then
+      rm "$target"
+      mkdir -p "$target"
+      info "materialized $rel to merge directory contents"
+      return
+    fi
+
+    backup_target "$target" "$rel"
+    mkdir -p "$target"
+    return
+  fi
+
+  if [ -f "$target" ]; then
+    backup_target "$target" "$rel"
+    mkdir -p "$target"
+    return
+  fi
+
+  mkdir -p "$target"
+}
+
+link_target() {
+  src=$1
+  rel=$2
+  target=$HOME/$rel
+
+  mkdir -p "$(dirname "$target")"
+
+  if [ -L "$target" ]; then
+    current=$(readlink "$target" 2>/dev/null || printf '')
+    if [ "$current" = "$src" ]; then
+      return
+    fi
+    backup_target "$target" "$rel"
+  elif [ -e "$target" ]; then
+    backup_target "$target" "$rel"
+  fi
+
+  ln -s "$src" "$target"
+  info "linked $rel"
+}
+
+link_package() {
+  package_name=$1
+  package_dir=$DOTFILE_DIR/$package_name
+
+  info "processing $package_name"
+
+  find "$package_dir" -mindepth 1 -type d | LC_ALL=C sort | while IFS= read -r src; do
+    should_skip "$src" && continue
+    rel=${src#$package_dir/}
+    ensure_target_directory "$src" "$rel"
+  done
+
+  find "$package_dir" -mindepth 1 ! -type d | LC_ALL=C sort | while IFS= read -r src; do
+    should_skip "$src" && continue
+    rel=${src#$package_dir/}
+    link_target "$src" "$rel"
+  done
+}
+
+packages="common"
+
+if is_macos; then
+  packages="$packages macos"
+  if is_admin; then
+    packages="$packages nix-darwin"
+  fi
+elif is_linux; then
+  packages="$packages linux"
 fi
 
-success "DONE!"
+for package_name in $packages; do
+  link_package "$package_name"
+done
+
+if [ "$BACKUP_CREATED" -eq 1 ]; then
+  success "dotfiles linked with backups stored under $BACKUP_ROOT"
+else
+  success "dotfiles linked"
+fi

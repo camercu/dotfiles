@@ -1,20 +1,10 @@
-.PHONY: sync
-sync:
-	home-manager switch --impure --flake ".#${$(hostname)%.*}"
+CONFIG ?= $(shell sh -c 'if [ -n "$$HOME_MANAGER_CONFIG" ]; then printf "%s" "$$HOME_MANAGER_CONFIG"; elif [ "$$(uname -s)" = "Darwin" ] && command -v scutil >/dev/null 2>&1; then scutil --get ComputerName | tr "[:upper:]" "[:lower:]" | tr -cd "[:alnum:]_-"; else hostname -s | tr "[:upper:]" "[:lower:]" | tr -cd "[:alnum:]_-"; fi')
+
+.PHONY: switch
+switch:
+	../../../../scripts/apply-home-manager.sh "$(CONFIG)"
 
 .PHONY: update
 update:
-	nix-channel --update
-	nix flake update
-	home-manager switch --impure --flake ".#${$(hostname)%.*}"
-
-.PHONY: install
-install:
-	nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-	nix-channel --update
-	nix-shell '<home-manager>' -A install
-
-.PHONY: uninstall
-uninstall:
-	nix run home-manager/release-24.11 -- uninstall
-
+	nix --extra-experimental-features 'nix-command flakes' flake update --flake .
+	../../../../scripts/apply-home-manager.sh "$(CONFIG)"

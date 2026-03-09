@@ -106,15 +106,17 @@ if is-installed vim; then
 fi
 
 ## easy dotfile editing commands
-DOTFILE_EDITOR=$(command -v nvim || command -v vim || command -v vi)
-case "$(current-shell)" in
-zsh) alias erc="$DOTFILE_EDITOR \$ZDOTDIR/.zshrc --cmd 'cd \$ZDOTDIR'" ;;
-bash) alias erc="$DOTFILE_EDITOR ~/.bashrc" ;;
-*) ;;
-esac
-# Edit (Neo)Vim Config
-alias ev="$DOTFILE_EDITOR --cmd 'cd ~/.config/nvim'"
-alias ea="$DOTFILE_EDITOR ~/.bash_aliases --cmd 'cd ~/.dotfiles'"
+DOTFILE_EDITOR=$(command -v nvim || command -v vim || command -v vi || true)
+if [ -n "$DOTFILE_EDITOR" ]; then
+  case "$(current-shell)" in
+  zsh) alias erc="$DOTFILE_EDITOR \$ZDOTDIR/.zshrc --cmd 'cd \$ZDOTDIR'" ;;
+  bash) alias erc="$DOTFILE_EDITOR ~/.bashrc" ;;
+  *) ;;
+  esac
+  # Edit (Neo)Vim Config
+  alias ev="$DOTFILE_EDITOR --cmd 'cd ~/.config/nvim'"
+  alias ea="$DOTFILE_EDITOR ~/.bash_aliases --cmd 'cd ~/.dotfiles'"
+fi
 unset DOTFILE_EDITOR
 alias reload='exec $SHELL'
 alias cdot='cd ~/.dotfiles'
