@@ -8,7 +8,11 @@ in
   home.file = helpers.mkDiscoveredDirLinks darwinRoot [
     ".config"
   ] // {
-    "Library".force = true;
+    "Library" = {
+      source = helpers.cleanSource (darwinRoot + "/Library");
+      recursive = true;
+      force = true;
+    };
   };
 
   xdg.configFile =
