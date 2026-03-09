@@ -38,7 +38,7 @@ lookup_host_field() {
   target=$(normalize_name "$1")
   field=$2
 
-  while IFS='|' read -r config_name system _username _home_directory aliases; do
+  while IFS='|' read -r config_name system _username _home_directory aliases _display_name _primary_user _darwin_extra_modules; do
     case "$config_name" in
       ""|\#*)
         continue

@@ -139,16 +139,10 @@
     };
 
     mkDarwinHost = {
-      platform,
-      primaryUser ? null,
-      homeManagerConfigName ? null,
-      extraModules ? [],
+      host,
     }:
       let
-        homeHost =
-          if homeManagerConfigName == null
-          then null
-          else hmHostData.byName.${hmHostData.normalizeName homeManagerConfigName} or null;
+        extraModules = map (modulePath: dotfilesRoot + "/${modulePath}") host.darwinExtraModules;
       in
         nix-darwin.lib.darwinSystem {
           modules =
@@ -156,7 +150,7 @@
               darwinBaseModule
               determinate.darwinModules.default
               home-manager.darwinModules.home-manager
-              {nixpkgs.hostPlatform = platform;}
+              {nixpkgs.hostPlatform = host.system;}
               {
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
@@ -166,71 +160,38 @@
                 };
               }
             ]
-            ++ lib.optional (primaryUser != null) {system.primaryUser = primaryUser;}
-            ++ lib.optional (homeHost != null) {
-              users.users.${homeHost.username} = {
-                name = homeHost.username;
-                home =
-                  if homeHost.homeDirectory != ""
-                  then homeHost.homeDirectory
-                  else "/Users/${homeHost.username}";
-              };
+            ++ lib.optional (host.primaryUser != null) {system.primaryUser = host.primaryUser;}
+            ++ [
+              {
+                users.users.${host.username} = {
+                  name = host.username;
+                  home =
+                    if host.homeDirectory != ""
+                    then host.homeDirectory
+                    else "/Users/${host.username}";
+                };
 
-              home-manager.users.${homeHost.username}.imports = [hmCommonModule];
-            }
+                home-manager.users.${host.username}.imports = [hmCommonModule];
+              }
+            ]
             ++ extraModules;
         };
-
-    darwinHosts = [
-      {
-        configName = "roci";
-        displayName = "Roci";
-        platform = "aarch64-darwin";
-        primaryUser = "cadmin";
-        homeManagerConfigName = "roci";
-        extraModules = [(dotfilesRoot + "/nix-darwin/.config/nix-darwin/crank-pkgs.nix")];
-      }
-      {
-        configName = "tachi";
-        displayName = "Tachi";
-        platform = "x86_64-darwin";
-        homeManagerConfigName = "tachi";
-      }
-      {
-        configName = "theark";
-        displayName = "TheArk";
-        platform = "aarch64-darwin";
-        primaryUser = "kadmin";
-        homeManagerConfigName = "theark";
-        extraModules = [(dotfilesRoot + "/nix-darwin/.config/nix-darwin/ark-pkgs.nix")];
-      }
-      {
-        configName = "jessieslaptop";
-        displayName = "Jessie's Laptop";
-        platform = "aarch64-darwin";
-        primaryUser = "jadmin";
-        homeManagerConfigName = "jessieslaptop";
-      }
-    ];
 
     darwinConfigurationsByDisplay =
       builtins.listToAttrs (map (host: {
           name = host.displayName;
           value = mkDarwinHost {
-            inherit (host) platform;
-            primaryUser = host.primaryUser or null;
-            homeManagerConfigName = host.homeManagerConfigName or null;
-            extraModules = host.extraModules or [];
+            inherit host;
           };
         })
-        darwinHosts);
+        hmHostData.darwinHosts);
 
     darwinConfigurationsByConfig =
       builtins.listToAttrs (map (host: {
           name = host.configName;
           value = darwinConfigurationsByDisplay.${host.displayName};
         })
-        darwinHosts);
+        hmHostData.darwinHosts);
   in {
     homeConfigurations =
       builtins.listToAttrs (map (host: {

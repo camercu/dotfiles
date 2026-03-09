@@ -39,7 +39,7 @@ verify_shell_lookup() {
 }
 
 verify_shell_hosts() {
-  while IFS='|' read -r config_name system _username _home_directory aliases; do
+  while IFS='|' read -r config_name system _username _home_directory aliases _display_name _primary_user darwin_extra_modules; do
     case "$config_name" in
       ""|\#*)
         continue
@@ -53,6 +53,15 @@ verify_shell_hosts() {
     for alias_name in $aliases; do
       [ -n "$alias_name" ] || continue
       verify_shell_lookup "$alias_name" "$config_name" "$system"
+    done
+    IFS=$old_ifs
+
+    old_ifs=$IFS
+    IFS=','
+    for module_path in $darwin_extra_modules; do
+      [ -n "$module_path" ] || continue
+      [ -f "$DOTFILE_DIR/$module_path" ] ||
+        fail "host '$config_name' references missing darwin module '$module_path'"
     done
     IFS=$old_ifs
   done < "$HOSTS_FILE"
