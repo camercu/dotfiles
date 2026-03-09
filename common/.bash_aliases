@@ -26,7 +26,6 @@ function is-linux { [[ "$OSTYPE" == linux* ]]; }
 function is-bsd { [[ "$OSTYPE" == *bsd* ]]; }
 function is-solaris { [[ "$OSTYPE" == solaris* ]]; }
 function is-windows { [[ "$OSTYPE" == cygwin* || "$OSTYPE" == msys ]]; }
-function is-admin { id -Gn 2>/dev/null | tr ' ' '\n' | grep -qx admin; }
 
 ##? is-installed: return true if command binary is installed on PATH
 function is-installed { command -v "$1" &>/dev/null; }
@@ -276,6 +275,7 @@ alias startlog='script term-$(now).log'
 
 ####   Mac Specific:   ##########
 if is-macos; then
+  function is-admin { id -Gn 2>/dev/null | tr ' ' '\n' | grep -qx admin; }
   alias brewup='brew update && brew upgrade && brew cleanup'
   alias brewinfo="brew leaves | xargs brew desc --eval-all"
   alias md5sum='openssl md5'
