@@ -29,6 +29,19 @@ run_dotsync_smoke_test() {
   rm -rf "$tmp_home"
 }
 
+run_repo_relative_link_test() {
+  tmp_home=$(mktemp -d "$DOTFILE_DIR/.tmp-dotsync-home.XXXXXX")
+  rel_target=$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' \
+    "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home")
+
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >/dev/null 2>&1
+  [ -L "$tmp_home/.bash_aliases" ]
+  [ "$(readlink "$tmp_home/.bash_aliases")" = "$rel_target" ]
+
+  HOME="$tmp_home" "$SCRIPT_DIR/uninstall-dotfiles.sh" >/dev/null 2>&1
+  rm -rf "$tmp_home"
+}
+
 sh -n \
   "$DOTFILE_DIR/install.sh" \
   "$DOTFILE_DIR/common/.local/bin/dotsync" \
@@ -49,3 +62,4 @@ zsh -n \
 
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
 run_dotsync_smoke_test
+run_repo_relative_link_test

@@ -199,6 +199,49 @@ normalize_absolute_path() {
   '
 }
 
+relative_path_from_dir_to_path() {
+  from_dir=$(normalize_absolute_path "$1")
+  to_path=$(normalize_absolute_path "$2")
+
+  awk -v from="$from_dir" -v to="$to_path" '
+    function split_path(path, out,   n, i, part_count) {
+      n = split(path, parts, "/")
+      part_count = 0
+      for (i = 1; i <= n; i++) {
+        if (parts[i] != "") {
+          out[++part_count] = parts[i]
+        }
+      }
+      return part_count
+    }
+
+    BEGIN {
+      from_count = split_path(from, from_parts)
+      to_count = split_path(to, to_parts)
+
+      common = 1
+      while (common <= from_count && common <= to_count && from_parts[common] == to_parts[common]) {
+        common++
+      }
+
+      rel = ""
+      for (i = common; i <= from_count; i++) {
+        rel = (rel == "" ? ".." : rel "/..")
+      }
+
+      for (i = common; i <= to_count; i++) {
+        rel = (rel == "" ? to_parts[i] : rel "/" to_parts[i])
+      }
+
+      if (rel == "") {
+        rel = "."
+      }
+
+      print rel
+    }
+  '
+}
+
 # Normalize both absolute and relative symlink targets so legacy stow links
 # and new dotsync links can be compared consistently.
 resolve_link_source() {
@@ -290,6 +333,19 @@ is_repo_target() {
   esac
 
   return 1
+}
+
+link_source_for_target() {
+  src=$1
+  target=$2
+  target_dir=$(dirname "$target")
+
+  if is_repo_target "$src" && is_repo_target "$target_dir"; then
+    relative_path_from_dir_to_path "$target_dir" "$src"
+    return
+  fi
+
+  printf '%s\n' "$src"
 }
 
 prune_manifest_links() {
@@ -395,6 +451,7 @@ link_target() {
   src=$1
   rel=$2
   target=$HOME/$rel
+  link_source=
 
   record_managed_target "$rel"
 
@@ -410,7 +467,8 @@ link_target() {
     backup_target "$target" "$rel"
   fi
 
-  ln -s "$src" "$target"
+  link_source=$(link_source_for_target "$src" "$target")
+  ln -s "$link_source" "$target"
   info "linked $rel"
 }
 
