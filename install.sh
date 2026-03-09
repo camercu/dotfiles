@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-DOTFILE_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+DOTFILE_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
 . "$DOTFILE_DIR/scripts/lib/logging.sh"
 
 have_cmd() {
@@ -31,42 +31,42 @@ install_linux_bootstrap_packages() {
   fi
 
   case "$(uname -s)" in
-    Linux)
-      if have_cmd apt-get; then
-        run_as_root apt-get update
-        run_as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates $missing_packages
-      elif have_cmd dnf; then
-        run_as_root dnf install -y ca-certificates $missing_packages
-      elif have_cmd pacman; then
-        run_as_root pacman -Sy --noconfirm --needed ca-certificates $missing_packages
-      elif have_cmd apk; then
-        run_as_root apk add ca-certificates $missing_packages
-      else
-        error "bootstrap packages are required but no supported package manager was found"
-        exit 1
-      fi
-      ;;
-    *)
-      error "unsupported OS for install.sh bootstrap: $(uname -s)"
-      exit 1
-      ;;
-  esac
-}
-
-case "$(uname -s)" in
-  Darwin)
-    if ! have_cmd zsh; then
-      error "zsh is required but was not found on macOS"
+  Linux)
+    if have_cmd apt-get; then
+      run_as_root apt-get update
+      run_as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates $missing_packages
+    elif have_cmd dnf; then
+      run_as_root dnf install -y ca-certificates $missing_packages
+    elif have_cmd pacman; then
+      run_as_root pacman -Sy --noconfirm --needed ca-certificates $missing_packages
+    elif have_cmd apk; then
+      run_as_root apk add ca-certificates $missing_packages
+    else
+      error "bootstrap packages are required but no supported package manager was found"
       exit 1
     fi
-    ;;
-  Linux)
-    install_linux_bootstrap_packages
     ;;
   *)
     error "unsupported OS for install.sh bootstrap: $(uname -s)"
     exit 1
     ;;
+  esac
+}
+
+case "$(uname -s)" in
+Darwin)
+  if ! have_cmd zsh; then
+    error "zsh is required but was not found on macOS"
+    exit 1
+  fi
+  ;;
+Linux)
+  install_linux_bootstrap_packages
+  ;;
+*)
+  error "unsupported OS for install.sh bootstrap: $(uname -s)"
+  exit 1
+  ;;
 esac
 
 exec zsh "$DOTFILE_DIR/scripts/install.zsh" "$@"
