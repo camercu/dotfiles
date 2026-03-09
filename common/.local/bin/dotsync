@@ -139,17 +139,51 @@ cleanup_empty_parents() {
   done
 }
 
-is_managed_link() {
+normalize_absolute_path() {
+  printf '%s\n' "$1" | awk '
+    {
+      depth = 0
+      count = split($0, parts, "/")
+      for (i = 1; i <= count; i++) {
+        part = parts[i]
+        if (part == "" || part == ".") {
+          continue
+        }
+        if (part == "..") {
+          if (depth > 0) {
+            depth--
+          }
+          continue
+        }
+        stack[++depth] = part
+      }
+
+      printf "/"
+      for (i = 1; i <= depth; i++) {
+        printf "%s", stack[i]
+        if (i < depth) {
+          printf "/"
+        }
+      }
+      printf "\n"
+    }
+  '
+}
+
+resolve_link_source() {
   target=$1
   source=$(readlink "$target" 2>/dev/null || printf '')
 
   case "$source" in
     "") return 1 ;;
-    /*) ;;
-    *)
-      return 1
-      ;;
+    /*) normalize_absolute_path "$source" ;;
+    *) normalize_absolute_path "$(dirname "$target")/$source" ;;
   esac
+}
+
+is_managed_link() {
+  target=$1
+  source=$(resolve_link_source "$target") || return 1
 
   if [ "$MODE" = "unlink" ]; then
     case "$source" in
@@ -254,7 +288,7 @@ link_target() {
   mkdir -p "$(dirname "$target")"
 
   if [ -L "$target" ]; then
-    current=$(readlink "$target" 2>/dev/null || printf '')
+    current=$(resolve_link_source "$target" 2>/dev/null || printf '')
     if [ "$current" = "$src" ]; then
       return
     fi

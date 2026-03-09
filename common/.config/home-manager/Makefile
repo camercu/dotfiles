@@ -1,4 +1,4 @@
-CONFIG ?= $(shell sh -c 'if [ -n "$$HOME_MANAGER_CONFIG" ]; then printf "%s" "$$HOME_MANAGER_CONFIG"; elif [ "$$(uname -s)" = "Darwin" ] && command -v scutil >/dev/null 2>&1; then scutil --get ComputerName | tr "[:upper:]" "[:lower:]" | tr -cd "[:alnum:]_-"; else hostname -s | tr "[:upper:]" "[:lower:]" | tr -cd "[:alnum:]_-"; fi')
+CONFIG ?= $(shell ../../../../scripts/home-manager-host.sh current-config 2>/dev/null || true)
 
 .PHONY: switch
 switch:
