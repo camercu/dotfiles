@@ -40,7 +40,11 @@ migrate_claude_config() {
 }
 
 ensure_nix_installed() {
-  if ! is-installed nix && { is-macos || is-linux; }; then
+  if is-installed nix; then
+    return
+  fi
+
+  if is-macos || is-linux; then
     "$SCRIPTS_DIR/install-nix.sh"
   fi
 }
@@ -75,10 +79,16 @@ load_nix_environment() {
 }
 
 ensure_homebrew() {
-  if ! is-installed brew && is-macos && is-admin; then
-    "$SCRIPTS_DIR/install-homebrew.sh"
-    builtin eval "$(/opt/homebrew/bin/brew shellenv)"
+  if is-installed brew; then
+    return
   fi
+
+  if ! is-macos || ! is-admin; then
+    return
+  fi
+
+  "$SCRIPTS_DIR/install-homebrew.sh"
+  builtin eval "$(/opt/homebrew/bin/brew shellenv)"
 }
 
 install_dotfiles() {
@@ -96,25 +106,29 @@ configure_macos_defaults() {
 }
 
 ensure_nix_darwin() {
-  if is-macos && is-admin && ! is-installed darwin-rebuild; then
-    typeset -r nix_bin="$(command -v nix)"
-    local darwin_config
-
-    if darwin_config="$("$SCRIPTS_DIR/home-manager-host.sh" current-config 2>/dev/null)"; then
-      :
-    else
-      darwin_config="$("$SCRIPTS_DIR/home-manager-host.sh" current-name)"
-    fi
-
-    sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "path:$DOTFILE_DIR#$darwin_config"
-    remove_bootstrap_dotfiles || warn "nix-darwin applied but bootstrap dotfile cleanup failed"
+  if ! is-macos || ! is-admin || is-installed darwin-rebuild; then
+    return
   fi
+
+  typeset -r nix_bin="$(command -v nix)"
+  local darwin_config
+
+  if darwin_config="$("$SCRIPTS_DIR/home-manager-host.sh" current-config 2>/dev/null)"; then
+    :
+  else
+    darwin_config="$("$SCRIPTS_DIR/home-manager-host.sh" current-name)"
+  fi
+
+  sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "path:$DOTFILE_DIR#$darwin_config"
+  remove_bootstrap_dotfiles || warn "nix-darwin applied but bootstrap dotfile cleanup failed"
 }
 
 maybe_apply_home_manager() {
-  if is-installed nix && is-linux && [[ "${USE_HOME_MANAGER:-0}" == "1" ]]; then
-    "$SCRIPTS_DIR/apply-home-manager.sh" "${HOME_MANAGER_CONFIG:-}"
+  if ! is-installed nix || ! is-linux || [[ "${USE_HOME_MANAGER:-0}" != "1" ]]; then
+    return
   fi
+
+  "$SCRIPTS_DIR/apply-home-manager.sh" "${HOME_MANAGER_CONFIG:-}"
 }
 
 ensure_shell_directories
