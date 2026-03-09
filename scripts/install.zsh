@@ -44,9 +44,13 @@ ensure_nix_installed() {
     return
   fi
 
-  if is-macos || is-linux; then
-    "$SCRIPTS_DIR/install-nix.sh"
+  if ! is-macos; then
+    if ! is-linux; then
+      return
+    fi
   fi
+
+  "$SCRIPTS_DIR/install-nix.sh"
 }
 
 configure_nix_channels() {
@@ -83,7 +87,11 @@ ensure_homebrew() {
     return
   fi
 
-  if ! is-macos || ! is-admin; then
+  if ! is-macos; then
+    return
+  fi
+
+  if ! is-admin; then
     return
   fi
 
@@ -106,7 +114,15 @@ configure_macos_defaults() {
 }
 
 ensure_nix_darwin() {
-  if ! is-macos || ! is-admin || is-installed darwin-rebuild; then
+  if ! is-macos; then
+    return
+  fi
+
+  if ! is-admin; then
+    return
+  fi
+
+  if is-installed darwin-rebuild; then
     return
   fi
 
@@ -124,7 +140,15 @@ ensure_nix_darwin() {
 }
 
 maybe_apply_home_manager() {
-  if ! is-installed nix || ! is-linux || [[ "${USE_HOME_MANAGER:-0}" != "1" ]]; then
+  if ! is-installed nix; then
+    return
+  fi
+
+  if ! is-linux; then
+    return
+  fi
+
+  if [[ "${USE_HOME_MANAGER:-0}" != "1" ]]; then
     return
   fi
 
