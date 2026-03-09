@@ -26,6 +26,7 @@ function is-linux { [[ "$OSTYPE" == linux* ]]; }
 function is-bsd { [[ "$OSTYPE" == *bsd* ]]; }
 function is-solaris { [[ "$OSTYPE" == solaris* ]]; }
 function is-windows { [[ "$OSTYPE" == cygwin* || "$OSTYPE" == msys ]]; }
+function is-admin { id -Gn 2>/dev/null | tr ' ' '\n' | grep -qx admin; }
 
 ##? is-installed: return true if command binary is installed on PATH
 function is-installed { command -v "$1" &>/dev/null; }
@@ -280,7 +281,6 @@ if is-macos; then
   alias md5sum='openssl md5'
   alias sha1sum='openssl sha1'
   alias sha256sum='openssl sha256'
-  alias is-admin='groups | grep -qw admin;'
   if is-admin; then
     alias maintain='dotsync && make -C ~/.config/nix-darwin update && brewup'
   fi
