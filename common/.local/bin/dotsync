@@ -14,50 +14,24 @@ done
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
 DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd -P)
-IGNORE_DIR=$DOTFILE_DIR/lib/dotfiles-ignore
 . "$DOTFILE_DIR/scripts/lib/logging.sh"
-STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
-MANIFEST_FILE=${DOTFILES_MANIFEST_FILE:-$STATE_HOME/dotsync/managed-targets.txt}
-BACKUP_STAMP=${DOTFILES_BACKUP_STAMP:-$(date +%Y%m%d%H%M%S 2>/dev/null || printf 'bootstrap')}
-BACKUP_ROOT=${DOTFILES_BACKUP_DIR:-$HOME/.dotfiles-backups/$BACKUP_STAMP}
-BACKUP_BASE=$(dirname "$BACKUP_ROOT")
-BACKUP_CREATED=0
+
 MODE=sync
 AUTO_DISCOVER=0
-HAVE_MANIFEST=0
-MANAGED_TARGETS_FILE=
-PREVIOUS_MANAGED_FILE=
-FILE_IGNORE_NAMES=
-DIR_IGNORE_NAMES=
-IGNORE_PREFIXES=
-IGNORE_SUFFIXES=
-IGNORE_PATH_SEGMENTS=
 packages=
 
 usage() {
   cat <<'EOF'
 Usage: dotsync [--unlink] [--auto-discover]
 
-Without options, dotsync links the managed dotfiles and prunes stale managed
-symlinks that no longer exist in the active package set.
+Without options, dotsync (re)links the managed dotfile packages using stow.
 
 Options:
   --unlink  remove all managed dotfile symlinks for the active package set
-  --auto-discover  scan all symlinks under $HOME instead of using the manifest
+  --auto-discover  compatibility no-op; stow handles link discovery
   -h, --help  show this help message
 EOF
 }
-
-cleanup() {
-  if [ -n "${MANAGED_TARGETS_FILE:-}" ] && [ -f "$MANAGED_TARGETS_FILE" ]; then
-    rm -f "$MANAGED_TARGETS_FILE"
-  fi
-  if [ -n "${PREVIOUS_MANAGED_FILE:-}" ] && [ -f "$PREVIOUS_MANAGED_FILE" ]; then
-    rm -f "$PREVIOUS_MANAGED_FILE"
-  fi
-}
-
-trap cleanup EXIT HUP INT TERM
 
 is_macos() {
   [ "$(uname -s)" = "Darwin" ]
@@ -71,432 +45,30 @@ is_admin() {
   id -Gn 2>/dev/null | tr ' ' '\n' | grep -qx 'admin'
 }
 
-read_patterns() {
-  sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$1"
+has_command() {
+  command -v "$1" >/dev/null 2>&1
 }
 
-load_ignore_patterns() {
-  FILE_IGNORE_NAMES=$(read_patterns "$IGNORE_DIR/file-names.txt")
-  DIR_IGNORE_NAMES=$(read_patterns "$IGNORE_DIR/dir-names.txt")
-  IGNORE_PREFIXES=$(read_patterns "$IGNORE_DIR/prefixes.txt")
-  IGNORE_SUFFIXES=$(read_patterns "$IGNORE_DIR/suffixes.txt")
-  IGNORE_PATH_SEGMENTS=$(read_patterns "$IGNORE_DIR/path-segments.txt")
-}
-
-with_line_ifs() {
-  old_ifs=$IFS
-  IFS='
-'
-  "$@"
-  status=$?
-  IFS=$old_ifs
-  return "$status"
-}
-
-matches_exact_name() {
-  base=$1
-
-  for name in $FILE_IGNORE_NAMES $DIR_IGNORE_NAMES; do
-    [ "$base" = "$name" ] && return 0
-  done
-
-  return 1
-}
-
-matches_prefix() {
-  base=$1
-
-  for prefix in $IGNORE_PREFIXES; do
-    case "$base" in
-      "$prefix"*) return 0 ;;
-    esac
-  done
-
-  return 1
-}
-
-matches_suffix() {
-  base=$1
-
-  for suffix in $IGNORE_SUFFIXES; do
-    case "$base" in
-      *"$suffix") return 0 ;;
-    esac
-  done
-
-  return 1
-}
-
-matches_path_segment() {
-  path=$1
-
-  for segment in $IGNORE_PATH_SEGMENTS; do
-    case "$path" in
-      */"$segment"|*/"$segment"/*) return 0 ;;
-    esac
-  done
-
-  return 1
-}
-
-should_skip() {
-  path=$1
-  base=${path##*/}
-
-  with_line_ifs matches_exact_name "$base" && return 0
-  with_line_ifs matches_prefix "$base" && return 0
-  with_line_ifs matches_suffix "$base" && return 0
-  with_line_ifs matches_path_segment "$path" && return 0
-  return 1
-}
-
-record_managed_target() {
-  printf '%s\n' "$1" >> "$MANAGED_TARGETS_FILE"
-}
-
-cleanup_empty_parents() {
-  path=$1
-  dir=$(dirname "$path")
-
-  while [ "$dir" != "$HOME" ] && [ "$dir" != "/" ]; do
-    if rmdir "$dir" 2>/dev/null; then
-      info "removed empty directory ${dir#$HOME/}"
-      dir=$(dirname "$dir")
-      continue
-    fi
-    break
-  done
-}
-
-normalize_absolute_path() {
-  printf '%s\n' "$1" | awk '
-    {
-      depth = 0
-      count = split($0, parts, "/")
-      for (i = 1; i <= count; i++) {
-        part = parts[i]
-        if (part == "" || part == ".") {
-          continue
-        }
-        if (part == "..") {
-          if (depth > 0) {
-            depth--
-          }
-          continue
-        }
-        stack[++depth] = part
-      }
-
-      printf "/"
-      for (i = 1; i <= depth; i++) {
-        printf "%s", stack[i]
-        if (i < depth) {
-          printf "/"
-        }
-      }
-      printf "\n"
-    }
-  '
-}
-
-relative_path_from_dir_to_path() {
-  from_dir=$(normalize_absolute_path "$1")
-  to_path=$(normalize_absolute_path "$2")
-
-  awk -v from="$from_dir" -v to="$to_path" '
-    function split_path(path, out,   n, i, part_count) {
-      n = split(path, parts, "/")
-      part_count = 0
-      for (i = 1; i <= n; i++) {
-        if (parts[i] != "") {
-          out[++part_count] = parts[i]
-        }
-      }
-      return part_count
-    }
-
-    BEGIN {
-      from_count = split_path(from, from_parts)
-      to_count = split_path(to, to_parts)
-
-      common = 1
-      while (common <= from_count && common <= to_count && from_parts[common] == to_parts[common]) {
-        common++
-      }
-
-      rel = ""
-      for (i = common; i <= from_count; i++) {
-        rel = (rel == "" ? ".." : rel "/..")
-      }
-
-      for (i = common; i <= to_count; i++) {
-        rel = (rel == "" ? to_parts[i] : rel "/" to_parts[i])
-      }
-
-      if (rel == "") {
-        rel = "."
-      }
-
-      print rel
-    }
-  '
-}
-
-# Normalize both absolute and relative symlink targets so legacy stow links
-# and new dotsync links can be compared consistently.
-resolve_link_source() {
-  target=$1
-  source=$(readlink "$target" 2>/dev/null || printf '')
-
-  case "$source" in
-    "") return 1 ;;
-    /*) normalize_absolute_path "$source" ;;
-    *) normalize_absolute_path "$(dirname "$target")/$source" ;;
-  esac
-}
-
-is_managed_link() {
-  target=$1
-  source=$(resolve_link_source "$target") || return 1
-
-  if [ "$MODE" = "unlink" ]; then
-    case "$source" in
-      "$DOTFILE_DIR"/*)
-        return 0
-        ;;
-    esac
-  fi
-
-  for package_name in $packages; do
-    case "$source" in
-      "$DOTFILE_DIR/$package_name"/*)
-        return 0
-        ;;
-    esac
-  done
-
-  return 1
-}
-
-is_desired_target() {
-  rel=$1
-  grep -Fqx -- "$rel" "$MANAGED_TARGETS_FILE"
-}
-
-load_previous_manifest() {
-  PREVIOUS_MANAGED_FILE=$(mktemp "${TMPDIR:-/tmp}/dotsync-previous.XXXXXX")
-
-  if [ -f "$MANIFEST_FILE" ]; then
-    HAVE_MANIFEST=1
-    cp "$MANIFEST_FILE" "$PREVIOUS_MANAGED_FILE"
-    return
-  fi
-
-  : > "$PREVIOUS_MANAGED_FILE"
-}
-
-managed_link_find() {
-  set --
-  have_prune_args=0
-
-  case "$BACKUP_BASE" in
-    "$HOME"/*)
-      set -- "$@" -path "$BACKUP_BASE" -o -path "$BACKUP_BASE/*"
-      have_prune_args=1
-      ;;
-  esac
-
-  case "$DOTFILE_DIR" in
-    "$HOME"/*)
-      if [ "$have_prune_args" -eq 1 ]; then
-        set -- "$@" -o
-      fi
-      set -- "$@" -path "$DOTFILE_DIR" -o -path "$DOTFILE_DIR/*"
-      have_prune_args=1
-      ;;
-  esac
-
-  if [ "$have_prune_args" -eq 1 ]; then
-    find "$HOME" \( "$@" \) -prune -o -type l -print
-  else
-    find "$HOME" -type l -print
-  fi
-}
-
-is_repo_target() {
-  target=$1
-
-  case "$target" in
-    "$DOTFILE_DIR"|"$DOTFILE_DIR"/*)
-      return 0
-      ;;
-  esac
-
-  return 1
-}
-
-link_source_for_target() {
-  src=$1
-  target=$2
-  target_dir=$(dirname "$target")
-
-  if is_repo_target "$src" && is_repo_target "$target_dir"; then
-    relative_path_from_dir_to_path "$target_dir" "$src"
-    return
-  fi
-
-  printf '%s\n' "$src"
-}
-
-prune_manifest_links() {
-  [ "$HAVE_MANIFEST" -eq 1 ] || return 1
-
-  info "pruning managed links from manifest"
-
-  while IFS= read -r rel; do
-    [ -n "$rel" ] || continue
-    target=$HOME/$rel
-
-    is_repo_target "$target" && continue
-    [ -L "$target" ] || continue
-    is_managed_link "$target" || continue
-
-    if [ "$MODE" = "unlink" ] || ! is_desired_target "$rel"; then
-      rm "$target"
-      info "removed managed link $rel"
-      cleanup_empty_parents "$target"
-    fi
-  done < "$PREVIOUS_MANAGED_FILE"
-
-  return 0
-}
-
-prune_managed_links() {
-  if [ "$AUTO_DISCOVER" -eq 0 ] && prune_manifest_links; then
-    return
-  fi
-
-  info "pruning managed links by auto-discovery"
-  managed_link_find | LC_ALL=C sort | while IFS= read -r target; do
-    is_repo_target "$target" && continue
-    rel=${target#$HOME/}
-
-    is_managed_link "$target" || continue
-
-    if [ "$MODE" = "unlink" ] || ! is_desired_target "$rel"; then
-      rm "$target"
-      info "removed managed link $rel"
-      cleanup_empty_parents "$target"
-    fi
-  done
-}
-
-write_manifest() {
-  manifest_dir=$(dirname "$MANIFEST_FILE")
-  mkdir -p "$manifest_dir"
-
-  if [ "$MODE" = "unlink" ]; then
-    rm -f "$MANIFEST_FILE"
-    return
-  fi
-
-  LC_ALL=C sort -u "$MANAGED_TARGETS_FILE" > "$MANIFEST_FILE"
-}
-
-ensure_backup_root() {
-  if [ "$BACKUP_CREATED" -eq 0 ]; then
-    mkdir -p "$BACKUP_ROOT"
-    BACKUP_CREATED=1
-  fi
-}
-
-backup_target() {
-  target=$1
-  rel=$2
-
-  ensure_backup_root
-  mkdir -p "$BACKUP_ROOT/$(dirname "$rel")"
-  mv "$target" "$BACKUP_ROOT/$rel"
-  warn "backed up $HOME/$rel to $BACKUP_ROOT/$rel"
-}
-
-ensure_target_directory() {
-  src=$1
-  rel=$2
-  target=$HOME/$rel
-
-  if [ -L "$target" ]; then
-    if [ -d "$target" ] && [ "$(cd "$target" && pwd -P)" = "$(cd "$src" && pwd -P)" ]; then
-      rm "$target"
-      mkdir -p "$target"
-      info "materialized $rel to merge directory contents"
-      return
+run_stow() {
+  action=$1
+  package_name=$2
+
+  info "stow $action $package_name"
+  (
+    cd "$DOTFILE_DIR"
+    if has_command stow; then
+      stow "$action" "$package_name"
+      exit 0
     fi
 
-    backup_target "$target" "$rel"
-    mkdir -p "$target"
-    return
-  fi
-
-  if [ -f "$target" ]; then
-    backup_target "$target" "$rel"
-    mkdir -p "$target"
-    return
-  fi
-
-  mkdir -p "$target"
-}
-
-link_target() {
-  src=$1
-  rel=$2
-  target=$HOME/$rel
-  link_source=
-
-  record_managed_target "$rel"
-
-  mkdir -p "$(dirname "$target")"
-
-  if [ -L "$target" ]; then
-    current=$(resolve_link_source "$target" 2>/dev/null || printf '')
-    if [ "$current" = "$src" ]; then
-      return
+    if has_command nix-shell; then
+      nix-shell -p stow --run "stow $action $package_name"
+      exit 0
     fi
-    backup_target "$target" "$rel"
-  elif [ -e "$target" ]; then
-    backup_target "$target" "$rel"
-  fi
 
-  link_source=$(link_source_for_target "$src" "$target")
-  ln -s "$link_source" "$target"
-  info "linked $rel"
-}
-
-list_package_directories() {
-  find "$1" -mindepth 1 -type d | LC_ALL=C sort
-}
-
-list_package_files() {
-  find "$1" -mindepth 1 ! -type d | LC_ALL=C sort
-}
-
-link_package() {
-  package_name=$1
-  package_dir=$DOTFILE_DIR/$package_name
-
-  info "processing $package_name"
-
-  list_package_directories "$package_dir" | while IFS= read -r src; do
-    should_skip "$src" && continue
-    rel=${src#$package_dir/}
-    ensure_target_directory "$src" "$rel"
-  done
-
-  list_package_files "$package_dir" | while IFS= read -r src; do
-    should_skip "$src" && continue
-    rel=${src#$package_dir/}
-    link_target "$src" "$rel"
-  done
+    error "missing dependency 'stow' for dotfile installation"
+    exit 1
+  )
 }
 
 parse_args() {
@@ -535,31 +107,30 @@ select_packages() {
   fi
 }
 
-sync_packages() {
-  if [ "$MODE" != "unlink" ]; then
-    for package_name in $packages; do
-      link_package "$package_name"
-    done
+apply_packages() {
+  action=-R
+  if [ "$MODE" = "unlink" ]; then
+    action=-D
   fi
+
+  for package_name in $packages; do
+    run_stow "$action" "$package_name"
+  done
 }
 
 report_result() {
+  if [ "$AUTO_DISCOVER" -eq 1 ]; then
+    warn "--auto-discover is ignored in stow mode"
+  fi
+
   if [ "$MODE" = "unlink" ]; then
     success "managed dotfile links removed"
-  elif [ "$BACKUP_CREATED" -eq 1 ]; then
-    success "dotfiles linked with backups stored under $BACKUP_ROOT"
   else
     success "dotfiles linked"
   fi
 }
 
 parse_args "$@"
-load_ignore_patterns
 select_packages
-load_previous_manifest
-
-MANAGED_TARGETS_FILE=$(mktemp "${TMPDIR:-/tmp}/dotsync-targets.XXXXXX")
-sync_packages
-prune_managed_links
-write_manifest
+apply_packages
 report_result
