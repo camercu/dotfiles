@@ -7,7 +7,9 @@ in
   lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
   home.file = helpers.mkDiscoveredDirLinks darwinRoot [
     ".config"
-  ];
+  ] // {
+    "Library/Application Support/org.dystroy.bacon/prefs.toml".force = true;
+  };
 
   xdg.configFile =
     helpers.mkDiscoveredDirLinks (darwinRoot + "/.config") [
