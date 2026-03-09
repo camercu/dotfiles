@@ -1,20 +1,19 @@
-.PHONY: sync
-sync:
-	home-manager switch --impure --flake ".#${$(hostname)%.*}"
+CONFIG ?= $(shell ../../../../scripts/home-manager-host.sh current-config 2>/dev/null || true)
+DOTFILE_DIR ?= $(shell realpath $$HOME/.dotfiles)
+
+.PHONY: switch
+switch:
+	@if [ "$$(uname -s)" = "Darwin" ]; then \
+		printf '%s\n' "Use nix-darwin on macOS: make -C ~/.config/nix-darwin update"; \
+		exit 1; \
+	fi
+	../../../../scripts/apply-home-manager.sh "$(CONFIG)"
 
 .PHONY: update
 update:
-	nix-channel --update
-	nix flake update
-	home-manager switch --impure --flake ".#${$(hostname)%.*}"
-
-.PHONY: install
-install:
-	nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-	nix-channel --update
-	nix-shell '<home-manager>' -A install
-
-.PHONY: uninstall
-uninstall:
-	nix run home-manager/release-24.11 -- uninstall
-
+	@if [ "$$(uname -s)" = "Darwin" ]; then \
+		printf '%s\n' "Use nix-darwin on macOS: make -C ~/.config/nix-darwin update"; \
+		exit 1; \
+	fi
+	nix --extra-experimental-features 'nix-command flakes' flake update --flake path:$(DOTFILE_DIR)
+	../../../../scripts/apply-home-manager.sh "$(CONFIG)"

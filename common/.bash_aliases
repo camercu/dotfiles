@@ -47,10 +47,14 @@ function is-function { declare -f -- "$1" &>/dev/null; }
 #
 # Logging Functions - colorized printing of log messages
 #
-function debug {
+function info {
   local -r BLUE=$(tput setaf 4)
   local -r CLEAR=$(tput sgr0)
   echo "${BLUE}[*] $*${CLEAR}" >&2
+}
+
+function debug {
+  info "$@"
 }
 
 function warn {
@@ -106,15 +110,17 @@ if is-installed vim; then
 fi
 
 ## easy dotfile editing commands
-DOTFILE_EDITOR=$(command -v nvim || command -v vim || command -v vi)
-case "$(current-shell)" in
-zsh) alias erc="$DOTFILE_EDITOR \$ZDOTDIR/.zshrc --cmd 'cd \$ZDOTDIR'" ;;
-bash) alias erc="$DOTFILE_EDITOR ~/.bashrc" ;;
-*) ;;
-esac
-# Edit (Neo)Vim Config
-alias ev="$DOTFILE_EDITOR --cmd 'cd ~/.config/nvim'"
-alias ea="$DOTFILE_EDITOR ~/.bash_aliases --cmd 'cd ~/.dotfiles'"
+DOTFILE_EDITOR=$(command -v nvim || command -v vim || command -v vi || true)
+if [ -n "$DOTFILE_EDITOR" ]; then
+  case "$(current-shell)" in
+  zsh) alias erc="$DOTFILE_EDITOR \$ZDOTDIR/.zshrc --cmd 'cd \$ZDOTDIR'" ;;
+  bash) alias erc="$DOTFILE_EDITOR ~/.bashrc" ;;
+  *) ;;
+  esac
+  # Edit (Neo)Vim Config
+  alias ev="$DOTFILE_EDITOR --cmd 'cd ~/.config/nvim'"
+  alias ea="$DOTFILE_EDITOR ~/.bash_aliases --cmd 'cd ~/.dotfiles'"
+fi
 unset DOTFILE_EDITOR
 alias reload='exec $SHELL'
 alias cdot='cd ~/.dotfiles'
@@ -275,7 +281,7 @@ if is-macos; then
   alias sha1sum='openssl sha1'
   alias sha256sum='openssl sha256'
   alias is-admin='groups | grep -qw admin;'
-  alias maintain='dotsync && make -C ~/.config/nix-darwin && brewup'
+  alias maintain='make -C ~/.config/nix-darwin && brewup'
 
   # Show/Hide hidden files in Finder
   alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"

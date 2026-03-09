@@ -1,0 +1,6 @@
+# config_name|system|username|home_directory|aliases|display_name|primary_user|darwin_extra_modules
+roci|aarch64-darwin|cameron||roci,theroci|Roci|cadmin|nix-darwin/.config/nix-darwin/crank-pkgs.nix
+theark|aarch64-darwin|kadmin||theark|TheArk|kadmin|nix-darwin/.config/nix-darwin/ark-pkgs.nix
+jessieslaptop|aarch64-darwin|jadmin||jessieslaptop|Jessie's Laptop|jadmin|
+tachi|x86_64-darwin|cameron||tachi|Tachi||
+somnambulist|x86_64-linux|cr4nk||somnambulist|||

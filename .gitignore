@@ -1,12 +1,26 @@
 old/
 .github-api-token
-.DS_Store
 flake.lock
-
-# Ignore vim files:
-*~
-*.swp
-*.swo
 
 linux/.mozilla/firefox/*
 common/.config/zsh/env/claude-oauth.zsh
+
+# BEGIN GENERATED DOTFILE ARTIFACT IGNORES
+.DS_Store
+.gitignore
+.nvimlog
+.viminfo
+.git/
+.cache/
+.ruff_cache/
+.pytest_cache/
+__pycache__/
+._*
+.zcompdump*
+*.pyc
+*.pyo
+*.swp
+*.swo
+*~
+Crash Reports/
+# END GENERATED DOTFILE ARTIFACT IGNORES
