@@ -28,7 +28,9 @@ if [[ ! -d "$HOME/.ssh" ]]; then
 fi
 
 # Allow installs from bind-mounted repositories owned by another host user.
-git config --global --add safe.directory "$DOTFILE_DIR"
+if ! git config --global --get-all safe.directory 2>/dev/null | grep -Fx -- "$DOTFILE_DIR" >/dev/null; then
+  git config --global --add safe.directory "$DOTFILE_DIR"
+fi
 
 # initialize/update git submodules for dotfiles
 git submodule update --init
@@ -76,11 +78,11 @@ if is-macos && is-admin; then
   if ! is-installed darwin-rebuild; then
     typeset -r nix_bin="$(command -v nix)"
     typeset -r nix_darwin_flake="$(realpath ~/.config/nix-darwin)"
-    sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "$nix_darwin_flake"
+    sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "path:$nix_darwin_flake"
   fi
 fi
 
-# Apply Home Manager automatically on macOS, and optionally on Linux.
-if is-installed nix && { is-macos || [[ "${USE_HOME_MANAGER:-0}" == "1" ]]; }; then
+# Apply Home Manager optionally on Linux.
+if is-installed nix && is-linux && [[ "${USE_HOME_MANAGER:-0}" == "1" ]]; then
   scripts/apply-home-manager.sh "${HOME_MANAGER_CONFIG:-}"
 fi
