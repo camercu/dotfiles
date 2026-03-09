@@ -2,12 +2,12 @@
 
 This repository has two layers:
 
-1. `scripts/install-dotfiles.sh` links dotfiles with standard shell tools.
+1. `scripts/install-dotfiles.sh` links dotfiles with GNU Stow.
 2. The repo-root flake manages declarative software and user configuration
    after Nix is installed.
 
 On macOS, `nix-darwin` owns both system state and Home Manager user state. On
-Linux, standalone Home Manager manages user packages and dotfiles.
+Linux, standalone Home Manager manages declarative user packages.
 
 ## Bootstrap dotfiles
 
@@ -18,14 +18,9 @@ available.
 ./scripts/install-dotfiles.sh
 ```
 
-The script links `common/` plus the current OS-specific tree. If it finds an
-existing file at a target path, it moves that file into
-`~/.dotfiles-backups/<timestamp>/` before linking the repository version.
-It also prunes stale managed symlinks when their dotfile entry has been
-removed from the active package set. By default it uses a manifest under
-`$XDG_STATE_HOME/dotsync/managed-targets.txt` (or `~/.local/state/...`) to
-avoid scanning all of `HOME`; pass `--auto-discover` to force the older
-full-home symlink scan.
+The script links `common/` plus the current OS-specific tree via `stow -R`. If
+an existing target conflicts, `stow` aborts and prints the conflicting path.
+Resolve conflicts by moving/removing the target and rerunning.
 
 Use the unlink helper when you want to remove shell-managed dotfile symlinks
 that point back into this repository:
@@ -35,9 +30,8 @@ that point back into this repository:
 ```
 
 Use the shell bootstrap when Nix is not available yet or when you need a quick
-recovery path. Once Home Manager or `nix-darwin` takes over, the bootstrap
-links are removed automatically so the declarative layer becomes the only
-owner of those files.
+recovery path. Dotfiles stay managed by Stow even after declarative package
+management is enabled.
 
 ## macOS workflow
 
@@ -54,16 +48,17 @@ make -C ~/.config/nix-darwin update
 darwin-rebuild switch --flake path:$HOME/.dotfiles#TheArk
 ```
 
-`install.sh` bootstraps Nix with the Determinate installer, links dotfiles,
-applies macOS defaults, removes bootstrap links, and installs `nix-darwin` if
-needed. After that, `darwin-rebuild` drives both system updates and Home
-Manager activation.
+`install.sh` handles OS bootstrap checks and then dispatches to
+`scripts/bootstrap-install.zsh`. The zsh installer bootstraps Nix with the
+Determinate installer, links dotfiles with Stow, applies macOS defaults, and
+installs `nix-darwin` if needed. After that, `darwin-rebuild` drives both
+system updates and Home Manager activation.
 
 ## Linux workflow
 
-On Linux, standalone Home Manager manages declarative user packages and
-dotfiles. The repo root is the canonical flake, and the helper script switches
-the matching Home Manager configuration after removing bootstrap links:
+On Linux, standalone Home Manager manages declarative user packages. Dotfiles
+continue to be managed by Stow. The repo root is the canonical flake, and the
+helper script switches the matching Home Manager configuration:
 
 ```sh
 ./scripts/apply-home-manager.sh

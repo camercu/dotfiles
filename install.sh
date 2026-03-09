@@ -69,4 +69,6 @@ Linux)
   ;;
 esac
 
-exec zsh "$DOTFILE_DIR/scripts/install.zsh" "$@"
+# Keep this entrypoint POSIX-sh compatible so Linux bootstrap can install zsh
+# first, then hand off to the zsh-focused installer implementation.
+exec zsh "$DOTFILE_DIR/scripts/bootstrap-install.zsh" "$@"

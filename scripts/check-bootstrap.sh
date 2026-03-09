@@ -43,6 +43,33 @@ run_repo_relative_link_test() {
   rm -rf "$tmp_home"
 }
 
+run_stow_conflict_test() {
+  tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/dotsync-conflict.XXXXXX")
+  conflict_log=$(mktemp "${TMPDIR:-/tmp}/dotsync-conflict.log.XXXXXX")
+
+  mkdir -p "$tmp_home/.local/bin"
+  ln -s "$DOTFILE_DIR/common/.local/bin/zk" "$tmp_home/.local/bin/zk"
+
+  if HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$conflict_log" 2>&1; then
+    echo "expected dotsync to fail when stow sees an existing non-stow link" >&2
+    cat "$conflict_log" >&2
+    rm -f "$conflict_log"
+    rm -rf "$tmp_home"
+    exit 1
+  fi
+
+  if ! grep -Eiq 'existing target|not owned by stow|conflict' "$conflict_log"; then
+    echo "dotsync failed, but not with a recognized stow conflict message" >&2
+    cat "$conflict_log" >&2
+    rm -f "$conflict_log"
+    rm -rf "$tmp_home"
+    exit 1
+  fi
+
+  rm -f "$conflict_log"
+  rm -rf "$tmp_home"
+}
+
 sh -n \
   "$DOTFILE_DIR/install.sh" \
   "$DOTFILE_DIR/common/.local/bin/dotsync" \
@@ -55,12 +82,13 @@ sh -n \
   "$SCRIPT_DIR/verify-home-manager-hosts.sh"
 
 zsh -n \
+  "$SCRIPT_DIR/bootstrap-install.zsh" \
   "$SCRIPT_DIR/config-macos.zsh" \
   "$SCRIPT_DIR/install-homebrew.sh" \
-  "$SCRIPT_DIR/install.zsh" \
   "$SCRIPT_DIR/migrate-claude-config.zsh" \
   "$SCRIPT_DIR/rename-mac.sh"
 
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
 run_dotsync_smoke_test
 run_repo_relative_link_test
+run_stow_conflict_test

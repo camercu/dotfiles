@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 set -e
 
-export DOTFILE_DIR="$(cd "$(dirname ${0})/.." && pwd -P)"
+export DOTFILE_DIR="$(cd "$(dirname "$0")/.." && pwd -P)"
 typeset -r SCRIPTS_DIR="$DOTFILE_DIR/scripts"
 typeset -r DOTSYNC_BIN="$DOTFILE_DIR/common/.local/bin/dotsync"
 
