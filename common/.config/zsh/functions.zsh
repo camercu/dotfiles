@@ -55,15 +55,21 @@ function success {
 # to fpath and calling autoload on each file in directory.
 # source: https://github.com/mattmc3/zdotdir/blob/main/lib/autoload.zsh
 function autoload-dir {
-    local zdir
+    local root zdir
     local -a zautoloads
+    local -A seen_dirs
     setopt EXTENDED_GLOB LOCAL_OPTIONS
-    for zdir in "$@"; do
-        [[ -d "$zdir" ]] || continue
-        fpath=("$zdir" $fpath)
-        # match all plain files except those starting with underscore, grabbing basename of file, with NULL_GLOB set
-        zautoloads=($zdir/*~_*(N-:t))
-        (( $#zautoloads > 0 )) && autoload -Uz $zautoloads
+    for root in "$@"; do
+        [[ -d "$root" ]] || continue
+        for zdir in "$root" "$root"/***/**(/N); do
+            [[ -d "$zdir" ]] || continue
+            [[ -n "${seen_dirs[$zdir]:-}" ]] && continue
+            seen_dirs[$zdir]=1
+            fpath=("$zdir" $fpath)
+            # match all plain files except those starting with underscore, grabbing basename of file, with NULL_GLOB set
+            zautoloads=($zdir/*~_*(N-:t))
+            (( $#zautoloads > 0 )) && autoload -Uz $zautoloads
+        done
     done
 }
 
@@ -74,12 +80,15 @@ function autoload-dir {
 function source-dir {
     local zdir=$1
     local scriptfile owner perms
+    local -A seen_scripts
     setopt EXTENDED_GLOB LOCAL_OPTIONS
     if [[ ! -d $zdir ]]; then
         error "directory not found: $zdir"
         return 1
     fi
-    for scriptfile in $zdir/*.(sh|zsh)(N-); do
+    for scriptfile in "$zdir"/***/**/*.(sh|zsh)(N-); do
+        [[ -n "${seen_scripts[$scriptfile]:-}" ]] && continue
+        seen_scripts[$scriptfile]=1
         if is-macos; then
             owner=$(stat -f '%u' "$scriptfile" 2>/dev/null)
             perms=$(stat -f '%OLp' "$scriptfile" 2>/dev/null)
@@ -107,10 +116,10 @@ function zsh-health {
     files=(
         "$root/.zshrc"
         "$root/functions.zsh"
-        "$root"/env/*.zsh(N)
-        "$root"/conf.d/*.zsh(N)
+        "$root"/env/***/**/*.(sh|zsh)(N-)
+        "$root"/conf.d/***/**/*.(sh|zsh)(N-)
         "$root"/completions/_*(N)
-        "$root"/plugins/**/*.plugin.zsh(N)
+        "$root"/plugins/***/**/*.plugin.zsh(N)
     )
 
     if ! command zsh -n -- $files; then

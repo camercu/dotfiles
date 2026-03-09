@@ -41,7 +41,7 @@ source-dir "$ZDOTDIR/conf.d"
 #
 # Auto-loaded Functions
 #
-autoload-dir $__zsh_config_dir/functions(N/) $__zsh_config_dir/functions/*(N/)
+autoload-dir "$__zsh_config_dir/functions"
 
 #
 # Path
@@ -70,11 +70,14 @@ fi
 #
 # Plugins
 #
-for plugin in "$ZDOTDIR"/plugins/**/*.plugin.zsh(N); do
-    [[ "$plugin" == */zsh-syntax-highlighting.plugin.zsh ]] && continue # must be last
-    builtin source "$plugin"
+typeset -A _loaded_plugins
+for plugin in "$ZDOTDIR"/plugins/***/**/*.plugin.zsh(N); do
+  [[ -n "${_loaded_plugins[$plugin]:-}" ]] && continue
+  _loaded_plugins[$plugin]=1
+  [[ "$plugin" == */zsh-syntax-highlighting.plugin.zsh ]] && continue # must be last
+  builtin source "$plugin"
 done
-unset plugin
+unset plugin _loaded_plugins
 
 
 #
@@ -97,6 +100,10 @@ if (( $+functions[__zsh_register_custom_compdefs] )); then
 fi
 
 # must be sourced at end of .zshrc
-if [[ -s "$ZDOTDIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]]; then
-  builtin source "$ZDOTDIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
-fi
+typeset -A _loaded_syntax_plugins
+for plugin in "$ZDOTDIR"/plugins/***/**/zsh-syntax-highlighting.plugin.zsh(N); do
+  [[ -n "${_loaded_syntax_plugins[$plugin]:-}" ]] && continue
+  _loaded_syntax_plugins[$plugin]=1
+  builtin source "$plugin"
+done
+unset plugin _loaded_syntax_plugins
