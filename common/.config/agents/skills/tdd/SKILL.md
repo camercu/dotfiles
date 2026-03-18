@@ -7,11 +7,11 @@ description: Test-driven development with red-green-refactor loop. Use when user
 
 ## Philosophy
 
-**Core principle**: Tests should verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't.
+**Core principle**: Tests should verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't change unless requirements change.
 
 **Good tests** are sociable and state-based: they exercise real code paths through public APIs, validating that given inputs produce expected outputs. They describe _what_ the system does, not _how_ it does it. A good test reads like a specification - "user can checkout with valid cart" tells you exactly what capability exists. These tests survive refactors because they don't care about internal structure. Good tests are also **fast** and **deterministic**. In most tests of program logic, inject fakes/stubs for external infrastructure like clocks, network connections, random number generators, file system/database accesses, etc. Only use the minimum set of focused, narrow integration tests to validate that the real code path and real external dependencies work together as expected. Refer to [testing without mocks](./testing-without-mocks.md) for more techniques on separating business logic from external infrastructure.
 
-**Bad tests** are coupled to implementation. They mock internal collaborators when the user requirement doesn't dictate a specific collaboration pattern. They test private methods or data structures. The warning sign: your test breaks when you refactor, but behavior hasn't changed. If you rename an internal function and tests fail, those tests were testing implementation, not behavior.
+**Bad tests** are coupled to implementation. They mock internal collaborators when the user requirement doesn't dictate a specific collaboration pattern. They test private methods or internal state. The warning sign: your test breaks when you refactor, but behavior hasn't changed. If you rename an internal function or change the type of an internal data structure and tests fail as a result, those tests were testing implementation, not behavior.
 
 ## Anti-Pattern: Horizontal Slices
 
@@ -68,7 +68,7 @@ Ask: "What should the public interface look like? Which behaviors are most impor
 Write ONE test that confirms ONE thing about the system:
 
 ```
-RED:   Write test for first behavior → test fails in the way you predict
+RED:   Write test for first behavior → test fails in the way you predict it should
 GREEN: Write minimal functional code to pass → test passes
 ```
 
@@ -79,14 +79,15 @@ This is your tracer bullet - proves the path works end-to-end.
 For each remaining behavior:
 
 ```
-RED:   Write next test → fails
+RED:   Write next test → fails in the way you predict
 GREEN: Minimal code to pass → passes
 ```
 
 Rules:
 
 - One test at a time
-- Only enough code to pass current test
+- "Call your shots" by predicting how a new test will fail. This validates your understanding of the codebase
+- Only write enough code to pass current test
 - Don't anticipate future tests
 - Keep tests focused on observable behavior
 
@@ -107,6 +108,12 @@ After all tests pass, use a subagent to look for [refactor candidates](refactori
 
 **Never refactor while RED.** Get to GREEN first. After refactor, should still
 be GREEN.
+
+Tests should not change while refactoring the codebase, except where necessary
+to align with a refactoring step (e.g. renamed function or added/removed parameter).
+
+You can (and should) also refactor test code to improve readability and ergonomics for
+writing/maintaining the tests, but do not change the main codebase during this step, and do not make changes to tests that make them less explicit/clear.
 
 ## Checklist Per Cycle
 
