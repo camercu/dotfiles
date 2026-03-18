@@ -44,3 +44,4 @@
 	directory = /mnt/share/hackbox-init
 	directory = /mnt/share/dotfiles
 	directory = /mnt/share/htb
+	directory = /Users/cameron/.dotfiles
