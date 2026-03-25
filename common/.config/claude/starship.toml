@@ -1,0 +1,128 @@
+# Minimal Text Template
+"$schema" = "https://starship.rs/config-schema.json"
+
+palette = "custom"
+add_newline = false
+
+# dir git model context-bar 5h-bar weekly-bar cost
+# Each bar has 3 tiers: NORMAL, WARN (60%+), CRIT (85%+) — only one is set at a time
+format = """
+$directory \
+$git_branch$git_status \
+${env_var.CLAUDE_MODEL} \
+${env_var.CLAUDE_CTX_NORMAL}\
+${env_var.CLAUDE_CTX_WARN}\
+${env_var.CLAUDE_CTX_CRIT}\
+${env_var.CLAUDE_5H_NORMAL}\
+${env_var.CLAUDE_5H_WARN}\
+${env_var.CLAUDE_5H_CRIT}\
+${env_var.CLAUDE_7D_NORMAL}\
+${env_var.CLAUDE_7D_WARN}\
+${env_var.CLAUDE_7D_CRIT} \
+${env_var.CLAUDE_COST}\
+"""
+
+[directory]
+style = "fg:directory"
+format = "[$path]($style)"
+truncation_length = 2
+truncate_to_repo = true
+
+[git_branch]
+symbol = ""
+style = "fg:git_branch"
+format = "[$branch]($style)"
+
+[git_status]
+style = "fg:git_status"
+format = "[($all_status$ahead_behind)]($style)"
+
+[env_var.CLAUDE_MODEL]
+variable = "CLAUDE_MODEL"
+format = "[$env_value]($style)"
+style = "fg:model"
+
+# Context bar tiers
+[env_var.CLAUDE_CTX_NORMAL]
+variable = "CLAUDE_CTX_NORMAL"
+format = "[$env_value]($style)"
+style = "fg:context"
+
+[env_var.CLAUDE_CTX_WARN]
+variable = "CLAUDE_CTX_WARN"
+format = "[$env_value]($style)"
+style = "fg:bar_warn"
+
+[env_var.CLAUDE_CTX_CRIT]
+variable = "CLAUDE_CTX_CRIT"
+format = "[$env_value]($style)"
+style = "fg:bar_crit"
+
+# 5h rate limit bar tiers
+[env_var.CLAUDE_5H_NORMAL]
+variable = "CLAUDE_5H_NORMAL"
+format = "[$env_value]($style)"
+style = "fg:rate_5h"
+
+[env_var.CLAUDE_5H_WARN]
+variable = "CLAUDE_5H_WARN"
+format = "[$env_value]($style)"
+style = "fg:bar_warn"
+
+[env_var.CLAUDE_5H_CRIT]
+variable = "CLAUDE_5H_CRIT"
+format = "[$env_value]($style)"
+style = "fg:bar_crit"
+
+# Weekly rate limit bar tiers
+[env_var.CLAUDE_7D_NORMAL]
+variable = "CLAUDE_7D_NORMAL"
+format = "[$env_value]($style)"
+style = "fg:rate_weekly"
+
+[env_var.CLAUDE_7D_WARN]
+variable = "CLAUDE_7D_WARN"
+format = "[$env_value]($style)"
+style = "fg:bar_warn"
+
+[env_var.CLAUDE_7D_CRIT]
+variable = "CLAUDE_7D_CRIT"
+format = "[$env_value]($style)"
+style = "fg:bar_crit"
+
+[env_var.CLAUDE_COST]
+variable = "CLAUDE_COST"
+format = "[$env_value]($style)"
+style = "fg:cost"
+
+## Custom palette
+#
+
+# Catppuccin Mocha
+[palettes.custom]
+
+# Semantic colors for templates
+claude = "#D97757"
+claude_bg = "#313244"
+
+directory = "#89dceb"
+directory_bg = "#1e1e2e"
+
+git_branch = "#eba0ac"
+git_status = "#f2cdcd"
+git_bg = "#313244"
+
+model = "#74c7ec"
+model_bg = "#1e1e2e"
+
+context = "#fab387"
+context_bg = "#313244"
+
+rate_5h = "#cba6f7"
+rate_weekly = "#f5c2e7"
+
+bar_warn = "#f9e2af"
+bar_crit = "#f38ba8"
+
+cost = "#a6e3a1"
+cost_bg = "#45475a"

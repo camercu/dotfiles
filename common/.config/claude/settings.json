@@ -12,8 +12,14 @@
   },
   "model": "opus",
   "enabledPlugins": {
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "starship-claude@starship-claude": true
   },
   "editorMode": "vim",
-  "terminalProgressBarEnabled": true
+  "terminalProgressBarEnabled": true,
+  "statusLine": {
+    "type": "command",
+    "padding": 0,
+    "command": "~/.local/bin/starship-claude"
+  }
 }
