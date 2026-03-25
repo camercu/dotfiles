@@ -15,5 +15,5 @@
     "rust-analyzer-lsp@claude-plugins-official": true
   },
   "editorMode": "vim",
-  "terminalProgressBarEnabled": true,
+  "terminalProgressBarEnabled": true
 }
