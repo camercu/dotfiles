@@ -38,6 +38,7 @@
     sad # sed alternative
     sd # sed alternative
     simple-http-server # simple HTTP server with upload and HTTPS
+    starship # customizable shell prompt (used with starship-claude)
     tealdeer # tldr replacement
     tectonic # TeX engine for rendering math in neovim
     tokei # show code stats
