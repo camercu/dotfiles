@@ -10,6 +10,7 @@ format = """
 $directory \
 $git_branch$git_status \
 ${env_var.CLAUDE_MODEL} \
+${env_var.CLAUDE_COST}
 ${env_var.CLAUDE_CTX_NORMAL}\
 ${env_var.CLAUDE_CTX_WARN}\
 ${env_var.CLAUDE_CTX_CRIT}\
@@ -18,20 +19,19 @@ ${env_var.CLAUDE_5H_WARN}\
 ${env_var.CLAUDE_5H_CRIT}\
 ${env_var.CLAUDE_7D_NORMAL}\
 ${env_var.CLAUDE_7D_WARN}\
-${env_var.CLAUDE_7D_CRIT} \
-${env_var.CLAUDE_COST}\
-"""
+${env_var.CLAUDE_7D_CRIT}
+\n"""
 
 [directory]
 style = "fg:directory"
-format = "[$path]($style)"
+format = "[ $path]($style)"
 truncation_length = 2
 truncate_to_repo = true
 
 [git_branch]
-symbol = ""
+symbol = ""
 style = "fg:git_branch"
-format = "[$branch]($style)"
+format = "[$symbol $branch]($style)"
 
 [git_status]
 style = "fg:git_status"
