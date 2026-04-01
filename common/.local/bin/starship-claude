@@ -349,7 +349,7 @@ if command -v jq >/dev/null 2>&1 && [ -n "$payload" ]; then
         set_tiered_bar "CLAUDE_CTX" "$percent_used" "ctx $(printf '%3s' "${percent_used}%") $(make_bar "$percent_used" 10)"
     else
         export CLAUDE_CONTEXT_BAR="╌╌╌╌╌╌╌╌╌╌"
-        set_tiered_bar "CLAUDE_CTX" "0" "ctx   % ╌╌╌╌╌╌╌╌╌╌"
+        set_tiered_bar "CLAUDE_CTX" "0" "ctx % ╌╌╌╌╌╌╌╌╌╌"
     fi
 
     #
