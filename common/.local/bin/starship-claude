@@ -322,8 +322,8 @@ if command -v jq >/dev/null 2>&1 && [ -n "$payload" ]; then
     }
 
     # Color thresholds for status bars
-    BAR_WARN=60 # Yellow threshold
-    BAR_CRIT=85 # Red threshold
+    BAR_WARN=40 # Yellow threshold
+    BAR_CRIT=70 # Red threshold
 
     #
     # Set a tiered bar label into NORMAL/WARN/CRIT env vars.

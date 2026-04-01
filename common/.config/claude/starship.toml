@@ -4,8 +4,9 @@
 palette = "catppuccin_mocha"
 add_newline = false
 
-# dir git model context-bar 5h-bar weekly-bar cost
-# Each bar has 3 tiers: NORMAL, WARN (60%+), CRIT (85%+) — only one is set at a time
+# dir git model
+# context-bar 5h-bar weekly-bar cost
+# Each bar has 3 tiers: NORMAL, WARN (40%+), CRIT (70%+) — only one is set at a time
 format = """
 $directory \
 $git_branch$git_status \
