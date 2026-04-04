@@ -75,18 +75,18 @@ function autoload-dir {
 
 
 # source-dir: Source all *.sh and *.zsh files in a
-# directory (non-recursive). Skips files not owned by the current
-# user or that are world-writable.
+# directory (recursive, follows symlinks). Skips files not owned
+# by the current user or that are world-writable.
 function source-dir {
     local zdir=$1
     local scriptfile owner perms
     local -A seen_scripts
-    setopt EXTENDED_GLOB LOCAL_OPTIONS
+    setopt EXTENDED_GLOB
     if [[ ! -d $zdir ]]; then
         error "directory not found: $zdir"
         return 1
     fi
-    for scriptfile in "$zdir"/***/**/*.(sh|zsh)(N-); do
+    for scriptfile in "$zdir"/***/*.(sh|zsh)(N-); do
         [[ -n "${seen_scripts[$scriptfile]:-}" ]] && continue
         seen_scripts[$scriptfile]=1
         if is-macos; then
