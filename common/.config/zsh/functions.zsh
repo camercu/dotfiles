@@ -67,7 +67,7 @@ function autoload-dir {
             seen_dirs[$zdir]=1
             fpath=("$zdir" $fpath)
             # match all plain files except those starting with underscore, grabbing basename of file, with NULL_GLOB set
-            zautoloads=($zdir/*~_*(N-:t))
+            zautoloads=("$zdir"/*~_*(N-:t))
             (( $#zautoloads > 0 )) && autoload -Uz $zautoloads
         done
     done
@@ -79,8 +79,10 @@ function autoload-dir {
 # by the current user or that are world-writable.
 function source-dir {
     local zdir=$1
-    local scriptfile owner perms
-    local -A seen_scripts
+    local scriptfile
+    local -A seen_scripts file_stat
+    local -i owner perms
+    zmodload zsh/stat
     setopt EXTENDED_GLOB
     if [[ ! -d $zdir ]]; then
         error "directory not found: $zdir"
@@ -89,18 +91,14 @@ function source-dir {
     for scriptfile in "$zdir"/***/*.(sh|zsh)(N-); do
         [[ -n "${seen_scripts[$scriptfile]:-}" ]] && continue
         seen_scripts[$scriptfile]=1
-        if is-macos; then
-            owner=$(stat -f '%u' "$scriptfile" 2>/dev/null)
-            perms=$(stat -f '%OLp' "$scriptfile" 2>/dev/null)
-        else
-            owner=$(stat -c '%u' "$scriptfile" 2>/dev/null)
-            perms=$(stat -c '%a' "$scriptfile" 2>/dev/null)
-        fi
-        if [[ "$owner" != "$UID" ]]; then
+        zstat -H file_stat -- "$scriptfile" 2>/dev/null || continue
+        owner=${file_stat[uid]}
+        perms=${file_stat[mode]}
+        if (( owner != EUID )); then
             warn "skipping file not owned by current user: $scriptfile"
             continue
         fi
-        if (( 8#$perms & 0002 )); then
+        if (( (perms & 0002) != 0 )); then
             warn "skipping world-writable file: $scriptfile"
             continue
         fi
