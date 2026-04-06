@@ -1,11 +1,8 @@
-#!/usr/bin/env zsh
-
-# Don’t clear the screen after quitting a manual page.
-export MANPAGER='less -X';
+# Don't clear the screen after quitting a manual page.
+export MANPAGER='less -X'
 
 # Use bat as manpager to get colorized manpages.
-# Still don't clear the screen after quitting man
-if command -v bat &>/dev/null; then
+if is-installed bat; then
   export MANPAGER='bat --language man --plain --pager "less -XRF"'
 fi
 

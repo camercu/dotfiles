@@ -1,7 +1,5 @@
-#!/usr/bin/env zsh
-
 # ensure uv tools are in PATH
-if command -v uv &>/dev/null; then
+if is-installed uv; then
   typeset -g __uv_tool_dir_cache="${XDG_CACHE_HOME:-$HOME/.cache}/uv/tool-dir"
   typeset -g __uv_tool_dir="${XDG_DATA_HOME:-$HOME/.local/share}/uv/tools"
 

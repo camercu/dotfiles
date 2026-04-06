@@ -1,5 +1,3 @@
-#!/usr/bin/env zsh
-
-if command -v zoxide &>/dev/null; then
+if is-installed zoxide; then
   eval "$(zoxide init --cmd j zsh)"
 fi
