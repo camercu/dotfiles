@@ -1,0 +1,43 @@
+# zsh-health: quick syntax and dependency check for this zsh config.
+local root="${ZDOTDIR:-$HOME/.config/zsh}"
+local -a files deps missing insecure
+local -i warned=0
+
+files=(
+    "$root/.zshrc"
+    "$root"/lib/***/*.(sh|zsh)(N-)
+    "$root"/env/***/*.(sh|zsh)(N-)
+    "$root"/conf.d/***/*.(sh|zsh)(N-)
+    "$root"/completions/_*(N)
+    "$root"/plugins/***/*.plugin.zsh(N)
+)
+
+if ! command zsh -n -- $files; then
+    error "syntax check failed"
+    return 1
+fi
+
+deps=(git awk sed grep)
+missing=()
+for dep in $deps; do
+    is-installed "$dep" || missing+="$dep"
+done
+
+if (( $#missing > 0 )); then
+    warn "missing recommended tools: ${missing[*]}"
+    warned=1
+fi
+
+autoload -Uz compaudit
+insecure=( ${(f)"$(compaudit 2>/dev/null)"} )
+if (( $#insecure > 0 )); then
+    warn "compaudit found insecure paths:"
+    print -l -- "${insecure[@]}" >&2
+    warned=1
+fi
+
+if (( warned )); then
+    warn "zsh config health check passed with warnings"
+else
+    success "zsh config health check passed"
+fi
