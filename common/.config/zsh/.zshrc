@@ -1,12 +1,7 @@
 #!/usr/bin/env zsh
 
-# # If not in tmux, start tmux.
-# if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
-#   exec tmux attach
-# fi
-
 # Ghostty shell integration for zsh. This should be at the top of zshrc!
-if [ -n "${GHOSTTY_RESOURCES_DIR}" ]; then
+if [[ -n "${GHOSTTY_RESOURCES_DIR}" ]]; then
     builtin source "${GHOSTTY_RESOURCES_DIR}/shell-integration/zsh/ghostty-integration"
 fi
 
@@ -17,31 +12,33 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   builtin source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Internal config/cache roots (with fallbacks for portability)
-: "${__zsh_config_dir:=${ZDOTDIR:-$HOME/.config/zsh}}"
+# Internal cache root used for compdump and powerlevel10k
 : "${__zsh_cache_dir:=${XDG_CACHE_HOME:-$HOME/.cache}/zsh}"
 [[ -d "${__zsh_cache_dir}" ]] || mkdir -p -- "${__zsh_cache_dir}"
 
 
 #
-# Helper Functions
+# Startup Library (env checks, logging, autoload-dir)
 #
-builtin source "$ZDOTDIR/functions.zsh"
+for _zf in "$ZDOTDIR"/lib/*.zsh(N); do builtin source "$_zf"; done
+unset _zf
 
 #
 # Environment Variables
 #
-source-dir "$ZDOTDIR/env"
+for _zf in "$ZDOTDIR"/env/***/*.(sh|zsh)(N-); do builtin source "$_zf"; done
+unset _zf
 
 #
 # Configuration Options
 #
-source-dir "$ZDOTDIR/conf.d"
+for _zf in "$ZDOTDIR"/conf.d/***/*.(sh|zsh)(N-); do builtin source "$_zf"; done
+unset _zf
 
 #
 # Auto-loaded Functions
 #
-autoload-dir "$__zsh_config_dir/functions"
+autoload-dir "$ZDOTDIR/functions"
 
 #
 # Path
@@ -54,30 +51,32 @@ typeset -gU cdpath fpath mailpath path
 #
 # Prompt
 #
-typeset -g P10K_DIR="${__zsh_cache_dir}/powerlevel10k"
+typeset -g __p10k_dir="${__zsh_cache_dir}/powerlevel10k"
 if [[ "${ZSH_ADMIN_PROMPT:-0}" == "1" ]] || (( EUID == 0 )) || [[ " $(groups 2>/dev/null) " == *" admin "* ]]; then
     builtin source "$ZDOTDIR/p10k-admin.zsh"
 else
     builtin source "$ZDOTDIR/p10k.zsh"
 fi
-if [[ -s "${P10K_DIR}/powerlevel10k.zsh-theme" ]]; then
-  builtin source "${P10K_DIR}/powerlevel10k.zsh-theme"
+if [[ -s "${__p10k_dir}/powerlevel10k.zsh-theme" ]]; then
+  builtin source "${__p10k_dir}/powerlevel10k.zsh-theme"
 else
-  print -P "%F{yellow}powerlevel10k not installed.%f Run: git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \"${P10K_DIR}\"" >&2
+  print -P "%F{yellow}powerlevel10k not installed.%f Run: git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \"${__p10k_dir}\"" >&2
 fi
 
 
 #
 # Plugins
 #
-typeset -A _loaded_plugins
-for plugin in "$ZDOTDIR"/plugins/***/**/*.plugin.zsh(N); do
-  [[ -n "${_loaded_plugins[$plugin]:-}" ]] && continue
-  _loaded_plugins[$plugin]=1
-  [[ "$plugin" == */zsh-syntax-highlighting.plugin.zsh ]] && continue # must be last
+# Load order is enforced by numeric directory prefix (glob sorts lexicographically):
+#   10-*  General plugins (autosuggestions, completions, etc.)
+#   20-*  Syntax highlighting (must follow all plugins that modify the command line)
+#   30-*  Forge (must follow 20- so ZSH_HIGHLIGHT_PATTERNS is already a declared
+#         associative array before forge's += runs, and bindkey -v is already active)
+#
+for plugin in "$ZDOTDIR"/plugins/[0-9]##-*/[^_]*.plugin.zsh(N-); do
   builtin source "$plugin"
 done
-unset plugin _loaded_plugins
+unset plugin
 
 
 #
@@ -85,7 +84,7 @@ unset plugin _loaded_plugins
 #
 
 # initialize completions with caching
-[[ -n "$ZSH_COMPDUMP" ]] || export ZSH_COMPDUMP="${XDG_CACHE_HOME:-${XDG_CACHE:-$HOME/.cache}}/zsh/.zcompdump-${HOST}"
+[[ -n "$ZSH_COMPDUMP" ]] || export ZSH_COMPDUMP="${__zsh_cache_dir}/.zcompdump-${HOST}"
 [[ -d "${ZSH_COMPDUMP:h}" ]] || mkdir -p -- "${ZSH_COMPDUMP:h}"
 autoload -Uz compinit
 if [[ -s "$ZSH_COMPDUMP" ]]; then
@@ -98,12 +97,3 @@ fi
 if (( $+functions[__zsh_register_custom_compdefs] )); then
   __zsh_register_custom_compdefs
 fi
-
-# must be sourced at end of .zshrc
-typeset -A _loaded_syntax_plugins
-for plugin in "$ZDOTDIR"/plugins/***/**/zsh-syntax-highlighting.plugin.zsh(N); do
-  [[ -n "${_loaded_syntax_plugins[$plugin]:-}" ]] && continue
-  _loaded_syntax_plugins[$plugin]=1
-  builtin source "$plugin"
-done
-unset plugin _loaded_syntax_plugins
