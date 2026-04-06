@@ -89,6 +89,12 @@ if [[ -n "${terminfo[kcbt]}" ]]; then
   bindkey -M vicmd "${terminfo[kcbt]}" reverse-menu-complete
 fi
 
+# [Ctrl-C] - abort current line (vi insert mode defaults to self-insert)
+bindkey -M viins '^C' send-break
+
+# [Ctrl-D] - EOF on empty line / delete char (vi insert mode defaults to list-choices)
+bindkey -M viins '^D' delete-char-or-list
+
 # [Backspace] - delete backward
 bindkey -M emacs '^?' backward-delete-char
 bindkey -M viins '^?' backward-delete-char
