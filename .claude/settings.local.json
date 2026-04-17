@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(//Users/cameron/.dotfiles/**)",
-      "Bash(echo \"UID=$UID\")"
-    ]
-  }
-}
