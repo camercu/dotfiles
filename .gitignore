@@ -24,3 +24,4 @@ __pycache__/
 *~
 Crash Reports/
 # END GENERATED DOTFILE ARTIFACT IGNORES
+.claude/settings.local.json
