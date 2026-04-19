@@ -71,7 +71,7 @@
 
     open = "!f(){ URL=$(git config remote.origin.url); open ${URL%.git}; }; f"
 
-    pr = "!f(){ URL=$(git config remote.origin.url); open ${URL%.git}/compare/$(git rev-parse --abbrev-ref HEAD); }; f"
+    compare = "!f(){ URL=$(git config remote.origin.url); open ${URL%.git}/compare/$(git rev-parse --abbrev-ref HEAD); }; f"
 
     publish = "!f() { git push origin $1 && git push drafts :$1 && git browse }; f"
 
@@ -235,3 +235,7 @@
     discard-all = !git ls-files | xargs -I% -n1 git checkout -- %
     ls = ls-files
     visual = !gitk
+
+### pull ###
+
+    pr = pull --rebase
