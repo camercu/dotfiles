@@ -35,11 +35,18 @@ return {
     { "<leader>umbc", "<cmd>Neominimap BufDisable<cr>", desc = "Disable minimap for current buffer" },
 
     ---Focus Controls
-    { "<leader>umf", "<cmd>Neominimap Focus<cr>", desc = "Focus on minimap" },
+    { "<leader>umf", "<cmd>Neominimap Focus<cr>", desc = "Focus minimap" },
     { "<leader>umu", "<cmd>Neominimap Unfocus<cr>", desc = "Unfocus minimap" },
-    { "<leader>ums", "<cmd>Neominimap ToggleFocus<cr>", desc = "Switch focus on minimap" },
+    { "<leader>ums", "<cmd>Neominimap ToggleFocus<cr>", desc = "Toggle minimap focus" },
   },
   init = function()
+    local ok, wk = pcall(require, "which-key")
+    if ok then
+      wk.add({ "<leader>um", group = "+minimap" })
+      wk.add({ "<leader>umb", group = "+buffer minimap" })
+      wk.add({ "<leader>umt", group = "+tab minimap" })
+      wk.add({ "<leader>umw", group = "+tab minimap" })
+    end
     -- The following options are recommended when layout == "float"
     vim.opt.wrap = false
     vim.opt.sidescrolloff = 36 -- Set a large value
