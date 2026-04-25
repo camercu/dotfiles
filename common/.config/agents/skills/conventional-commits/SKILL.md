@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Performs a git commit safely and with properly-formatted Conventional Commit message. Use whenever the user requests to commit changes to git.
+description: MUST be used for every git commit. Formats Conventional Commit messages, checks for breaking changes, and stages files atomically.
 ---
 
 If you made more than one logical change, break up multiple logical changes into separate commits.

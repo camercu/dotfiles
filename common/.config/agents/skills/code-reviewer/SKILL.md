@@ -2,13 +2,13 @@
 name: code-reviewer
 description:
   Use this skill to review code. It supports both local changes (staged or working tree)
-  and remote Pull Requests (by ID or URL). It focuses on correctness, maintainability,
-  and adherence to project standards.
+  and remote Pull Requests (by ID or URL).
 ---
 
 # Code Reviewer
 
-This skill guides the agent in conducting professional and thorough code reviews for both local development and remote Pull Requests.
+This skill guides the agent in conducting professional and thorough code reviews for both local development and remote Pull Requests. It focuses on correctness, maintainability, and adherence to project standards.
+
 
 ## Workflow
 
@@ -25,7 +25,7 @@ This skill guides the agent in conducting professional and thorough code reviews
     ```
 2.  **Preflight**: Execute the project's standard verification suite to catch automated failures early.
     ```bash
-    npm run preflight
+    just ci
     ```
 3.  **Context**: Read the PR description and any existing comments to understand the goal and history.
 
@@ -33,14 +33,14 @@ This skill guides the agent in conducting professional and thorough code reviews
 1.  **Identify Changes**:
     *   Check status: `git status`
     *   Read diffs: `git diff` (working tree) and/or `git diff --staged` (staged).
-2.  **Preflight (Optional)**: If the changes are substantial, ask the user if they want to run `npm run preflight` before reviewing.
+2.  **Preflight (Optional)**: If the changes are substantial, ask the user if they want to run `just ci` before reviewing.
 
 ### 3. In-Depth Analysis
 Analyze the code changes based on the following pillars:
 
-*   **Correctness**: Does the code achieve its stated purpose without bugs or logical errors?
-*   **Maintainability**: Is the code clean, well-structured, and easy to understand and modify in the future? Consider factors like code clarity, modularity, and adherence to established design patterns.
-*   **Readability**: Is the code well-commented (where necessary) and consistently formatted according to our project's coding style guidelines?
+*   **Correctness**: Does the code achieve its stated purpose without bugs or logical errors? Is there surprising behavior that should be addressed?
+*   **Maintainability**: Is the code clean, well-structured, and easy to navigate, understand, and modify in the future? Consider factors like code clarity, modularity, and adherence to established design patterns. Can cohesion and separation of concerns be increased or coupling be reduced by refactoring? Is there unnecessary complexity? Is there an appropriate level of abstraction and information hiding, with "deep modules" (as described by John Ousterhout)?
+*   **Readability**: Is the code well-commented (where necessary) and consistently formatted according to our project's coding style guidelines? Do all functions, variables, etc. have clear, intent-revealing names? 
 *   **Efficiency**: Are there any obvious performance bottlenecks or resource inefficiencies introduced by the changes?
 *   **Security**: Are there any potential security vulnerabilities or insecure coding practices?
 *   **Edge Cases and Error Handling**: Does the code appropriately handle edge cases and potential errors?
