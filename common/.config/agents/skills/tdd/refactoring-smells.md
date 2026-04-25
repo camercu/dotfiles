@@ -16,7 +16,7 @@ Below is a concise mapping of major code smells from Martin Fowler’s _Refactor
 
 ## Object-Orientation Abusers
 
-- **Switch Statements** (type-based conditionals scattered) → **Replace Conditional with Polymorphism** (use subclasses/dispatch)
+- **Switch Statements** (type-based conditionals scattered across multiple locations) → **Replace Conditional with Polymorphism** (use subclasses/dispatch). Note: `match`/`switch` in a single location is often the right tool — the smell is scattered duplication of the same type-based branching, not pattern matching itself.
 - **Temporary Field** (fields only used in certain cases) → **Extract Class/Struct** (isolate conditional state)
 - **Refused Bequest** (subclass doesn't use inherited behavior) → **Replace Inheritance with Delegation** (favor composition)
 - **Alternative Interfaces** (similar behavior, different APIs) → **Rename Method / Move Method** (unify interfaces, define common interface)
@@ -35,7 +35,7 @@ Below is a concise mapping of major code smells from Martin Fowler’s _Refactor
 
 - **Lazy Class/Struct** (class/struct adds little value) → **Inline Class/Struct** (remove unnecessary abstraction)
 - **Speculative Generality** (unused abstraction for future flexibility) → **Collapse Hierarchy / Remove Dead Code**
-- **Data Class/Struct** (only getters/setters, no behavior) → **Encapsulate Field / Move Method** (add behavior to data)
+- **Data Class/Struct** (only getters/setters, no behavior) → **Encapsulate Field / Move Method** (add behavior to data). Note: in Rust, plain data structs are idiomatic — the smell is when external code repeatedly manipulates the struct's fields with the same logic instead of the struct owning that logic.
 - **Duplicate Code** (same logic repeated) → **Extract Method / Pull Up Method** (reuse shared logic)
 - **Comments** (excessive comments compensating for unclear code) → **Rename Method / Extract Method** (make code self-explanatory)
 
@@ -55,3 +55,5 @@ Below is a concise mapping of major code smells from Martin Fowler’s _Refactor
 - **Incomplete Library Class/Struct** (library lacks needed behavior) → **Introduce Foreign Method / Local Extension**
 - **Data Class/Struct / Record Abuse** (data structures manipulated externally) → **Encapsulate Record / Add Behavior**
 - **Refactoring Loops / Overengineering** (excess abstraction cycles) → **Simplify / Inline Abstractions**
+
+For code-level cleanup beyond TDD refactoring, run `/simplify`.

@@ -1,240 +1,128 @@
 # Testing Without Mocks
 
-Below is a summary of every pattern in James Shore's Testing Without Mocks: A Pattern Language.
+James Shore's pattern language for fast, state-based tests without mock frameworks. Full reference: [Testing Without Mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks).
 
-## Foundational Patterns
+## Core Principles
 
-### 1) Narrow Tests
+- **Narrow tests** — test small slices of behavior, not the whole system.
+- **State-based by default** — assert on outputs/state, not on how collaborators were invoked. If behavior isn't observable, fix the design (return values, getters, events). Exception: when call ordering/protocol IS the behavior under test (see Decision Rule 7).
+- **Overlapping sociable tests** — use real collaborators, not mocks. Tests overlap across layers. Isolate only at true infrastructure boundaries via nullables.
+- **Smoke tests** — a few broad "does it basically run?" checks. Keep few and stable.
 
-**Intent:** Keep most tests fast, readable, and resilient by testing small slices of behavior rather than the whole system. ([James Shore][1])
-**Use when:** You're tempted to write end-to-end tests for everything; tests are slow/brittle. ([James Shore][1])
-**How:** Assert one behavior/function at a time; unit tests are a common form. Use different strategies depending on what you're testing: logic patterns for pure computation, Nullables for code with infrastructure deps, and Narrow Integration Tests for infrastructure. ([James Shore][1])
-**Pitfalls:** Over-narrowing into "tests that mirror implementation" rather than intent (see Collaborator-Based Isolation).
+## Architecture: Functional Core, Imperative Shell
 
-### 2) State-Based Tests
+Shore's **A-Frame Architecture** separates logic from infrastructure as peers, not layers:
 
-**Intent:** Avoid interaction-based tests that "lock in" dependency usage; instead assert only outputs/state. ([James Shore][1])
-**Use when:** You're using mocks/spies to verify calls, arguments, and ordering, and refactors keep breaking tests. ([James Shore][1])
-**How:** Drive code by inputs and assert returned values or externally visible state changes, with no assertions about how collaborators were invoked. ([James Shore][1])
-**Pitfalls:** If behavior isn't visible (no return values/getters/events), fix design using Easily-Visible Behavior. ([James Shore][1])
+```
+        ┌─────────────┐
+        │ Application  │  ← coordinates, thin
+        ├──────┬───────┤
+        │ Logic│ Infra  │  ← peers, no deps between them
+        └──────┴───────┘
+```
 
-### 3) Overlapping Sociable Tests
+Two coordination patterns:
 
-**Intent:** Test larger slices of the dependency graph _without mocks_, accepting that tests will execute real collaborator code, and let test coverage "overlap" across layers. ([James Shore][1])
-**Use when:** You want confidence the system is wired correctly (composition, real interactions) while still avoiding slow end-to-end testing. ([James Shore][1])
-**How:** Construct real objects for the unit under test and most dependencies; isolate only true infrastructure boundaries via Nullables/Infrastructure Wrappers. ([James Shore][1])
-**Pitfalls:** Can cause "multiple failures" when a deep dependency bug breaks many tests; mitigate with Collaborator-Based Isolation + keeping tests focused. ([James Shore][1])
+**Logic Sandwich** — read from infra → process in logic → write via infra. Test logic with values, test infra with nullables.
 
-### 4) Smoke Tests
+**Traffic Cop** — for event-driven systems. Application subscribes to events from infra/logic; each event triggers a mini sandwich.
 
-**Intent:** A small number of broad "does it basically run?" checks to catch catastrophic wiring/configuration issues. ([James Shore][1])
-**Use when:** You need minimal end-to-end confidence without relying on a large brittle E2E suite. ([James Shore][1])
-**How:** Write a few high-level tests that exercise the main vertical path(s), often with Nullables to avoid real infrastructure. ([James Shore][1])
-**Pitfalls:** Don't let smoke tests become your main test portfolio; keep them few and stable. ([James Shore][1])
-
-### 5) Zero-Impact Instantiation
-
-**Intent:** Object construction should not cause real side effects (threads, sockets, file I/O, network). ([James Shore][1])
-**Use when:** Merely "newing up" or instantiating a class triggers infrastructure work, making tests flaky/slow. ([James Shore][1])
-**How:** Move side effects to explicit `start()/connect()/initialize()` methods; constructors only store dependencies and set in-memory state. ([James Shore][1])
-**Pitfalls:** Hidden background activity started in constructors is especially test-hostile.
-
-### 6) Parameterless Instantiation
-
-**Intent:** Production code should be easy to instantiate correctly, while tests can still inject dependencies. ([James Shore][1])
-**Use when:** Constructors require many dependencies and production setup is repetitive/error-prone. ([James Shore][1])
-**How:** Provide a parameterless factory like `create()` that wires real dependencies; tests call constructors/factories that accept injected deps (often via Signature Shielding to keep setup readable). ([James Shore][1])
-**Pitfalls:** Avoid hiding meaningful configuration; keep "default wiring" in the factory, not scattered.
-
-### 7) Signature Shielding
-
-**Intent:** Keep tests readable by hiding irrelevant constructor/setup parameters behind helpers with optional/named args and multi-return values. ([James Shore][1])
-**Use when:** Tests need only 1–2 fields configured but constructors/helpers require many parameters. ([James Shore][1])
-**How:** Create test helper functions that:
-
-- accept named/optional params (or an Options object),
-- supply sensible defaults for irrelevant fields, and
-- return multiple values (e.g., `{sut, deps, outputs}`) so tests can assert outputs and also access constructed collaborators if needed. ([James Shore][1])
-  **Pitfalls:** Don't turn the helper into a second implementation; keep it "wiring + defaults."
-
----
-
-## Architectural Patterns
-
-### 8) A-Frame Architecture
-
-**Intent:** Make testing easier by preventing logic from directly depending on infrastructure. ([James Shore][1])
-**Use when:** Layering pushes infrastructure to the bottom and everything indirectly depends on it, making tests expensive. ([James Shore][1])
-**How:** Structure **Application/UI** on top, with **Logic** and **Infrastructure** as peers beneath it, with no dependencies between them; pass data via value objects. Coordinate at the Application layer using Logic Sandwich or Traffic Cop; test the Application layer using Nullables. ([James Shore][1])
-**Pitfalls:** Optional, not mandatory; apply where it reduces coupling and test pain. ([James Shore][1])
-
-### 9) Logic Sandwich
-
-**Intent:** Let Application code bridge infrastructure and logic without them coupling to each other. ([James Shore][1])
-**Use when:** You have A-Frame (or similar) separation and need a standard flow. ([James Shore][1])
-**How:** In Application: **read** from Infrastructure → **process** in Logic → **write** via Infrastructure; repeat as needed. Test layers independently. ([James Shore][1])
-**Pitfalls:** If the app is event-driven, a sandwich alone may not fit; use Traffic Cop. ([James Shore][1])
-
-### 10) Traffic Cop
-
-**Intent:** Coordinate event-driven systems while still keeping infrastructure and logic decoupled. ([James Shore][1])
-**Use when:** Infrastructure or logic emits events (UI events, sockets, file system watchers, etc.). ([James Shore][1])
-**How:** Application layer subscribes (Observer pattern) to events from infrastructure/logic; for each event, run a "mini" logic sandwich (read/compute/write). ([James Shore][1])
-**Pitfalls:** Don't let event handling logic creep into infrastructure; keep orchestration in Application.
-
-### 11) Grow Evolutionary Seeds
-
-**Intent:** Build a system "outside-in" starting with an end-to-end behavior, but in a way that stays testable and grows into good architecture. ([James Shore][1])
-**Use when:** Starting a new codebase and want early end-to-end value without committing to heavy infrastructure/UI early. ([James Shore][1])
-**How:** Test-drive a trivial Application-layer class that returns results to tests (not UI), hard coding one infra-provided value initially, then refactor concepts into Logic and Infrastructure over time. ([James Shore][1])
-**Pitfalls:** If the seed becomes a "god object," refactor earlier (split responsibilities as soon as it feels messy). ([James Shore][1])
-
----
+**Grow Evolutionary Seeds** — start with trivial Application-layer class, hard-code one infra value, test-drive, then refactor into Logic + Infrastructure as complexity grows.
 
 ## Logic Patterns
 
-### 12) Easily-Visible Behavior
-
-**Intent:** Make logic testable via state-based assertions by ensuring computation results are observable. ([James Shore][1])
-**Use when:** Logic has hidden effects or no way to observe results cleanly. ([James Shore][1])
-**How:** Prefer pure functions; for OO, prefer immutability; for mutable objects provide getters or events so state changes are observable. ([James Shore][1])
-**Pitfalls:** Avoid "dig through internals" patterns (exposing deep structure just for tests); expose behavior-level results.
-
-### 13) Testable Libraries
-
-**Intent:** Reduce brittleness and improve testability by wrapping third-party code you don't control. ([James Shore][1])
-**Use when:** A third-party library is hard to test against, has poor observability, or risks breaking changes/abandonment. ([James Shore][1])
-**How:** Create a wrapper whose API matches _your app's needs_, not the library's. Add methods to provide visible behavior (getters/events), and keep the rest of the codebase depending only on your wrapper. ([James Shore][1])
-**Pitfalls:** If the library touches external systems/state, treat it as infrastructure instead (Infrastructure Wrapper). ([James Shore][1])
-
-### 14) Collaborator-Based Isolation
-
-**Intent:** Keep tests narrow by isolating irrelevant collaborator behavior without using mock-style interaction assertions. ([James Shore][1])
-**Use when:** Overlapping sociable tests make changes expensive because deep formatting/behavior changes cascade into many unrelated tests. ([James Shore][1])
-**How:** Write narrow tests that focus on a specific case and treat collaborator results as "given," while expecting collaborators to have their own narrow tests. The goal is to ignore irrelevant collaborator details. ([James Shore][1])
-**Pitfalls:** It tightens coupling to structure more than purely sociable tests, so use sparingly. ([James Shore][1])
-
----
+- **Easily-Visible Behavior** — make results observable. Prefer pure functions. For OO, prefer immutability; provide getters or events for state changes.
+- **Testable Libraries** — wrap third-party code behind your-app-shaped API. If it touches external systems, treat as infrastructure instead.
+- **Collaborator-Based Isolation** — keep tests narrow by focusing on specific behavior, treating collaborator results as "given." Use sparingly — tightens coupling to structure.
 
 ## Infrastructure Patterns
 
-### 15) Infrastructure Wrappers
+- **Infrastructure Wrappers** — one wrapper per external system with a clean domain-facing API. The wrapper's API matches what your application needs, not what the external system provides.
+- **Narrow Integration Tests** — verify real infrastructure communication. One behavior/edge-case at a time. Keep focused and few. Run against real external systems.
+- **Verified Fakes** — run the same contract tests against both the real implementation and the fake. If both pass, the fake is trustworthy. If the real impl changes behavior, contract tests fail against the fake, forcing you to update it. Unverified fakes silently drift from reality. Only skip verification for scenarios hard to reproduce reliably (network failures, timeouts).
+- **Paranoic Telemetry** — diagnostic hooks around external calls. Helps confirm assumptions your stubs rely on.
 
-**Intent:** Make infrastructure code understandable and testable by isolating it behind purpose-built adapters. ([James Shore][1])
-**Use when:** Code touches external systems/state (network, DB, file system, env vars, time, etc.). ([James Shore][1])
-**How:** Create **one wrapper per external system** with a clean domain-facing API. Test wrappers with Narrow Integration Tests + Paranoic Telemetry; make them testable via Nullability Patterns. ([James Shore][1])
-**Pitfalls:** Over-general wrappers become leaky abstractions; the wrapper's API should match what your application needs. ([James Shore][1])
+## Nullable Patterns
 
-### 16) Narrow Integration Tests
+The core innovation. Make infrastructure testable without mocks by providing "real-but-disabled" instances.
 
-**Intent:** Verify your infrastructure communication against real systems to catch subtle incompatibilities. ([James Shore][1])
-**Use when:** Writing or changing infrastructure wrappers or embedded stubs; especially for edge cases like errors/async. ([James Shore][1])
-**How:** Test real external communication (real files, DB, network). Keep tests narrow (one behavior/edge-case at a time) and aligned with production config. ([James Shore][1])
-**Pitfalls:** Don't rely on broad integration tests for everything; keep them focused and few.
+### Nullables
 
-### 17) Paranoic Telemetry
+Provide `create()` (real) and `create_null()` (nulled) factories. Nulled instances:
+- Return safe defaults, perform no external I/O
+- Execute your production logic paths
+- Are production-grade code (usable for dry runs), not just test helpers
 
-**Intent:** Detect production failures early by adding diagnostic hooks to infrastructure code. ([James Shore][1])
-**Use when:** Infrastructure failures can be subtle or intermittent and hard to debug post-fact. ([James Shore][1])
-**How:** Add robust, testable logging/metrics/tracing around external calls and responses, including error paths; ensure it helps confirm assumptions your stubs/tests rely on. ([James Shore][1])
-**Pitfalls:** Telemetry should be actionable; avoid noisy logs without context.
+### Embedded Stub
 
----
+Stub the third-party boundary inside the wrapper, not your own code. Minimal stub of the external API lives in the production file. Test-drive through wrapper's public API. Validate against real system with narrow integration tests.
 
-## Nullability Patterns
+### Thin Wrapper
 
-### 18) Nullables
+When you can't embed a stub (interface too broad, language needs explicit interfaces): define your own small interface matching only the methods you use. Real adapter + stub implementation.
 
-**Intent:** Make code with infrastructure dependencies testable without mocks by providing "real-but-disabled" versions of dependencies. ([James Shore][1])
-**Use when:** A dependency talks to external systems/state and you want sociable, state-based tests. ([James Shore][1])
-**How:** Provide `create()` (real) and `createNull()` (nulled) factories. Nulled instances return safe defaults and perform no external I/O, but still execute your production logic paths where practical. They're also usable in production for "dry run" or cache warming. ([James Shore][1])
-**Pitfalls:** Nullables are production-grade code and must be tested; don't treat them as "just test helpers." ([James Shore][1])
+### Configurable Responses
 
-### 19) Embedded Stub
+`create_null()` accepts params controlling return values in **domain-level** terms:
 
-**Intent:** For low-level infrastructure wrappers, disable external access by stubbing the third-party boundary (not your own code). ([James Shore][1])
-**Use when:** You need a nulled infrastructure wrapper and want to avoid scattering `if (nulled)` checks. ([James Shore][1])
-**How:** Create a minimal stub of the third-party API inside the production file; test-drive it through your wrapper's public API; ensure behavior matches real code using Narrow Integration Tests focused on edge cases (errors, async). ([James Shore][1])
-**Pitfalls:** Overbuilding the stub; or stubbing _your_ code instead of the external boundary, which reduces realism. ([James Shore][1])
+```python
+# Good: domain-level config
+client = UserClient.create_null(users=[User(name="Alice", verified=True)])
 
-### 20) Thin Wrapper
+# Bad: implementation-level config
+client = UserClient.create_null(http_responses=[Response(200, '{"name":"Alice"}')])
+```
 
-**Intent:** In languages needing interfaces (or when third-party APIs are too large), define your own small interface and provide real + stub implementations. ([James Shore][1])
-**Use when:** You can't conveniently implement an embedded stub against the third-party type, or the interface is too broad. ([James Shore][1])
-**How:** Create a custom interface matching the third-party signatures you actually use; implement a real adapter that forwards calls and a stub implementation used by `createNull()`. Wrap third-party return types too if needed. ([James Shore][1])
-**Pitfalls:** Diverging from the real signature can cause production/stub mismatch; keep it exact for used methods. ([James Shore][1])
+Support sequences (list that exhausts) and constants (repeat forever).
 
-### 21) Configurable Responses
+### Output Tracking
 
-**Intent:** For state-based tests, allow nulled dependencies to return test-controlled values without manipulating real external state. ([James Shore][1])
-**Use when:** Code under test reads from infrastructure (HTTP responses, clock time, DB reads, etc.). ([James Shore][1])
-**How:** Let `createNull()` accept optional/named config that defines responses in terms of **externally visible behavior** (domain-level data), not implementation details (e.g., "emailVerified" vs "HTTP 200 with JSON"). Support sequences (list of responses that exhaust) and constants (repeat forever). Decompose high-level config into lower-level stub behavior inside the embedded stub if needed. ([James Shore][1])
-**Pitfalls:** Configuring at the wrong abstraction level leads to brittle tests. ([James Shore][1])
+Track writes as **domain-level events**, not raw call logs:
 
-### 22) Output Tracking
+```python
+client = EmailClient.create_null()
+tracked = client.track_output()
+send_welcome(client, user)
+assert tracked == [{"type": "welcome_email", "to": "alice@example.com"}]
+```
 
-**Intent:** Verify writes to infrastructure via state-based assertions by tracking "otherwise invisible" outputs. ([James Shore][1])
-**Use when:** Code writes to logs, stdout, queues, databases, network sends, etc. ([James Shore][1])
-**How:** Add production-grade `trackXxx()` methods to dependencies (nulled or not) that record outputs as **domain-level events/objects**, not raw call logs. A common approach is emitting an event and having an `OutputTracker` collect emitted data. ([James Shore][1])
-**Pitfalls:** Don't build "spies" that record function calls; track semantic actions so refactors don't break tests. ([James Shore][1])
+Works in both nulled and real mode. Replaces mock verification.
 
-### 23) Behavior Simulation
+### Behavior Simulation
 
-**Intent:** Test event-driven systems by simulating external events at the boundary, sharing code with real handlers. ([James Shore][1])
-**Use when:** External systems push events (websockets, message buses, file watchers). ([James Shore][1])
-**How:** Add simulation methods (e.g., `simulateConnection`, `simulateMessage`) on the dependency that call the same internal handlers used by real event callbacks. Combine with Output Tracking to assert results. ([James Shore][1])
-**Pitfalls:** Duplicating logic between "real handler" and "simulate" paths; keep shared internal handlers. ([James Shore][1])
+Simulate incoming events without real infrastructure:
 
-### 24) Fake It Once You Make It
+```python
+ws = WebSocket.create_null()
+ws.simulate_message({"type": "chat", "text": "hello"})
+# triggers same internal handler as real message
+```
 
-**Intent:** For non-infrastructure code, create a Nullable by delegating to real dependencies (already nullable) rather than stubbing deep behavior up front. ([James Shore][1])
-**Use when:** You're making higher-level code Nullable and its dependencies can be made Nullable. ([James Shore][1])
-**How:** Implement `createNull()` by composing nulled dependencies and otherwise using real production logic; add Configurable Responses / Output Tracking / Behavior Simulation only where interaction with the outside world makes it necessary. ([James Shore][1])
-**Pitfalls:** Don't over-stub high-level code; only introduce test-control mechanisms when needed by tests.
+Share implementation between real event handler and simulation method.
 
----
+### Fake It Once You Make It
 
-## Legacy Code Patterns
+For higher-level code: implement `create_null()` by composing nulled dependencies. Use real production logic. Add configurable responses / output tracking / behavior simulation only where needed.
 
-### 25) Descend the Ladder
+## Legacy Migration
 
-**Intent:** Convert large dependency trees incrementally without boiling the ocean. ([James Shore][1])
-**Use when:** The unit you want to convert has many transitive dependencies. ([James Shore][1])
-**How:** When converting a module/class, convert it and its **direct dependencies**, but not deeper; gradually work downward through the dependency tree later. Classify converted units into categories (e.g., low-level infra wrappers vs everything else) and apply the appropriate nullability approach per category. ([James Shore][1])
-**Pitfalls:** Requires temporary solutions (Throwaway Stubs) that you later remove; track and retire them.
+### Descend the Ladder
+Convert module + direct dependencies, not deeper. Work downward incrementally. Use throwaway stubs temporarily for unconverted deep deps.
 
-### 26) Climb the Ladder
+### Climb the Ladder
+For small dependency trees: convert bottom-up quickly without throwaway stubs.
 
-**Intent:** Convert small dependency trees faster without waste. ([James Shore][1])
-**Use when:** The code's dependency tree is small enough that methodical "descending" is unnecessary. ([James Shore][1])
-**How:** Prefer quicker conversion that avoids creating throwaway stubs; move upward after making key dependencies nullable and tests state-based. ([James Shore][1])
-**Pitfalls:** For larger trees, you'll likely need Descend the Ladder to keep work bounded. ([James Shore][1])
+### Replace Mocks with Nullables
+1. Replace mock return configs → Configurable Responses
+2. Replace event setups → Behavior Simulation
+3. Replace call assertions → Output Tracking (do last)
 
-### 27) Replace Mocks with Nullables
+## Decision Rules
 
-**Intent:** Systematically rewrite existing mock/spy-based tests into state-based tests using Nullables. ([James Shore][1])
-**Use when:** Existing tests assert calls/ordering/arguments on doubles and block refactoring. ([James Shore][1])
-**How:**
-
-- Replace "configured return values" on mocks with Configurable Responses. ([James Shore][1])
-- Replace "emit events" setups with Behavior Simulation. ([James Shore][1])
-- Replace "assert called like X" with Output Tracking (often last, after configuration-only doubles). ([James Shore][1])
-  **Pitfalls:** Converting call-assertion tests too early can be hard unless output tracking is already in place.
-
-### 28) Throwaway Stub
-
-**Intent:** Temporarily break a dependency chain so you can convert a unit without converting the entire subtree immediately. ([James Shore][1])
-**Use when:** A direct dependency mixes logic+infrastructure and isn't yet nullable, but you want to convert the parent now (common in Descend the Ladder). ([James Shore][1])
-**How:** Create a minimal stub used only to make the dependency "nullable enough" for the moment; later replace it with a proper nullable built via Fake It Once You Make It once the dependency is converted. ([James Shore][1])
-**Pitfalls:** Don't let throwaway stubs become permanent; plan and execute their removal.
-
----
-
-## Practical rules of thumb (compressed)
-
-- Default to **Narrow + State-Based** tests. ([James Shore][1])
-- Treat anything touching external state as **Infrastructure Wrapper + Narrow Integration Tests**, then make it **Nullable** via **Embedded Stub/Thin Wrapper**. ([James Shore][1])
-- For higher layers, make code nullable by composition (**Fake It Once You Make It**), then add **Configurable Responses / Output Tracking / Behavior Simulation** only where needed. ([James Shore][1])
-- Use **A-Frame + Sandwich/Traffic Cop** when you want architecture-level decoupling between logic and infrastructure. ([James Shore][1])
-
-[1]: https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks "James Shore: Testing Without Mocks: A Pattern Language"
+1. Default to **narrow + state-based** tests.
+2. Pure logic → test directly with values. No doubles needed.
+3. Mixed logic + IO → extract pure function first (functional core).
+4. Infrastructure dep → **Infrastructure Wrapper + Narrow Integration Tests**, then make **Nullable** via Embedded Stub / Thin Wrapper.
+5. Higher layers → nullable by composition (Fake It Once You Make It). Add configurable responses / output tracking / behavior simulation only as needed.
+6. Use **A-Frame + Sandwich/Traffic Cop** for architecture-level decoupling.
+7. **Don't mock what you don't own.** Mock your own abstractions (facades, wrappers), not third-party APIs directly. Mocking `requests`/`reqwest` creates brittle, boilerplate-heavy tests that obscure intent. Wrap the external dep in a domain-facing facade, then mock/fake/stub that. Mocks are legitimate when **call ordering IS the behavior** — protocol correctness ("must call `begin` before `commit`", "must not call `send` after `close`"), interaction semantics not observable through return values. Everything else: use a simpler double.

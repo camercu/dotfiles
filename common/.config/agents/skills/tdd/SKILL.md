@@ -5,122 +5,77 @@ description: Test-driven development with red-green-refactor loop. Use when user
 
 # Test-Driven Development
 
+## Context Loading
+
+Load **progressively** — only when entering the phase that needs them.
+
+| When | Load |
+|------|------|
+| Planning | `deep-modules.md`, `tracer-bullets.md` |
+| First infrastructure dep | `testing-without-mocks.md` |
+| Test doubles needed | `interface-design.md` |
+| Refactor phase | `refactoring-smells.md` |
+
+Cross-refs: `/improve-architecture` (module-level), `/simplify` (code-level cleanup).
+
 ## Philosophy
 
-**Core principle**: Tests should verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't change unless requirements change.
+**Behavior, not implementation.** Test through public interfaces. Tests break only when behavior changes, not from internal refactors. Verify through the interface, not around it (see [interface-design.md](./interface-design.md#5-verify-through-the-interface)).
 
-**Good tests** are sociable and state-based: they exercise real code paths through public APIs, validating that given inputs produce expected outputs. They describe _what_ the system does, not _how_ it does it. A good test reads like a specification - "user can checkout with valid cart" tells you exactly what capability exists. These tests survive refactors because they don't care about internal structure. Good tests are also **fast** and **deterministic**. In most tests of program logic, inject fakes/stubs for external infrastructure like clocks, network connections, random number generators, file system/database accesses, etc. Only use the minimum set of focused, narrow integration tests to validate that the real code path and real external dependencies work together as expected. Refer to [testing without mocks](./testing-without-mocks.md) for more techniques on separating business logic from external infrastructure.
+**Functional core, imperative shell.** Pure functions for decisions, I/O at edges. Core: values in, values out. Shell: thin, verified by inspection or narrow integration test.
 
-**Bad tests** are coupled to implementation. They mock internal collaborators when the user requirement doesn't dictate a specific collaboration pattern. They test private methods or internal state. The warning sign: your test breaks when you refactor, but behavior hasn't changed. If you rename an internal function or change the type of an internal data structure and tests fail as a result, those tests were testing implementation, not behavior.
+**Sociable, state-based, independent.** Real collaborators, assert outputs not call sequences (Chicago school). Each test isolated — no shared mutable state, no ordering deps. Test doubles only at infrastructure boundaries. Pick simplest double: stub → fake → spy → nullable → mock. Mock only when call ordering IS the behavior. See [testing-without-mocks.md](./testing-without-mocks.md).
 
-## Anti-Pattern: Horizontal Slices
+**GIVEN-WHEN-THEN.** One WHEN per test. See [interface-design.md](./interface-design.md) for examples.
 
-**DO NOT write all tests first, then all implementation.** This is "horizontal slicing" - treating RED as "write all tests" and GREEN as "write all code."
+**Test pyramid.** Many unit, fewer integration, few E2E. Top-heavy suite = logic coupled to infrastructure.
 
-This produces **crap tests**:
+**No horizontal slices.** One test → one impl → repeat. Never write all tests first. Tests written in bulk test _imagined_ behavior. Tests are design feedback: hard to write → design issue.
 
-- Tests written in bulk test _imagined_ behavior, not _actual_ behavior
-- You end up testing the _shape_ of things (data structures, function signatures) rather than user-facing behavior
-- Tests become insensitive to real changes - they pass when behavior breaks, fail when behavior is fine
-- You outrun your headlights, committing to test structure before understanding the implementation
-
-**Correct approach**: Vertical slices via [tracer bullets](./tracer-bullets.md). One test → one implementation → repeat. Each test responds to what you learned from the previous cycle. Because you just wrote the code, you know exactly what behavior matters and how to verify it.
+## Workflow: Double Loop
 
 ```
-WRONG (horizontal):
-  RED:   test1, test2, test3, test4, test5
-  GREEN: impl1, impl2, impl3, impl4, impl5
-
-RIGHT (vertical):
-  RED→GREEN: test1→impl1
-  RED→GREEN: test2→impl2
-  RED→GREEN: test3→impl3
-  ...
+OUTER (acceptance):
+  Failing acceptance test → GIVEN-WHEN-THEN spec of user-facing behavior
+    INNER (unit):
+      RED → GREEN → REFACTOR (repeat)
+  Acceptance passes → feature done → coverage audit
 ```
 
-Additionally, you can use the tests as feedback that guides your design. If the
-tests are hard to write, hard to reason about, or hard to maintain, there is
-likely a design issue. Step back and reconsider your design and architecture.
-Consider changing your interfaces. Tests should act as intention-revealing
-documentation for your codebase. If you cannot easily read the test to
-understand what your code does and how to use it, reconsider your design,
-interfaces, and naming strategy.
+### 1. Plan
 
-## Workflow
+- [ ] Confirm interface changes + which behaviors to test (prioritize — can't test everything)
+- [ ] Write acceptance criteria as GIVEN-WHEN-THEN
+- [ ] Design for [deep modules](./deep-modules.md) + [testability](./interface-design.md)
+- [ ] Plan [tracer bullet](./tracer-bullets.md) — thinnest vertical slice first
+- [ ] Get user approval
 
-### 1. Planning
+### 2. Acceptance Test (outer RED)
 
-Before writing any code:
+Write ONE failing acceptance test. Exercises feature through public interface. Stays RED during inner loop.
 
-- [ ] Confirm with user what interface changes are needed
-- [ ] Confirm with user which behaviors to test (prioritize)
-- [ ] Identify opportunities for [deep modules](./deep-modules.md) (small interface, deep implementation)
-- [ ] Design interfaces for [testability](./interface-design.md)
-- [ ] List the behaviors to test (not implementation steps)
-- [ ] Get user approval on the plan
+### 3. TDD Loop (inner)
 
-Ask: "What should the public interface look like? Which behaviors are most important to test?"
+Drive implementation until acceptance test passes.
 
-**You can't test everything.** Confirm with the user exactly which behaviors matter most. Focus testing effort on critical paths and complex logic, not every possible edge case.
+**RED:** Write next test → predict failure → run → fails as predicted.
+**GREEN:** Minimal code to pass.
+**REFACTOR:** [Refactoring smells](./refactoring-smells.md). Deepen modules, extract pure functions, improve readability. Never refactor while RED. Tests don't change except for renamed APIs.
 
-### 2. Tracer Bullet
+Rules: one test at a time. Call your shots. Don't anticipate future tests. GIVEN-WHEN-THEN.
 
-Write ONE test that confirms ONE thing about the system:
+### 4. Acceptance GREEN → Done
 
-```
-RED:   Write test for first behavior → test fails in the way you predict it should
-GREEN: Write minimal functional code to pass → test passes
-```
+### 5. Coverage Audit
 
-This is your tracer bullet - proves the path works end-to-end.
+Edge cases, error paths, boundary conditions. Consider **property-based tests** (Hypothesis/proptest) for broad input domains.
 
-### 3. Incremental Loop
-
-For each remaining behavior:
+## Checklist
 
 ```
-RED:   Write next test → fails in the way you predict
-GREEN: Minimal code to pass → passes
-```
-
-Rules:
-
-- One test at a time
-- "Call your shots" by predicting how a new test will fail. This validates your understanding of the codebase
-- Only write enough code to pass current test
-- Don't anticipate future tests
-- Keep tests focused on observable behavior
-
-### 4. Refactor
-
-After all tests pass, use a subagent to look for [refactor candidates](refactoring.md). Goals:
-
-- [ ] Improve modularity
-- [ ] Increase cohesion
-- [ ] Improve separation of concerns
-- [ ] Ensure appropriate abstraction (hide only information that the user of the code does not need to be aware of)
-- [ ] Reduce/eliminate unnecessary coupling
-- [ ] Reduce/eliminate accidental (unnecessary) complexity
-- [ ] Improve readability by renaming/restructuring to reveal intent
-- [ ] Deepen modules (move complexity behind simple interfaces)
-- [ ] Consider what new code reveals about existing code
-- [ ] Run tests after each refactor step
-
-**Never refactor while RED.** Get to GREEN first. After refactor, should still
-be GREEN.
-
-Tests should not change while refactoring the codebase, except where necessary
-to align with a refactoring step (e.g. renamed function or added/removed parameter).
-
-You can (and should) also refactor test code to improve readability and ergonomics for
-writing/maintaining the tests, but do not change the main codebase during this step, and do not make changes to tests that make them less explicit/clear.
-
-## Checklist Per Cycle
-
-```
-[ ] Test describes behavior, not implementation
-[ ] Test uses public interface only
-[ ] Test would survive internal refactor
-[ ] Code is minimal for this test
-[ ] No speculative features added
+[ ] GIVEN-WHEN-THEN, one WHEN per test
+[ ] Public interface only, verifies through it
+[ ] Survives internal refactor
+[ ] Independent (no shared state, no ordering)
+[ ] Minimal code, no speculative features
 ```

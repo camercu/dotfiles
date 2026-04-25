@@ -31,3 +31,5 @@ When designing interfaces, ask:
 - Can I reduce the number of methods?
 - Can I simplify the parameters?
 - Can I hide more complexity inside?
+
+For module-level deepening analysis, use `/improve-architecture`.
