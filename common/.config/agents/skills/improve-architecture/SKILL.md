@@ -1,19 +1,19 @@
 ---
 name: improve-architecture
-description: Explore a codebase to find opportunities for architectural improvement, focusing on making the codebase more testable by deepening shallow modules. Use when user wants to improve architecture, find refactoring opportunities, consolidate tightly-coupled modules, or make a codebase more AI-navigable. Outputs proposals directly in chat — does NOT create GitHub issues.
+description: Explore a codebase to find opportunities for architectural improvement, focusing on making the codebase more testable by deepening shallow modules. Use when user wants to improve architecture, find refactoring opportunities, consolidate tightly-coupled modules, or make a codebase more navigable.
 ---
 
 # Improve Codebase Architecture
 
 Explore a codebase, surface architectural friction, and propose module-deepening refactors — presenting the proposal directly in chat for the user to act on.
 
-A **deep module** (John Ousterhout) has a small interface hiding a large implementation. Deep modules are more testable, more AI-navigable, and let you test at the boundary instead of inside.
+A **deep module** (John Ousterhout) has a small interface hiding a large implementation. Deep modules are more testable, more navigable, and let you test at the boundary instead of inside.
 
 ## Process
 
 ### 1. Explore the codebase
 
-Use the Agent tool (subagent_type=Explore) to navigate organically. Note friction, not symptoms:
+Use the Agent tool (subagent_type=Explore) to navigate organically. Note friction:
 
 - Where does understanding one concept require bouncing between many small files?
 - Where is the interface nearly as complex as the implementation?
