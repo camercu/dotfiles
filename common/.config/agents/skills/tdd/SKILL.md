@@ -28,6 +28,8 @@ Cross-refs: `/improve-architecture` (module-level), `/simplify` (code-level clea
 
 **GIVEN-WHEN-THEN.** One WHEN per test. See [interface-design.md](./interface-design.md) for examples.
 
+**DAMP over DRY in tests.** Production code: eliminate duplication. Test code: optimize for readability. Each test independently readable, even if repetitive. Test helper abstractions that hide the GIVEN make tests harder to understand. Duplicate setup is fine if it makes intent obvious.
+
 **Test pyramid.** Many unit, fewer integration, few E2E. Top-heavy suite = logic coupled to infrastructure.
 
 **No horizontal slices.** One test → one impl → repeat. Never write all tests first. Tests written in bulk test _imagined_ behavior. Tests are design feedback: hard to write → design issue.
@@ -52,14 +54,16 @@ OUTER (acceptance):
 
 ### 2. Acceptance Test (outer RED)
 
-Write ONE failing acceptance test. Exercises feature through public interface. Stays RED during inner loop.
+**Features:** Write ONE failing acceptance test. Exercises feature through public interface. Stays RED during inner loop.
+
+**Bug fixes (Prove-It Pattern):** Write a failing test that reproduces the bug first. Then fix. Test passes = bug fixed + regression prevented. No fix without a reproduction test.
 
 ### 3. TDD Loop (inner)
 
 Drive implementation until acceptance test passes.
 
-**RED:** Write next test → predict failure → run → fails as predicted.
-**GREEN:** Minimal code to pass.
+**RED:** Write next test → predict failure → run → fails as predicted. If test passes immediately, it's suspect — may be vacuous, testing wrong thing, or impl already exists. Investigate before moving on.
+**GREEN:** Minimal code to pass. Run the suite — no "should pass."
 **REFACTOR:** [Refactoring smells](./refactoring-smells.md). Deepen modules, extract pure functions, improve readability. Never refactor while RED. Tests don't change except for renamed APIs.
 
 Rules: one test at a time. Call your shots. Don't anticipate future tests. GIVEN-WHEN-THEN.
@@ -78,4 +82,5 @@ Edge cases, error paths, boundary conditions. Consider **property-based tests** 
 [ ] Survives internal refactor
 [ ] Independent (no shared state, no ordering)
 [ ] Minimal code, no speculative features
+[ ] Actually ran tests — no "should pass" or "probably works"
 ```
