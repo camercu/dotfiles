@@ -1,78 +1,93 @@
 ---
-name: improve-architecture
-description: Explore a codebase to find opportunities for architectural improvement, focusing on making the codebase more testable by deepening shallow modules. Use when user wants to improve architecture, find refactoring opportunities, consolidate tightly-coupled modules, or make a codebase more navigable.
+name: improve-codebase-architecture
+description: Surface architectural friction, propose deepening opportunities. Use when user wants to clean up or improve the codebase architecture or design.
 ---
 
 # Improve Codebase Architecture
 
-Explore a codebase, surface architectural friction, and propose module-deepening refactors — presenting the proposal directly in chat for the user to act on.
+Surface friction, propose **deepening opportunities** — refactors that increase depth, cohesion, locality while reducing coupling.
 
-A **deep module** (John Ousterhout) has a small interface hiding a large implementation. Deep modules are more testable, more navigable, and let you test at the boundary instead of inside.
+## Context Loading
+
+Load references **progressively** — only when entering the phase that needs them. Do not front-load all references at skill activation.
+
+| When | Load |
+|------|------|
+| Skill activation | `LANGUAGE.md` (vocabulary for all phases) |
+| Step 1 — Explore | `ANTI-PATTERNS.md` |
+| Step 1b — Evidence | `EVIDENCE.md` |
+| Step 3 — Grill | `PATTERN-GUIDE.md`, `DEEPENING.md` |
+| Step 4 — Design | `INTERFACE-DESIGN.md` |
+| Step 6 — Proposal | `PROPOSAL-TEMPLATE.md` |
+
+If user jumps directly to a step, load that step's references + all prior unloaded ones.
+
+## Language & Context
+
+Terms in [references/LANGUAGE.md](references/LANGUAGE.md). Use exactly — no "service," "component," "controller," "boundary."
+
+Read `CONTEXT.md` + `docs/adr/` before exploring. Proceed silently if absent.
+
+Core principles: **deletion test** (delete module → complexity vanishes = pass-through, reappears across callers = earning keep). **Interface = test surface.** **One adapter = hypothetical seam; two = real.** **Deep = testable at boundary.**
+
+## Guardrails
+
+**Scale**: <5k LOC → lightweight, skip sub-agents. 5k–50k → full process. >50k → scope to one context per session.
+
+**Skip when**: <5 commits/6mo, 1–2 callers, scheduled for deletion, no test pain, deadline pressure. Note skip reason for future reviews. DO NOT SKIP IF USER EXPLICITLY ASKS FOR REVIEW OF THAT SEAM.
 
 ## Process
 
-### 1. Explore the codebase
+### 1. Explore
 
-Use the Agent tool (subagent_type=Explore) to navigate organically. Note friction:
+Navigate organically. Note: shallow modules, scattered understanding, coupling leaks, untestable interfaces. Flag hot paths and concurrency boundaries.
 
-- Where does understanding one concept require bouncing between many small files?
-- Where is the interface nearly as complex as the implementation?
-- Where have pure functions been extracted just for testability, but real bugs hide in how they're called?
-- Where do tightly-coupled modules create integration risk at their seams?
-- Which parts are untested, or hard to test?
+Apply **deletion test** to suspect modules. Check [references/ANTI-PATTERNS.md](references/ANTI-PATTERNS.md).
 
-The friction you encounter IS the signal.
+### 1b. Gather evidence
+
+Collect quantitative signals before presenting candidates. Details + commands in [references/EVIDENCE.md](references/EVIDENCE.md):
+
+- Git hotspots + co-change coupling
+- Fan-in / fan-out per module
+- Test coverage gaps
+- Churn x complexity
+
+Gather what's practical — not every signal available in every project.
 
 ### 2. Present candidates
 
-Present a numbered list of deepening opportunities. For each candidate:
+Numbered list, **ranked by priority** (impact + risk). Per candidate:
 
-- **Cluster**: Which modules/concepts are involved
-- **Why they're coupled**: Shared types, call patterns, co-ownership of a concept
-- **Dependency category**: See [references/dependency-categories.md](references/dependency-categories.md) for the four categories
-- **Test impact**: What existing tests would be replaced by boundary tests
+- **Files** — modules involved
+- **Problem** — friction type (cohesion/coupling/depth/locality) + anti-pattern if applicable
+- **Solution + Benefits** — what changes, gains in locality/leverage/testability
+- **Priority** — Impact / Risk / Effort (H/M/L)
+- **Evidence** — from Step 1b
 
-Do NOT propose interfaces yet. Ask: "Which of these would you like to explore?"
+Use `CONTEXT.md` domain language. Flag ADR contradictions only when friction is real. Do NOT propose interfaces — ask which to explore.
 
-### 3. User picks a candidate
+### 3. Grill
 
-### 4. Frame the problem space
+Walk design tree: interface constraints, dependencies, hidden complexity, test strategy ([references/PATTERN-GUIDE.md](references/PATTERN-GUIDE.md), [references/DEEPENING.md](references/DEEPENING.md)).
 
-Write a user-facing explanation of the chosen candidate:
+Side effects: new concept → add to `CONTEXT.md`. Sharpened term → update `CONTEXT.md`. Load-bearing rejection → offer ADR.
 
-- The constraints any new interface must satisfy
-- The dependencies it must rely on
-- A rough illustrative code sketch grounding the constraints — this is NOT a proposal
+### 4. Design interfaces
 
-For **categories 2–4**, also read [references/shores-patterns.md](references/shores-patterns.md) to identify which Shore patterns apply. Note them here — they will shape the sub-agent briefs.
+Simple → propose one interface from grilling constraints.
+Ambiguous/Complex → parallel sub-agents (see [references/INTERFACE-DESIGN.md](references/INTERFACE-DESIGN.md)).
 
-Show this to the user, then immediately proceed to Step 5.
+### 5. User picks interface
 
-### 5. Design multiple interfaces
+### 6. Present proposal
 
-Spawn 3+ sub-agents in parallel using the Agent tool. Each produces a **radically different** interface.
+Use template in [references/PROPOSAL-TEMPLATE.md](references/PROPOSAL-TEMPLATE.md): Problem, Proposed Interface, Architecture Decisions, Testing Strategy, Migration Plan (branch by abstraction/strangler fig → migrate callers → deepen → clean up), Implementation Recommendations.
 
-Give each a technical brief (file paths, coupling details, dependency category, Shore patterns that apply). Assign distinct constraints:
+### 7. Verify
 
-- Agent 1: "Minimize the interface — aim for 1–3 entry points max"
-- Agent 2: "Maximize flexibility — support many use cases and extension"
-- Agent 3: "Optimize for the most common caller — make the default case trivial"
-- Agent 4 (categories 3–4): "Design for Shore's A-Frame Architecture with Nullables for the boundary"
+After implementation: re-run deletion test, compare test counts (fewer at tighter interface = success), check fan-in/fan-out delta, spot-check locality (fewer files per change).
 
-Each sub-agent outputs:
+Marginal improvement = data for future sessions, not failure.
 
-1. Interface signature (types, methods, params)
-2. Usage example showing how callers use it
-3. What complexity it hides internally
-4. Dependency strategy — how deps are handled, including specific Shore patterns used
-5. Trade-offs
-
-Present designs sequentially, then compare in prose.
-
-Give a recommendation: which design is strongest and why. If elements combine well, propose a hybrid. Be opinionated.
-
-### 6. User picks an interface (or accepts recommendation)
-
-### 7. Present the proposal in chat
-
-Present the final proposal as a structured document directly in the conversation. Use the template in [references/dependency-categories.md](references/dependency-categories.md). Do NOT create a GitHub issue.
+For code-level cleanup after architectural changes, run `/simplify`.
