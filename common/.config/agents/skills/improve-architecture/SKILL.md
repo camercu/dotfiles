@@ -71,7 +71,7 @@ Use `CONTEXT.md` domain language. Flag ADR contradictions only when friction is 
 
 Walk design tree: interface constraints, dependencies, hidden complexity, test strategy ([references/PATTERN-GUIDE.md](references/PATTERN-GUIDE.md), [references/DEEPENING.md](references/DEEPENING.md)).
 
-Side effects: new concept → add to `CONTEXT.md`. Sharpened term → update `CONTEXT.md`. Load-bearing rejection → offer ADR.
+Side effects: new concept → add to `CONTEXT.md`. Sharpened term → update `CONTEXT.md`. Load-bearing rejection → offer ADR (see `/domain-model` for CONTEXT.md and ADR formats, three-gate ADR check).
 
 ### 4. Design interfaces
 
