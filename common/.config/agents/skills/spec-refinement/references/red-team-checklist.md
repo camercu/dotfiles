@@ -1,6 +1,14 @@
 # Red-Team Checklist
 
-Systematic stress-testing categories for Step 3. Attack each area relevant to the spec.
+Systematic stress-testing for Step 3. Each red-team pass, work through relevant categories.
+
+## Design Proportionality
+
+- Does every abstraction earn its keep? (Deletion test)
+- Is the architecture proportionate to the problem?
+- Can the testing strategy actually work as described?
+- Is the iteration plan appropriately granular?
+- Are there bugs, conflicts, or ambiguities in the current design?
 
 ## Functional
 
@@ -37,3 +45,10 @@ Systematic stress-testing categories for Step 3. Attack each area relevant to th
 - API ergonomics — is the interface obvious to consumers?
 - Error messages — actionable or cryptic?
 - Documentation gaps — what needs updating?
+
+## Simplification
+
+After each red-team pass, actively simplify:
+- Can any requirement be removed without losing value?
+- Can any two requirements merge?
+- Is complexity holding steady or growing? (Should reduce or hold each pass)

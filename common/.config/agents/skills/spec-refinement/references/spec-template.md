@@ -1,6 +1,6 @@
 # Spec Template
 
-Output format for Step 4. Flat markdown, not a GitHub issue.
+Output format for Step 4. Flat markdown, not a GitHub issue. Self-contained — a new session can implement from this without conversation history.
 
 ---
 
@@ -11,51 +11,50 @@ Output format for Step 4. Flat markdown, not a GitHub issue.
 
 One paragraph: what, why, for whom.
 
-## Context
+## Architecture
 
-- Current state (from Step 0 codebase analysis)
-- Problem being solved
-- Key constraints and decisions from discovery
+What a developer needs to understand to implement correctly:
 
-## Requirements
+- Project structure and key abstractions
+- API shape / interface contracts
+- Error handling strategy
+- Testing strategy (approach, not individual test cases)
+- Other relevant aspects: data model, concurrency, security, deployment
 
-### Functional
+Include only what matters for this specific project. Keep concise. Reference `/improve-architecture` proposals if applicable.
 
-- **REQ-001**: [Testable requirement statement]
-- **REQ-002**: [Testable requirement statement]
-- ...
+## 1. [First Capability Group]
 
-### Non-Functional
+Requirements grouped by coherent capability — the order you'd implement them.
 
-- **REQ-NF-001**: [Performance / security / reliability requirement]
-- ...
+- **1.1**: [Testable requirement — what, not how]
+- **1.2**: [Testable requirement]
+- **1.3**: [Testable requirement]
 
-### Out of Scope
+## 2. [Second Capability Group]
 
-- Explicitly excluded items (from discovery boundaries)
+- **2.1**: [Testable requirement]
+- **2.2**: [Testable requirement]
 
-## Design Notes
+## Out of Scope
 
-Architecture decisions, integration points, migration strategy. Reference `/improve-architecture` proposals if applicable.
+Explicitly excluded items from discovery boundaries.
 
 ## Open Questions
 
 Unresolved items from red-teaming (if any).
-
-## Acceptance Criteria
-
-Map to requirements. Each criterion is a GIVEN-WHEN-THEN that can become a `/tdd` acceptance test.
-
-- **AC-001** (REQ-001): GIVEN [context] WHEN [action] THEN [outcome]
-- ...
 ```
 
 ---
 
 ## Numbering
 
-- REQ-001..REQ-NNN for functional
-- REQ-NF-001..REQ-NF-NNN for non-functional
-- AC-001..AC-NNN for acceptance criteria, parenthetical maps to requirement
+Nested numbers: `2.14` = section 2, requirement 14. Stable — never renumber. Deleted requirements leave gaps.
 
-Numbers are stable — never renumber. Deleted requirements leave gaps.
+## Requirement Quality
+
+Each requirement:
+- Describes **what**, not how (except where implementation IS the correctness criterion)
+- One observable behavior, constraint, or property
+- No test implementation details (testing strategy is in Architecture)
+- Traceable to a discovery finding
