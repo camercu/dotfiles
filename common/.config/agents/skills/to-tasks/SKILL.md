@@ -41,35 +41,37 @@ See [tracer-bullets.md](../tdd/tracer-bullets.md) for full rationale.
 
 ### 1. Gather Context
 
-Work from conversation context. If user passes a spec, GitHub issue, or URL — read it. Explore codebase if not already familiar with integration points.
+Work from conversation context. If user passes a spec, GitHub issue, or URL — read it. Explore the codebase to understand integration layers, existing patterns, and boundaries. Can't slice what you don't know.
 
-### 2. Draft Slices
+### 2. Draft Structure
 
-Break into vertical-slice tasks. For each task:
+Present a **lightweight numbered list** for user feedback. For each task:
 
 - **Title**: short descriptive name
 - **Type**: HITL (needs human input) / AFK (agent can implement alone)
-- **Implements**: spec requirements covered (e.g. "2.1, 2.3") — maps to `/to-spec` numbering
+- **Implements**: spec requirements covered (e.g. "2.1, 2.3") — omit if no spec
 - **Blocked by**: which tasks must complete first (by number)
-- **What to build**: concise end-to-end behavior description, not layer-by-layer
-- **Acceptance criteria**: verifiable conditions (GIVEN-WHEN-THEN where useful)
 
-Prefer AFK over HITL. Walking skeleton is always Task 1.
+Number tasks in **suggested implementation order**: walking skeleton first, then by dependency chain. Prefer AFK over HITL.
 
-### 3. Quiz User
-
-Present breakdown as numbered list. Ask:
-
+Ask:
 - Granularity right? (too coarse / too fine)
 - Dependencies correct?
 - HITL/AFK classifications correct?
 - Any slices to merge or split?
 
-Iterate until approved.
+Iterate until user approves structure.
+
+### 3. Flesh Out
+
+For each approved task, add:
+
+- **What to build**: concise end-to-end behavior description, not layer-by-layer
+- **Acceptance criteria**: observable behavior, not implementation details ("user sees confirmation" not "database has row"). GIVEN-WHEN-THEN where useful.
 
 ### 4. Output
 
-Produce flat markdown task list. Template:
+Produce flat markdown task list:
 
 ```markdown
 # [Feature/Spec Name] — Tasks
@@ -85,8 +87,8 @@ Source: [spec file or issue reference]
 
 ### Acceptance Criteria
 
-- [ ] [Verifiable condition]
-- [ ] [Verifiable condition]
+- [ ] [Observable behavior]
+- [ ] [Observable behavior]
 
 ## Task 2: [Title] (AFK)
 
