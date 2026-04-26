@@ -47,7 +47,9 @@ _Avoid_: Bill, payment request
 ## Example dialogue
 
 > **Dev:** "When a **Customer** places an **Order**, do we create the **Invoice** immediately?"
-> **Domain expert:** "No — an **Invoice** is only generated once a **Fulfillment** is confirmed."
+> **Domain expert:** "No — an **Invoice** is only generated once a **Fulfillment** is confirmed. A single **Order** can produce multiple **Invoices** if items ship in separate **Shipments**."
+> **Dev:** "So if a **Shipment** is cancelled before dispatch, no **Invoice** exists for it?"
+> **Domain expert:** "Exactly. The **Invoice** lifecycle is tied to the **Fulfillment**, not the **Order**."
 
 ## Flagged ambiguities
 
@@ -60,7 +62,7 @@ _Avoid_: Bill, payment request
 - **Flag conflicts explicitly.** Ambiguous terms go in "Flagged ambiguities" with clear resolution.
 - **Keep definitions tight.** One sentence max. Define what it IS, not what it does.
 - **Show relationships.** Bold term names, express cardinality where obvious.
-- **Domain terms only.** No general programming concepts. Ask: unique to this context, or general?
+- **Domain terms only.** No general programming concepts. Don't glossary-ify module or class names unless they have meaning to domain experts. Ask: would a domain expert use this term?
 - **Group terms** under subheadings when natural clusters emerge. Flat list fine if cohesive.
 - **Write an example dialogue.** Dev + domain expert conversation (3-5 exchanges) demonstrating how terms interact and clarifying boundaries.
 
