@@ -58,7 +58,7 @@
 
     brews = [
       "opencode" # AI coding agent (Claude Code alternative)
-      "hashicorp/tap/hashicorp-vagrant"
+      "hashicorp/tap/vagrant"
     ];
 
     casks = [
