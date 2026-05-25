@@ -282,7 +282,7 @@ if is-macos; then
   alias sha1sum='openssl sha1'
   alias sha256sum='openssl sha256'
   if is-admin; then
-    alias maintain='dotsync && make -C ~/.config/nix-darwin update && brewup'
+    alias maintain='cdot && git pull && git submodule update && dotsync && make -C ~/.config/nix-darwin update && brewup && cd -'
   fi
 
   # Show/Hide hidden files in Finder
