@@ -28,7 +28,7 @@
     jadx # Dex to Java Decompiler (Android RE)
     john # password cracker (John the Ripper)
     jujutsu # git-compatible VCS system ('jj' tool)
-    lima # Linux VMs similar to WSL on MacOS
+    # lima # Linux VMs similar to WSL on MacOS
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
     nushell # modern shell written in Rust
