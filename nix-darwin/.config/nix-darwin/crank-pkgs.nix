@@ -53,12 +53,10 @@
   homebrew = {
     taps = [
       "anomalyco/tap" # for opencode
-      "hashicorp/tap" # for vagrant
     ];
 
     brews = [
       "opencode" # AI coding agent (Claude Code alternative)
-      "hashicorp/tap/vagrant"
     ];
 
     casks = [
@@ -87,6 +85,7 @@
       "syncthing-app"
       "the-unarchiver"
       "tor-browser"
+      "vagrant"
       "virtualbox"
       "visual-studio-code"
       "warp"
