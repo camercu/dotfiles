@@ -33,7 +33,7 @@ ensure_git_safe_directory() {
 }
 
 update_git_submodules() {
-  git submodule update --init
+  git submodule update --init --recursive
 }
 
 migrate_claude_config() {
