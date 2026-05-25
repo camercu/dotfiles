@@ -28,6 +28,7 @@
     jadx # Dex to Java Decompiler (Android RE)
     john # password cracker (John the Ripper)
     jujutsu # git-compatible VCS system ('jj' tool)
+    lima # Linux VMs similar to WSL on MacOS
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
     nushell # modern shell written in Rust
@@ -51,11 +52,13 @@
 
   homebrew = {
     taps = [
-      "anomalyco/tap" # AI coding agent (Claude Code alternative)
+      "anomalyco/tap" # for opencode
+      "hashicorp/tap" # for vagrant
     ];
 
     brews = [
       "opencode" # AI coding agent (Claude Code alternative)
+      "hashicorp/tap/hashicorp-vagrant"
     ];
 
     casks = [
@@ -84,10 +87,8 @@
       "syncthing-app"
       "the-unarchiver"
       "tor-browser"
-      "vagrant"
-      "vagrant-vmware-utility"
+      "virtualbox"
       "visual-studio-code"
-      "vmware-fusion"
       "warp"
       "wireshark-app"
       "wispr-flow" # AI Voice Transcription
