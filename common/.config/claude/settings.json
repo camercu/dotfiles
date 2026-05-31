@@ -12,7 +12,7 @@
   },
   "model": "opus",
   "enabledPlugins": {
-    "rust-analyzer-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": false,
     "starship-claude@starship-claude": true
   },
   "editorMode": "vim",
