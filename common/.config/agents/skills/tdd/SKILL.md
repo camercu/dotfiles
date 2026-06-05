@@ -9,16 +9,18 @@ description: Test-driven development with red-green-refactor loop. Use when user
 
 Load **progressively** — only when entering the phase that needs them.
 
-| When | Load |
-|------|------|
-| Planning | `deep-modules.md`, `tracer-bullets.md` |
-| First infrastructure dep | `testing-without-mocks.md` |
-| Test doubles needed | `interface-design.md` |
-| Refactor phase | `refactoring-smells.md` |
+| When                     | Load                                   |
+| ------------------------ | -------------------------------------- |
+| Planning                 | `deep-modules.md`, `tracer-bullets.md` |
+| First infrastructure dep | `testing-without-mocks.md`             |
+| Test doubles needed      | `interface-design.md`                  |
+| Refactor phase           | `refactoring-smells.md`                |
 
 Cross-refs: `/improve-architecture` (module-level), `/simplify` (code-level cleanup).
 
 ## Philosophy
+
+**Test first.** Write test code before writing any production code. If changing a feature (rather than adding), reviewing/updating existing tests first (before adding new ones) counts as "test first".
 
 **Behavior, not implementation.** Test through public interfaces. Tests break only when behavior changes, not from internal refactors. Verify through the interface, not around it (see [interface-design.md](./interface-design.md#5-verify-through-the-interface)).
 
@@ -26,13 +28,23 @@ Cross-refs: `/improve-architecture` (module-level), `/simplify` (code-level clea
 
 **Sociable, state-based, independent.** Real collaborators, assert outputs not call sequences (Chicago school). Each test isolated — no shared mutable state, no ordering deps. Test doubles only at infrastructure boundaries. Pick simplest double: stub → fake → spy → nullable → mock. Mock only when call ordering IS the behavior. See [testing-without-mocks.md](./testing-without-mocks.md).
 
-**GIVEN-WHEN-THEN.** One WHEN per test. See [interface-design.md](./interface-design.md) for examples.
+**GIVEN-WHEN-THEN.** Tests act as use-case scenarios. One condition asserted per test. See [interface-design.md](./interface-design.md) for examples.
 
-**DAMP over DRY in tests.** Production code: eliminate duplication. Test code: optimize for readability. Each test independently readable, even if repetitive. Test helper abstractions that hide the GIVEN make tests harder to understand. Duplicate setup is fine if it makes intent obvious.
+**WET: Write Explicit Tests.** Production code: eliminate duplication (DRY). Test code: optimize for readability. Each test independently readable, even if repetitive. Test helper abstractions that hide the GIVEN make tests harder to understand. Duplicate setup is fine if it makes intent obvious. DAMP = Descriptive And Meaningful Phrases.
 
-**Test pyramid.** Many unit, fewer integration, few E2E. Top-heavy suite = logic coupled to infrastructure.
+**Test pyramid.** Many unit, fewer integration, few E2E (roughly 80% / 15% / 5% split). Top-heavy suite = logic coupled to infrastructure.
 
 **No horizontal slices.** One test → one impl → repeat. Never write all tests first. Tests written in bulk test _imagined_ behavior. Tests are design feedback: hard to write → design issue.
+
+**Call your shots.** Validate that the test fails for the expected reason by running the test before implementing production code. Mismatch between expectation and reality reveals mismatch in understanding of code.
+
+**Tests as design feedback.** Friction in writing/maintaining tests and ugly interface warts reveal need for code re-design to improve design quality.
+
+**Refactoring safety net.** Well-written tests (good coverage; testing behavior, not implementation) provide confidence that changes while refactoring don't break important behaviors of codebase.
+
+**Fast and deterministic.** Tests must run quickly (entire suite in 10s or less) and never have flaky tests that sometimes fail. Tests independent, can run without interfering with each other. This speeds and improves the quality of the feedback loop.
+
+**"Prove-It" Rule for bug fixes.** Before fixing bug, first write failing test that reproduces the bug. Fixing bug gets test to pass. Test prevents regression.
 
 ## Workflow: Double Loop
 
@@ -54,7 +66,7 @@ OUTER (acceptance):
 
 ### 2. Acceptance Test (outer RED)
 
-**Features:** Write ONE failing acceptance test. Exercises feature through public interface. Stays RED during inner loop.
+**Features:** Write ONE failing acceptance test. Exercises feature through public interface. Stays RED during inner loop. A feature change means reviewing existing tests for changes to capture new behavior before adding new tests.
 
 **Bug fixes (Prove-It Pattern):** Write a failing test that reproduces the bug first. Then fix. Test passes = bug fixed + regression prevented. No fix without a reproduction test.
 
@@ -68,19 +80,24 @@ Drive implementation until acceptance test passes.
 
 Rules: one test at a time. Call your shots. Don't anticipate future tests. GIVEN-WHEN-THEN.
 
+Technique: ZOMBIES (Zero, One, Many, Boundaries, Interface-design, Exceptions/Edge-cases, Simplify) to guide what tests should be written and how they should guide design for each new API surface.
+
 ### 4. Acceptance GREEN → Done
 
-### 5. Coverage Audit
+### 5. Code Review
 
-Edge cases, error paths, boundary conditions. Consider **property-based tests** (Hypothesis/proptest) for broad input domains.
+Coverage Audit: Edge cases, error paths, boundary conditions. Consider **property-based tests** (Hypothesis/proptest) for broad input domains.
+
+Perform code review and refactor to clean up and simplify code. Tests stay GREEN during refactoring (no changes in behavior, just code design). Reference `/code-review`, `/simplify`, and `/improve-architecture` skills.
 
 ## Checklist
 
 ```
-[ ] GIVEN-WHEN-THEN, one WHEN per test
+[ ] GIVEN-WHEN-THEN, one assertion per test
 [ ] Public interface only, verifies through it
 [ ] Survives internal refactor
 [ ] Independent (no shared state, no ordering)
 [ ] Minimal code, no speculative features
 [ ] Actually ran tests — no "should pass" or "probably works"
+[ ] Code review and refactor after GREEN to simplify/clean up design
 ```
