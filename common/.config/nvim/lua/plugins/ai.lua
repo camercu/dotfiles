@@ -82,10 +82,10 @@ return {
 
       interactions = {
         chat = {
-          adapter = "opencode",
+          adapter = "claude_code",
         },
         inline = {
-          adapter = "opencode",
+          adapter = "claude_code",
         },
         background = {
           adapter = "ollama",
