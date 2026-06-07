@@ -2,15 +2,15 @@
   description = "Dotfiles, Home Manager, and nix-darwin configurations";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
-    nixpkgsDarwin.url = "github:NixOS/nixpkgs/nixpkgs-25.05-darwin";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+    nixpkgsDarwin.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-darwin = {
-      url = "github:nix-darwin/nix-darwin/nix-darwin-25.05";
+      url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
       inputs.nixpkgs.follows = "nixpkgsDarwin";
     };
   };
@@ -138,73 +138,67 @@
       };
     };
 
-    mkDarwinHost = {
-      host,
-    }:
-      let
-        extraModules = map (modulePath: dotfilesRoot + "/${modulePath}") host.darwinExtraModules;
-      in
-        nix-darwin.lib.darwinSystem {
-          modules =
-            [
-              darwinBaseModule
-              determinate.darwinModules.default
-              home-manager.darwinModules.home-manager
-              {nixpkgs.hostPlatform = host.system;}
-              {
-                home-manager.useGlobalPkgs = true;
-                home-manager.useUserPackages = true;
-                home-manager.backupFileExtension = "hm-backup";
-                home-manager.extraSpecialArgs = {
-                  inherit dotfilesRoot;
-                };
-              }
-            ]
-            ++ lib.optional (host.primaryUser != null) {system.primaryUser = host.primaryUser;}
-            ++ [
-              {
-                users.users.${host.username} = {
-                  name = host.username;
-                  home =
-                    if host.homeDirectory != ""
-                    then host.homeDirectory
-                    else "/Users/${host.username}";
-                };
+    mkDarwinHost = {host}: let
+      extraModules = map (modulePath: dotfilesRoot + "/${modulePath}") host.darwinExtraModules;
+    in
+      nix-darwin.lib.darwinSystem {
+        modules =
+          [
+            darwinBaseModule
+            determinate.darwinModules.default
+            home-manager.darwinModules.home-manager
+            {nixpkgs.hostPlatform = host.system;}
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "hm-backup";
+              home-manager.extraSpecialArgs = {
+                inherit dotfilesRoot;
+              };
+            }
+          ]
+          ++ lib.optional (host.primaryUser != null) {system.primaryUser = host.primaryUser;}
+          ++ [
+            {
+              users.users.${host.username} = {
+                name = host.username;
+                home =
+                  if host.homeDirectory != ""
+                  then host.homeDirectory
+                  else "/Users/${host.username}";
+              };
 
-                home-manager.users.${host.username}.imports = [hmCommonModule];
-              }
-            ]
-            ++ extraModules;
+              home-manager.users.${host.username}.imports = [hmCommonModule];
+            }
+          ]
+          ++ extraModules;
+      };
+
+    darwinConfigurationsByDisplay = builtins.listToAttrs (map (host: {
+        name = host.displayName;
+        value = mkDarwinHost {
+          inherit host;
         };
+      })
+      hmHostData.darwinHosts);
 
-    darwinConfigurationsByDisplay =
-      builtins.listToAttrs (map (host: {
-          name = host.displayName;
-          value = mkDarwinHost {
-            inherit host;
-          };
-        })
-        hmHostData.darwinHosts);
-
-    darwinConfigurationsByConfig =
-      builtins.listToAttrs (map (host: {
-          name = host.configName;
-          value = darwinConfigurationsByDisplay.${host.displayName};
-        })
-        hmHostData.darwinHosts);
+    darwinConfigurationsByConfig = builtins.listToAttrs (map (host: {
+        name = host.configName;
+        value = darwinConfigurationsByDisplay.${host.displayName};
+      })
+      hmHostData.darwinHosts);
   in {
-    homeConfigurations =
-      builtins.listToAttrs (map (host: {
-          name = host.configName;
-          value = mkHome {
-            inherit (host) system username;
-            homeDirectory =
-              if host.homeDirectory == ""
-              then null
-              else host.homeDirectory;
-          };
-        })
-        hmHostData.linuxHosts);
+    homeConfigurations = builtins.listToAttrs (map (host: {
+        name = host.configName;
+        value = mkHome {
+          inherit (host) system username;
+          homeDirectory =
+            if host.homeDirectory == ""
+            then null
+            else host.homeDirectory;
+        };
+      })
+      hmHostData.linuxHosts);
 
     darwinConfigurations = darwinConfigurationsByDisplay // darwinConfigurationsByConfig;
   };
