@@ -284,7 +284,7 @@ if is-macos; then
   if is-admin; then
     alias maintain='cdot && git pull && git submodule update --init --recursive && dotsync && make -C ~/.config/nix-darwin update && brewup && cd -'
   else
-    alias maintain='cdot && git pull && git submodule update --remote --recursive --merge && dotsync && cd -'
+    alias maintain='cdot && git pull && git submodule update --init --remote --recursive --merge && dotsync && cd -'
   fi
 
   # Show/Hide hidden files in Finder
