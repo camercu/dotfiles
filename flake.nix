@@ -93,7 +93,10 @@
 
       homebrew = {
         enable = true;
-        onActivation.cleanup = "uninstall";
+        onActivation = {
+          cleanup = "uninstall";
+          extraFlags = ["--force-cleanup"];
+        };
         casks = [
           "1password"
           "1password-cli"
