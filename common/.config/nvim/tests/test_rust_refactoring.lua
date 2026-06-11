@@ -63,6 +63,34 @@ local function fixture(name)
   return read_file(("./tests/files/%s_before.rs"):format(name)), read_file(("./tests/files/%s_after.rs"):format(name))
 end
 
+local wait_quiescent = function()
+  child.lua [[
+    vim.wait(60000, function()
+      return vim.g.ra_quiescent == true
+    end, 500)
+  ]]
+end
+
+-- For rust-analyzer-driven actions (code actions, LSP extensions): wait for
+-- the indexer to go quiescent, fire the keys, poll until the buffer settles.
+---@param lines string
+---@param cursor {[1]: integer, [2]: integer}
+---@param expected_lines string
+---@param ... string
+local function validate_ra(lines, cursor, expected_lines, ...)
+  set_lines(lines)
+  child.api.nvim_win_set_cursor(0, { cursor[1], cursor[2] })
+  wait_quiescent()
+  child.type_keys(...)
+  local expected = vim.split(expected_lines, "\n")
+  for _ = 1, 75 do
+    if vim.deep_equal(get_lines(), expected) then break end
+    vim.uv.sleep(200)
+    child.api.nvim_eval "1" -- poke child's event loop
+  end
+  eq(get_lines(), expected)
+end
+
 -- For refactorings that resolve symbols through LSP (inline_var, inline_func):
 -- waits for rust-analyzer to resolve a definition at the cursor, fires the
 -- keys, then polls until the buffer settles on the expected result.
@@ -76,10 +104,8 @@ local function validate_lsp(lines, cursor, expected_lines, ...)
   -- rust-analyzer resolves references incrementally (refs inside macros land
   -- only once indexing is quiescent), so wait for its serverStatus signal,
   -- then for references at the cursor to resolve
+  wait_quiescent()
   child.lua [[
-    vim.wait(60000, function()
-      return vim.g.ra_quiescent == true
-    end, 500)
     vim.wait(10000, function()
       local params = vim.lsp.util.make_position_params(0, "utf-8")
       params.context = { includeDeclaration = false }
@@ -214,6 +240,76 @@ T["inline_func"]["no args and no return value"] = function()
   child.lua "vim.lsp.enable('rust_analyzer', false)"
   child.cmd "edit tests/sandbox/src/main.rs"
   validate(before, { 6, 4 }, after, " aI")
+end
+
+-- rust-analyzer layer: <leader>r keys defined in extend-refactor.lua
+T["rust-analyzer"] = MiniTest.new_set {}
+
+-- NOTE: rust-analyzer's inline assist triggers from a USAGE position and
+-- inlines that occurrence (declaration stays while other usages remain);
+-- treesitter inline_var triggers from the declaration and inlines all usages
+T["rust-analyzer"]["inline via code action"] = function()
+  local before, after = fixture "ra_inline"
+  child.cmd "edit tests/sandbox/src/main.rs"
+  validate_ra(before, { 3, 12 }, after, " ri")
+end
+
+T["rust-analyzer"]["inline falls back to treesitter without LSP"] = function()
+  local before, after = fixture "inline_var_works"
+  child.lua "vim.lsp.enable('rust_analyzer', false)"
+  child.cmd "edit tests/sandbox/src/main.rs"
+  validate(before, { 2, 8 }, after, " ri")
+end
+
+T["rust-analyzer"]["extract function from visual selection"] = function()
+  local before, after = fixture "ra_extract_func"
+  child.cmd "edit tests/sandbox/src/main.rs"
+  validate_ra(before, { 4, 0 }, after, "Vj", " rf")
+end
+
+T["rust-analyzer"]["extract variable falls back to treesitter without LSP"] = function()
+  local before, after = fixture "extract_var_works"
+  child.lua "vim.lsp.enable('rust_analyzer', false)"
+  child.cmd "edit tests/sandbox/src/main.rs"
+  validate(before, { 2, 13 }, after, "vi)", " rx", "foo<cr>")
+end
+
+T["rust-analyzer"]["generate menu offers kindless assists"] = function()
+  local before, after = fixture "ra_generate_new"
+  child.cmd "edit tests/sandbox/src/main.rs"
+  child.lua [[
+    vim.ui.select = function(items, opts, cb)
+      for _, item in ipairs(items) do
+        local text = opts.format_item and opts.format_item(item) or tostring(item)
+        if text:find("`new`", 1, true) then return cb(item) end
+      end
+      cb(nil)
+    end
+  ]]
+  validate_ra(before, { 1, 7 }, after, " rg")
+end
+
+T["rust-analyzer"]["join lines"] = function()
+  local before, after = fixture "ra_join_lines"
+  child.cmd "edit tests/sandbox/src/main.rs"
+  validate_ra(before, { 2, 8 }, after, " rj")
+end
+
+T["rust-analyzer"]["move item up"] = function()
+  local before, after = fixture "ra_move_item"
+  child.cmd "edit tests/sandbox/src/main.rs"
+  validate_ra(before, { 3, 3 }, after, " rM")
+end
+
+T["rust-analyzer"]["structural search replace"] = function()
+  local before, after = fixture "ra_ssr"
+  child.cmd "edit tests/sandbox/src/main.rs"
+  child.lua [[
+    vim.ui.input = function(_, cb)
+      cb "add($a, $b) ==>> add($b, $a)"
+    end
+  ]]
+  validate_ra(before, { 6, 0 }, after, " rS")
 end
 
 T["debug"] = MiniTest.new_set {}

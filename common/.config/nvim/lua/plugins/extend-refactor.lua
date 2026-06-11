@@ -286,12 +286,197 @@ local function patch_lsp_helpers()
   end)
 end
 
+-- =====================================================================
+-- rust-analyzer refactoring layer: extra <leader>r keys in rust buffers.
+-- Common refactorings (rf/rx/ri) shadow the global refactoring.nvim maps
+-- with a hybrid: rust-analyzer assist when a client is attached,
+-- treesitter fallback otherwise. Menu keys surface only the assists valid
+-- at the cursor (rust-analyzer filters by position). SSR/joinLines/
+-- moveItem use rust-analyzer's experimental LSP extensions directly so
+-- they work with any client setup (rustaceanvim or bare lspconfig).
+-- =====================================================================
+
+---@return vim.lsp.Client?
+local function ra_client(buf)
+  return vim.lsp.get_clients({ bufnr = buf or 0, method = "textDocument/codeAction" })[1]
+end
+
+-- NOTE: rust-analyzer reports generate_* assists with an EMPTY code action
+-- kind (probed empirically), so the generate menu filters on kindless
+-- actions instead of `only`
+---@param opts {only?: string[], title?: string, kindless?: boolean}
+local function ra_code_action(opts)
+  return function()
+    local filter
+    if opts.title then
+      filter = function(action)
+        return action.title:find(opts.title, 1, true) ~= nil
+      end
+    elseif opts.kindless then
+      filter = function(action)
+        return not action.kind or action.kind == ""
+      end
+    end
+    vim.lsp.buf.code_action {
+      context = opts.only and { only = opts.only } or nil,
+      filter = filter,
+      apply = true,
+    }
+  end
+end
+
+-- expr-mapping hybrid: rust-analyzer assist when attached, else the
+-- refactoring.nvim expr function (which returns keys to feed)
+---@param ra_fn fun()
+---@param ts_fn fun(): string
+local function ra_or_treesitter(ra_fn, ts_fn)
+  return function()
+    if ra_client() then
+      vim.schedule(ra_fn)
+      return ""
+    end
+    return ts_fn()
+  end
+end
+
+---@param s string snippet-format text (e.g. `fn $0foo()`)
+---@return string plain text with snippet markers stripped
+local function snippet_to_text(s)
+  local text = s:gsub("%$%b{}", function(m)
+    return m:match "^%${%d+:(.*)}$" or ""
+  end)
+  return (text:gsub("%$%d+", ""))
+end
+
+local function ra_join_lines()
+  local client = ra_client()
+  if not client then return end
+  local buf = vim.api.nvim_get_current_buf()
+  local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
+  client:request("experimental/joinLines", {
+    textDocument = params.textDocument,
+    ranges = { params.range },
+  }, function(err, result)
+    if err or not result then return end
+    vim.lsp.util.apply_text_edits(result, buf, client.offset_encoding)
+  end)
+end
+
+---@param direction "Up"|"Down"
+local function ra_move_item(direction)
+  return function()
+    local client = ra_client()
+    if not client then return end
+    local buf = vim.api.nvim_get_current_buf()
+    local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
+    params.direction = direction
+    client:request("experimental/moveItem", params, function(err, result)
+      if err or not result then return end
+      -- result is SnippetTextEdit[]: strip snippet markers before applying
+      for _, edit in ipairs(result) do
+        if edit.insertTextFormat == 2 then edit.newText = snippet_to_text(edit.newText) end
+        edit.insertTextFormat = nil
+      end
+      vim.lsp.util.apply_text_edits(result, buf, client.offset_encoding)
+    end)
+  end
+end
+
+-- structural search replace, e.g. `foo($a, $b) ==>> foo($b, $a)`
+local function ra_ssr()
+  local client = ra_client()
+  if not client then return end
+  vim.ui.input({ prompt = "SSR (search ==>> replace): " }, function(query)
+    if not query or query == "" then return end
+    local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
+    params.query = query
+    params.parseOnly = false
+    params.selections = {}
+    client:request("experimental/ssr", params, function(err, edit)
+      if err then
+        vim.notify(err.message, vim.log.levels.ERROR, { title = "rust-analyzer ssr" })
+        return
+      end
+      if edit then vim.lsp.util.apply_workspace_edit(edit, client.offset_encoding) end
+    end)
+  end)
+end
+
+---@param buf integer
+local function attach_rust_keymaps(buf)
+  ---@param mode string|string[]
+  local function map(mode, lhs, rhs, desc, expr)
+    vim.keymap.set(mode, lhs, rhs, { buffer = buf, desc = desc, expr = expr })
+  end
+
+  -- hybrid keys: shadow the global refactoring.nvim maps. Extract assists
+  -- need a selection, so only the visual maps go rust-analyzer-first; the
+  -- normal-mode operator maps stay treesitter.
+  map(
+    { "n", "x" },
+    "<leader>ri",
+    ra_or_treesitter(ra_code_action { only = { "refactor.inline" } }, function()
+      return require("refactoring").inline_var()
+    end),
+    "Inline (rust-analyzer)",
+    true
+  )
+  map(
+    "x",
+    "<leader>rf",
+    ra_or_treesitter(ra_code_action { only = { "refactor.extract" }, title = "Extract into function" }, function()
+      return require("refactoring").extract_func()
+    end),
+    "Extract Function (rust-analyzer)",
+    true
+  )
+  map(
+    "x",
+    "<leader>rx",
+    ra_or_treesitter(ra_code_action { only = { "refactor.extract" }, title = "Extract into variable" }, function()
+      return require("refactoring").extract_var()
+    end),
+    "Extract Variable (rust-analyzer)",
+    true
+  )
+
+  -- category menus: cursor-filtered, auto-apply when only one assist matches
+  map({ "n", "x" }, "<leader>re", ra_code_action { only = { "refactor.extract" } }, "RA Extract…")
+  map({ "n", "x" }, "<leader>rw", ra_code_action { only = { "refactor.rewrite" } }, "RA Rewrite…")
+  map({ "n", "x" }, "<leader>rg", ra_code_action { kindless = true }, "RA Generate…")
+  map({ "n", "x" }, "<leader>rr", ra_code_action {}, "RA All Assists…")
+
+  -- rust-analyzer LSP extensions
+  map("n", "<leader>rS", ra_ssr, "RA Structural Search Replace")
+  map({ "n", "x" }, "<leader>rj", ra_join_lines, "RA Join Lines")
+  map("n", "<leader>rM", ra_move_item "Up", "RA Move Item Up")
+  map("n", "<leader>rm", ra_move_item "Down", "RA Move Item Down")
+end
+
+local function setup_rust_keymaps()
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = "rust",
+    group = vim.api.nvim_create_augroup("refactor-rust-analyzer", { clear = true }),
+    callback = function(ev)
+      attach_rust_keymaps(ev.buf)
+    end,
+  })
+  -- buffers opened before the plugin loaded
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].filetype == "rust" then attach_rust_keymaps(buf) end
+  end
+end
+
 return {
   "ThePrimeagen/refactoring.nvim",
+  -- load in rust buffers so the rust-analyzer keymap layer attaches even
+  -- before any global <leader>r key is pressed
+  ft = "rust",
   opts = rust_code_generation,
   config = function(_, opts)
     require("refactoring").setup(opts)
     register_rust_directives()
     patch_lsp_helpers()
+    setup_rust_keymaps()
   end,
 }

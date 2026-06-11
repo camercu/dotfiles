@@ -1,0 +1,3 @@
+fn second() {}
+
+fn first() {}
