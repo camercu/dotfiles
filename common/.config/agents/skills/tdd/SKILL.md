@@ -20,31 +20,17 @@ Cross-refs: `/improve-architecture` (module-level), `/simplify` (code-level clea
 
 ## Philosophy
 
-**Test first.** Write test code before writing any production code. If changing a feature (rather than adding), reviewing/updating existing tests first (before adding new ones) counts as "test first".
-
-**Behavior, not implementation.** Test through public interfaces. Tests break only when behavior changes, not from internal refactors. Verify through the interface, not around it (see [interface-design.md](./interface-design.md#5-verify-through-the-interface)).
-
-**Functional core, imperative shell.** Pure functions for decisions, I/O at edges. Core: values in, values out. Shell: thin, verified by inspection or narrow integration test.
-
-**Sociable, state-based, independent.** Real collaborators, assert outputs not call sequences (Chicago school). Each test isolated — no shared mutable state, no ordering deps. Test doubles only at infrastructure boundaries. Pick simplest double: stub → fake → spy → nullable → mock. Mock only when call ordering IS the behavior. See [testing-without-mocks.md](./testing-without-mocks.md).
-
-**GIVEN-WHEN-THEN.** Tests act as use-case scenarios. One condition asserted per test. See [interface-design.md](./interface-design.md) for examples.
-
-**WET: Write Explicit Tests.** Production code: eliminate duplication (DRY). Test code: optimize for readability. Each test independently readable, even if repetitive. Test helper abstractions that hide the GIVEN make tests harder to understand. Duplicate setup is fine if it makes intent obvious. DAMP = Descriptive And Meaningful Phrases.
-
-**Test pyramid.** Many unit, fewer integration, few E2E (roughly 80% / 15% / 5% split). Top-heavy suite = logic coupled to infrastructure.
-
-**No horizontal slices.** One test → one impl → repeat. Never write all tests first. Tests written in bulk test _imagined_ behavior. Tests are design feedback: hard to write → design issue.
-
-**Call your shots.** Validate that the test fails for the expected reason by running the test before implementing production code. Mismatch between expectation and reality reveals mismatch in understanding of code.
-
-**Tests as design feedback.** Friction in writing/maintaining tests and ugly interface warts reveal need for code re-design to improve design quality.
-
-**Refactoring safety net.** Well-written tests (good coverage; testing behavior, not implementation) provide confidence that changes while refactoring don't break important behaviors of codebase.
-
-**Fast and deterministic.** Tests must run quickly (entire suite in 10s or less) and never have flaky tests that sometimes fail. Tests independent, can run without interfering with each other. This speeds and improves the quality of the feedback loop.
-
-**"Prove-It" Rule for bug fixes.** Before fixing bug, first write failing test that reproduces the bug. Fixing bug gets test to pass. Test prevents regression.
+- **Test first.** No production code before its test. For feature *changes*, reviewing/updating existing tests first counts.
+- **Behavior, not implementation.** Test through public interfaces — verify through the interface, not around it (see [interface-design.md](./interface-design.md#5-verify-through-the-interface)). Tests survive internal refactors.
+- **Functional core, imperative shell.** Pure functions for decisions, I/O at edges. Shell stays thin — verified by inspection or narrow integration test.
+- **Sociable, state-based, independent.** Real collaborators; assert outputs, not call sequences (Chicago school). No shared mutable state or ordering deps. Doubles only at infrastructure boundaries; pick simplest: stub → fake → spy → nullable → mock. Mock only when call ordering IS the behavior. See [testing-without-mocks.md](./testing-without-mocks.md).
+- **GIVEN-WHEN-THEN.** Tests as use-case scenarios, one condition asserted per test.
+- **WET tests.** Production code DRY; test code optimized for readability. Duplicate setup fine if intent obvious; helpers that hide the GIVEN hurt.
+- **Test pyramid.** ~80% unit / 15% integration / 5% E2E. Top-heavy suite = logic coupled to infrastructure.
+- **One test → one impl → repeat.** Never write all tests up front — bulk tests test *imagined* behavior. Friction writing tests = design feedback; fix the design.
+- **Call your shots.** Predict the failure, run, confirm it fails for that reason. Mismatch reveals misunderstanding.
+- **Fast and deterministic.** Whole suite ≤10s, zero flakes.
+- **Prove-It rule.** No bug fix without a failing reproduction test first; passing test = fixed + regression-proofed.
 
 ## Workflow: Double Loop
 
@@ -66,29 +52,27 @@ OUTER (acceptance):
 
 ### 2. Acceptance Test (outer RED)
 
-**Features:** Write ONE failing acceptance test. Exercises feature through public interface. Stays RED during inner loop. A feature change means reviewing existing tests for changes to capture new behavior before adding new tests.
+**Features:** ONE failing acceptance test through the public interface; stays RED during inner loop. Feature change → review existing tests for new behavior before adding new ones.
 
-**Bug fixes (Prove-It Pattern):** Write a failing test that reproduces the bug first. Then fix. Test passes = bug fixed + regression prevented. No fix without a reproduction test.
+**Bug fixes:** Prove-It rule above.
 
 ### 3. TDD Loop (inner)
 
-Drive implementation until acceptance test passes.
+Drive implementation until acceptance test passes. One test at a time; don't anticipate future tests.
 
-**RED:** Write next test → predict failure → run → fails as predicted. If test passes immediately, it's suspect — may be vacuous, testing wrong thing, or impl already exists. Investigate before moving on.
+**RED:** Write next test → call your shot → run. Test passing immediately is suspect (vacuous, wrong target, or impl exists) — investigate.
 **GREEN:** Minimal code to pass. Run the suite — no "should pass."
 **REFACTOR:** [Refactoring smells](./refactoring-smells.md). Deepen modules, extract pure functions, improve readability. Never refactor while RED. Tests don't change except for renamed APIs.
 
-Rules: one test at a time. Call your shots. Don't anticipate future tests. GIVEN-WHEN-THEN.
-
-Technique: ZOMBIES (Zero, One, Many, Boundaries, Interface-design, Exceptions/Edge-cases, Simplify) to guide what tests should be written and how they should guide design for each new API surface.
+Use ZOMBIES (Zero, One, Many, Boundaries, Interface-design, Exceptions/Edge-cases, Simplify) to pick what to test next for each new API surface.
 
 ### 4. Acceptance GREEN → Done
 
 ### 5. Code Review
 
-Coverage Audit: Edge cases, error paths, boundary conditions. Consider **property-based tests** (Hypothesis/proptest) for broad input domains.
+Coverage audit: edge cases, error paths, boundaries. Consider **property-based tests** (Hypothesis/proptest) for broad input domains.
 
-Perform code review and refactor to clean up and simplify code. Tests stay GREEN during refactoring (no changes in behavior, just code design). Reference `/code-review`, `/simplify`, and `/improve-architecture` skills.
+Then review and refactor via `/code-review`, `/simplify`, `/improve-architecture`. Tests stay GREEN throughout (design changes only, no behavior changes).
 
 ## Checklist
 
