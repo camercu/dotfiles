@@ -296,9 +296,15 @@ end
 -- they work with any client setup (rustaceanvim or bare lspconfig).
 -- =====================================================================
 
+-- Match by name, not capability: other code-action-capable servers (typos,
+-- harper, …) may attach to rust buffers, and they must neither suppress the
+-- treesitter fallback nor receive rust-analyzer's experimental requests.
+-- rustaceanvim names the client "rust-analyzer", lspconfig "rust_analyzer".
 ---@return vim.lsp.Client?
 local function ra_client(buf)
-  return vim.lsp.get_clients({ bufnr = buf or 0, method = "textDocument/codeAction" })[1]
+  buf = buf or 0
+  return vim.lsp.get_clients({ bufnr = buf, name = "rust-analyzer" })[1]
+    or vim.lsp.get_clients({ bufnr = buf, name = "rust_analyzer" })[1]
 end
 
 -- NOTE: rust-analyzer reports generate_* assists with an EMPTY code action
@@ -326,7 +332,13 @@ local function ra_code_action(opts)
 end
 
 -- expr-mapping hybrid: rust-analyzer assist when attached, else the
--- refactoring.nvim expr function (which returns keys to feed)
+-- refactoring.nvim expr function (which returns keys to feed).
+-- NOTE: for visual-mode maps the RA path depends on the expr map returning
+-- "" — that keeps visual mode active, so the scheduled code_action still
+-- sees the live selection as its range. While rust-analyzer is attached but
+-- still indexing, the RA path is chosen and may report "No code actions
+-- available"; that's deliberate — keys behave deterministically instead of
+-- racing on indexer readiness.
 ---@param ra_fn fun()
 ---@param ts_fn fun(): string
 local function ra_or_treesitter(ra_fn, ts_fn)
@@ -352,10 +364,21 @@ local function ra_join_lines()
   local client = ra_client()
   if not client then return end
   local buf = vim.api.nvim_get_current_buf()
-  local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
+  local range
+  if vim.fn.mode():find "^[vV\22]" then
+    local srow, erow = vim.fn.line "v", vim.fn.line "."
+    if srow > erow then
+      srow, erow = erow, srow
+    end
+    local end_col = math.max(#vim.fn.getline(erow) - 1, 0)
+    range = vim.lsp.util.make_given_range_params({ srow, 0 }, { erow, end_col }, buf, client.offset_encoding).range
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), "n", false)
+  else
+    range = vim.lsp.util.make_range_params(0, client.offset_encoding).range
+  end
   client:request("experimental/joinLines", {
-    textDocument = params.textDocument,
-    ranges = { params.range },
+    textDocument = vim.lsp.util.make_text_document_params(buf),
+    ranges = { range },
   }, function(err, result)
     if err or not result then return end
     vim.lsp.util.apply_text_edits(result, buf, client.offset_encoding)

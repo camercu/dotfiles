@@ -295,6 +295,12 @@ T["rust-analyzer"]["join lines"] = function()
   validate_ra(before, { 2, 8 }, after, " rj")
 end
 
+T["rust-analyzer"]["join lines over visual selection"] = function()
+  local before, after = fixture "ra_join_lines_visual"
+  child.cmd "edit tests/sandbox/src/main.rs"
+  validate_ra(before, { 2, 0 }, after, "Vjj", " rj")
+end
+
 T["rust-analyzer"]["move item up"] = function()
   local before, after = fixture "ra_move_item"
   child.cmd "edit tests/sandbox/src/main.rs"
