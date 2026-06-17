@@ -1,25 +1,39 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
-    "defaultMode": "acceptEdits",
     "allow": [
       "Edit",
       "WebFetch"
     ],
     "ask": [
       "Bash(git push *)"
-    ]
+    ],
+    "defaultMode": "acceptEdits"
   },
   "model": "opus",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.local/bin/starship-claude",
+    "padding": 0
+  },
   "enabledPlugins": {
     "rust-analyzer-lsp@claude-plugins-official": false,
     "starship-claude@starship-claude": true
   },
   "editorMode": "vim",
   "terminalProgressBarEnabled": true,
-  "statusLine": {
-    "type": "command",
-    "padding": 0,
-    "command": "~/.local/bin/starship-claude"
-  }
+  "agentPushNotifEnabled": true
 }
