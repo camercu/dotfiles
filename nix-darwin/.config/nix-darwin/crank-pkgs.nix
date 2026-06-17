@@ -3,7 +3,7 @@
     arduino-cli # arduino IDE alternative
     bandwhich # display network usage by process
     bat # cat alternative
-    # binwalk # firmware / binary file analysis tool (re-enable when nixpkgs PR #530407 lands — uefi-firmware-parser missing setuptools-scm)
+    binwalk # firmware / binary file analysis tool
     bottom # top alternative; command 'btm'
     delta # diff viewer
     deno # node.js alternative
@@ -36,6 +36,7 @@
     pngpaste # paste images into terminal
     procs # ps alternative
     repgrep # interactive replacement with ripgrep
+    rtk # CLI proxy to reduce LLM tokens
     sad # sed alternative
     sd # sed alternative
     simple-http-server # simple HTTP server with upload and HTTPS
