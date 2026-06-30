@@ -7,6 +7,8 @@ description: Break a plan or spec into vertical-slice tasks. Use when user wants
 
 Break a plan or spec into independently-implementable **vertical slice** tasks.
 
+Maintenance-first sequencing: when a slice would build on a known weakness (fragile code, missing tests, an unclear abstraction), schedule the repair slice first — repair before expanding. Prefer the simplest slice that delivers value. (See the global maintenance-first values, if present.)
+
 ## Input
 
 Prefer a `/to-spec` output as input. Also works from conversation context, GitHub issues (`gh issue view`), or loose descriptions. If source is a GitHub issue, fetch with comments.
