@@ -33,6 +33,10 @@
     "rust-analyzer-lsp@claude-plugins-official": false,
     "starship-claude@starship-claude": true
   },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "editorMode": "vim",
   "terminalProgressBarEnabled": true,
   "agentPushNotifEnabled": true
