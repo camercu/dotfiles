@@ -97,6 +97,48 @@ function cdf {
             ')" || return
 }
 
+##? maintain: one-shot, non-interactive system + dotfiles update.
+# Pulls dotfiles (fast-forward only, no editor), syncs submodules + stow links,
+# then updates platform packages. cwd is never changed (git -C + subshell) and
+# it fails fast on the first error. Homebrew runs non-interactively.
+# Note: package managers may still ask for your sudo/login password (macOS
+# casks, apt) — that is the OS, not a Homebrew confirmation prompt.
+function maintain {
+  local dotdir="$HOME/.dotfiles"
+
+  info "dotfiles: pull + submodules"
+  git -C "$dotdir" pull --ff-only || return
+  if is-admin; then
+    git -C "$dotdir" submodule update --init --recursive || return
+  else
+    git -C "$dotdir" submodule update --init --remote --recursive --merge || return
+  fi
+
+  info "dotfiles: relink (stow)"
+  dotsync || return
+
+  if is-macos; then
+    if is-admin; then
+      info "nix-darwin: update"
+      make -C "$HOME/.config/nix-darwin" update || return
+    fi
+    info "homebrew: update + upgrade + cleanup"
+    (
+      export NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_ENV_HINTS=1
+      brew update && brew upgrade && brew cleanup
+    ) || return
+  elif is-linux; then
+    info "apt: update + upgrade + cleanup"
+    sudo apt-get update -y &&
+      sudo apt-get upgrade -y &&
+      sudo apt-get dist-upgrade -y &&
+      sudo apt-get autoremove -y &&
+      sudo apt-get autoclean -y || return
+  fi
+
+  success "maintain complete"
+}
+
 #
 #
 ####  Aliases  ###########
@@ -289,11 +331,6 @@ if is-macos; then
   alias md5sum='openssl md5'
   alias sha1sum='openssl sha1'
   alias sha256sum='openssl sha256'
-  if is-admin; then
-    alias maintain='cdot && git pull && git submodule update --init --recursive && dotsync && make -C ~/.config/nix-darwin update && brewup && cd -'
-  else
-    alias maintain='cdot && git pull && git submodule update --init --remote --recursive --merge && dotsync && cd -'
-  fi
 
   # Show/Hide hidden files in Finder
   alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
@@ -302,9 +339,6 @@ fi
 
 ####   Linux Specific:  ##########
 if is-linux; then
-  # upgrade all packages
-  alias maintain='sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get autoremove -y && sudo apt-get autoclean -y'
-
   alias arp='ip neigh'
 
   # colorize ip command output
