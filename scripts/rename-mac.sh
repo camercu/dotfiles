@@ -1,6 +1,9 @@
 #!/usr/bin/env zsh
 
-alias is-admin='groups | grep -qw admin;'
+__lib_dir="$(cd "$(dirname "$0")" && pwd -P)/lib"
+source "$__lib_dir/logging.sh"
+source "$__lib_dir/shell-lib.sh"
+unset __lib_dir
 
 # Set computer name
 if is-admin; then
