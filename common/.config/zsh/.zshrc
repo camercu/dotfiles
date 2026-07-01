@@ -89,9 +89,11 @@ unset plugin
 autoload -Uz compinit
 if [[ -s "$ZSH_COMPDUMP" ]]; then
   # fast load from cache
-  compinit -C -u -d "$ZSH_COMPDUMP"
+  compinit -C -i -d "$ZSH_COMPDUMP"
 else
-  compinit -u -d "$ZSH_COMPDUMP"
+  # -i: skip insecure files rather than -u (load them anyway); zsh-health's
+  # compaudit surfaces the offending paths.
+  compinit -i -d "$ZSH_COMPDUMP"
 fi
 
 if (( $+functions[__zsh_register_custom_compdefs] )); then
