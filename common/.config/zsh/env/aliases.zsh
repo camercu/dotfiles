@@ -27,8 +27,16 @@ function d () {
   fi
 }
 
-# better touch: auto-create parent dirs to touchfile
-alias touch='() { if [[ -n  "$1" ]]; then mkdir -p -- "$1:h" && command touch -- "$1"; fi }'
+# mkf: touch one or more files, auto-creating parent dirs.
+# Named (not a `touch` override) so core `touch` semantics stay intact for
+# scripts and muscle memory; handles every arg instead of only the first.
+function mkf {
+  (( $# )) || { print -u2 -- "usage: mkf <file>..."; return 2; }
+  local f
+  for f in "$@"; do
+    mkdir -p -- "$f:h" && command touch -- "$f" || return
+  done
+}
 
 # share/sync zsh-history between sessions
 alias share-hist='fc -RI'
