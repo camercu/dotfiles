@@ -43,13 +43,25 @@ Numbered steps = that loop's detail:
 
 ## Git
 
-Always use conventional-commits skill for git commits.
+Trunk-based development. Built-in git prompt off (`includeGitInstructions:
+false` in settings.json); rules here = only git workflow. Follow exact.
 
-**NEVER add co-authored-by footers (e.g. `Co-Authored-By:`) to any git commit,
-anywhere, ever.** No agent attribution trailers of any kind.
+**Workflow:**
+- Commit direct to trunk (`main`). No branch-first. No long-lived feature branch.
+- Trunk always green + releasable. Each commit builds + passes tests.
+- Slice small. Each logical change = own commit, right after done + green.
+  Reason: no untangle many changes same file at commit time.
+- Incomplete work → hide behind flag/config, not a branch.
+- Short-lived branch only if change too big/risky for direct trunk (hours,
+  <1 day) or user asks PR. Merge fast, delete after.
 
-Commit slice as you go. Each logical change = own commit, right after done + green.
-Reason: no untangle many changes same file at commit time.
+**Commits:**
+- Always use conventional-commits skill.
+- **NEVER add co-authored-by footers (e.g. `Co-Authored-By:`) or any agent
+  attribution trailer to any commit, anywhere, ever.**
+
+**Push:** outward-facing. Push after slice green when user wants remote synced;
+confirm first unless user said proceed. Never force-push shared trunk.
 
 ## Rust libraries
 
