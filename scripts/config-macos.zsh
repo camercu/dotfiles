@@ -96,7 +96,7 @@ configure_safari() {
 }
 
 configure_admin_settings() {
-  if is-admin; then
+  if is_admin; then
     sudo defaults write /Library/Preferences/com.apple.locationmenu.plist ShowSystemServices -bool true
     sudo nvram StartupMute=%01
   fi

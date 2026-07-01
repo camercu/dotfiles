@@ -9,7 +9,7 @@ typeset -r DOTSYNC_BIN="$DOTFILE_DIR/common/.local/bin/dotsync"
 # load env vars (XDG_*, ZDOTDIR, ...) then the shared script helpers
 builtin source "$DOTFILE_DIR/common/.zshenv"
 builtin source "$SCRIPTS_DIR/lib/logging.sh"     # info/warn/error/success
-builtin source "$SCRIPTS_DIR/lib/shell-lib.sh"   # is-macos/is-linux/is-admin/...
+builtin source "$SCRIPTS_DIR/lib/checks.sh"   # is_macos/is_linux/is_admin/...
 
 # run_step: announce a phase, then run it. Keeps the long bootstrap legible
 # and shows where a failure happened.
@@ -48,8 +48,8 @@ migrate_claude_config() {
 }
 
 ensure_nix_installed() {
-  is-installed nix && return 0
-  is-macos || is-linux || return 0
+  is_installed nix && return 0
+  is_macos || is_linux || return 0
   "$SCRIPTS_DIR/install-nix.sh"
 }
 
@@ -57,7 +57,7 @@ configure_nix_channels() {
   typeset -i nix_channels_changed=0
 
   if ! nix-channel --list 2>/dev/null | grep -q '^nixpkgs '; then
-    if is-macos; then
+    if is_macos; then
       nix-channel --add https://nixos.org/channels/nixpkgs-25.05-darwin nixpkgs
     else
       nix-channel --add https://nixos.org/channels/nixos-25.05 nixpkgs
@@ -83,9 +83,9 @@ load_nix_environment() {
 }
 
 ensure_homebrew() {
-  is-installed brew && return 0
-  is-macos || return 0
-  is-admin || return 0
+  is_installed brew && return 0
+  is_macos || return 0
+  is_admin || return 0
 
   "$SCRIPTS_DIR/install-homebrew.sh"
   builtin eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -96,14 +96,14 @@ install_dotfiles() {
 }
 
 configure_macos_defaults() {
-  is-macos || return 0
+  is_macos || return 0
   "$SCRIPTS_DIR/config-macos.zsh"
 }
 
 ensure_nix_darwin() {
-  is-macos || return 0
-  is-admin || return 0
-  is-installed darwin-rebuild && return 0
+  is_macos || return 0
+  is_admin || return 0
+  is_installed darwin-rebuild && return 0
 
   typeset -r nix_bin="$(command -v nix)"
   local darwin_config
@@ -114,8 +114,8 @@ ensure_nix_darwin() {
 }
 
 maybe_apply_home_manager() {
-  is-installed nix || return 0
-  is-linux || return 0
+  is_installed nix || return 0
+  is_linux || return 0
   [[ "${USE_HOME_MANAGER:-0}" == "1" ]] || return 0
 
   "$SCRIPTS_DIR/apply-home-manager.sh" "${HOME_MANAGER_CONFIG:-}"

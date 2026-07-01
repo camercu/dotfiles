@@ -6,7 +6,7 @@ source "$__lib_dir/shell-lib.sh"
 unset __lib_dir
 
 # Set computer name
-if is-admin; then
+if is_admin; then
   local computername="$1"
   if [[ -z "${computername}" ]]; then
     if [[ "$(uname -m)" == "arm64" ]]; then

@@ -82,6 +82,8 @@ sh -n \
   "$SCRIPT_DIR/check-bootstrap.sh" \
   "$SCRIPT_DIR/home-manager-host.sh" \
   "$SCRIPT_DIR/install-nix.sh" \
+  "$SCRIPT_DIR/lib/checks.sh" \
+  "$SCRIPT_DIR/lib/logging.sh" \
   "$SCRIPT_DIR/render-gitignore.sh" \
   "$SCRIPT_DIR/uninstall-dotfiles.sh" \
   "$SCRIPT_DIR/verify-home-manager-hosts.sh"
@@ -90,7 +92,6 @@ zsh -n \
   "$SCRIPT_DIR/bootstrap-install.zsh" \
   "$SCRIPT_DIR/config-macos.zsh" \
   "$SCRIPT_DIR/install-homebrew.sh" \
-  "$SCRIPT_DIR/lib/shell-lib.sh" \
   "$SCRIPT_DIR/migrate-claude-config.zsh" \
   "$SCRIPT_DIR/rename-mac.sh"
 
