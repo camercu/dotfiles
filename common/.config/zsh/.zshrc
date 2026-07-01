@@ -20,19 +20,19 @@ fi
 #
 # Startup Library (env checks, logging, autoload-dir)
 #
-for _zf in "$ZDOTDIR"/lib/*.zsh(N); do builtin source "$_zf"; done
+for _zf in "$ZDOTDIR"/lib/*.zsh(N-.); do builtin source "$_zf"; done
 unset _zf
 
 #
 # Environment Variables
 #
-for _zf in "$ZDOTDIR"/env/***/*.(sh|zsh)(N-); do builtin source "$_zf"; done
+for _zf in "$ZDOTDIR"/env/***/*.(sh|zsh)(N-.); do builtin source "$_zf"; done
 unset _zf
 
 #
 # Configuration Options
 #
-for _zf in "$ZDOTDIR"/conf.d/***/*.(sh|zsh)(N-); do builtin source "$_zf"; done
+for _zf in "$ZDOTDIR"/conf.d/***/*.(sh|zsh)(N-.); do builtin source "$_zf"; done
 unset _zf
 
 #
@@ -73,7 +73,7 @@ fi
 #   30-*  Forge (must follow 20- so ZSH_HIGHLIGHT_PATTERNS is already a declared
 #         associative array before forge's += runs, and bindkey -v is already active)
 #
-for plugin in "$ZDOTDIR"/plugins/[0-9]##-*/[^_]*.plugin.zsh(N-); do
+for plugin in "$ZDOTDIR"/plugins/[0-9]##-*/[^_]*.plugin.zsh(N-.); do
   builtin source "$plugin"
 done
 unset plugin
