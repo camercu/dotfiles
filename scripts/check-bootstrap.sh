@@ -85,6 +85,7 @@ zsh -n \
   "$SCRIPT_DIR/bootstrap-install.zsh" \
   "$SCRIPT_DIR/config-macos.zsh" \
   "$SCRIPT_DIR/install-homebrew.sh" \
+  "$SCRIPT_DIR/lib/shell-lib.sh" \
   "$SCRIPT_DIR/migrate-claude-config.zsh" \
   "$SCRIPT_DIR/rename-mac.sh"
 
