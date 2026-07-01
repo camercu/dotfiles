@@ -9,7 +9,12 @@ resolve_path() {
 }
 
 run_dotsync_smoke_test() {
-  tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/dotsync-home.XXXXXX")
+  # Resolve to the physical path: on macOS $TMPDIR lives under /var -> /private/var,
+  # and stow resolves that symlink when computing relative links. Fabricating the
+  # pre-existing link from the unresolved path yields a target stow would never
+  # create, so stow rejects it as "not owned by stow". Resolving keeps the
+  # simulated link identical to a real stow-owned one.
+  tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/dotsync-home.XXXXXX")" && pwd -P)
   rel_target=$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' \
     "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home")
 
