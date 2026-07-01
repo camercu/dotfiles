@@ -20,18 +20,27 @@ function current-shell {
 function is-zsh { ! (\builtin shopt) &>/dev/null && [ "${ZSH_VERSION+x}" ]; }
 function is-bash { (\builtin shopt) &>/dev/null && [ "${BASH_VERSINFO+x}" ]; }
 
-# OS checks
-function is-macos { [[ "$OSTYPE" == darwin* ]]; }
-function is-linux { [[ "$OSTYPE" == linux* ]]; }
-function is-bsd { [[ "$OSTYPE" == *bsd* ]]; }
-function is-solaris { [[ "$OSTYPE" == solaris* ]]; }
-function is-windows { [[ "$OSTYPE" == cygwin* || "$OSTYPE" == msys ]]; }
+# is-* predicates. In interactive zsh these already come from
+# zsh/lib/env-checks.zsh (loaded earlier), so define them only if unset; bash
+# gets its own copy here. Keep semantics in sync with env-checks.zsh and
+# scripts/lib/checks.sh (POSIX).
+if ! command -v is-macos >/dev/null 2>&1; then
+  # OS checks
+  function is-macos { [[ "$OSTYPE" == darwin* ]]; }
+  function is-linux { [[ "$OSTYPE" == linux* ]]; }
+  function is-bsd { [[ "$OSTYPE" == *bsd* ]]; }
+  function is-solaris { [[ "$OSTYPE" == solaris* ]]; }
+  function is-windows { [[ "$OSTYPE" == cygwin* || "$OSTYPE" == msys ]]; }
 
-##? is-installed: return true if command binary is installed on PATH
-function is-installed { command -v "$1" &>/dev/null; }
+  ##? is-installed: return true if command binary is installed on PATH
+  function is-installed { command -v "$1" &>/dev/null; }
 
-# return true if function is defined
-function is-function { declare -f -- "$1" &>/dev/null; }
+  # return true if function is defined
+  function is-function { declare -f -- "$1" &>/dev/null; }
+
+  # is-admin: true if the current user is in the macOS "admin" group.
+  function is-admin { id -Gn 2>/dev/null | tr ' ' '\n' | grep -qx admin; }
+fi
 
 # Absolute path to file (does not resolve symlinks)
 ! is-installed abspath &&
@@ -275,7 +284,6 @@ alias startlog='script term-$(now).log'
 
 ####   Mac Specific:   ##########
 if is-macos; then
-  function is-admin { id -Gn 2>/dev/null | tr ' ' '\n' | grep -qx admin; }
   alias brewup='brew update && brew upgrade && brew cleanup'
   alias brewinfo="brew leaves | xargs brew desc --eval-all"
   alias md5sum='openssl md5'
