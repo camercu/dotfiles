@@ -96,12 +96,12 @@ bindkey -M viins '^C' send-break
 bindkey -M viins '^D' delete-char-or-list
 
 # [Backspace] - delete backward
+# Note: only '^?' is bound here. '^H' is Ctrl-Backspace (backward-kill-word,
+# below); binding it to backward-delete-char here was dead code, always
+# overridden by that later bind.
 bindkey -M emacs '^?' backward-delete-char
 bindkey -M viins '^?' backward-delete-char
 bindkey -M vicmd '^?' backward-delete-char
-bindkey -M emacs '^H' backward-delete-char
-bindkey -M viins '^H' backward-delete-char
-bindkey -M vicmd '^H' backward-delete-char
 # [Delete] - delete forward
 if [[ -n "${terminfo[kdch1]}" ]]; then
   bindkey -M emacs "${terminfo[kdch1]}" delete-char
@@ -111,10 +111,6 @@ else
   bindkey -M emacs "^[[3~" delete-char
   bindkey -M viins "^[[3~" delete-char
   bindkey -M vicmd "^[[3~" delete-char
-
-  bindkey -M emacs "^[3;5~" delete-char
-  bindkey -M viins "^[3;5~" delete-char
-  bindkey -M vicmd "^[3;5~" delete-char
 fi
 
 # [Ctrl-Delete] - delete whole word (forward)
