@@ -1,10 +1,9 @@
 #!/usr/bin/env zsh
 
-source "$(cd "$(dirname "$0")" && pwd -P)/lib/logging.sh"
-
-is_admin() {
-  groups | grep -qw admin
-}
+__lib_dir="$(cd "$(dirname "$0")" && pwd -P)/lib"
+source "$__lib_dir/logging.sh"
+source "$__lib_dir/shell-lib.sh"
+unset __lib_dir
 
 close_system_preferences() {
   osascript -e 'tell application "System Preferences" to quit'
@@ -97,7 +96,7 @@ configure_safari() {
 }
 
 configure_admin_settings() {
-  if is_admin; then
+  if is-admin; then
     sudo defaults write /Library/Preferences/com.apple.locationmenu.plist ShowSystemServices -bool true
     sudo nvram StartupMute=%01
   fi
