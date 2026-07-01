@@ -15,6 +15,7 @@ done
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
 DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd -P)
 . "$DOTFILE_DIR/scripts/lib/logging.sh"
+. "$DOTFILE_DIR/scripts/lib/checks.sh"
 
 MODE=sync
 AUTO_DISCOVER=0
@@ -31,18 +32,6 @@ Options:
   --auto-discover  compatibility no-op; stow handles link discovery
   -h, --help  show this help message
 EOF
-}
-
-is_macos() {
-  [ "$(uname -s)" = "Darwin" ]
-}
-
-is_linux() {
-  [ "$(uname -s)" = "Linux" ]
-}
-
-is_admin() {
-  id -Gn 2>/dev/null | tr ' ' '\n' | grep -qx 'admin'
 }
 
 has_command() {
