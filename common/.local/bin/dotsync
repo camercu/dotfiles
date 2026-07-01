@@ -38,6 +38,12 @@ has_command() {
   command -v "$1" >/dev/null 2>&1
 }
 
+# Generated / per-machine files that can appear inside a package dir but must
+# never be symlinked into $HOME. stow does not honor .gitignore, so without
+# this it aborts the whole run when one of these (e.g. .zcompdump written by
+# the system /etc/zshrc, or a Finder .DS_Store) collides with a real file.
+STOW_IGNORE='(^|/)(\.zcompdump.*|\.zsh_history|\.DS_Store|.*\.zwc)$'
+
 run_stow() {
   action=$1
   package_name=$2
@@ -46,12 +52,12 @@ run_stow() {
   (
     cd "$DOTFILE_DIR"
     if has_command stow; then
-      stow "$action" "$package_name"
+      stow --ignore="$STOW_IGNORE" "$action" "$package_name"
       exit 0
     fi
 
     if has_command nix-shell; then
-      nix-shell -p stow --run "stow $action $package_name"
+      nix-shell -p stow --run "stow --ignore='$STOW_IGNORE' $action $package_name"
       exit 0
     fi
 
