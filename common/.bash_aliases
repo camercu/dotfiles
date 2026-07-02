@@ -118,15 +118,18 @@ function maintain {
   dotsync || return
 
   if is-macos; then
+    # nix-darwin and Homebrew are owned by the admin account on this machine;
+    # a non-admin user can neither rebuild nix-darwin nor write to /opt/homebrew.
+    # So these run for admins only (matches the original per-account maintain).
     if is-admin; then
       info "nix-darwin: update"
       make -C "$HOME/.config/nix-darwin" update || return
+      info "homebrew: update + upgrade + cleanup"
+      (
+        export NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_ENV_HINTS=1
+        brew update && brew upgrade && brew cleanup
+      ) || return
     fi
-    info "homebrew: update + upgrade + cleanup"
-    (
-      export NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_ENV_HINTS=1
-      brew update && brew upgrade && brew cleanup
-    ) || return
   elif is-linux; then
     info "apt: update + upgrade + cleanup"
     sudo apt-get update -y &&
