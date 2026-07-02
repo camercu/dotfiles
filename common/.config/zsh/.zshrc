@@ -110,8 +110,9 @@ else
   # -u: also load completions from dirs compaudit calls insecure. Here those
   # are the cadmin-owned Homebrew dirs (this machine's documented admin
   # split) — trusted; -i would silently drop every brew completion (_brew,
-  # _docker, ...) for the non-admin account. zsh-health's compaudit still
-  # surfaces the paths. touch: compinit leaves the mtime alone when the dump
+  # _docker, ...) for the non-admin account. zsh-health treats /opt/homebrew
+  # as trusted and warns only about other insecure paths, so a healthy
+  # machine health-checks clean. touch: compinit leaves the mtime alone when the dump
   # content is unchanged, which would re-trigger the slow path every shell;
   # mark it validated-now instead.
   compinit -u -d "$ZSH_COMPDUMP"

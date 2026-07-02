@@ -1,6 +1,6 @@
 # zsh-health: quick syntax and dependency check for this zsh config.
 local root="${ZDOTDIR:-$HOME/.config/zsh}"
-local -a files deps missing insecure
+local -a files deps missing insecure trusted unexpected
 local -i warned=0 failed=0
 local file
 
@@ -39,10 +39,19 @@ fi
 
 autoload -Uz compaudit
 insecure=( ${(f)"$(compaudit 2>/dev/null)"} )
-if (( $#insecure > 0 )); then
+# /opt/homebrew is cadmin-owned by design (the documented admin split; see
+# the compinit -u comment in .zshrc). Warning about it every run would bury
+# a genuinely unexpected insecure path in permanent noise, so report the
+# Homebrew paths as trusted and warn only about anything else.
+trusted=( ${(M)insecure:#/opt/homebrew/*} )
+unexpected=( ${insecure:#/opt/homebrew/*} )
+if (( $#unexpected > 0 )); then
     warn "compaudit found insecure paths:"
-    print -l -- "${insecure[@]}" >&2
+    print -l -- "${unexpected[@]}" >&2
     warned=1
+fi
+if (( $#trusted > 0 )); then
+    debug "compaudit: $#trusted trusted Homebrew paths (cadmin-owned; see .zshrc)"
 fi
 
 if (( warned )); then
