@@ -130,6 +130,12 @@ function maintain {
         brew update && brew upgrade && brew cleanup
       ) || return
     fi
+
+    # Heads-up only (every mac user, never fails maintain): is a newer NixOS
+    # release available to 'make upgrade RELEASE=...' to? Uses the repo copy of
+    # the target so it works even without the admin-only ~/.config/nix-darwin.
+    info "checking for a new NixOS release"
+    make -C "$dotdir/nix-darwin/.config/nix-darwin" check-release 2>/dev/null || true
   elif is-linux; then
     info "apt: update + upgrade + cleanup"
     sudo apt-get update -y &&
