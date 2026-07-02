@@ -153,6 +153,28 @@ run_zsh_health_test() {
   fi
 }
 
+# uninstall.zsh prunes broken symlinks that point into this repo. It must
+# remove exactly those: not foreign broken links, not healthy repo links.
+run_stale_link_prune_test() {
+  CURRENT_TEST=stale_link_prune_test
+  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/stale-prune.log.XXXXXX")
+  register_cleanup "$LAST_LOG"
+
+  tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/stale-prune-home.XXXXXX")
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/.config/nested"
+
+  ln -s "$DOTFILE_DIR/common/.config/no-such-file" "$tmp_home/.config/nested/repo-stale"
+  ln -s "../../.dotfiles-elsewhere/gone" "$tmp_home/.config/foreign-stale"
+  ln -s "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home/.bash_aliases"
+
+  HOME="$tmp_home" zsh "$DOTFILE_DIR/uninstall.zsh" </dev/null >"$LAST_LOG" 2>&1
+
+  [ ! -L "$tmp_home/.config/nested/repo-stale" ]
+  [ -L "$tmp_home/.config/foreign-stale" ]
+  [ -L "$tmp_home/.bash_aliases" ]
+}
+
 run_stow_conflict_test() {
   CURRENT_TEST=stow_conflict_test
   LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/dotsync-conflict.log.XXXXXX")
@@ -245,6 +267,7 @@ CURRENT_TEST=verify_home_manager_hosts
 LAST_LOG=
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
 run_zsh_health_test
+run_stale_link_prune_test
 run_dotsync_smoke_test
 run_repo_relative_link_test
 run_stow_conflict_test

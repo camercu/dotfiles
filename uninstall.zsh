@@ -1,11 +1,21 @@
 #!/usr/bin/env zsh
-# WARNING: Not a robust uninstaller!!
-#
-# This file just removes broken symlinks from your home dir
+# Prune stale dotfile symlinks: broken links under ~, ~/.config, and ~/.local
+# whose target points into this repo — leftovers when a stowed file is moved
+# or deleted (stow -D only unlinks files still present in a package).
+# Not a full uninstaller: run scripts/uninstall-dotfiles.sh first to remove
+# the healthy links; see the README's Uninstall section.
 
-# Delete all broken symlinks in the home dir
-rm -iv -- ~/*(D-@)
-# Delete all broken symlinks in the config dir
-rm -iv -- ~/.config/**/*(D-@)
-# Delete all broken symlinks in the user's local dir
-rm -iv -- ~/.local/**/*(D-@)
+setopt ERR_EXIT NO_UNSET PIPE_FAIL
+
+DOTFILE_DIR=${0:a:h}
+
+for link in ~/*(D-@N) ~/.config/**/*(D-@N) ~/.local/**/*(D-@N); do
+    # :A cannot resolve a broken link (realpath fails and falls back to the
+    # link's own path), so read the target and absolutize it lexically.
+    target=$(command readlink -- "$link")
+    if [[ $target != /* ]]; then
+        target=${link:h}/$target
+    fi
+    [[ ${target:a} == "$DOTFILE_DIR"/* ]] || continue
+    rm -v -- "$link"
+done
