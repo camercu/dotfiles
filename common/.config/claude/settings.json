@@ -15,7 +15,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "model": "opus",
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -38,8 +38,9 @@
     "rust-analyzer-lsp@claude-plugins-official": false,
     "starship-claude@starship-claude": true
   },
+  "tui": "fullscreen",
   "editorMode": "vim",
   "terminalProgressBarEnabled": true,
-  "agentPushNotifEnabled": true,
-  "tui": "fullscreen"
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true
 }
