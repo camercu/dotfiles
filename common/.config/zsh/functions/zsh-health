@@ -1,21 +1,30 @@
 # zsh-health: quick syntax and dependency check for this zsh config.
 local root="${ZDOTDIR:-$HOME/.config/zsh}"
 local -a files deps missing insecure
-local -i warned=0
+local -i warned=0 failed=0
+local file
 
 files=(
     "$root/.zshrc"
+    "$HOME"/.zshenv(N)
+    "$root"/p10k*.zsh(N)
     "$root"/lib/***/*.(sh|zsh)(N-)
     "$root"/env/***/*.(sh|zsh)(N-)
     "$root"/conf.d/***/*.(sh|zsh)(N-)
+    "$root"/functions/[^_]*(N-.)
     "$root"/completions/_*(N)
     "$root"/plugins/***/*.plugin.zsh(N)
 )
 
-if ! command zsh -n -- $files; then
-    error "syntax check failed"
-    return 1
-fi
+# One file per zsh -n: it parses only its first operand and treats the rest
+# as positional parameters, so batching would check just the first file.
+for file in $files; do
+    if ! command zsh -n -- "$file"; then
+        error "syntax check failed: $file"
+        failed=1
+    fi
+done
+(( failed )) && return 1
 
 deps=(git awk sed grep)
 missing=()

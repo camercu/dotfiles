@@ -88,7 +88,9 @@ run_repo_relative_link_test() {
 
 # `sh -n`/`zsh -n` never resolve `source` targets, so a script pointing at a
 # deleted lib still passes syntax checks and only breaks at runtime (silently,
-# when nothing sets -e). Assert every lib/<file> referenced by a script exists.
+# when nothing sets -e). Assert every lib/<file> referenced by a script exists
+# in one of the two lib trees: scripts/lib (install scripts) or the zsh config
+# lib (referenced by this harness's zsh-health fixture).
 run_sourced_lib_test() {
   CURRENT_TEST=sourced_lib_test
   LAST_LOG=
@@ -97,13 +99,50 @@ run_sourced_lib_test() {
     [ -f "$script" ] || continue
     for lib in $(grep -ohE '(source|\.) "[^"]*lib[^"]*"' "$script" \
         | sed -E 's|.*/([^/"]+)".*|\1|' | sort -u); do
-      if [ ! -f "$SCRIPT_DIR/lib/$lib" ]; then
-        echo "$script references missing scripts/lib/$lib" >&2
+      if [ ! -f "$SCRIPT_DIR/lib/$lib" ] \
+          && [ ! -f "$DOTFILE_DIR/common/.config/zsh/lib/$lib" ]; then
+        echo "$script references missing lib file $lib" >&2
         lib_status=1
       fi
     done
   done
   return "$lib_status"
+}
+
+# zsh-health only runs by hand in an interactive shell, so nothing catches a
+# regression in it. Drive it against fixture ZDOTDIRs: a healthy one must
+# pass, one with a broken lib file must fail.
+run_zsh_health_test() {
+  CURRENT_TEST=zsh_health_test
+  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/zsh-health.log.XXXXXX")
+  register_cleanup "$LAST_LOG"
+
+  fixture=$(mktemp -d "${TMPDIR:-/tmp}/zsh-health-fixture.XXXXXX")
+  register_cleanup "$fixture"
+  mkdir -p "$fixture/lib"
+  printf '# fixture zshrc\n' >"$fixture/.zshrc"
+
+  # zsh-health assumes the interactive environment: logging + is-installed
+  # loaded, functions/ on fpath. Recreate that around the fixture ZDOTDIR.
+  zsh_health_cmd='
+    source "$ZSH_CONFIG_DIR/lib/env-checks.zsh"
+    source "$ZSH_CONFIG_DIR/lib/logging.zsh"
+    fpath=("$ZSH_CONFIG_DIR/functions" $fpath)
+    autoload -Uz zsh-health
+    zsh-health'
+
+  if ! ZDOTDIR="$fixture" ZSH_CONFIG_DIR="$DOTFILE_DIR/common/.config/zsh" \
+      zsh -c "$zsh_health_cmd" >"$LAST_LOG" 2>&1; then
+    echo "zsh-health: healthy fixture config failed" >&2
+    exit 1
+  fi
+
+  printf '(((\n' >"$fixture/lib/broken.zsh"
+  if ZDOTDIR="$fixture" ZSH_CONFIG_DIR="$DOTFILE_DIR/common/.config/zsh" \
+      zsh -c "$zsh_health_cmd" >"$LAST_LOG" 2>&1; then
+    echo "zsh-health: config with broken lib file passed" >&2
+    exit 1
+  fi
 }
 
 run_stow_conflict_test() {
@@ -197,6 +236,7 @@ run_sourced_lib_test
 CURRENT_TEST=verify_home_manager_hosts
 LAST_LOG=
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
+run_zsh_health_test
 run_dotsync_smoke_test
 run_repo_relative_link_test
 run_stow_conflict_test
