@@ -1,6 +1,7 @@
 old/
 .github-api-token
 flake.lock
+.tmp-dotsync-home.*
 
 linux/.mozilla/firefox/*
 common/.config/zsh/env/claude-oauth.zsh

@@ -4,54 +4,94 @@ set -eu
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P)
 
+# set -e aborts on the first failed assertion, which by itself prints
+# nothing. Track the running test, its captured command output, and every
+# tmp path, so the EXIT trap can name the failure, dump the log, and clean
+# up even when a test dies mid-way.
+CURRENT_TEST=startup
+LAST_LOG=
+CLEANUP_PATHS=
+
+register_cleanup() {
+  CLEANUP_PATHS="$CLEANUP_PATHS
+$1"
+}
+
+on_exit() {
+  exit_status=$?
+  if [ "$exit_status" -ne 0 ]; then
+    echo "check-bootstrap: FAILED in $CURRENT_TEST (exit $exit_status)" >&2
+    if [ -n "$LAST_LOG" ] && [ -s "$LAST_LOG" ]; then
+      echo "--- captured output:" >&2
+      cat "$LAST_LOG" >&2
+    fi
+  fi
+  IFS='
+'
+  for cleanup_path in $CLEANUP_PATHS; do
+    rm -rf "$cleanup_path"
+  done
+}
+trap on_exit EXIT
+
 resolve_path() {
   python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$1"
 }
 
 run_dotsync_smoke_test() {
+  CURRENT_TEST=dotsync_smoke_test
+  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/dotsync-smoke.log.XXXXXX")
+  register_cleanup "$LAST_LOG"
+
   # Resolve to the physical path: on macOS $TMPDIR lives under /var -> /private/var,
   # and stow resolves that symlink when computing relative links. Fabricating the
   # pre-existing link from the unresolved path yields a target stow would never
   # create, so stow rejects it as "not owned by stow". Resolving keeps the
   # simulated link identical to a real stow-owned one.
   tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/dotsync-home.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
   rel_target=$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' \
     "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home")
 
   ln -s "$rel_target" "$tmp_home/.bash_aliases"
 
-  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >/dev/null 2>&1
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
   [ -L "$tmp_home/.bash_aliases" ]
   [ "$(resolve_path "$tmp_home/.bash_aliases")" = "$(resolve_path "$DOTFILE_DIR/common/.bash_aliases")" ]
 
-  HOME="$tmp_home" "$SCRIPT_DIR/uninstall-dotfiles.sh" >/dev/null 2>&1
+  HOME="$tmp_home" "$SCRIPT_DIR/uninstall-dotfiles.sh" >"$LAST_LOG" 2>&1
   [ ! -L "$tmp_home/.bash_aliases" ]
 
   ln -s "$rel_target" "$tmp_home/.bash_aliases"
-  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" --auto-discover >/dev/null 2>&1
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" --auto-discover >"$LAST_LOG" 2>&1
   [ -L "$tmp_home/.bash_aliases" ]
   [ "$(resolve_path "$tmp_home/.bash_aliases")" = "$(resolve_path "$DOTFILE_DIR/common/.bash_aliases")" ]
-
-  rm -rf "$tmp_home"
 }
 
 run_repo_relative_link_test() {
-  tmp_home=$(mktemp -d "$DOTFILE_DIR/.tmp-dotsync-home.XXXXXX")
-  rel_target=$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' \
-    "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home")
+  CURRENT_TEST=repo_relative_link_test
+  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/dotsync-repo-rel.log.XXXXXX")
+  register_cleanup "$LAST_LOG"
 
-  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >/dev/null 2>&1
+  # Deliberately inside the repo: exercises the relative links stow computes
+  # when $HOME lives under the dotfile dir. Pattern is gitignored in case a
+  # failure leaves it behind.
+  tmp_home=$(mktemp -d "$DOTFILE_DIR/.tmp-dotsync-home.XXXXXX")
+  register_cleanup "$tmp_home"
+
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
   [ -L "$tmp_home/.bash_aliases" ]
   [ "$(resolve_path "$tmp_home/.bash_aliases")" = "$(resolve_path "$DOTFILE_DIR/common/.bash_aliases")" ]
 
-  HOME="$tmp_home" "$SCRIPT_DIR/uninstall-dotfiles.sh" >/dev/null 2>&1
-  rm -rf "$tmp_home"
+  HOME="$tmp_home" "$SCRIPT_DIR/uninstall-dotfiles.sh" >"$LAST_LOG" 2>&1
 }
 
 # `sh -n`/`zsh -n` never resolve `source` targets, so a script pointing at a
 # deleted lib still passes syntax checks and only breaks at runtime (silently,
 # when nothing sets -e). Assert every lib/<file> referenced by a script exists.
 run_sourced_lib_test() {
+  CURRENT_TEST=sourced_lib_test
+  LAST_LOG=
   lib_status=0
   for script in "$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/*.zsh "$DOTFILE_DIR/common/.local/bin/dotsync"; do
     [ -f "$script" ] || continue
@@ -67,30 +107,25 @@ run_sourced_lib_test() {
 }
 
 run_stow_conflict_test() {
+  CURRENT_TEST=stow_conflict_test
+  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/dotsync-conflict.log.XXXXXX")
+  register_cleanup "$LAST_LOG"
+
   tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/dotsync-conflict.XXXXXX")
-  conflict_log=$(mktemp "${TMPDIR:-/tmp}/dotsync-conflict.log.XXXXXX")
+  register_cleanup "$tmp_home"
 
   mkdir -p "$tmp_home/.local/bin"
   ln -s "$DOTFILE_DIR/common/.local/bin/zk" "$tmp_home/.local/bin/zk"
 
-  if HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$conflict_log" 2>&1; then
+  if HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1; then
     echo "expected dotsync to fail when stow sees an existing non-stow link" >&2
-    cat "$conflict_log" >&2
-    rm -f "$conflict_log"
-    rm -rf "$tmp_home"
     exit 1
   fi
 
-  if ! grep -Eiq 'existing target|not owned by stow|conflict' "$conflict_log"; then
+  if ! grep -Eiq 'existing target|not owned by stow|conflict' "$LAST_LOG"; then
     echo "dotsync failed, but not with a recognized stow conflict message" >&2
-    cat "$conflict_log" >&2
-    rm -f "$conflict_log"
-    rm -rf "$tmp_home"
     exit 1
   fi
-
-  rm -f "$conflict_log"
-  rm -rf "$tmp_home"
 }
 
 # check_script_syntax: syntax-check one script with the interpreter its
@@ -107,6 +142,8 @@ check_script_syntax() {
 # Glob every script rather than listing them: a hand-maintained list drifts
 # (uninstall.zsh was missing from it for months).
 run_syntax_test() {
+  CURRENT_TEST=syntax_test
+  LAST_LOG=
   syntax_status=0
   for script in \
       "$DOTFILE_DIR/install.sh" \
@@ -126,7 +163,10 @@ run_syntax_test() {
 # rejected, and a zsh-only construct must pass (proves shebang dispatch, since
 # sh -n would reject it).
 run_syntax_selfcheck_test() {
+  CURRENT_TEST=syntax_selfcheck_test
+  LAST_LOG=
   tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/check-syntax.XXXXXX")
+  register_cleanup "$tmp_dir"
   selfcheck_status=0
 
   printf '#!/bin/sh\nif then fi\n' >"$tmp_dir/broken.sh"
@@ -148,14 +188,17 @@ run_syntax_selfcheck_test() {
     selfcheck_status=1
   fi
 
-  rm -rf "$tmp_dir"
   return "$selfcheck_status"
 }
 
 run_syntax_selfcheck_test
 run_syntax_test
 run_sourced_lib_test
+CURRENT_TEST=verify_home_manager_hosts
+LAST_LOG=
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
 run_dotsync_smoke_test
 run_repo_relative_link_test
 run_stow_conflict_test
+
+echo "check-bootstrap: all checks passed"
