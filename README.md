@@ -163,7 +163,7 @@ dotsync --unlink
 On macOS, it stows `common/`, `macos/`, and `nix-darwin/` (admin required).
 On Linux, it stows `common/` and `linux/`.
 
-The `~/.stowrc` file sets the default target to `$HOME` and ignores `.stowrc` itself plus `.DS_Store`.
+The `.stowrc` file sets the default target to `$HOME` and ignores `.stowrc` itself plus `.DS_Store`. On top of that, dotsync ignores generated per-machine files that may appear inside package dirs (`.zcompdump*`, `.zsh_history`, `*.zwc`, `.DS_Store`) — stow doesn't honor `.gitignore`, and one such collision would abort the whole run.
 
 ### Configuring hosts
 
