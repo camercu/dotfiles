@@ -70,29 +70,33 @@ HOME_MANAGER_CONFIG=roci ./scripts/apply-home-manager.sh
 
 ## Daily usage
 
-### `maintain` alias
+### `maintain` function
 
-The `maintain` alias is the primary daily maintenance command. It updates all managed software and dotfiles in one step. Its behavior differs by OS:
+`maintain` (a shell function from `.bash_aliases`) is the primary daily maintenance command: one-shot, non-interactive, fails fast, never changes your cwd. It updates all managed software and dotfiles in one step. Its behavior differs by OS and account:
 
 **macOS (admin):**
 ```sh
-# git pull + submodule update + dotsync + nix-darwin update + brew upgrade
+# git pull + submodule update (pinned) + dotsync + nix-darwin update + brew upgrade
 maintain
 ```
 
 **macOS (non-admin):**
 ```sh
-# git pull + submodule update + dotsync
+# git pull + submodule update (float to upstream) + dotsync
 maintain
 ```
 
 **Linux (admin):**
 ```sh
-# apt update + upgrade + autoremove + autoclean
+# git pull + submodule update + dotsync + apt update/upgrade/autoremove/autoclean
 maintain
 ```
 
-Note: `maintain` requires admin privileges on macOS to invoke `make -C ~/.config/nix-darwin update`.
+Submodules are handled differently on purpose: the daily (non-admin) account floats them to upstream HEAD (`--remote --merge`) and commits the advanced pins; admin accounts reproduce the pinned SHAs. One account curates plugin versions, every other account follows.
+
+On macOS every account also gets a quiet NixOS-release heads-up at the end: nothing is printed normally, and a `[!]` warning appears once the next release (see below) is fully cut and ready for `make upgrade`.
+
+Note: nix-darwin and Homebrew updates require the admin account, which owns `~/.config/nix-darwin` and `/opt/homebrew`.
 
 ### macOS — nix-darwin
 
@@ -104,13 +108,21 @@ Rebuild from the repo root:
 darwin-rebuild switch --flake path:$HOME/.dotfiles#TheArk
 ```
 
-Update nix-darwin's flake inputs:
+Update nix-darwin's flake inputs (stays within the pinned NixOS release):
 
 ```sh
 cd nix-darwin/.config/nix-darwin
 make update
 # or manually:
 darwin-flake-update
+```
+
+Cross to a new NixOS release (the ~6-monthly `YY.05`/`YY.11` bump — deliberate, admin-only; rewrites the pinned refs in `flake.nix`, then relocks and rebuilds):
+
+```sh
+make check-release            # human report: is the next release fully cut?
+make check-release-ready      # machine-facing: prints the release only when ready (maintain uses this)
+make upgrade RELEASE=26.11
 ```
 
 ### Linux — standalone Home Manager
