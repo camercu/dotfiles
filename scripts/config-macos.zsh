@@ -2,7 +2,7 @@
 
 __lib_dir="$(cd "$(dirname "$0")" && pwd -P)/lib"
 source "$__lib_dir/logging.sh"
-source "$__lib_dir/shell-lib.sh"
+source "$__lib_dir/checks.sh"
 unset __lib_dir
 
 close_system_preferences() {

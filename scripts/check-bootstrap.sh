@@ -48,6 +48,24 @@ run_repo_relative_link_test() {
   rm -rf "$tmp_home"
 }
 
+# `sh -n`/`zsh -n` never resolve `source` targets, so a script pointing at a
+# deleted lib still passes syntax checks and only breaks at runtime (silently,
+# when nothing sets -e). Assert every lib/<file> referenced by a script exists.
+run_sourced_lib_test() {
+  lib_status=0
+  for script in "$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/*.zsh "$DOTFILE_DIR/common/.local/bin/dotsync"; do
+    [ -f "$script" ] || continue
+    for lib in $(grep -ohE '(source|\.) "[^"]*lib[^"]*"' "$script" \
+        | sed -E 's|.*/([^/"]+)".*|\1|' | sort -u); do
+      if [ ! -f "$SCRIPT_DIR/lib/$lib" ]; then
+        echo "$script references missing scripts/lib/$lib" >&2
+        lib_status=1
+      fi
+    done
+  done
+  return "$lib_status"
+}
+
 run_stow_conflict_test() {
   tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/dotsync-conflict.XXXXXX")
   conflict_log=$(mktemp "${TMPDIR:-/tmp}/dotsync-conflict.log.XXXXXX")
@@ -95,6 +113,7 @@ zsh -n \
   "$SCRIPT_DIR/migrate-claude-config.zsh" \
   "$SCRIPT_DIR/rename-mac.sh"
 
+run_sourced_lib_test
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
 run_dotsync_smoke_test
 run_repo_relative_link_test
