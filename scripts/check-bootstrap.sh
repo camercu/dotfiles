@@ -155,22 +155,30 @@ run_zsh_health_test() {
 
 # uninstall.zsh prunes broken symlinks that point into this repo. It must
 # remove exactly those: not foreign broken links, not healthy repo links.
+# Stow creates *relative* links, so the relative case is the primary one.
 run_stale_link_prune_test() {
   CURRENT_TEST=stale_link_prune_test
   LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/stale-prune.log.XXXXXX")
   register_cleanup "$LAST_LOG"
 
-  tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/stale-prune-home.XXXXXX")
+  # Physical path, as with the dotsync smoke test: stow computes relative
+  # targets from the physical location, and the fixture must match.
+  tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/stale-prune-home.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
   mkdir -p "$tmp_home/.config/nested"
 
+  rel_stale=$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' \
+    "$DOTFILE_DIR/common/.config/also-no-such-file" "$tmp_home/.config/nested")
+
   ln -s "$DOTFILE_DIR/common/.config/no-such-file" "$tmp_home/.config/nested/repo-stale"
+  ln -s "$rel_stale" "$tmp_home/.config/nested/repo-stale-rel"
   ln -s "../../.dotfiles-elsewhere/gone" "$tmp_home/.config/foreign-stale"
   ln -s "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home/.bash_aliases"
 
   HOME="$tmp_home" zsh "$DOTFILE_DIR/uninstall.zsh" </dev/null >"$LAST_LOG" 2>&1
 
   [ ! -L "$tmp_home/.config/nested/repo-stale" ]
+  [ ! -L "$tmp_home/.config/nested/repo-stale-rel" ]
   [ -L "$tmp_home/.config/foreign-stale" ]
   [ -L "$tmp_home/.bash_aliases" ]
 }
