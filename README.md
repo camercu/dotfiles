@@ -203,19 +203,26 @@ zsh-health
 
 ## Uninstall
 
-There is no robust uninstaller. This removes broken symlinks from your home directory:
+Remove the managed dotfile symlinks (stow unlinks every file still present in a package):
+
+```sh
+./scripts/uninstall-dotfiles.sh
+# or equivalently:
+dotsync --unlink
+```
+
+Then prune stale leftovers — broken symlinks that point into this repo, left behind when a stowed file was moved or deleted:
 
 ```sh
 ./uninstall.zsh
 ```
 
-For a complete uninstall, manually:
+Both must run while the repo still exists. For a complete uninstall, additionally:
 
-1. Run `./uninstall.zsh` to remove dotfile symlinks
-2. Run `nix-uninstall` to remove Nix
-3. Run `rm -rf /opt/homebrew` on macOS to remove Homebrew
-4. Remove `~/.nix-profile`, `~/.nix-defexpr`, `~/.config/nix`
-5. Remove `~/.home-manager-modules`
+1. Run `nix-uninstall` to remove Nix
+2. Run `rm -rf /opt/homebrew` on macOS to remove Homebrew
+3. Remove `~/.nix-profile`, `~/.nix-defexpr`, `~/.config/nix`
+4. Remove `~/.home-manager-modules`
 
 ## Key files to customize
 
