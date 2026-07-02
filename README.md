@@ -185,6 +185,22 @@ scripts/home-manager-host.sh resolve-config roci
 scripts/home-manager-host.sh lookup-system roci
 ```
 
+## Checks
+
+Two checks guard this repo; both are quick and safe to run anytime.
+
+`scripts/check-bootstrap.sh` is the test suite for the install/bootstrap scripts. It syntax-checks every script with the interpreter its shebang names, verifies sourced lib files exist, validates host definitions, runs dotsync smoke/conflict tests against throwaway home directories, and drives `zsh-health` against both the real zsh config and broken/healthy fixtures. Run it after changing anything under `scripts/`, `install.sh`, `dotsync`, or the zsh config:
+
+```sh
+./scripts/check-bootstrap.sh
+```
+
+`zsh-health` is a shell function available in any interactive zsh. It syntax-checks every file the shell loads (`.zshenv`, `.zshrc`, `lib/`, `env/`, `conf.d/`, `functions/`, `p10k*.zsh`, completions, plugins), reports missing recommended tools, and audits completion directory permissions via `compaudit`. The cadmin-owned `/opt/homebrew` paths are reported as trusted (see the compinit comment in `.zshrc`); anything else insecure raises a warning:
+
+```sh
+zsh-health
+```
+
 ## Uninstall
 
 There is no robust uninstaller. This removes broken symlinks from your home directory:
