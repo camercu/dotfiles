@@ -105,7 +105,15 @@
         ];
       };
 
-      programs.zsh.enable = true;
+      programs.zsh = {
+        enable = true;
+        # The stowed zsh config owns completion init (compinit -d into
+        # ~/.cache/zsh, staleness-aware). The module's global compinit would
+        # run first with only the system fpath and litter every account's
+        # $HOME with .zcompdump — stock macOS runs no compinit in /etc/zshrc
+        # either.
+        enableCompletion = false;
+      };
       security.pam.services.sudo_local.touchIdAuth = true;
 
       # The installer uses Determinate Nix, so nix-darwin must not manage the
