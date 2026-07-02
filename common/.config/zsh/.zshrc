@@ -105,13 +105,16 @@ if [[ -s "$ZSH_COMPDUMP" && ! "$ZSH_COMPDUMP" -ot "$ZDOTDIR/.zshrc" ]]; then
 fi
 
 if (( _zdump_fresh )); then
-  compinit -C -i -d "$ZSH_COMPDUMP"
+  compinit -C -d "$ZSH_COMPDUMP"
 else
-  # -i: skip insecure files rather than -u (load them anyway); zsh-health's
-  # compaudit surfaces the offending paths. touch: compinit leaves the mtime
-  # alone when the dump content is unchanged, which would re-trigger the slow
-  # path every shell; mark it validated-now instead.
-  compinit -i -d "$ZSH_COMPDUMP"
+  # -u: also load completions from dirs compaudit calls insecure. Here those
+  # are the cadmin-owned Homebrew dirs (this machine's documented admin
+  # split) — trusted; -i would silently drop every brew completion (_brew,
+  # _docker, ...) for the non-admin account. zsh-health's compaudit still
+  # surfaces the paths. touch: compinit leaves the mtime alone when the dump
+  # content is unchanged, which would re-trigger the slow path every shell;
+  # mark it validated-now instead.
+  compinit -u -d "$ZSH_COMPDUMP"
   command touch -- "$ZSH_COMPDUMP"
 fi
 unset _zdump_fresh _zd
