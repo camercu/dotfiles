@@ -108,6 +108,10 @@ function maintain {
 
   info "dotfiles: pull + submodules"
   git -C "$dotdir" pull --ff-only || return
+  # Deliberate split: the daily (non-admin) account floats submodules to
+  # upstream HEAD (--remote --merge) and commits the advanced pins; admin
+  # accounts just check out whatever is pinned. One account curates plugin
+  # versions, every other account reproduces them.
   if is-admin; then
     git -C "$dotdir" submodule update --init --recursive || return
   else
