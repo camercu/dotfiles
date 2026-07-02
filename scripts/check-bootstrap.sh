@@ -3,6 +3,7 @@ set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P)
+ZSH_CONFIG_DIR="$DOTFILE_DIR/common/.config/zsh"
 
 # set -e aborts on the first failed assertion, which by itself prints
 # nothing. Track the running test, its captured command output, and every
@@ -100,7 +101,7 @@ run_sourced_lib_test() {
     for lib in $(grep -ohE '(source|\.) "[^"]*lib[^"]*"' "$script" \
         | sed -E 's|.*/([^/"]+)".*|\1|' | sort -u); do
       if [ ! -f "$SCRIPT_DIR/lib/$lib" ] \
-          && [ ! -f "$DOTFILE_DIR/common/.config/zsh/lib/$lib" ]; then
+          && [ ! -f "$ZSH_CONFIG_DIR/lib/$lib" ]; then
         echo "$script references missing lib file $lib" >&2
         lib_status=1
       fi
@@ -110,20 +111,16 @@ run_sourced_lib_test() {
 }
 
 # zsh-health only runs by hand in an interactive shell, so nothing catches a
-# regression in it. Drive it against fixture ZDOTDIRs: a healthy one must
-# pass, one with a broken lib file must fail.
+# regression in it. Drive it against the real config (a broken zsh config
+# file fails check-bootstrap) and against fixture ZDOTDIRs proving it can
+# still tell healthy from broken.
 run_zsh_health_test() {
   CURRENT_TEST=zsh_health_test
   LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/zsh-health.log.XXXXXX")
   register_cleanup "$LAST_LOG"
 
-  fixture=$(mktemp -d "${TMPDIR:-/tmp}/zsh-health-fixture.XXXXXX")
-  register_cleanup "$fixture"
-  mkdir -p "$fixture/lib"
-  printf '# fixture zshrc\n' >"$fixture/.zshrc"
-
   # zsh-health assumes the interactive environment: logging + is-installed
-  # loaded, functions/ on fpath. Recreate that around the fixture ZDOTDIR.
+  # loaded, functions/ on fpath. Recreate that around the target ZDOTDIR.
   zsh_health_cmd='
     source "$ZSH_CONFIG_DIR/lib/env-checks.zsh"
     source "$ZSH_CONFIG_DIR/lib/logging.zsh"
@@ -131,14 +128,25 @@ run_zsh_health_test() {
     autoload -Uz zsh-health
     zsh-health'
 
-  if ! ZDOTDIR="$fixture" ZSH_CONFIG_DIR="$DOTFILE_DIR/common/.config/zsh" \
+  if ! ZDOTDIR="$ZSH_CONFIG_DIR" ZSH_CONFIG_DIR="$ZSH_CONFIG_DIR" \
+      zsh -c "$zsh_health_cmd" >"$LAST_LOG" 2>&1; then
+    echo "zsh-health: real zsh config failed the health check" >&2
+    exit 1
+  fi
+
+  fixture=$(mktemp -d "${TMPDIR:-/tmp}/zsh-health-fixture.XXXXXX")
+  register_cleanup "$fixture"
+  mkdir -p "$fixture/lib"
+  printf '# fixture zshrc\n' >"$fixture/.zshrc"
+
+  if ! ZDOTDIR="$fixture" ZSH_CONFIG_DIR="$ZSH_CONFIG_DIR" \
       zsh -c "$zsh_health_cmd" >"$LAST_LOG" 2>&1; then
     echo "zsh-health: healthy fixture config failed" >&2
     exit 1
   fi
 
   printf '(((\n' >"$fixture/lib/broken.zsh"
-  if ZDOTDIR="$fixture" ZSH_CONFIG_DIR="$DOTFILE_DIR/common/.config/zsh" \
+  if ZDOTDIR="$fixture" ZSH_CONFIG_DIR="$ZSH_CONFIG_DIR" \
       zsh -c "$zsh_health_cmd" >"$LAST_LOG" 2>&1; then
     echo "zsh-health: config with broken lib file passed" >&2
     exit 1
