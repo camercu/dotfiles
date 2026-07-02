@@ -93,26 +93,67 @@ run_stow_conflict_test() {
   rm -rf "$tmp_home"
 }
 
-sh -n \
-  "$DOTFILE_DIR/install.sh" \
-  "$DOTFILE_DIR/common/.local/bin/dotsync" \
-  "$SCRIPT_DIR/apply-home-manager.sh" \
-  "$SCRIPT_DIR/check-bootstrap.sh" \
-  "$SCRIPT_DIR/home-manager-host.sh" \
-  "$SCRIPT_DIR/install-nix.sh" \
-  "$SCRIPT_DIR/lib/checks.sh" \
-  "$SCRIPT_DIR/lib/logging.sh" \
-  "$SCRIPT_DIR/render-gitignore.sh" \
-  "$SCRIPT_DIR/uninstall-dotfiles.sh" \
-  "$SCRIPT_DIR/verify-home-manager-hosts.sh"
+# check_script_syntax: syntax-check one script with the interpreter its
+# shebang names. One file per invocation: `sh -n a b` and `zsh -n a b` parse
+# only `a` and treat `b` as a positional argument, so batching silently skips
+# every file after the first.
+check_script_syntax() {
+  case "$(head -n 1 "$1")" in
+    *zsh*) zsh -n -- "$1" ;;
+    *) sh -n -- "$1" ;;
+  esac
+}
 
-zsh -n \
-  "$SCRIPT_DIR/bootstrap-install.zsh" \
-  "$SCRIPT_DIR/config-macos.zsh" \
-  "$SCRIPT_DIR/install-homebrew.sh" \
-  "$SCRIPT_DIR/migrate-claude-config.zsh" \
-  "$SCRIPT_DIR/rename-mac.sh"
+# Glob every script rather than listing them: a hand-maintained list drifts
+# (uninstall.zsh was missing from it for months).
+run_syntax_test() {
+  syntax_status=0
+  for script in \
+      "$DOTFILE_DIR/install.sh" \
+      "$DOTFILE_DIR/uninstall.zsh" \
+      "$DOTFILE_DIR/common/.local/bin/dotsync" \
+      "$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/*.zsh "$SCRIPT_DIR"/lib/*.sh; do
+    [ -f "$script" ] || continue
+    if ! check_script_syntax "$script"; then
+      echo "syntax check failed: $script" >&2
+      syntax_status=1
+    fi
+  done
+  return "$syntax_status"
+}
 
+# Guard check_script_syntax itself: a broken file of each dialect must be
+# rejected, and a zsh-only construct must pass (proves shebang dispatch, since
+# sh -n would reject it).
+run_syntax_selfcheck_test() {
+  tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/check-syntax.XXXXXX")
+  selfcheck_status=0
+
+  printf '#!/bin/sh\nif then fi\n' >"$tmp_dir/broken.sh"
+  if check_script_syntax "$tmp_dir/broken.sh" 2>/dev/null; then
+    echo "syntax selfcheck: broken sh file passed" >&2
+    selfcheck_status=1
+  fi
+
+  # `if then fi` is valid zsh, so use an unclosed paren to break the parse.
+  printf '#!/usr/bin/env zsh\n(((\n' >"$tmp_dir/broken.zsh"
+  if check_script_syntax "$tmp_dir/broken.zsh" 2>/dev/null; then
+    echo "syntax selfcheck: broken zsh file passed" >&2
+    selfcheck_status=1
+  fi
+
+  printf '#!/usr/bin/env zsh\nfunction is-zsh-only {}\n' >"$tmp_dir/zsh-only.sh"
+  if ! check_script_syntax "$tmp_dir/zsh-only.sh" 2>/dev/null; then
+    echo "syntax selfcheck: zsh shebang not dispatched to zsh -n" >&2
+    selfcheck_status=1
+  fi
+
+  rm -rf "$tmp_dir"
+  return "$selfcheck_status"
+}
+
+run_syntax_selfcheck_test
+run_syntax_test
 run_sourced_lib_test
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
 run_dotsync_smoke_test
