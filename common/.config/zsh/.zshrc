@@ -87,14 +87,34 @@ unset plugin
 [[ -n "$ZSH_COMPDUMP" ]] || export ZSH_COMPDUMP="${__zsh_cache_dir}/.zcompdump-${HOST}"
 [[ -d "${ZSH_COMPDUMP:h}" ]] || mkdir -p -- "${ZSH_COMPDUMP:h}"
 autoload -Uz compinit
-if [[ -s "$ZSH_COMPDUMP" ]]; then
-  # fast load from cache
+
+# Trust the dump (-C, fast) only while it is newer than every completion
+# source: compinit -C re-reads nothing, so a stale dump silently hides new
+# completions forever. Staleness = older than any fpath dir (installing a
+# completion file bumps its dir's mtime) or than this file (fpath/config
+# edits, e.g. adding brew site-functions above).
+typeset _zdump_fresh=0 _zd
+if [[ -s "$ZSH_COMPDUMP" && ! "$ZSH_COMPDUMP" -ot "$ZDOTDIR/.zshrc" ]]; then
+  _zdump_fresh=1
+  for _zd in $fpath; do
+    if [[ -d "$_zd" && "$ZSH_COMPDUMP" -ot "$_zd" ]]; then
+      _zdump_fresh=0
+      break
+    fi
+  done
+fi
+
+if (( _zdump_fresh )); then
   compinit -C -i -d "$ZSH_COMPDUMP"
 else
   # -i: skip insecure files rather than -u (load them anyway); zsh-health's
-  # compaudit surfaces the offending paths.
+  # compaudit surfaces the offending paths. touch: compinit leaves the mtime
+  # alone when the dump content is unchanged, which would re-trigger the slow
+  # path every shell; mark it validated-now instead.
   compinit -i -d "$ZSH_COMPDUMP"
+  command touch -- "$ZSH_COMPDUMP"
 fi
+unset _zdump_fresh _zd
 
 if (( $+functions[__zsh_register_custom_compdefs] )); then
   __zsh_register_custom_compdefs
