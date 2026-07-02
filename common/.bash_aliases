@@ -131,11 +131,15 @@ function maintain {
       ) || return
     fi
 
-    # Heads-up only (every mac user, never fails maintain): is a newer NixOS
-    # release available to 'make upgrade RELEASE=...' to? Uses the repo copy of
-    # the target so it works even without the admin-only ~/.config/nix-darwin.
-    info "checking for a new NixOS release"
-    make -C "$dotdir/nix-darwin/.config/nix-darwin" check-release 2>/dev/null || true
+    # Heads-up only (every mac user, never fails maintain): warn when the next
+    # NixOS release is cut and ready for 'make upgrade RELEASE=...'; silent
+    # otherwise. Uses the repo copy of the target so it works even without the
+    # admin-only ~/.config/nix-darwin.
+    local next_release
+    next_release="$(make -s -C "$dotdir/nix-darwin/.config/nix-darwin" check-release-ready 2>/dev/null)" || next_release=""
+    if [ -n "$next_release" ]; then
+      warn "NixOS $next_release is available — run: make -C $dotdir/nix-darwin/.config/nix-darwin upgrade RELEASE=$next_release"
+    fi
   elif is-linux; then
     info "apt: update + upgrade + cleanup"
     sudo apt-get update -y &&

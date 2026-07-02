@@ -38,22 +38,28 @@ upgrade: check-config
 	REL='$(RELEASE)' perl -pi -e 's{(nixos/nixpkgs/nixos-)\d+\.\d+}{$$1$$ENV{REL}}g; s{(NixOS/nixpkgs/nixpkgs-)\d+\.\d+(-darwin)}{$$1$$ENV{REL}$$2}g; s{(home-manager/release-)\d+\.\d+}{$$1$$ENV{REL}}g; s{(nix-darwin/nix-darwin-)\d+\.\d+}{$$1$$ENV{REL}}g;' "$(DOTFILE_DIR)/flake.nix"
 	$(MAKE) update
 
+# Shared by check-release / check-release-ready. NixOS releases twice a year
+# as YY.MM (.05 = May, .11 = Nov); a release is usable here only once ALL four
+# pinned inputs have branched (read-only checks; no admin needed).
+# Shell snippet deriving $cur/$next from the pinned refs in flake.nix
+# (\# because a bare # would end the make assignment):
+RELEASE_NEXT_SH = cur=$$(grep -oE 'nixos-[0-9]+\.[0-9]+' "$(DOTFILE_DIR)/flake.nix" | head -1 | sed 's/nixos-//'); \
+	yy=$${cur%%.*}; mm=$${cur\#\#*.}; \
+	if [ "$$mm" = "05" ]; then next="$$yy.11"; else next="$$((yy + 1)).05"; fi
+# repo:branch specs that must all exist before $next is usable:
+RELEASE_BRANCH_SPECS = "NixOS/nixpkgs:nixos-$$next" \
+	"NixOS/nixpkgs:nixpkgs-$$next-darwin" \
+	"nix-community/home-manager:release-$$next" \
+	"nix-darwin/nix-darwin:nix-darwin-$$next"
+
 # check-release: is the NEXT NixOS release cut and ready to upgrade to?
-# NixOS releases twice a year as YY.MM (.05 = May, .11 = Nov). A release is
-# usable here only once ALL four pinned inputs have branched. Reports the next
-# release and whether each branch exists yet (read-only; no admin needed).
+# Human-facing report: the next release and whether each branch exists yet.
 .PHONY: check-release
 check-release:
-	@cur=$$(grep -oE 'nixos-[0-9]+\.[0-9]+' "$(DOTFILE_DIR)/flake.nix" | head -1 | sed 's/nixos-//'); \
-	yy=$${cur%%.*}; mm=$${cur##*.}; \
-	if [ "$$mm" = "05" ]; then next="$$yy.11"; else next="$$((yy + 1)).05"; fi; \
+	@$(RELEASE_NEXT_SH); \
 	printf '[*] current release: %s   next: %s\n' "$$cur" "$$next"; \
 	ready=1; \
-	for spec in \
-		"NixOS/nixpkgs:nixos-$$next" \
-		"NixOS/nixpkgs:nixpkgs-$$next-darwin" \
-		"nix-community/home-manager:release-$$next" \
-		"nix-darwin/nix-darwin:nix-darwin-$$next"; do \
+	for spec in $(RELEASE_BRANCH_SPECS); do \
 		repo=$${spec%%:*}; br=$${spec#*:}; \
 		if git ls-remote --heads "https://github.com/$$repo" "$$br" 2>/dev/null | grep -q .; then \
 			printf '  [+] %s\n' "$$br"; \
@@ -66,6 +72,18 @@ check-release:
 	else \
 		printf '[!] %s not fully cut yet; staying on %s\n' "$$next" "$$cur"; \
 	fi
+
+# check-release-ready: machine-facing check-release. Prints the next release
+# (e.g. 26.11) only when every branch is cut, else prints nothing; always
+# exits 0. `maintain` calls this for its quiet release heads-up.
+.PHONY: check-release-ready
+check-release-ready:
+	@$(RELEASE_NEXT_SH); \
+	for spec in $(RELEASE_BRANCH_SPECS); do \
+		repo=$${spec%%:*}; br=$${spec#*:}; \
+		git ls-remote --heads "https://github.com/$$repo" "$$br" 2>/dev/null | grep -q . || exit 0; \
+	done; \
+	printf '%s\n' "$$next"
 
 .PHONY: uninstall
 uninstall:
