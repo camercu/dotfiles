@@ -82,16 +82,13 @@ independent.
 Skip a phase only with a stated reason.
 
 ### 1 — Exercise → friction
-Use it as a real consumer: build a small client vs the API, run the app
-(`run`/`verify`), or walk the change end-to-end. Collect concrete friction
-(file:line, what surprised you, what fought you). Output = ranked friction list,
-not a vibe.
-
-Probe adversarially too, not just the happy path: try to *misuse* the surface —
-call it from a context violating a precondition (wrong order/state, multiple
-threads), pass boundary/garbage inputs, ignore a returned guard. Misuse that
-compiles + silently does wrong instead of being rejected = friction finding for
-Soundness.
+Run the `dogfood` skill — it owns this whole pass: docs-first cold walk, full
+public-surface coverage, adversarial misuse, sandboxed scratch in `/tmp`,
+report-only. Cold mode by default; its fresh-subagent mode when this context
+already worked on the target. Output = its ranked friction report; those
+findings = phase 2's input (`soundness` findings feed the Soundness pass).
+Closing the loop at convergence = `dogfood re-eval <report>` for the
+resolved / still-live delta.
 
 ### 2 — Grill → decide ⟨GATE⟩
 Each finding → walk the decision tree, **recommend**, but the call is the user's.
