@@ -39,6 +39,12 @@ resolve_path() {
   python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$1"
 }
 
+# rel_path TARGET START: TARGET expressed relative to START, as stow computes
+# its symlink targets.
+rel_path() {
+  python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' "$1" "$2"
+}
+
 run_dotsync_smoke_test() {
   CURRENT_TEST=dotsync_smoke_test
   LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/dotsync-smoke.log.XXXXXX")
@@ -51,8 +57,7 @@ run_dotsync_smoke_test() {
   # simulated link identical to a real stow-owned one.
   tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/dotsync-home.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
-  rel_target=$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' \
-    "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home")
+  rel_target=$(rel_path "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home")
 
   ln -s "$rel_target" "$tmp_home/.bash_aliases"
 
@@ -181,8 +186,7 @@ run_stale_link_prune_test() {
   register_cleanup "$tmp_home"
   mkdir -p "$tmp_home/.config/nested"
 
-  rel_stale=$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' \
-    "$DOTFILE_DIR/common/.config/also-no-such-file" "$tmp_home/.config/nested")
+  rel_stale=$(rel_path "$DOTFILE_DIR/common/.config/also-no-such-file" "$tmp_home/.config/nested")
 
   ln -s "$DOTFILE_DIR/common/.config/no-such-file" "$tmp_home/.config/nested/repo-stale"
   ln -s "$rel_stale" "$tmp_home/.config/nested/repo-stale-rel"
