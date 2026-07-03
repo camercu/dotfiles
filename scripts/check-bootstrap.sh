@@ -110,6 +110,20 @@ run_sourced_lib_test() {
   return "$lib_status"
 }
 
+# Interactive startup must be silent: any output means a config file or an
+# eval'd tool hook errored (e.g. compdef called before compinit defines it).
+run_zsh_startup_test() {
+  CURRENT_TEST=zsh_startup_test
+  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/zsh-startup.log.XXXXXX")
+  register_cleanup "$LAST_LOG"
+
+  ZDOTDIR="$ZSH_CONFIG_DIR" zsh -ic 'exit' >"$LAST_LOG" 2>&1 </dev/null
+  if [ -s "$LAST_LOG" ]; then
+    echo "interactive zsh startup produced output:" >&2
+    exit 1
+  fi
+}
+
 # zsh-health only runs by hand in an interactive shell, so nothing catches a
 # regression in it. Drive it against the real config (a broken zsh config
 # file fails check-bootstrap) and against fixture ZDOTDIRs proving it can
@@ -274,6 +288,7 @@ run_sourced_lib_test
 CURRENT_TEST=verify_home_manager_hosts
 LAST_LOG=
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
+run_zsh_startup_test
 run_zsh_health_test
 run_stale_link_prune_test
 run_dotsync_smoke_test

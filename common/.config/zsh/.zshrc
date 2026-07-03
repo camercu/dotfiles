@@ -16,6 +16,15 @@ fi
 : "${__zsh_cache_dir:=${XDG_CACHE_HOME:-$HOME/.cache}/zsh}"
 [[ -d "${__zsh_cache_dir}" ]] || mkdir -p -- "${__zsh_cache_dir}"
 
+# Defer compdef until compinit exists. compinit runs last (it must see every
+# fpath addition), but tools eval'd earlier register completions eagerly:
+# zoxide (env) and forge (plugins) both call compdef before it is defined.
+# Unguarded that errors ("command compdef not found"); self-guarded it is
+# silently dropped and the completion is lost. Queue the calls now, replay
+# after compinit — which overwrites this shim with the real compdef.
+typeset -ga __deferred_compdefs
+compdef() { __deferred_compdefs+=("${(j: :)${(q)@}}"); }
+
 
 #
 # Startup Library (env checks, logging, autoload-dir)
@@ -119,6 +128,15 @@ else
   command touch -- "$ZSH_COMPDUMP"
 fi
 unset _zdump_fresh _zd
+
+# compinit has replaced the shim with the real compdef; replay the calls that
+# tools queued before it existed. Args were quoted with (q) at capture, so
+# eval reparses each call exactly as issued.
+typeset _cd
+for _cd in "${__deferred_compdefs[@]}"; do
+  eval "compdef $_cd"
+done
+unset __deferred_compdefs _cd
 
 if (( $+functions[__zsh_register_custom_compdefs] )); then
   __zsh_register_custom_compdefs
