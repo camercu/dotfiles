@@ -197,6 +197,37 @@ run_stale_link_prune_test() {
   [ -L "$tmp_home/.bash_aliases" ]
 }
 
+# The prune must be best-effort: one link it cannot remove (unwritable parent)
+# must not abort the sweep and strand the rest. The unremovable link sorts
+# before the removable one ("locked" < "nested"), so a fail-fast prune would
+# never reach the removable link.
+run_stale_link_besteffort_test() {
+  CURRENT_TEST=stale_link_besteffort_test
+  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/stale-besteffort.log.XXXXXX")
+  register_cleanup "$LAST_LOG"
+
+  tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/stale-besteffort-home.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/.config/locked" "$tmp_home/.config/nested"
+
+  ln -s "$DOTFILE_DIR/common/.config/gone-locked" "$tmp_home/.config/locked/repo-stale"
+  ln -s "$DOTFILE_DIR/common/.config/gone-nested" "$tmp_home/.config/nested/repo-stale"
+  chmod a-w "$tmp_home/.config/locked"
+
+  HOME="$tmp_home" zsh "$DOTFILE_DIR/uninstall.zsh" </dev/null >"$LAST_LOG" 2>&1
+
+  # Restore write before asserting so the EXIT-trap cleanup can recurse in.
+  chmod u+rwx "$tmp_home/.config/locked"
+
+  # The removable link past the failure point is gone: the sweep continued.
+  [ ! -L "$tmp_home/.config/nested/repo-stale" ]
+  # Root ignores the directory permission, so only assert the block took
+  # effect when it actually can.
+  if [ "$(id -u)" -ne 0 ]; then
+    [ -L "$tmp_home/.config/locked/repo-stale" ]
+  fi
+}
+
 run_stow_conflict_test() {
   CURRENT_TEST=stow_conflict_test
   LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/dotsync-conflict.log.XXXXXX")
@@ -291,6 +322,7 @@ LAST_LOG=
 run_zsh_startup_test
 run_zsh_health_test
 run_stale_link_prune_test
+run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_repo_relative_link_test
 run_stow_conflict_test
