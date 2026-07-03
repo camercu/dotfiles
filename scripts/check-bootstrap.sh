@@ -18,6 +18,22 @@ register_cleanup() {
 $1"
 }
 
+# begin_test NAME: name the running test (for the on_exit banner) and clear
+# any log left by the previous test. Clearing here means a test that emits
+# straight to stderr never has to remember to reset LAST_LOG — omitting the
+# reset used to make on_exit dump an unrelated test's log.
+begin_test() {
+  CURRENT_TEST=$1
+  LAST_LOG=
+}
+
+# capture_log: for tests that redirect a command's output into "$LAST_LOG".
+# mktemp a log named from the current test and register it for cleanup.
+capture_log() {
+  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/check-bootstrap-${CURRENT_TEST}.XXXXXX")
+  register_cleanup "$LAST_LOG"
+}
+
 on_exit() {
   exit_status=$?
   if [ "$exit_status" -ne 0 ]; then
@@ -46,9 +62,8 @@ rel_path() {
 }
 
 run_dotsync_smoke_test() {
-  CURRENT_TEST=dotsync_smoke_test
-  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/dotsync-smoke.log.XXXXXX")
-  register_cleanup "$LAST_LOG"
+  begin_test dotsync_smoke_test
+  capture_log
 
   # Resolve to the physical path: on macOS $TMPDIR lives under /var -> /private/var,
   # and stow resolves that symlink when computing relative links. Fabricating the
@@ -75,9 +90,8 @@ run_dotsync_smoke_test() {
 }
 
 run_repo_relative_link_test() {
-  CURRENT_TEST=repo_relative_link_test
-  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/dotsync-repo-rel.log.XXXXXX")
-  register_cleanup "$LAST_LOG"
+  begin_test repo_relative_link_test
+  capture_log
 
   # Deliberately inside the repo: exercises the relative links stow computes
   # when $HOME lives under the dotfile dir. Pattern is gitignored in case a
@@ -98,8 +112,7 @@ run_repo_relative_link_test() {
 # in one of the two lib trees: scripts/lib (install scripts) or the zsh config
 # lib (referenced by this harness's zsh-health fixture).
 run_sourced_lib_test() {
-  CURRENT_TEST=sourced_lib_test
-  LAST_LOG=
+  begin_test sourced_lib_test
   lib_status=0
   for script in "$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/*.zsh "$DOTFILE_DIR/common/.local/bin/dotsync"; do
     [ -f "$script" ] || continue
@@ -118,9 +131,8 @@ run_sourced_lib_test() {
 # Interactive startup must be silent: any output means a config file or an
 # eval'd tool hook errored (e.g. compdef called before compinit defines it).
 run_zsh_startup_test() {
-  CURRENT_TEST=zsh_startup_test
-  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/zsh-startup.log.XXXXXX")
-  register_cleanup "$LAST_LOG"
+  begin_test zsh_startup_test
+  capture_log
 
   ZDOTDIR="$ZSH_CONFIG_DIR" zsh -ic 'exit' >"$LAST_LOG" 2>&1 </dev/null
   if [ -s "$LAST_LOG" ]; then
@@ -134,9 +146,8 @@ run_zsh_startup_test() {
 # file fails check-bootstrap) and against fixture ZDOTDIRs proving it can
 # still tell healthy from broken.
 run_zsh_health_test() {
-  CURRENT_TEST=zsh_health_test
-  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/zsh-health.log.XXXXXX")
-  register_cleanup "$LAST_LOG"
+  begin_test zsh_health_test
+  capture_log
 
   # zsh-health assumes the interactive environment: logging + is-installed
   # loaded, functions/ on fpath. Recreate that around the target ZDOTDIR.
@@ -176,9 +187,8 @@ run_zsh_health_test() {
 # remove exactly those: not foreign broken links, not healthy repo links.
 # Stow creates *relative* links, so the relative case is the primary one.
 run_stale_link_prune_test() {
-  CURRENT_TEST=stale_link_prune_test
-  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/stale-prune.log.XXXXXX")
-  register_cleanup "$LAST_LOG"
+  begin_test stale_link_prune_test
+  capture_log
 
   # Physical path, as with the dotsync smoke test: stow computes relative
   # targets from the physical location, and the fixture must match.
@@ -206,9 +216,8 @@ run_stale_link_prune_test() {
 # before the removable one ("locked" < "nested"), so a fail-fast prune would
 # never reach the removable link.
 run_stale_link_besteffort_test() {
-  CURRENT_TEST=stale_link_besteffort_test
-  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/stale-besteffort.log.XXXXXX")
-  register_cleanup "$LAST_LOG"
+  begin_test stale_link_besteffort_test
+  capture_log
 
   tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/stale-besteffort-home.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
@@ -233,9 +242,8 @@ run_stale_link_besteffort_test() {
 }
 
 run_stow_conflict_test() {
-  CURRENT_TEST=stow_conflict_test
-  LAST_LOG=$(mktemp "${TMPDIR:-/tmp}/dotsync-conflict.log.XXXXXX")
-  register_cleanup "$LAST_LOG"
+  begin_test stow_conflict_test
+  capture_log
 
   tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/dotsync-conflict.XXXXXX")
   register_cleanup "$tmp_home"
@@ -268,8 +276,7 @@ check_script_syntax() {
 # Glob every script rather than listing them: a hand-maintained list drifts
 # (uninstall.zsh was missing from it for months).
 run_syntax_test() {
-  CURRENT_TEST=syntax_test
-  LAST_LOG=
+  begin_test syntax_test
   syntax_status=0
   for script in \
       "$DOTFILE_DIR/install.sh" \
@@ -289,8 +296,7 @@ run_syntax_test() {
 # rejected, and a zsh-only construct must pass (proves shebang dispatch, since
 # sh -n would reject it).
 run_syntax_selfcheck_test() {
-  CURRENT_TEST=syntax_selfcheck_test
-  LAST_LOG=
+  begin_test syntax_selfcheck_test
   tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/check-syntax.XXXXXX")
   register_cleanup "$tmp_dir"
   selfcheck_status=0
@@ -320,8 +326,7 @@ run_syntax_selfcheck_test() {
 run_syntax_selfcheck_test
 run_syntax_test
 run_sourced_lib_test
-CURRENT_TEST=verify_home_manager_hosts
-LAST_LOG=
+begin_test verify_home_manager_hosts
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
 run_zsh_startup_test
 run_zsh_health_test
