@@ -67,6 +67,18 @@ found nothing significant; demonstrate convergence, don't predict it.** Then
 close the loop back to phase 1: re-exercise as a consumer, confirm the original
 friction is gone.
 
+**Convergence round = fresh subagent, not the implementing context.** Author
+context is polluted: carries its own assumptions, primed to see its work as
+correct, re-runs the probes it already wrote. Spawn a clean agent for the final
+verification pass. Give it only: the landed commit range, the original friction
+list, the verification matrix, the authority doc location — *not* the fix
+rationale or the session's probe scripts (it must derive its own). It
+re-exercises as a consumer (phase 1 discipline, adversarial included), re-runs
+the matrix, and reports findings. Its findings feed the loop like any round:
+significant → back to phase 2/3 in the main context; clean → converged. Main
+context relays the subagent's verdict verbatim in the closing, marked as
+independent.
+
 Skip a phase only with a stated reason.
 
 ### 1 — Exercise → friction
@@ -180,6 +192,6 @@ grilling.
 
 Summarize: slices landed (commit subjects), decisions captured (ADRs/footers),
 passes run + what each changed/declined, final verification-matrix status, and
-**that the last round was clean** (convergence) — or name the significant
-findings deliberately deferred + why. Be plain about anything skipped or still
-red.
+**that the last round was clean per the fresh subagent** (convergence,
+independent) — or name the significant findings deliberately deferred + why. Be
+plain about anything skipped or still red.
