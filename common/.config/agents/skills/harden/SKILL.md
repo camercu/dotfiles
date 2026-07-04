@@ -123,11 +123,9 @@ findings = phase 2's input (`soundness` findings feed the Soundness pass).
 Closing the loop at convergence = `dogfood re-eval <report>` for the
 resolved / still-live delta.
 
-**N/A when the change has no consumer-observable surface** (internal test,
-refactor, doc, lockfile): consumption can't surface a bug that lives in the
-diff (a vacuous test, a doc typo). Friction source = diff review instead
-(Phase 4 Review, pulled forward). Mark Phase 1 N/A (per right-size), don't
-run dogfood against surface the change never touched.
+`dogfood` self-determines N/A on a change with no consumer-observable surface
+(internal test, refactor, doc, lockfile) and fast-exits — carry that verdict to
+the ledger; friction source there = Phase-4 Review, pulled forward.
 
 ### 2 — Grill → decide ⟨GATE⟩
 Each finding → walk the decision tree, **recommend**, but the call is the user's.

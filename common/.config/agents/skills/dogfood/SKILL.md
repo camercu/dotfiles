@@ -33,15 +33,12 @@ user. All scratch work in `/tmp`.
 
 ## Pass 0 — Enumerate surface
 
-**Fast-exit first — empty consumer surface.** Called (esp. as harden Phase 1)
-on a change touching *no* consumer-observable surface — internal test, refactor,
-doc, lockfile? Nothing to consume: a vacuous test or doc typo lives in the diff,
-not in behavior. Don't enumerate the whole target to discover the change touched
-none of it. Emit a one-line **N/A report** (target, change scope, "no
-consumer-observable surface — friction source is diff review") and stop.
-Scope this to *the change*, not the target: a big target with a doc-only diff
-still fast-exits. (Full-target dogfood with no change under review = always in
-scope; the fast-exit is only for change-scoped runs.)
+**Fast-exit — empty consumer surface.** Change under review touches *no*
+consumer-observable surface (internal test, refactor, doc, lockfile)? Nothing to
+consume — emit a one-line **N/A report** (target, change scope, "friction source
+= diff review") and stop; don't enumerate the target to learn the change touched
+none of it. Scope to *the change*: a big target with a doc-only diff still
+fast-exits. (No change under review = full-target run, always in scope.)
 
 Machine-enumerate when tooling exists; else docs-declared surface. Write
 inventory checklist to scratch dir — becomes coverage tracker.
