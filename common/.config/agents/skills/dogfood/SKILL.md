@@ -45,7 +45,7 @@ inventory checklist to scratch dir — becomes coverage tracker.
 
 | Type | Consumer = | Surface from | Drive via |
 |---|---|---|---|
-| Library | small client project(s) | `cargo public-api` / exports / API docs | compile + run |
+| Library | small client project(s) | public-surface tool / exports / API docs | compile + run |
 | CLI | shell scripts, real invocations | recursive `--help`, man page | run binary |
 | Server/API | client scripts vs local instance | OpenAPI / route docs | requests |
 | Web UI | browser walkthrough | pages/flows from docs | claude-in-chrome |

@@ -165,22 +165,25 @@ evidence (#4); each non-trivial fix re-enters phase 3 as its own slice + commit.
   reframing reversing an authority doc = authority conflict (#1) → gate it w/ the
   behavior-equivalence argument + a recommendation; one too big for a slice →
   `to-tasks` plan. Ambition unbounded; authority to land it is not.
-- **Soundness** (run when the change touches an invariant the type system
-  doesn't enforce — `unsafe`/FFI/raw memory, concurrency or shared mutable
-  state, privilege boundaries, "must call A before B" lifecycles, permission
-  checks; else "no unsafe surface" + skip). Enumerate *every* op in the changed
-  surface carrying a precondition the compiler won't check. Each gets one of two,
-  no third: invariant **upheld internally** for every input+state, or
-  **pushed to the caller** via the language's own fail-closed mechanism
-  (`unsafe fn` / typed precondition / checked guard) **and** documented.
-  Hunt hardest for the headline smell: a **safe-typed surface** (safe fn, public
-  method) hiding a precondition it can't enforce — latent bug, not convenience;
-  guard it or give it an unsafe signature. A wrapper implying a guarantee it
-  doesn't uphold = defect (correct or delete, never keep for symmetry). Treat
-  every safety *claim in docs/comments* ("all unsafe confined to X", "always
-  single-threaded", "callers must…") as a checkable invariant — verify vs code,
-  fix whichever lies. Changing a **public** fn's safety signature (adding
-  `unsafe`/a panic guard) = breaking change → ⟨GATE⟩; internal-only = capture (#5).
+- **Soundness** (run when the change touches an invariant the language won't
+  check for you — unchecked memory/FFI/raw pointers, concurrency or shared
+  mutable state, privilege boundaries, "must call A before B" lifecycles,
+  permission checks; else "no unchecked-invariant surface" + skip). Enumerate
+  *every* op in the changed surface carrying a precondition the toolchain won't
+  verify. Each gets one of two, no third: invariant **upheld internally** for
+  every input+state, or **pushed to the caller** via a fail-closed mechanism —
+  a signature that marks the obligation (e.g. Rust `unsafe fn`), a typed
+  precondition, or a runtime guard that rejects bad input — **and** documented.
+  Hunt hardest for the headline smell: a **normal-looking surface** (public
+  function/method with no warning in its signature) hiding a precondition it
+  can't enforce — latent bug, not convenience; guard it or make the signature
+  announce the obligation. A wrapper implying a guarantee it doesn't uphold =
+  defect (correct or delete, never keep for symmetry). Treat every safety *claim
+  in docs/comments* ("all raw access confined to X", "always single-threaded",
+  "callers must…") as a checkable invariant — verify vs code, fix whichever lies.
+  Changing a **public** function's contract (adding a precondition marker or a
+  fail-closed guard callers must now satisfy) = breaking change → ⟨GATE⟩;
+  internal-only = capture (#5).
 - **Simplify** — **invoke the `simplify` skill** (Skill tool; #6): reuse /
   quality / efficiency. Guard over-simplification; note-and-skip false
   positives, don't force them.
@@ -208,8 +211,9 @@ HARD-STOP, hand the decision to the user at:
 - **Authority conflict** — a change would reverse a documented decision.
 - **Fix selection** (phase 2) — which approach.
 - **Architecture do-vs-decline** (phase 4).
-- **Public safety-contract change** (phase 4 Soundness) — making a public fn
-  `unsafe`, or adding a panic/guard; a breaking interface change.
+- **Public safety-contract change** (phase 4 Soundness) — adding a precondition
+  marker or a fail-closed guard callers must now satisfy; a breaking interface
+  change.
 - **Any irreversible / outward-facing action** — push, publish, delete,
   migration, dependency change.
 
