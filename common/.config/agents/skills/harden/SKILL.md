@@ -38,6 +38,42 @@ Spine. Override convenience always.
 5. **Capture decisions durably.** Load-bearing decisions — esp declines/reversals
    — go somewhere permanent: ADR, commit-body rationale, friction report. Not
    just the conversation.
+6. **Named passes delegated, not simulated.** A phase naming a skill (`dogfood`,
+   `grill-me`, `code-review`, `simplify`, `improve-architecture`,
+   `test-design-reviewer`) is performed by **invoking that skill via the Skill
+   tool** — your own inline reasoning supplements the result, never replaces the
+   call. Doing the analysis by hand and skipping the invocation = a **skipped
+   phase**: mark it SKIPPED w/ a reason (#4), don't self-substitute and report
+   the pass as run. The Closing ledger makes each invocation checkable.
+   Three ledger states, not two — keep distinct: **RAN** (skill invoked),
+   **N/A** (change has no surface the pass acts on — e.g. simplify/architecture
+   on a doc-only diff), **SKIPPED** (surface existed, chose not to run — needs
+   reason). N/A ≠ dodge; forcing an N/A pass to RAN = waste, forcing it to
+   SKIPPED = false guilt.
+
+## Right-size to blast radius (before Phase 0)
+
+Machinery scales to the change; the invariants never do. Judge blast radius
+first, proportion the ceremony to it — a 10-line test/doc diff and a
+1000-line subsystem run the *same* phases at *different* weights, and
+under-spending on a tiny change is as wrong as over-spending.
+
+- **Consumer-surface changes** (public API, CLI, behavior): full weight —
+  dogfood Phase 1, multi-angle review, the works.
+- **No-consumer-surface changes** (internal test / refactor / doc / lockfile):
+  friction source = **diff review**, not consumption. Phase 1 dogfood is **N/A**
+  (nothing to consume can surface a vacuous test or a doc typo — those live in
+  the diff). Say so; don't enumerate the whole surface to find the change
+  touched none of it.
+- **Pass weight tracks surface, not a fixed script**: one focused review agent
+  can stand in for a heavy fan-out on a small diff; a gate with one obvious
+  option is one `AskUserQuestion`, not a full `grill-me` interview. Down-weight
+  is a judgment call you *record* (Closing ledger), not a corner cut.
+
+Delegation vs spawn-aversion: invoking harden = consent to the sub-skill spawns
+its passes need. If the environment still forbids spawning, degrade a delegated
+pass to the narrowest agent that preserves independence (one review agent, not
+eight finders) and mark it in the ledger — never silently self-substitute (#6).
 
 ## Phase 0 — Calibrate (silent, no gate)
 
@@ -50,6 +86,10 @@ Detect conventions before touching anything:
   agent/contributor instructions, README contract section. None → treat README +
   public API + tests as the working contract, say so.
 - **Commit/branch rules**: commit format, co-author rules, branch policy.
+- **Pass skills present**: note which Phase-4 pass skills the session offers
+  (`code-review`, `simplify`, `improve-architecture`, `test-design-reviewer`).
+  That set = the Phase-4 invocation checklist the Closing ledger (#6) must
+  account for — one row per skill, invoked or SKIPPED-with-reason.
 
 State detected matrix + authority doc in one line, proceed.
 
@@ -79,6 +119,12 @@ significant → back to phase 2/3 in the main context; clean → converged. Main
 context relays the subagent's verdict verbatim in the closing, marked as
 independent.
 
+On a small change the convergence agent and the Phase-4 Review agent
+**collapse into one call**: if the review agent reads the *final* post-fix
+commit range, unprimed by fix rationale, deriving its own probes, it already
+satisfies the convergence contract — don't spawn a second identical agent.
+They stay separate only when review ran mid-loop, before later slices landed.
+
 Skip a phase only with a stated reason.
 
 ### 1 — Exercise → friction
@@ -89,6 +135,12 @@ already worked on the target. Output = its ranked friction report; those
 findings = phase 2's input (`soundness` findings feed the Soundness pass).
 Closing the loop at convergence = `dogfood re-eval <report>` for the
 resolved / still-live delta.
+
+**N/A when the change has no consumer-observable surface** (internal test,
+refactor, doc, lockfile): consumption can't surface a bug that lives in the
+diff (a vacuous test, a doc typo). Friction source = diff review instead
+(Phase 4 Review, pulled forward). Mark Phase 1 N/A (per right-size), don't
+run dogfood against surface the change never touched.
 
 ### 2 — Grill → decide ⟨GATE⟩
 Each finding → walk the decision tree, **recommend**, but the call is the user's.
@@ -107,7 +159,8 @@ last when practical.
 Post-implementation passes over the slices just landed. Each can reverse on
 evidence (#4); each non-trivial fix re-enters phase 3 as its own slice + commit.
 
-- **Review** (use a code-review skill/tool if present): two lenses.
+- **Review** — **invoke the `code-review` skill** (Skill tool; #6). Its findings
+  plus your own reasoning, through two lenses:
   - *Inside the box* — bugs, regressions, **coverage gaps** (untested wiring =
     the classic miss), security, design as written. Fix findings. Each finding =
     **lead, not ticket**: defects cluster — name its class, sweep siblings
@@ -152,11 +205,14 @@ evidence (#4); each non-trivial fix re-enters phase 3 as its own slice + commit.
   code, fix whichever lies. A change to a **public** function's safety signature
   (making it `unsafe`, adding a panic guard) = breaking interface change →
   ⟨GATE⟩ w/ ramifications; internal-only signature changes just get captured (#5).
-- **Simplify** (`simplify`): reuse / quality / efficiency. Guard
-  over-simplification; note-and-skip false positives, don't force them.
-- **Architecture** (`improve-architecture`): deepening via the deletion test.
-  ⟨GATE⟩ on do-vs-decline. Decline = valid, common — capture *why* durably (#5).
-- **Test-health**: hunt slow/flaky tests. **Never tolerate; fix the source**,
+- **Simplify** — **invoke the `simplify` skill** (Skill tool; #6): reuse /
+  quality / efficiency. Guard over-simplification; note-and-skip false
+  positives, don't force them.
+- **Architecture** — **invoke the `improve-architecture` skill** (Skill tool;
+  #6): deepening via the deletion test. ⟨GATE⟩ on do-vs-decline. Decline =
+  valid, common — capture *why* durably (#5).
+- **Test-health** (**invoke `test-design-reviewer`** if present; #6): hunt
+  slow/flaky tests. **Never tolerate; fix the source**,
   don't mask (no sleeps-as-sync, no retry-on-flake) — a race in a test usually =
   a real ordering bug in the code. Replace shared mutable global state w/
   per-test isolation; replace real I/O / clocks w/ injected or nullable infra
@@ -187,8 +243,16 @@ grilling.
 
 ## Closing
 
-Summarize: slices landed (commit subjects), decisions captured (ADRs/footers),
-passes run + what each changed/declined, final verification-matrix status, and
-**that the last round was clean per the fresh subagent** (convergence,
-independent) — or name the significant findings deliberately deferred + why. Be
-plain about anything skipped or still red.
+Summarize:
+- slices landed (commit subjects), decisions captured (ADRs/footers);
+- **Phase-4 pass ledger** — one row per pass, tagged **RAN** / **N/A** /
+  **SKIPPED** (#6): RAN = skill invoked + its result (findings acted on /
+  declined); N/A = no surface the pass acts on (say which); SKIPPED = surface
+  existed but skipped, w/ reason. A pass claimed RAN with no Skill-tool
+  invocation is really SKIPPED — inline analysis is not a substitute (#6).
+  Account for every pass skill Phase 0 detected;
+- final verification-matrix status, and **that the last round was clean per the
+  fresh subagent** (convergence, independent) — or name the significant findings
+  deliberately deferred + why.
+
+Be plain about anything skipped or still red.
