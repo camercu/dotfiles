@@ -1,6 +1,6 @@
 ---
 name: test-design-reviewer
-description: Evaluates test quality using Dave Farley's 8 properties, producing a Farley Index (0-10) with per-property evidence, tautology-theatre findings, and prioritized fixes. Use when reviewing tests, assessing a test suite's design quality, or hunting weak/flaky/tautological tests.
+description: Evaluates test quality using Dave Farley's 8 properties, producing a Farley Index (0-10) with per-property evidence, tautology-theatre findings, prioritized fixes, and a closing coverage review (manual gap-hunt + a coverage tool when available). Use when reviewing tests, assessing a test suite's design quality or coverage, or hunting weak/flaky/tautological tests or untested behaviors.
 context: fork
 agent: Explore
 model: sonnet
@@ -8,24 +8,28 @@ model: sonnet
 
 # Test Design Reviewer
 
-Score test quality against Dave Farley's 8 properties. Output = a **Farley Index
-(0-10)** with per-property scores, evidence, tautology-theatre findings, and
-ranked fixes.
+Score test quality against Dave Farley's 8 properties, then close with a coverage
+review. Output = a **Farley Index (0-10)** with per-property scores, evidence,
+tautology-theatre findings, ranked fixes, **and a final Coverage Review** (manual
+behavior-gap hunt + a coverage tool when one's available).
 
-## Read-only
+## Boundaries
 
-Analyze tests, never touch them. No Write/Edit/rename/delete. Report is
-structured text. Consumer requesting fixes → point to the recommendations; the
-caller (e.g. harden TDD slice) implements.
+Never modify source or tests — no Write/Edit/rename/delete, don't add tests to
+chase coverage. **Running** the suite / a coverage tool is allowed: it reads code
+and emits reports to the build/output dir (leave those artifacts where the tool
+puts them; don't commit them). Report is structured text. Consumer requesting
+fixes → point to the recommendations; the caller (e.g. harden TDD slice)
+implements.
 
-## Scope
+## Two scores, kept separate
 
-Grades the **quality of tests that exist** — not coverage completeness. Farley's
-properties say nothing about *missing* tests: a suite of excellent tests can
-still leave whole behaviors untested, and this review would still score high.
-`Necessary` flags low-value *surplus*, never absence. Coverage/behavior-gap
-hunting is a separate job — pair this with a trace of tests back to acceptance
-criteria (in harden, the Review pass owns it). A high Farley Index ≠ well-covered.
+The **Farley Index grades quality** of the tests that exist — it says nothing
+about *missing* tests. A suite of excellent tests can leave whole behaviors
+untested and still score high (`Necessary` flags low-value *surplus*, never
+absence). So the review **ends with a distinct Coverage Review** measuring
+completeness, reported separately and **never folded into the Index**. Read them
+together: high Index + thin coverage = well-crafted tests of too little.
 
 ## The 8 properties
 
@@ -134,7 +138,43 @@ tautology theatre (zero value, inflates coverage). Four types:
    `file:line`; count assertions.
 3. **Score** each property 0-10 from rubric + evidence. Aggregate method → file
    (mean of positives, worst-case for negatives) → suite. Compute Farley Index.
-4. **Report** (below): worst offenders, tautology theatre, ranked fixes.
+4. **Cover** (below): hunt behavior gaps manually + run a coverage tool if one's
+   available.
+5. **Report** (below): worst offenders, tautology theatre, ranked fixes, coverage.
+
+## Coverage review
+
+Runs last, after scoring. Completeness, not quality — reported separately from
+the Index. Two lenses:
+
+**Manual (behavior gaps) — the primary lens.** Trace each observable behavior to
+a test that exercises it: every public API entry, each acceptance-criterion / spec
+item, error and edge paths, boundary conditions, and the wiring/integration seams
+between units (untested wiring = the classic miss). List *behaviors* with no
+exercising test, not just uncovered lines. A line executed by a test that asserts
+nothing on it is **covered but untested** — call these out (they tie back to
+tautology theatre); a covered line is not a tested behavior.
+
+**Programmatic (a coverage tool) — best-effort.** Detect the stack's tool from
+project config/lockfiles; confirm it's installed (`--version`) before running;
+prefer a project runner that already wraps it (`just coverage`, an npm script).
+If present and the suite runs in reasonable time, run it, then report overall
+line/branch % and the largest uncovered spans (`file:line-range`). If no tool is
+installed, it errors, or the run is prohibitively slow → **say so and fall back to
+manual-only. Never fail the review over coverage tooling.**
+
+| Stack | Tool (best-effort) |
+|---|---|
+| Rust | `cargo llvm-cov` (preferred), else `cargo tarpaulin` |
+| Python | `pytest --cov` / `coverage run -m pytest` (coverage.py) |
+| JS/TS | `vitest run --coverage`, `jest --coverage`, `c8`, `nyc` |
+| Go | `go test ./... -coverprofile=… ` + `go tool cover` |
+| Java | JaCoCo via `mvn test` / `gradle test` |
+| C# | `dotnet test --collect:"XPlat Code Coverage"` (coverlet) |
+
+Reconcile the two: prefer behavior gaps (an uncovered line names a definite gap;
+100% line coverage still proves nothing about assertions). Rank gaps by risk —
+untested error handling and security/permission paths first.
 
 ## Report format
 
@@ -171,6 +211,20 @@ Use "None detected." when empty. Summary line: N instances across M of T methods
 Ranked by impact — fix the lowest-scoring high-weight properties first.
 1. ...
 
+### Coverage Review
+
+Separate from the Farley Index — completeness, not quality.
+
+**Programmatic** ({tool}, or "no coverage tool available — manual only"):
+overall X% lines / Y% branches. Largest uncovered spans:
+- file:line-range — what's untested
+
+**Behavior gaps** (manual — behaviors with no exercising test, ranked by risk):
+1. {behavior / acceptance-criterion} — untested — {where it lives}
+
+**Covered but unasserted** (lines run by a test that asserts nothing on them):
+- file:method — ...
+
 ### Dimensions Not Measured
 
 Predictive, Inspiring, Composable, Writable (Beck's Test Desiderata — need
@@ -199,4 +253,5 @@ Framework: Dave Farley's Properties of Good Tests. Scoring + tautology-theatre
 methodology: Andrea LaForgia's test-design-reviewer. Distilled from the
 [farley_score_plugin](https://github.com/mse-online/farley_score_plugin) —
 stripped to the rubric, dropping its Python calculator, static/LLM blend,
-sampling, and coach/demo modes.
+sampling, and coach/demo modes; adds a closing coverage review the plugin
+(quality-only, by design) omits.
