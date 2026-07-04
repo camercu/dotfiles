@@ -99,22 +99,18 @@ close the loop back to phase 1: re-exercise as a consumer, confirm the original
 friction is gone.
 
 **Convergence round = fresh subagent, not the implementing context.** Author
-context is polluted: carries its own assumptions, primed to see its work as
-correct, re-runs the probes it already wrote. Spawn a clean agent for the final
-verification pass. Give it only: the landed commit range, the original friction
-list, the verification matrix, the authority doc location — *not* the fix
-rationale or the session's probe scripts (it must derive its own). It
-re-exercises as a consumer (phase 1 discipline, adversarial included), re-runs
-the matrix, and reports findings. Its findings feed the loop like any round:
-significant → back to phase 2/3 in the main context; clean → converged. Main
-context relays the subagent's verdict verbatim in the closing, marked as
-independent.
-
-On a small change the convergence agent and the Phase-4 Review agent
-**collapse into one call**: if the review agent reads the *final* post-fix
-commit range, unprimed by fix rationale, deriving its own probes, it already
-satisfies the convergence contract — don't spawn a second identical agent.
-They stay separate only when review ran mid-loop, before later slices landed.
+context is polluted: primed to see its work as correct, re-runs the probes it
+already wrote. Spawn a clean agent for the final pass. Give it only the landed
+commit range, the original friction list, the verification matrix, and the
+authority doc location — *not* the fix rationale or the session's probes (it
+derives its own). It re-exercises as a consumer (phase 1 discipline, adversarial
+included), re-runs the matrix, reports findings — fed to the loop like any round
+(significant → phase 2/3 in main context; clean → converged). Main context
+relays its verdict verbatim in the Closing, marked independent. On a small
+change this **collapses into the Phase-4 Review agent**: if that agent reads the
+*final* post-fix range unprimed, it already meets the convergence contract —
+don't spawn a second identical one. They stay separate only when Review ran
+mid-loop, before later slices landed.
 
 Skip a phase only with a stated reason.
 
