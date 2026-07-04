@@ -18,6 +18,15 @@ Analyze tests, never touch them. No Write/Edit/rename/delete. Report is
 structured text. Consumer requesting fixes → point to the recommendations; the
 caller (e.g. harden TDD slice) implements.
 
+## Scope
+
+Grades the **quality of tests that exist** — not coverage completeness. Farley's
+properties say nothing about *missing* tests: a suite of excellent tests can
+still leave whole behaviors untested, and this review would still score high.
+`Necessary` flags low-value *surplus*, never absence. Coverage/behavior-gap
+hunting is a separate job — pair this with a trace of tests back to acceptance
+criteria (in harden, the Review pass owns it). A high Farley Index ≠ well-covered.
+
 ## The 8 properties
 
 | Code | Property | Weight | Measures |
