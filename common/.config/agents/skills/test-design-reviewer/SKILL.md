@@ -1,6 +1,6 @@
 ---
 name: test-design-reviewer
-description: Evaluates test quality using Dave Farley's 8 properties, producing a Farley Index (0-10) with per-property evidence, tautology-theatre findings, prioritized fixes, and a closing coverage review (manual gap-hunt + a coverage tool when available). Use when reviewing tests, assessing a test suite's design quality or coverage, or hunting weak/flaky/tautological tests or untested behaviors.
+description: Reviews a test suite on three axes — quality (Dave Farley's 8 properties → a Farley Index 0-10 with per-property evidence and tautology-theatre findings), completeness (manual behavior-gap hunt + a coverage tool), and efficacy (assertion-strength audit + mutation testing when available). Use when reviewing tests, assessing a suite's design quality, coverage, or bug-catching power, or hunting weak/flaky/tautological/untested behaviors.
 context: fork
 agent: Explore
 model: sonnet
@@ -8,10 +8,11 @@ model: sonnet
 
 # Test Design Reviewer
 
-Score test quality against Dave Farley's 8 properties, then close with a coverage
-review. Output = a **Farley Index (0-10)** with per-property scores, evidence,
-tautology-theatre findings, ranked fixes, **and a final Coverage Review** (manual
-behavior-gap hunt + a coverage tool when one's available).
+Review a test suite on three axes: **quality** (Dave Farley's 8 properties → a
+Farley Index 0-10), **completeness** (coverage), and **efficacy** (do the tests
+actually catch bugs?). Output = the Index with per-property evidence,
+tautology-theatre findings, ranked fixes, a Coverage Review, and an Efficacy
+Review (assertion-strength audit + mutation testing when available).
 
 ## Boundaries
 
@@ -22,14 +23,21 @@ puts them; don't commit them). Report is structured text. Consumer requesting
 fixes → point to the recommendations; the caller (e.g. harden TDD slice)
 implements.
 
-## Two scores, kept separate
+## Three lenses, kept separate
 
-The **Farley Index grades quality** of the tests that exist — it says nothing
-about *missing* tests. A suite of excellent tests can leave whole behaviors
-untested and still score high (`Necessary` flags low-value *surplus*, never
-absence). So the review **ends with a distinct Coverage Review** measuring
-completeness, reported separately and **never folded into the Index**. Read them
-together: high Index + thin coverage = well-crafted tests of too little.
+They measure different things; never fold them into one number.
+
+- **Quality** — the **Farley Index**. How well-crafted the tests that exist are.
+- **Completeness** — the **Coverage Review**. Whether behaviors have any test at
+  all. The Index says nothing about *missing* tests (`Necessary` flags low-value
+  *surplus*, never absence).
+- **Efficacy** — the **Efficacy Review**. Whether the tests actually *catch bugs*.
+  A covered line asserted-weakly is executed but unverified; coverage can't see
+  this, only assertion strength and mutation testing can.
+
+Read together: high Index + thin coverage = well-crafted tests of too little;
+high coverage + low efficacy = tests that run the code but wouldn't notice it
+breaking (coverage theatre).
 
 ## The 8 properties
 
@@ -127,6 +135,32 @@ tautology theatre (zero value, inflates coverage). Four types:
 - **Framework test** — verifies language/framework, not app code:
   `assertNotNull(mock(Foo.class))`, `assertTrue("hello".contains("ell"))`. (N)
 
+## Assertion strength
+
+Tautology theatre is the floor (asserts *nothing*); assertion strength is the
+gradient above it (asserts something, but too weak to catch a bug). The audit
+question per test: **"If the production logic were subtly wrong, would this
+assertion go red?"** No → weak. Smells:
+
+- **Existence-only** — asserts not-null / not-throws / "it ran", never the value.
+- **Shape not content** — asserts `list.len() == 3` but not *which* elements;
+  status `200` but not the body; a type but not the data.
+- **Interaction not outcome** — asserts a mock/spy *was called* instead of the
+  observable effect (ties to Maintainable over-specification).
+- **Over-broad** — a giant snapshot that "pins" everything and therefore nothing
+  specific; `contains(x)` where exact equality is the real contract.
+- **Missing negative space** — only the happy path; no error / rejection /
+  boundary assertion. Untested error handling is the highest-risk case.
+- **Self-referential oracle** — expected value recomputed in the test the same
+  way production computes it, so both are wrong together. Prefer a hardcoded /
+  independently-derived expected.
+- **Loose tolerance** — `assert x > 0` when the exact expected is known.
+
+Strong = pins the *essential* observable outcome for a specific input, exact
+where the contract is exact, and covers the negative space. Rank tests by
+bug-catch confidence; the weak ones are where mutation testing will find
+survivors.
+
 ## Process
 
 1. **Discover** — find test files; detect language + test/mock frameworks. Apply
@@ -134,13 +168,16 @@ tautology theatre (zero value, inflates coverage). Four types:
 2. **Read tests first**, before implementation. Per test method: scan negative
    signals (sleep, reflection, shared state, ordering, I/O, magic numbers,
    cryptic names, trivial asserts, mega-tests), positive signals (behavior
-   names, AAA structure, parameterization, isolation), tautology theatre; record
-   `file:line`; count assertions.
+   names, AAA structure, parameterization, isolation), tautology theatre,
+   assertion strength; record `file:line`; count assertions.
 3. **Score** each property 0-10 from rubric + evidence. Aggregate method → file
    (mean of positives, worst-case for negatives) → suite. Compute Farley Index.
 4. **Cover** (below): hunt behavior gaps manually + run a coverage tool if one's
    available.
-5. **Report** (below): worst offenders, tautology theatre, ranked fixes, coverage.
+5. **Verify efficacy** (below): the assertion-strength audit from step 2, plus
+   mutation testing if a tool's available.
+6. **Report** (below): worst offenders, tautology theatre, ranked fixes,
+   coverage, efficacy.
 
 ## Coverage review
 
@@ -175,6 +212,39 @@ manual-only. Never fail the review over coverage tooling.**
 Reconcile the two: prefer behavior gaps (an uncovered line names a definite gap;
 100% line coverage still proves nothing about assertions). Rank gaps by risk —
 untested error handling and security/permission paths first.
+
+## Efficacy review
+
+Do the tests *catch bugs*? Coverage can't answer this — a covered line with a
+weak assertion is executed but unverified. Two lenses:
+
+**Assertion strength (static) — always runs.** The audit above: rank tests by
+bug-catch confidence, list the weak ones with the specific smell and what a
+sharper assertion would pin.
+
+**Mutation testing (programmatic) — best-effort.** The ground truth: perturb the
+production code (flip `>`↔`>=`, `&&`↔`||`, delete a statement, swap a return) and
+re-run the tests. A mutant the tests **kill** (turn red) = that behavior is
+genuinely verified; a **survivor** = code changed and no test noticed → a precise
+efficacy gap, more actionable than any coverage line. Report the **surviving
+mutants**, not just the score — each names an unverified behavior at `file:line`.
+
+Rules: detect the stack's tool; confirm installed (`--version`) before running.
+Mutation runs the suite once *per mutant* — it is slow: **time-box it and scope
+tight** (changed files / the review target / `--in-diff`), never the whole
+repo blind. Coverage upper-bounds it (a mutant on an uncovered line can't be
+killed), so run it on covered, load-bearing code. No tool, too slow, or it
+errors → **say so and let the assertion-strength audit stand as the efficacy
+verdict. Never fail the review over mutation tooling.**
+
+| Stack | Tool (best-effort) |
+|---|---|
+| Rust | `cargo mutants` (cargo-mutants) |
+| Python | `mutmut`, `cosmic-ray` |
+| JS/TS | Stryker (`@stryker-mutator`) |
+| Java | PIT (`pitest`) |
+| Go | `gremlins`, `go-mutesting` |
+| C# | Stryker.NET (`dotnet stryker`) |
 
 ## Report format
 
@@ -225,6 +295,18 @@ overall X% lines / Y% branches. Largest uncovered spans:
 **Covered but unasserted** (lines run by a test that asserts nothing on them):
 - file:method — ...
 
+### Efficacy Review
+
+Separate from the Index — do the tests catch bugs?
+
+**Assertion strength** (weak assertions, ranked by bug-catch risk):
+1. file:method — {smell} — asserts {what}; a sharper test would pin {what}
+
+**Mutation testing** ({tool} + scope, or "no tool available — assertion-strength
+audit stands as the efficacy verdict"): score {killed}/{total} ({pct}%).
+Surviving mutants (unverified behaviors):
+- file:line — {mutation, e.g. `>` → `>=`} survived — no test caught it
+
 ### Dimensions Not Measured
 
 Predictive, Inspiring, Composable, Writable (Beck's Test Desiderata — need
@@ -253,5 +335,5 @@ Framework: Dave Farley's Properties of Good Tests. Scoring + tautology-theatre
 methodology: Andrea LaForgia's test-design-reviewer. Distilled from the
 [farley_score_plugin](https://github.com/mse-online/farley_score_plugin) —
 stripped to the rubric, dropping its Python calculator, static/LLM blend,
-sampling, and coach/demo modes; adds a closing coverage review the plugin
-(quality-only, by design) omits.
+sampling, and coach/demo modes; adds coverage and efficacy (assertion-strength +
+mutation-testing) reviews the plugin (quality-only, by design) omits.
