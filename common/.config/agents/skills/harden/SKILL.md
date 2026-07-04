@@ -38,18 +38,11 @@ Spine. Override convenience always.
 5. **Capture decisions durably.** Load-bearing decisions — esp declines/reversals
    — go somewhere permanent: ADR, commit-body rationale, friction report. Not
    just the conversation.
-6. **Named passes delegated, not simulated.** A phase naming a skill (`dogfood`,
-   `grill-me`, `code-review`, `simplify`, `improve-architecture`,
-   `test-design-reviewer`) is performed by **invoking that skill via the Skill
-   tool** — your own inline reasoning supplements the result, never replaces the
-   call. Doing the analysis by hand and skipping the invocation = a **skipped
-   phase**: mark it SKIPPED w/ a reason (#4), don't self-substitute and report
-   the pass as run. The Closing ledger makes each invocation checkable.
-   Three ledger states, not two — keep distinct: **RAN** (skill invoked),
-   **N/A** (change has no surface the pass acts on — e.g. simplify/architecture
-   on a doc-only diff), **SKIPPED** (surface existed, chose not to run — needs
-   reason). N/A ≠ dodge; forcing an N/A pass to RAN = waste, forcing it to
-   SKIPPED = false guilt.
+6. **Named passes delegated, not simulated.** A phase naming a skill is performed
+   by **invoking that skill via the Skill tool** — inline reasoning supplements
+   the result, never replaces the call. Analysis by hand with the invocation
+   skipped = a skipped pass; record it as such (Closing ledger), don't
+   self-substitute and report the pass as run.
 
 ## Right-size to blast radius (before Phase 0)
 
@@ -61,10 +54,8 @@ under-spending on a tiny change is as wrong as over-spending.
 - **Consumer-surface changes** (public API, CLI, behavior): full weight —
   dogfood Phase 1, multi-angle review, the works.
 - **No-consumer-surface changes** (internal test / refactor / doc / lockfile):
-  friction source = **diff review**, not consumption. Phase 1 dogfood is **N/A**
-  (nothing to consume can surface a vacuous test or a doc typo — those live in
-  the diff). Say so; don't enumerate the whole surface to find the change
-  touched none of it.
+  friction source = **diff review**, not consumption; passes that act on
+  consumer surface go **N/A** (Closing ledger), not skipped.
 - **Pass weight tracks surface, not a fixed script**: one focused review agent
   can stand in for a heavy fan-out on a small diff; a gate with one obvious
   option is one `AskUserQuestion`, not a full `grill-me` interview. Down-weight
@@ -245,12 +236,15 @@ grilling.
 
 Summarize:
 - slices landed (commit subjects), decisions captured (ADRs/footers);
-- **Phase-4 pass ledger** — one row per pass, tagged **RAN** / **N/A** /
-  **SKIPPED** (#6): RAN = skill invoked + its result (findings acted on /
-  declined); N/A = no surface the pass acts on (say which); SKIPPED = surface
-  existed but skipped, w/ reason. A pass claimed RAN with no Skill-tool
-  invocation is really SKIPPED — inline analysis is not a substitute (#6).
-  Account for every pass skill Phase 0 detected;
+- **Phase-4 pass ledger** — one row per pass skill Phase 0 detected, in one of
+  three states (keep distinct; N/A ≠ dodge — forcing N/A→RAN = waste,
+  N/A→SKIPPED = false guilt):
+  - **RAN** — skill invoked via Skill tool; give its result (findings acted on /
+    declined). No invocation = not RAN, it is SKIPPED (#6); inline analysis
+    doesn't count.
+  - **N/A** — no surface the pass acts on (say which — e.g. simplify/architecture
+    on a doc-only diff).
+  - **SKIPPED** — surface existed, chose not to run; give the reason.
 - final verification-matrix status, and **that the last round was clean per the
   fresh subagent** (convergence, independent) — or name the significant findings
   deliberately deferred + why.
