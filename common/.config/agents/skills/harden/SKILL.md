@@ -167,31 +167,22 @@ evidence (#4); each non-trivial fix re-enters phase 3 as its own slice + commit.
   reframing reversing an authority doc = authority conflict (#1) → gate it w/ the
   behavior-equivalence argument + a recommendation; one too big for a slice →
   `to-tasks` plan. Ambition unbounded; authority to land it is not.
-- **Soundness** (run whenever the change touches `unsafe`/FFI/raw memory,
-  concurrency or shared mutable state, privilege/capability boundaries, or any
-  invariant the type system doesn't enforce; else state "no unsafe surface" +
-  skip). Don't trust it works — prove it can't be misused. Enumerate *every* op
-  in the changed surface carrying a precondition the compiler won't check:
-  `unsafe` blocks + `unsafe fn`s, FFI/syscalls, raw pointers + casts,
-  `unwrap`/assert-as-contract, lock ordering + Send/Sync assumptions, "must call
-  A before B" lifecycles, permission/owner checks. For **each**, demand one of
-  two — no third:
-  1. invariant **upheld internally** for every input + state (genuinely safe
-     wrapper), or
-  2. obligation **pushed to the caller** via the language's own mechanism
-     (`unsafe fn` / typed precondition / witness type / checked guard that fails
-     closed) **and** documented.
-
-  Headline smell, hunt hardest: a **safe-typed surface** (safe fn, public method)
-  hiding a precondition it can't enforce. Latent bug, not convenience — guard it
-  (check + fail) or give it an unsafe signature. A wrapper *implying* a guarantee
-  it doesn't uphold = defect: correct or delete, never keep for symmetry — a
-  pass-through adding no enforcement = dead ceremony (`simplify` away). Treat
-  every safety/capability *claim in docs/comments* ("all unsafe confined to X",
-  "always single-threaded", "callers must…") as a checkable invariant: verify vs
-  code, fix whichever lies. A change to a **public** function's safety signature
-  (making it `unsafe`, adding a panic guard) = breaking interface change →
-  ⟨GATE⟩ w/ ramifications; internal-only signature changes just get captured (#5).
+- **Soundness** (run when the change touches an invariant the type system
+  doesn't enforce — `unsafe`/FFI/raw memory, concurrency or shared mutable
+  state, privilege boundaries, "must call A before B" lifecycles, permission
+  checks; else "no unsafe surface" + skip). Enumerate *every* op in the changed
+  surface carrying a precondition the compiler won't check. Each gets one of two,
+  no third: invariant **upheld internally** for every input+state, or
+  **pushed to the caller** via the language's own fail-closed mechanism
+  (`unsafe fn` / typed precondition / checked guard) **and** documented.
+  Hunt hardest for the headline smell: a **safe-typed surface** (safe fn, public
+  method) hiding a precondition it can't enforce — latent bug, not convenience;
+  guard it or give it an unsafe signature. A wrapper implying a guarantee it
+  doesn't uphold = defect (correct or delete, never keep for symmetry). Treat
+  every safety *claim in docs/comments* ("all unsafe confined to X", "always
+  single-threaded", "callers must…") as a checkable invariant — verify vs code,
+  fix whichever lies. Changing a **public** fn's safety signature (adding
+  `unsafe`/a panic guard) = breaking change → ⟨GATE⟩; internal-only = capture (#5).
 - **Simplify** — **invoke the `simplify` skill** (Skill tool; #6): reuse /
   quality / efficiency. Guard over-simplification; note-and-skip false
   positives, don't force them.
