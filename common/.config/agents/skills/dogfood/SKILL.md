@@ -33,6 +33,16 @@ user. All scratch work in `/tmp`.
 
 ## Pass 0 — Enumerate surface
 
+**Fast-exit first — empty consumer surface.** Called (esp. as harden Phase 1)
+on a change touching *no* consumer-observable surface — internal test, refactor,
+doc, lockfile? Nothing to consume: a vacuous test or doc typo lives in the diff,
+not in behavior. Don't enumerate the whole target to discover the change touched
+none of it. Emit a one-line **N/A report** (target, change scope, "no
+consumer-observable surface — friction source is diff review") and stop.
+Scope this to *the change*, not the target: a big target with a doc-only diff
+still fast-exits. (Full-target dogfood with no change under review = always in
+scope; the fast-exit is only for change-scoped runs.)
+
 Machine-enumerate when tooling exists; else docs-declared surface. Write
 inventory checklist to scratch dir — becomes coverage tracker.
 
@@ -90,6 +100,9 @@ Write to scratch dir, tell user the path. Sections, in order:
 1. **Context**: target name/version/commit, date, mode, scratch path.
 2. **Coverage matrix**: consumer → surface regions. Must describe each
    consumer concretely enough to rebuild from scratch (re-eval depends on it).
+   Detail scales to surface touched: a real feature earns a full rebuildable
+   matrix; a tiny change earns a proportionate one — don't inflate a 1-line
+   change into a full-target inventory.
 3. **Findings**, severity-ranked (blocker/high/medium/low). Each tagged:
    category (`docs` | `ux-devex` | `bug` | `soundness`), provenance (doc
    section or consumer file:line), **inherent-to-design vs fixable**.
