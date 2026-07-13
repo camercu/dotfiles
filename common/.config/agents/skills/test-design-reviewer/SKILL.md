@@ -17,9 +17,12 @@ Review (assertion-strength audit + mutation testing when available).
 ## Boundaries
 
 Never modify source or tests — no Write/Edit/rename/delete, don't add tests to
-chase coverage. **Running** the suite / a coverage tool is allowed: it reads code
-and emits reports to the build/output dir (leave those artifacts where the tool
-puts them; don't commit them). Report is structured text. Consumer requesting
+chase coverage. **Running** the suite / a coverage or mutation tool is allowed:
+it reads code and emits reports to the build/output dir (leave those artifacts
+where the tool puts them; don't commit them). A mutation tool rewrites source in
+place then restores it, and drops an output dir (e.g. `mutants.out/`) — expected,
+not a boundary breach; leave it, suggest gitignoring, don't commit. Report is
+structured text. Consumer requesting
 fixes → point to the recommendations; the caller (e.g. harden TDD slice)
 implements.
 
@@ -196,9 +199,14 @@ tautology theatre); a covered line is not a tested behavior.
 project config/lockfiles; confirm it's installed (`--version`) before running;
 prefer a project runner that already wraps it (`just coverage`, an npm script).
 If present and the suite runs in reasonable time, run it, then report overall
-line/branch % and the largest uncovered spans (`file:line-range`). If no tool is
-installed, it errors, or the run is prohibitively slow → **say so and fall back to
-manual-only. Never fail the review over coverage tooling.**
+line/branch % and the largest uncovered spans (`file:line-range`) — discount
+spans covered only by `#[ignore]`/subprocess/root tests the tool didn't execute.
+If the wrapped runner *fails* (common cause: tests with process-global side
+effects — fd/signal/env — corrupt the shared test harness), retry the tool
+directly or via a per-test-isolating runner (e.g. `cargo llvm-cov nextest`)
+before giving up. If no tool is installed, it errors, or the run is prohibitively
+slow → **say so and fall back to manual-only. Never fail the review over coverage
+tooling.**
 
 | Stack | Tool (best-effort) |
 |---|---|
@@ -225,9 +233,27 @@ sharper assertion would pin.
 **Mutation testing (programmatic) — best-effort.** The ground truth: perturb the
 production code (flip `>`↔`>=`, `&&`↔`||`, delete a statement, swap a return) and
 re-run the tests. A mutant the tests **kill** (turn red) = that behavior is
-genuinely verified; a **survivor** = code changed and no test noticed → a precise
-efficacy gap, more actionable than any coverage line. Report the **surviving
-mutants**, not just the score — each names an unverified behavior at `file:line`.
+genuinely verified; a **survivor** = code changed and no test noticed. Report the
+**surviving mutants**, not just the score — but a survivor is a *candidate* gap,
+not proof of one. **Triage each** before reporting it; half the work of a good
+mutation review is discarding false gaps:
+
+- **Real gap** — a reachable behavior no test pins. The actionable finding; name
+  it at `file:line` with the sharper assertion that would kill it.
+- **Equivalent mutant** — semantically identical to the original, so unkillable
+  (e.g. `|`→`^` on disjoint bit-flags, `x*1`, a reorder with no observable
+  effect). Not a gap.
+- **Unreachable / dead-defensive** — a branch/arm no input can produce by
+  construction. Points at dead code, not a test hole.
+- **Tested only outside the run** — killed only by an `#[ignore]`/subprocess/root
+  test the default mutation run skips (common for process-global effects:
+  fd/signal/env/fork). Reconcile against those before calling it a gap.
+- **Timeout** — the mutation hung the suite (diverged loop, blocked read); the
+  tests *detected* it. Count as killed unless it's merely a slow-but-correct test.
+
+Survivors clustering in one module — typically the imperative shell around
+syscalls — is expected: the pure core is killable in-process, the shell is
+integration territory. Say so rather than filing each as a defect.
 
 Rules: detect the stack's tool; confirm installed (`--version`) before running.
 Mutation runs the suite once *per mutant* — it is slow: **time-box it and scope
@@ -304,8 +330,9 @@ Separate from the Index — do the tests catch bugs?
 
 **Mutation testing** ({tool} + scope, or "no tool available — assertion-strength
 audit stands as the efficacy verdict"): score {killed}/{total} ({pct}%).
-Surviving mutants (unverified behaviors):
-- file:line — {mutation, e.g. `>` → `>=`} survived — no test caught it
+Surviving mutants (triaged — real gaps first, then dismissed with reason):
+- file:line — {mutation, e.g. `>` → `>=`} survived — {real gap: sharper test that
+  kills it | equivalent / dead / tested-out-of-run / timeout: why it's not a gap}
 
 ### Dimensions Not Measured
 
