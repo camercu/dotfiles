@@ -26,4 +26,9 @@ which rtk             # Verify correct binary
 All other commands auto-rewritten by the Claude Code hook. E.g. `git status` →
 `rtk git status` (transparent, 0 token overhead).
 
+**Hook rewrites STANDALONE commands only.** Compound (`a && git log`,
+`a; grep -n`, pipes) bypass rtk → full-fat output. Prefer separate standalone
+Bash calls over `;`/`&&` chains when output big (git log/diff, grep, cargo
+test). Chain fine when output tiny.
+
 Full command reference: CLAUDE.md.
