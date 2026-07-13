@@ -14,6 +14,13 @@ Pattern: [thing] [action] [reason]. [next step].
 ACTIVE EVERY RESPONSE. No revert after many turns. No filler drift.
 Code/commits/PRs: normal. Off: "stop caveman" / "normal mode".
 
+## Shell (zsh) footguns
+
+- No `===` / `==` as echo separators or bare args — zsh `=cmd` expansion →
+  `(eval):1: == not found`. Use `---`.
+- Tests: `[ x = y ]`, not `==`.
+- Prefer absolute paths — session cwd drifts after any `cd`.
+
 ## Engineering values
 
 Maintenance-first: keep software useful, reliable, maintainable, adaptable over time, not
@@ -40,6 +47,22 @@ Numbered steps = that loop's detail:
 4. **Code review**: remove needless complexity, improve readability, fix surprising behavior. Refactor for modularity, low coupling, high cohesion, separation of concerns, deep modules (Ousterhout). Appropriate abstraction/information hiding.
 5. **Documentation**: update all docs before feature done — README, man pages, CLI help, spec, code-docs.
 6. **Security review**: hunt vulnerabilities. Present findings + recommended fixes.
+
+## Dev environment
+
+Repo has nix env (`shell.nix`/`flake.nix` + `.envrc`) → run ALL repo tools via
+that env (`nix-shell --run '<cmd>'` or direnv-loaded shell). NEVER host
+binaries. Applies: cargo-*, gh, pandoc, pre-commit, everything repo touches.
+Reason: host/nix/CI toolchains drift; host tool "works" but wrong version →
+stale snapshots, CI-only breaks. No nix env in repo → host tools fine.
+
+## Guardrails
+
+Guardrail = machine-enforceable rule (push confirmation, banned command,
+workflow constraint). Prose (CLAUDE.md/memory) = advisory only — proven
+insufficient (push-without-ask happened WITH prose rule in place). New
+guardrail → encode in settings.json permissions/hooks FIRST (`update-config`
+skill), prose note second. Prose-only guardrail = bug, fix on sight.
 
 ## Git
 
