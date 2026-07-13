@@ -35,6 +35,7 @@ verify_todos = true
 use_text_patch_fallback = false
 research_subagent = false
 subagents = true
+auto_install_vscode_extension = true
 merge_system_messages = false
 
 [retry]
