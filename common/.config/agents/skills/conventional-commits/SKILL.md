@@ -10,6 +10,11 @@ Message format: Conventional Commits v1.0.0 (`<type>(<scope>): <description>`).
 - Body only for non-obvious why/tradeoffs — keep it brief; the diff documents itself.
 - Assess breaking-change impact every commit; if breaking, mark with `!` AND a `BREAKING CHANGE:` footer. Pre-1.0.0, breaking changes bump MINOR, not MAJOR.
 - NEVER add co-authored-by footers (e.g. `Co-Authored-By:`) or any agent-attribution trailer to the message.
+- Multi-line message = repeated `-m` flags, one per paragraph (subject, body paragraphs, footer). No embedded newlines, no heredoc. Keep each `-m` ≤100 chars — commitlint enforces `body-max-line-length` and each `-m` lands as one line:
+
+```sh
+git commit -m "feat(scope): subject" -m "body paragraph" -m "BREAKING CHANGE: details"
+```
 
 Stage atomically — other agents may edit files in parallel. Commit only files you touched, each path explicit:
 
