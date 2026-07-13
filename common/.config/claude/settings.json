@@ -11,7 +11,8 @@
       "WebFetch"
     ],
     "ask": [
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(rtk git push:*)"
     ],
     "defaultMode": "acceptEdits"
   },
