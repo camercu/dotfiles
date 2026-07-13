@@ -9,6 +9,9 @@ description:
 
 This skill guides the agent in conducting professional and thorough code reviews for both local development and remote Pull Requests. It focuses on correctness, maintainability, and adherence to project standards.
 
+## Reviewer ≠ author
+
+Independence is the point of a review. If **this** context authored the code under review *and* no independent party will vet the findings (an autonomous agent chain, not a human reading them), it is primed to see its own work correct — spawn a fresh agent to run the review instead (cf. `dogfood`'s contamination mode). Invoked fresh (didn't author it), or with a human vetting the output → proceed in-context. Keying on "did this context author it" makes the check compose: under an orchestrator that already spawned a fresh reviewer, the answer is "no" → no double-spawn.
 
 ## Workflow
 

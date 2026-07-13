@@ -36,6 +36,8 @@ Core principles: **deletion test** (delete module → complexity vanishes = pass
 
 **Skip when**: <5 commits/6mo, 1–2 callers, scheduled for deletion, no test pain, deadline pressure. Note skip reason for future reviews. DO NOT SKIP IF USER EXPLICITLY ASKS FOR REVIEW OF THAT SEAM.
 
+**Reviewer ≠ author**: if this context authored the code under review *and* no independent party will vet the output (autonomous chain, not a human reading it), spawn a fresh agent for the analysis — the author is primed to defend its own structure (cf. `dogfood` contamination mode). Fresh context, or human-in-loop → proceed here. Keyed on "did this context author it" so it composes: under an orchestrator that already spawned a fresh reviewer, no double-spawn.
+
 ## Process
 
 ### 1. Explore
