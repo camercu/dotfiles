@@ -16,7 +16,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "model": "opus",
+  "model": "fable",
   "hooks": {
     "PreToolUse": [
       {
@@ -25,6 +25,17 @@
           {
             "type": "command",
             "command": "rtk hook claude"
+          },
+          {
+            "type": "command",
+            "command": "\"$HOME/.dotfiles/common/.config/claude/hooks/guard-push.sh\"",
+            "timeout": 120,
+            "statusMessage": "guard: rebase before push"
+          },
+          {
+            "type": "command",
+            "command": "\"$HOME/.dotfiles/common/.config/claude/hooks/guard-commit-chain.sh\"",
+            "statusMessage": "guard: no test+commit chain"
           }
         ]
       }
