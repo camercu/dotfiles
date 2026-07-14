@@ -10,11 +10,24 @@ Message format: Conventional Commits v1.0.0 (`<type>(<scope>): <description>`).
 - Body only for non-obvious why/tradeoffs — keep it brief; the diff documents itself.
 - Assess breaking-change impact every commit; if breaking, mark with `!` AND a `BREAKING CHANGE:` footer. Pre-1.0.0, breaking changes bump MINOR, not MAJOR.
 - NEVER add co-authored-by footers (e.g. `Co-Authored-By:`) or any agent-attribution trailer to the message.
-- Multi-line message = repeated `-m` flags, one per paragraph (subject, body paragraphs, footer). No embedded newlines, no heredoc. Keep each `-m` ≤100 chars — commitlint enforces `body-max-line-length` and each `-m` lands as one line:
+- Subject-only commit: single `-m`. Keep subject short:
 
 ```sh
-git commit -m "feat(scope): subject" -m "body paragraph" -m "BREAKING CHANGE: details"
+git commit -m "feat(scope): subject" -- path/to/file1 path/to/file2
 ```
+
+- Body needed → NEVER eyeball line length with multiple `-m` flags (commitlint `body-max-line-length` 100; manual guessing fails repeatedly). Feed `git commit -F` a process substitution that wraps the body with `fmt -w 72`. Tool wraps → no length failures. No temp file, no heredoc:
+
+```sh
+git commit -F <(echo "feat(scope): subject"; echo; \
+  echo "Body prose, one blob, no manual breaks. Footer below, blank-separated." | fmt -w 72; \
+  echo; echo "BREAKING CHANGE: details" | fmt -w 72) \
+  -- path/to/file1 path/to/file2
+```
+
+- `fmt -w 72` = every line ≤72, well under 100. BSD `fmt` (macOS) keeps blank-line paragraph breaks → footer stays own paragraph. Drop the footer block when not breaking.
+- Only miss: single token >100 chars (long URL/path) — `fmt` won't break one word. Rare; shorten or accept the flag.
+- No embedded newlines in `-m`, no heredoc.
 
 Stage atomically — other agents may edit files in parallel. Commit only files you touched, each path explicit:
 
