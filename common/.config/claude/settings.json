@@ -12,11 +12,13 @@
     ],
     "ask": [
       "Bash(git push:*)",
-      "Bash(rtk git push:*)"
+      "Bash(rtk git push:*)",
+      "Bash(jj git push:*)",
+      "Bash(jj push:*)"
     ],
     "defaultMode": "acceptEdits"
   },
-  "model": "fable",
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "PreToolUse": [
       {
