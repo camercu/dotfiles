@@ -1,0 +1,23 @@
+#:schema https://docs.jj-vcs.dev/latest/config-schema.json
+
+[user]
+name = "camercu"
+email = "camercu@users.noreply.github.com"
+
+# jj fix: run pinned formatters over the changed lines of a revision and
+# rewrite it in place. Run inside the repo's nix/direnv env so rustfmt and
+# taplo resolve to the pinned versions (like every other repo tool). This
+# is auto-fix, not a blocking gate; a no-op in repos without matching files.
+[fix.tools.rustfmt]
+command = ["rustfmt", "--edition", "2024", "--emit", "stdout"]
+patterns = ["glob:'**/*.rs'"]
+
+[fix.tools.taplo]
+command = ["taplo", "format", "-"]
+patterns = ["glob:'Cargo.toml'", "glob:'deny.toml'"]
+
+[aliases]
+# `jj push`: gated push. jj does not fire git hooks, so in a nix+just repo
+# run `just pre-commit` first (fmt/typos/tool-versions/check), then push;
+# elsewhere push directly. Forwards args, e.g. `jj push --bookmark main`.
+push = ["util", "exec", "--", "bash", "-c", "set -euo pipefail; if [ -f shell.nix ] && [ -f justfile ]; then nix-shell --run 'just pre-commit'; fi; exec jj git push \"$@\"", "jj-push"]
