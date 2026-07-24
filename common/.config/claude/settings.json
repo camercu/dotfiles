@@ -14,7 +14,8 @@
       "Bash(git push:*)",
       "Bash(rtk git push:*)",
       "Bash(jj git push:*)",
-      "Bash(jj push:*)"
+      "Bash(jj push:*)",
+      "Bash(rm:*)"
     ],
     "defaultMode": "acceptEdits"
   },
