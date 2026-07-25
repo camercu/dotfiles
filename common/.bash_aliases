@@ -130,7 +130,7 @@ function maintain {
       make -C "$HOME/.config/nix-darwin" update || return
       info "homebrew: update + upgrade + cleanup"
       (
-        export NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_ENV_HINTS=1
+        export NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_ENV_HINTS=1 HOMEBREW_NO_ASK=1
         brew update && brew upgrade && brew cleanup
       ) || return
     fi
