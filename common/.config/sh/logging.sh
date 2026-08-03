@@ -31,9 +31,14 @@ fi
 
 # Prefixes are the level marker of last resort (see the color note above), so
 # every level needs its own.
+#
+# `local` is the one non-POSIX construct here (Issue 8 still lists it as
+# unspecified), kept because dash, bash — including macOS /bin/sh — and zsh all
+# implement it, which covers every shell that sources this file. Without it the
+# scratch variables would outlive the call in an interactive shell's namespace.
 __log_message() {
-  __log_prefix=$1
-  __log_color=$2
+  local __log_prefix=$1
+  local __log_color=$2
   shift 2
   printf '%s%s %s%s\n' "$__log_color" "$__log_prefix" "$*" "$_LOG_CLEAR" >&2
 }

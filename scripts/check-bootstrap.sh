@@ -110,6 +110,27 @@ run_logging_parity_test() {
     cat "$tmp_home/out.posix" >&2
     exit 1
   fi
+
+  # The message helper's scratch variables must not outlive the call. Sourced
+  # into an interactive shell, an unscoped assignment leaves the last message's
+  # prefix and color sitting in the user's namespace. The cached _LOG_* colors
+  # are deliberately global and are not covered here.
+  probe='info msg 2>/dev/null
+         printf "%s %s\n" "${__log_prefix-unset}" "${__log_color-unset}"'
+  for variant in posix zsh bash; do
+    case $variant in
+      posix) leaked=$(HOME="$tmp_home" sh -c \
+        ". \"$SCRIPT_DIR/lib/logging.sh\"; $probe") ;;
+      zsh) leaked=$(HOME="$tmp_home" zsh -c \
+        "source \"$ZSH_CONFIG_DIR/lib/logging.zsh\"; $probe") ;;
+      bash) leaked=$(HOME="$tmp_home" bash -c \
+        ". \"$tmp_home/.bash_aliases\"; $probe") ;;
+    esac
+    if [ "$leaked" != "unset unset" ]; then
+      echo "logging: $variant leaked helper state after a call: $leaked" >&2
+      exit 1
+    fi
+  done
 }
 
 run_dotsync_smoke_test() {
