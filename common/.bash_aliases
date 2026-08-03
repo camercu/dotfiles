@@ -131,7 +131,16 @@ function maintain {
       info "homebrew: update + upgrade + cleanup"
       (
         export NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_ENV_HINTS=1 HOMEBREW_NO_ASK=1
-        brew update && brew upgrade && brew cleanup
+        # Cask upgrades get --force: unlike the formula path, brew hard-aborts
+        # a cask upgrade (CaskError, not a y/n prompt) whenever it finds an
+        # app/binary at the target path that it doesn't already own (e.g. a
+        # prior manual install or a stale link) — --force tells it to
+        # overwrite rather than bail. Kept off the formula pass since there
+        # it also disables keg-only/migration safety checks we do want.
+        brew update &&
+          brew upgrade --formula &&
+          brew upgrade --cask --force &&
+          brew cleanup
       ) || return
     fi
 
@@ -343,7 +352,8 @@ alias startlog='script term-$(now).log'
 
 ####   Mac Specific:   ##########
 if is-macos; then
-  alias brewup='brew update && brew upgrade && brew cleanup'
+  # --force on the cask pass only; see the maintain() homebrew block for why.
+  alias brewup='brew update && brew upgrade --formula && brew upgrade --cask --force && brew cleanup'
   alias brewinfo="brew leaves | xargs brew desc --eval-all"
   alias md5sum='openssl md5'
   alias sha1sum='openssl sha1'
