@@ -88,7 +88,7 @@ run_logging_parity_test() {
     ". \"$tmp_home/.bash_aliases\"; $calls" \
     >/dev/null 2>"$tmp_home/out.bash"
 
-  # Colour is a TTY affordance: piped or captured output (logs, CI) must carry
+  # Color is a TTY affordance: piped or captured output (logs, CI) must carry
   # the level in the prefix alone, with no escape sequences to strip.
   if LC_ALL=C grep -lq "$(printf '\033')" "$tmp_home"/out.*; then
     echo "logging: escape sequences emitted when stderr is not a TTY" >&2
@@ -103,7 +103,7 @@ run_logging_parity_test() {
     fi
   done
 
-  # A level whose prefix duplicates another's cannot be told apart once colour
+  # A level whose prefix duplicates another's cannot be told apart once color
   # is gone, which is exactly how debug hid behind info.
   if [ "$(cut -d' ' -f1 <"$tmp_home/out.posix" | sort -u | wc -l)" -ne 5 ]; then
     echo "logging: levels do not have distinct prefixes" >&2
