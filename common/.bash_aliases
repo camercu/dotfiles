@@ -63,7 +63,9 @@ function info {
 }
 
 function debug {
-  info "$@"
+  local -r GRAY=$(tput setaf 8)
+  local -r CLEAR=$(tput sgr0)
+  echo "${GRAY}[~] $*${CLEAR}" >&2
 }
 
 function warn {

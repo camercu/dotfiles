@@ -39,5 +39,5 @@ success() {
 }
 
 debug() {
-  info "$@"
+  __log_message "[~]" 8 "$@"
 }
