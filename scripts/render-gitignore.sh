@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
-DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
+DOTFILE_DIR=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd -P)
 IGNORE_DIR=${DOTFILES_IGNORE_DIR:-$DOTFILE_DIR/lib/dotfiles-ignore}
 GITIGNORE_FILE=${DOTFILES_GITIGNORE_FILE:-$DOTFILE_DIR/.gitignore}
 TMP_FILE=$(mktemp "${TMPDIR:-/tmp}/dotfiles-gitignore.XXXXXX")
