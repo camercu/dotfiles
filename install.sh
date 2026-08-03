@@ -1,7 +1,9 @@
 #!/bin/sh
+# shellcheck source-path=SCRIPTDIR
 set -eu
 
 DOTFILE_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
+# shellcheck source=scripts/lib/logging.sh
 . "$DOTFILE_DIR/scripts/lib/logging.sh"
 
 have_cmd() {
@@ -30,6 +32,11 @@ install_linux_bootstrap_packages() {
     return 0
   fi
 
+  # SC2086: $missing_packages must stay unquoted — it is a space-separated
+  # package list (POSIX sh has no arrays) and the package manager needs it
+  # split into separate arguments. The names are literals from just above, so
+  # there is nothing for globbing or word splitting to surprise us with.
+  # shellcheck disable=SC2086
   case "$(uname -s)" in
   Linux)
     if have_cmd apt-get; then

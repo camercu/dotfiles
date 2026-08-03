@@ -1,8 +1,10 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
-DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
+DOTFILE_DIR=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd -P)
+# shellcheck source-path=SCRIPTDIR
+# shellcheck source=lib/logging.sh
 . "$SCRIPT_DIR/lib/logging.sh"
 FLAKE_DIR=${HOME_MANAGER_FLAKE_DIR:-$DOTFILE_DIR}
 FLAKE_URI=${HOME_MANAGER_FLAKE_URI:-path:$FLAKE_DIR}

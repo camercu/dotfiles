@@ -1,10 +1,16 @@
 #!/bin/sh
+#
+# Two lint source paths because this file is reachable under two names: its
+# real path (common/.local/bin/dotsync) and the repo symlink
+# (scripts/install-dotfiles.sh). Either way the sourced libs resolve.
+# shellcheck source-path=SCRIPTDIR/../../../scripts/lib
+# shellcheck source-path=SCRIPTDIR/lib
 set -eu
 
 SCRIPT_PATH=$0
 
 while [ -L "$SCRIPT_PATH" ]; do
-  LINK_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
+  LINK_DIR=$(CDPATH='' cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
   SCRIPT_PATH=$(readlink "$SCRIPT_PATH")
   case "$SCRIPT_PATH" in
     /*) ;;
@@ -12,9 +18,11 @@ while [ -L "$SCRIPT_PATH" ]; do
   esac
 done
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
-DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd -P)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd -P)
+DOTFILE_DIR=$(CDPATH='' cd -- "$SCRIPT_DIR/../../.." && pwd -P)
+# shellcheck source=logging.sh
 . "$DOTFILE_DIR/scripts/lib/logging.sh"
+# shellcheck source=checks.sh
 . "$DOTFILE_DIR/scripts/lib/checks.sh"
 
 MODE=sync
@@ -70,7 +78,7 @@ parse_args() {
   while [ $# -gt 0 ]; do
     case "$1" in
       --unlink)
-        MODE=unlink
+        MODE='unlink'
         ;;
       --auto-discover)
         AUTO_DISCOVER=1
