@@ -8,7 +8,7 @@ typeset -r DOTSYNC_BIN="$DOTFILE_DIR/common/.local/bin/dotsync"
 
 # load env vars (XDG_*, ZDOTDIR, ...) then the shared script helpers
 builtin source "$DOTFILE_DIR/common/.zshenv"
-builtin source "$SCRIPTS_DIR/lib/logging.sh"     # info/warn/error/success
+builtin source "$SCRIPTS_DIR/lib/logging.sh"  # info/debug/warn/error/success
 builtin source "$SCRIPTS_DIR/lib/checks.sh"   # is_macos/is_linux/is_admin/...
 
 # run_step: announce a phase, then run it. Keeps the long bootstrap legible

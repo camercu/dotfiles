@@ -56,35 +56,10 @@ fi
 #
 # Logging Functions - colorized printing of log messages
 #
-function info {
-  local -r BLUE=$(tput setaf 4)
-  local -r CLEAR=$(tput sgr0)
-  echo "${BLUE}[*] $*${CLEAR}" >&2
-}
-
-function debug {
-  local -r GRAY=$(tput setaf 8)
-  local -r CLEAR=$(tput sgr0)
-  echo "${GRAY}[~] $*${CLEAR}" >&2
-}
-
-function warn {
-  local -r YELLOW=$(tput setaf 3)
-  local -r CLEAR=$(tput sgr0)
-  echo "${YELLOW}[!] $*${CLEAR}" >&2
-}
-
-function error {
-  local -r RED=$(tput setaf 1)
-  local -r CLEAR=$(tput sgr0)
-  echo "${RED}[x] $*${CLEAR}" >&2
-}
-
-function success {
-  local -r GREEN=$(tput setaf 2)
-  local -r CLEAR=$(tput sgr0)
-  echo "${GREEN}[+] $*${CLEAR}" >&2
-}
+# Shared with zsh startup and the repo's install scripts; the implementation
+# lives in common/.config/sh/logging.sh, stowed from the same package as this
+# file.
+. "${XDG_CONFIG_HOME:-$HOME/.config}/sh/logging.sh"
 
 ##? md: shortcut to make a directory and cd into it
 function md {

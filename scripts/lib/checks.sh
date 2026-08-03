@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # checks.sh: shared POSIX predicate helpers for the install/bootstrap scripts
-# and dotsync. Companion to logging.sh (info/warn/error/success).
+# and dotsync. Companion to logging.sh (info/debug/warn/error/success).
 #
 # POSIX sh forbids hyphens in function names, so these use underscores
 # (is_macos, not is-macos). The interactive shells keep their own hyphenated

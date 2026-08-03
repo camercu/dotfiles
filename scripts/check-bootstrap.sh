@@ -61,6 +61,57 @@ rel_path() {
   python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' "$1" "$2"
 }
 
+# Every entry point into the logging functions must emit the same message for
+# the same call: the POSIX script lib, the zsh startup lib, and the
+# .bash_aliases copy interactive shells load. They began as three hand-synced
+# copies and had already drifted (debug aliased info in two of them, the zsh
+# lib had no info at all). Stowing into a scratch HOME first, because the
+# interactive copies resolve the shared lib through $HOME.
+run_logging_parity_test() {
+  begin_test logging_parity_test
+  capture_log
+
+  tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/logging-parity.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  calls='info msg; debug msg; warn msg; error msg; success msg'
+
+  HOME="$tmp_home" sh -c \
+    ". \"$SCRIPT_DIR/lib/logging.sh\"; $calls" \
+    >/dev/null 2>"$tmp_home/out.posix"
+  HOME="$tmp_home" zsh -c \
+    "source \"$ZSH_CONFIG_DIR/lib/env-checks.zsh\"
+     source \"$ZSH_CONFIG_DIR/lib/logging.zsh\"; $calls" \
+    >/dev/null 2>"$tmp_home/out.zsh"
+  HOME="$tmp_home" bash -c \
+    ". \"$tmp_home/.bash_aliases\"; $calls" \
+    >/dev/null 2>"$tmp_home/out.bash"
+
+  # Colour is a TTY affordance: piped or captured output (logs, CI) must carry
+  # the level in the prefix alone, with no escape sequences to strip.
+  if LC_ALL=C grep -lq "$(printf '\033')" "$tmp_home"/out.*; then
+    echo "logging: escape sequences emitted when stderr is not a TTY" >&2
+    LC_ALL=C grep -l "$(printf '\033')" "$tmp_home"/out.* >&2
+    exit 1
+  fi
+
+  for variant in zsh bash; do
+    if ! cmp "$tmp_home/out.posix" "$tmp_home/out.$variant"; then
+      echo "logging: $variant output differs from the POSIX lib" >&2
+      exit 1
+    fi
+  done
+
+  # A level whose prefix duplicates another's cannot be told apart once colour
+  # is gone, which is exactly how debug hid behind info.
+  if [ "$(cut -d' ' -f1 <"$tmp_home/out.posix" | sort -u | wc -l)" -ne 5 ]; then
+    echo "logging: levels do not have distinct prefixes" >&2
+    cat "$tmp_home/out.posix" >&2
+    exit 1
+  fi
+}
+
 run_dotsync_smoke_test() {
   begin_test dotsync_smoke_test
   capture_log
@@ -333,6 +384,7 @@ run_zsh_health_test
 run_stale_link_prune_test
 run_stale_link_besteffort_test
 run_dotsync_smoke_test
+run_logging_parity_test
 run_repo_relative_link_test
 run_stow_conflict_test
 
