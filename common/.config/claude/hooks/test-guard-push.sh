@@ -108,4 +108,9 @@ else
 fi
 
 echo "---"
-[ "$fails" -eq 0 ] && { echo "all push-guard controls passed"; exit 0; } || { echo "$fails failed"; exit 1; }
+if [ "$fails" -eq 0 ]; then
+  echo "all push-guard controls passed"
+  exit 0
+fi
+echo "$fails failed"
+exit 1

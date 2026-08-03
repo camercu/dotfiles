@@ -44,4 +44,9 @@ want_allow "echo done > /dev/null"       # /dev/null is not a block device
 want_allow "printf 'x' > out.txt"
 
 echo "---"
-[ "$fails" -eq 0 ] && { echo "all destructive-guard controls passed"; exit 0; } || { echo "$fails failed"; exit 1; }
+if [ "$fails" -eq 0 ]; then
+  echo "all destructive-guard controls passed"
+  exit 0
+fi
+echo "$fails failed"
+exit 1

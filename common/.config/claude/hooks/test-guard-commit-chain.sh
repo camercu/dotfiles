@@ -19,4 +19,9 @@ expect "pattern inside message passes"     "$(run_guard 'git commit -m "cargo te
 expect "non-git command passes"            "$(run_guard 'ls -la')" 0
 
 echo "---"
-[ "$fails" -eq 0 ] && { echo "all chain-guard controls passed"; exit 0; } || { echo "$fails failed"; exit 1; }
+if [ "$fails" -eq 0 ]; then
+  echo "all chain-guard controls passed"
+  exit 0
+fi
+echo "$fails failed"
+exit 1
