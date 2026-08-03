@@ -36,9 +36,11 @@ fi
 # unspecified), kept because dash, bash — including macOS /bin/sh — and zsh all
 # implement it, which covers every shell that sources this file. Without it the
 # scratch variables would outlive the call in an interactive shell's namespace.
+# That deliberate choice is what SC3043 flags, hence the disable.
+# shellcheck disable=SC3043
 __log_message() {
-  local __log_prefix=$1
-  local __log_color=$2
+  local __log_prefix="$1"
+  local __log_color="$2"
   shift 2
   printf '%s%s %s%s\n' "$__log_color" "$__log_prefix" "$*" "$_LOG_CLEAR" >&2
 }
