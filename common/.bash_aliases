@@ -6,10 +6,12 @@
 # infer the dialect from; bash is the closest dialect shellcheck supports.
 # shellcheck shell=bash
 
-XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
-XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
-XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
+# Exported, like .zshenv does it: a bash session's children (editors, tools)
+# must resolve the same XDG paths as the shell that launched them.
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 
 #
 ###  Functions
@@ -283,7 +285,10 @@ fi
 #
 # source: https://github.com/mathiasbynens/dotfiles/blob/main/.functions
 if ! is-macos; then
-  if grep -q Microsoft /proc/version; then
+  # -i because WSL2 writes "microsoft-standard" where WSL1 wrote "Microsoft",
+  # and the probe is silenced because every non-Linux Unix reaching this branch
+  # has no /proc/version to read.
+  if grep -qi microsoft /proc/version 2>/dev/null; then
     # Ubuntu on Windows using the Linux subsystem
     alias open='explorer.exe'
   else
@@ -310,7 +315,9 @@ alias su='su -'
 alias path='echo $PATH | tr ":" "\n"'
 alias fpath='echo $FPATH | tr ":" "\n"'
 alias nsort='sort | uniq -c | sort -n'
-alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+# myip, not ip: the Linux block below aliases ip(8) itself, and one name for
+# both meanings silently drops whichever branch loses.
+alias myip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias 2b='cd ~/second-brain && $EDITOR'
 is-installed lazygit && alias lg='lazygit'
 
@@ -358,8 +365,9 @@ if is-linux; then
   # colorize ip command output
   alias ip='ip -color=auto'
 
-  # fd-find alias
-  alias fd='fdfind'
+  # Debian ships fd as fdfind; anywhere else (nix, Arch) fd is already fd and
+  # aliasing it blind would shadow the real binary.
+  is-installed fdfind && alias fd='fdfind'
 
   # set up can0 socketCAN interface
   # before running, add can, vcan, and can-isotp to /etc/modules
@@ -371,7 +379,9 @@ if is-linux; then
         && sudo ip link set dev vcan0 up \
         && ip a s vcan0'
 
-  DISTRO="$(grep ^ID /etc/os-release | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
+  # Silenced: a Linux without /etc/os-release just leaves DISTRO empty, which
+  # the test below already handles — it must not greet the user with an error.
+  DISTRO="$(grep ^ID /etc/os-release 2>/dev/null | cut -d= -f2 | tr '[:lower:]' '[:upper:]')"
   if [[ "$DISTRO" == "KALI" ]]; then
     # create a pattern with metasploit's pattern_create.rb
     alias pattcreat='/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l'

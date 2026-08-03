@@ -354,6 +354,76 @@ run_stow_conflict_test() {
   fi
 }
 
+# .bash_aliases is the one file every interactive session loads, so a
+# regression there greets the user in every new terminal. Source it in bash
+# against a scratch HOME and read back the alias table and the environment,
+# once per platform branch (OSTYPE drives the is-macos/is-linux split, so
+# forcing it exercises the Linux half from a Mac and vice versa).
+run_bash_aliases_test() {
+  begin_test bash_aliases_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/bash-aliases.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  aliases_status=0
+
+  for platform in darwin24 linux-gnu; do
+    HOME="$tmp_home" bash -c \
+      "OSTYPE=$platform; . \"\$HOME/.bash_aliases\"; alias" \
+      >"$tmp_home/alias.$platform" 2>"$tmp_home/err.$platform"
+
+    # Startup must be silent: probing for a file that only exists on the other
+    # platform (/proc/version, /etc/os-release) is expected to come up empty,
+    # not to print to the user's terminal.
+    if [ -s "$tmp_home/err.$platform" ]; then
+      echo "bash_aliases: $platform startup wrote to stderr" >&2
+      cat "$tmp_home/err.$platform" >&2
+      aliases_status=1
+    fi
+
+    # The public-IP lookup is not the ip(8) command; one name for both means
+    # whichever branch runs last wins and the other meaning disappears.
+    if ! grep -q "^alias myip=" "$tmp_home/alias.$platform"; then
+      echo "bash_aliases: $platform defines no myip alias" >&2
+      aliases_status=1
+    fi
+    if grep -q "^alias ip=.*dig" "$tmp_home/alias.$platform"; then
+      echo "bash_aliases: $platform aliases ip to the public-IP lookup" >&2
+      aliases_status=1
+    fi
+  done
+
+  if ! grep -qE "^alias ip='ip -{1,2}color=auto'" "$tmp_home/alias.linux-gnu"; then
+    echo "bash_aliases: linux does not colorize ip(8)" >&2
+    aliases_status=1
+  fi
+
+  # Aliases that rename a command must check that the command is there: fd is
+  # fdfind only on Debian, and aliasing it blind shadows a real fd binary.
+  if ! command -v fdfind >/dev/null 2>&1 &&
+      grep -q "^alias fd=" "$tmp_home/alias.linux-gnu"; then
+    echo "bash_aliases: aliases fd to fdfind that is not installed" >&2
+    aliases_status=1
+  fi
+
+  # zsh exports the XDG variables; bash sessions must pass them to child
+  # processes too, or tools launched from a bash shell read different paths.
+  # env -u so the harness's own exported XDG variables cannot pass this for
+  # the file under test.
+  for xdg_var in XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME; do
+    if ! env -u XDG_CACHE_HOME -u XDG_CONFIG_HOME -u XDG_DATA_HOME \
+        -u XDG_STATE_HOME HOME="$tmp_home" bash -c \
+        ". \"\$HOME/.bash_aliases\"; env" | grep -q "^$xdg_var="; then
+      echo "bash_aliases: $xdg_var is not exported" >&2
+      aliases_status=1
+    fi
+  done
+
+  return "$aliases_status"
+}
+
 # check_script_syntax: syntax-check one script with the interpreter its
 # shebang names. One file per invocation: `sh -n a b` and `zsh -n a b` parse
 # only `a` and treat `b` as a positional argument, so batching silently skips
@@ -426,6 +496,7 @@ run_stale_link_prune_test
 run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_logging_parity_test
+run_bash_aliases_test
 run_repo_relative_link_test
 run_stow_conflict_test
 
