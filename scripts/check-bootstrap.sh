@@ -424,11 +424,16 @@ run_bash_aliases_test() {
   return "$aliases_status"
 }
 
-# check_script_syntax: syntax-check one script with the interpreter its
-# shebang names. One file per invocation: `sh -n a b` and `zsh -n a b` parse
-# only `a` and treat `b` as a positional argument, so batching silently skips
-# every file after the first.
+# check_script_syntax FILE [INTERPRETER]: syntax-check one script with the
+# interpreter its shebang names, or with INTERPRETER for the sourced files that
+# have no shebang to name one. One file per invocation: `sh -n a b` and
+# `zsh -n a b` parse only `a` and treat `b` as a positional argument, so
+# batching silently skips every file after the first.
 check_script_syntax() {
+  if [ -n "${2:-}" ]; then
+    "$2" -n -- "$1"
+    return
+  fi
   case "$(head -n 1 "$1")" in
     *zsh*) zsh -n -- "$1" ;;
     *) sh -n -- "$1" ;;
@@ -451,6 +456,16 @@ run_syntax_test() {
       syntax_status=1
     fi
   done
+
+  # .bash_aliases has no shebang (it is sourced, never run) and is bash/zsh
+  # dialect, so `sh -n` would reject it on a dash-as-sh host. A break here
+  # reaches every new terminal, and without this the harness only catches it
+  # further along, as a puzzling logging-parity failure.
+  if ! check_script_syntax "$DOTFILE_DIR/common/.bash_aliases" bash; then
+    echo "syntax check failed: common/.bash_aliases" >&2
+    syntax_status=1
+  fi
+
   return "$syntax_status"
 }
 
@@ -479,6 +494,20 @@ run_syntax_selfcheck_test() {
   printf '#!/usr/bin/env zsh\nfunction is-zsh-only {}\n' >"$tmp_dir/zsh-only.sh"
   if ! check_script_syntax "$tmp_dir/zsh-only.sh" 2>/dev/null; then
     echo "syntax selfcheck: zsh shebang not dispatched to zsh -n" >&2
+    selfcheck_status=1
+  fi
+
+  # An explicit interpreter must win over the shebang guess, which is the
+  # whole point of the argument: shebang-less sourced files are not sh.
+  printf 'if then fi\n' >"$tmp_dir/broken-noshebang"
+  if check_script_syntax "$tmp_dir/broken-noshebang" bash 2>/dev/null; then
+    echo "syntax selfcheck: broken shebang-less file passed" >&2
+    selfcheck_status=1
+  fi
+
+  printf 'greet() { echo "hi" >&2; }\n' >"$tmp_dir/sourced-noshebang"
+  if ! check_script_syntax "$tmp_dir/sourced-noshebang" bash 2>/dev/null; then
+    echo "syntax selfcheck: valid shebang-less file rejected" >&2
     selfcheck_status=1
   fi
 
