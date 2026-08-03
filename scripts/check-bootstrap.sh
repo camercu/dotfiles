@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
-DOTFILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
+DOTFILE_DIR=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd -P)
 ZSH_CONFIG_DIR="$DOTFILE_DIR/common/.config/zsh"
 
 # set -e aborts on the first failed assertion, which by itself prints
@@ -71,7 +71,7 @@ run_logging_parity_test() {
   begin_test logging_parity_test
   capture_log
 
-  tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/logging-parity.XXXXXX")" && pwd -P)
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/logging-parity.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
 
@@ -115,6 +115,10 @@ run_logging_parity_test() {
   # into an interactive shell, an unscoped assignment leaves the last message's
   # prefix and color sitting in the user's namespace. The cached _LOG_* colors
   # are deliberately global and are not covered here.
+  #
+  # SC2016: the expansions inside must survive this shell verbatim — the probe
+  # is source text for the shell under test, expanded there, not here.
+  # shellcheck disable=SC2016
   probe='info msg 2>/dev/null
          printf "%s %s\n" "${__log_prefix-unset}" "${__log_color-unset}"'
   for variant in posix zsh bash; do
@@ -142,7 +146,7 @@ run_dotsync_smoke_test() {
   # pre-existing link from the unresolved path yields a target stow would never
   # create, so stow rejects it as "not owned by stow". Resolving keeps the
   # simulated link identical to a real stow-owned one.
-  tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/dotsync-home.XXXXXX")" && pwd -P)
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/dotsync-home.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
   rel_target=$(rel_path "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home")
 
@@ -188,14 +192,21 @@ run_sourced_lib_test() {
   lib_status=0
   for script in "$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/*.zsh "$DOTFILE_DIR/common/.local/bin/dotsync"; do
     [ -f "$script" ] || continue
-    for lib in $(grep -ohE '(source|\.) "[^"]*lib[^"]*"' "$script" \
-        | sed -E 's|.*/([^/"]+)".*|\1|' | sort -u); do
+    libs=$(grep -ohE '(source|\.) "[^"]*lib[^"]*"' "$script" \
+      | sed -E 's|.*/([^/"]+)".*|\1|' | sort -u)
+    # Fed through a here-doc rather than a pipe so the loop runs in this shell
+    # and its lib_status assignment survives; a piped while would set it in a
+    # subshell and the harness would never see the failure.
+    while IFS= read -r lib; do
+      [ -n "$lib" ] || continue
       if [ ! -f "$SCRIPT_DIR/lib/$lib" ] \
           && [ ! -f "$ZSH_CONFIG_DIR/lib/$lib" ]; then
         echo "$script references missing lib file $lib" >&2
         lib_status=1
       fi
-    done
+    done <<EOF
+$libs
+EOF
   done
   return "$lib_status"
 }
@@ -223,6 +234,11 @@ run_zsh_health_test() {
 
   # zsh-health assumes the interactive environment: logging + is-installed
   # loaded, functions/ on fpath. Recreate that around the target ZDOTDIR.
+  #
+  # SC2016: single quotes on purpose — $ZSH_CONFIG_DIR and $fpath are expanded
+  # by the zsh under test (which gets ZSH_CONFIG_DIR in its environment below),
+  # not here.
+  # shellcheck disable=SC2016
   zsh_health_cmd='
     source "$ZSH_CONFIG_DIR/lib/env-checks.zsh"
     source "$ZSH_CONFIG_DIR/lib/logging.zsh"
@@ -230,7 +246,11 @@ run_zsh_health_test() {
     autoload -Uz zsh-health
     zsh-health'
 
-  if ! ZDOTDIR="$ZSH_CONFIG_DIR" ZSH_CONFIG_DIR="$ZSH_CONFIG_DIR" \
+  # Copied to a local first: assigning ZSH_CONFIG_DIR in the same command
+  # prefix that reads it is legal but reads as self-referential (and trips
+  # SC2097/SC2098) — both values come from the harness's outer variable.
+  real_zdotdir=$ZSH_CONFIG_DIR
+  if ! ZDOTDIR="$real_zdotdir" ZSH_CONFIG_DIR="$ZSH_CONFIG_DIR" \
       zsh -c "$zsh_health_cmd" >"$LAST_LOG" 2>&1; then
     echo "zsh-health: real zsh config failed the health check" >&2
     exit 1
@@ -264,7 +284,7 @@ run_stale_link_prune_test() {
 
   # Physical path, as with the dotsync smoke test: stow computes relative
   # targets from the physical location, and the fixture must match.
-  tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/stale-prune-home.XXXXXX")" && pwd -P)
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/stale-prune-home.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
   mkdir -p "$tmp_home/.config/nested"
 
@@ -291,7 +311,7 @@ run_stale_link_besteffort_test() {
   begin_test stale_link_besteffort_test
   capture_log
 
-  tmp_home=$(CDPATH= cd -- "$(mktemp -d "${TMPDIR:-/tmp}/stale-besteffort-home.XXXXXX")" && pwd -P)
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/stale-besteffort-home.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
   mkdir -p "$tmp_home/.config/locked" "$tmp_home/.config/nested"
 
