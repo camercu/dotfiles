@@ -1,6 +1,10 @@
 #########################################################################
 ##   Custom Shell Aliases and Functions   ###############################
 #########################################################################
+#
+# Sourced (never executed) by both bash and zsh, so there is no shebang to
+# infer the dialect from; bash is the closest dialect shellcheck supports.
+# shellcheck shell=bash
 
 XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
@@ -58,8 +62,11 @@ fi
 #
 # Shared with zsh startup and the repo's install scripts; the implementation
 # lives in common/.config/sh/logging.sh, stowed from the same package as this
-# file.
-. "${XDG_CONFIG_HOME:-$HOME/.config}/sh/logging.sh"
+# file. The shellcheck directive path is relative to this file and resolves
+# both in-repo (common/.config/sh/logging.sh) and stowed (~/.config/sh/...).
+# shellcheck source-path=SCRIPTDIR
+# shellcheck source=.config/sh/logging.sh
+source "${XDG_CONFIG_HOME:-$HOME/.config}/sh/logging.sh"
 
 ##? md: shortcut to make a directory and cd into it
 function md {
@@ -165,6 +172,9 @@ fi
 
 ## easy dotfile editing commands
 DOTFILE_EDITOR=$(command -v nvim || command -v vim || command -v vi || true)
+# SC2139: $DOTFILE_EDITOR must expand when the alias is defined — it is unset
+# right after this block, so deferring the expansion would empty the aliases.
+# shellcheck disable=SC2139
 if [ -n "$DOTFILE_EDITOR" ]; then
   case "$(current-shell)" in
   zsh) alias erc="$DOTFILE_EDITOR \$ZDOTDIR/.zshrc --cmd 'cd \$ZDOTDIR'" ;;
@@ -301,7 +311,7 @@ alias path='echo $PATH | tr ":" "\n"'
 alias fpath='echo $FPATH | tr ":" "\n"'
 alias nsort='sort | uniq -c | sort -n'
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
-alias 2b="cd ~/second-brain && $EDITOR"
+alias 2b='cd ~/second-brain && $EDITOR'
 is-installed lazygit && alias lg='lazygit'
 
 # update all pip packages
