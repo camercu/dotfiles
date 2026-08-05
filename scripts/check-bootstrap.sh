@@ -469,6 +469,47 @@ run_syntax_test() {
   return "$syntax_status"
 }
 
+# Syntax checks only prove a script parses. shellcheck catches the rest —
+# unquoted expansions, sourced libs that moved, aliases that expand at the
+# wrong time — and a repo that is clean today drifts back the moment nothing
+# measures it. Skipped (loudly) rather than failed when shellcheck is absent:
+# this harness runs during bootstrap, before any tooling is installed.
+#
+# -x follows sourced files, so the source directives in the scripts are part
+# of what is being checked here.
+run_shellcheck_test() {
+  begin_test shellcheck_test
+
+  if ! command -v shellcheck >/dev/null 2>&1; then
+    echo "shellcheck: not installed, skipping static analysis" >&2
+    return 0
+  fi
+
+  capture_log
+  shellcheck_status=0
+
+  # -s bash for the shebang-less sourced file, matching the syntax pass.
+  if ! shellcheck -x -s bash "$DOTFILE_DIR/common/.bash_aliases" >"$LAST_LOG" 2>&1; then
+    shellcheck_status=1
+  fi
+
+  for script in \
+      "$DOTFILE_DIR/install.sh" \
+      "$DOTFILE_DIR/common/.local/bin/dotsync" \
+      "$DOTFILE_DIR"/common/.config/claude/hooks/*.sh \
+      "$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/lib/*.sh; do
+    [ -f "$script" ] || continue
+    if ! shellcheck -x "$script" >>"$LAST_LOG" 2>&1; then
+      shellcheck_status=1
+    fi
+  done
+
+  if [ "$shellcheck_status" -ne 0 ]; then
+    echo "shellcheck: findings in the shell sources" >&2
+  fi
+  return "$shellcheck_status"
+}
+
 # Guard check_script_syntax itself: a broken file of each dialect must be
 # rejected, and a zsh-only construct must pass (proves shebang dispatch, since
 # sh -n would reject it).
@@ -516,6 +557,7 @@ run_syntax_selfcheck_test() {
 
 run_syntax_selfcheck_test
 run_syntax_test
+run_shellcheck_test
 run_sourced_lib_test
 begin_test verify_home_manager_hosts
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
