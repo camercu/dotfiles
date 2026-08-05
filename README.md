@@ -189,7 +189,7 @@ scripts/home-manager-host.sh lookup-system roci
 
 Two checks guard this repo; both are quick and safe to run anytime.
 
-`scripts/check-bootstrap.sh` is the test suite for the install/bootstrap scripts. It syntax-checks every script with the interpreter its shebang names, verifies sourced lib files exist, validates host definitions, runs dotsync smoke/conflict tests against throwaway home directories, and drives `zsh-health` against both the real zsh config and broken/healthy fixtures. Run it after changing anything under `scripts/`, `install.sh`, `dotsync`, or the zsh config:
+`scripts/check-bootstrap.sh` is the test suite for the install/bootstrap scripts. It syntax-checks every script with the interpreter its shebang names (plus `.bash_aliases`, which is sourced and has no shebang), runs `shellcheck` over the shell sources when it is installed, verifies sourced lib files exist, validates host definitions, runs dotsync smoke/conflict tests against throwaway home directories, checks the interactive aliases and the three copies of the `is-*` predicates for drift, and drives `zsh-health` against both the real zsh config and broken/healthy fixtures. Run it after changing anything under `scripts/`, `install.sh`, `dotsync`, `.bash_aliases`, or the zsh config:
 
 ```sh
 ./scripts/check-bootstrap.sh
