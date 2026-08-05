@@ -137,6 +137,77 @@ run_logging_parity_test() {
   done
 }
 
+# The is-* predicates exist three times over — POSIX (scripts/lib/checks.sh,
+# underscores, uname-based), interactive zsh (zsh/lib/env-checks.zsh) and
+# interactive bash (.bash_aliases), the latter two hyphenated and $OSTYPE-based.
+# The names cannot be unified (POSIX sh forbids hyphens) so only a test keeps
+# them honest: same question, same answer, whichever copy is asked. This is the
+# drift that already bit the logging functions.
+run_predicate_parity_test() {
+  begin_test predicate_parity_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/predicate-parity.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  # The copies differ only in the separator, so one probe template serves all
+  # three. is_installed is asked about a command that is certainly present and
+  # one that certainly is not, so a predicate stuck on a single answer cannot
+  # pass by luck.
+  build_predicate_probe() {
+    sep=$1
+    probe=''
+    for predicate in macos linux bsd solaris windows admin; do
+      probe="$probe printf '%s=%s ' $predicate \"\$(is${sep}${predicate} && echo yes || echo no)\";"
+    done
+    probe="$probe printf 'installed=%s ' \"\$(is${sep}installed sh && echo yes || echo no)\";"
+    probe="$probe printf 'absent=%s\n' \"\$(is${sep}installed no-such-cmd-b7f3 && echo yes || echo no)\";"
+    printf '%s' "$probe"
+  }
+
+  HOME="$tmp_home" sh -c \
+    ". \"$SCRIPT_DIR/lib/checks.sh\"; $(build_predicate_probe _)" \
+    >"$tmp_home/pred.posix"
+  HOME="$tmp_home" zsh -c \
+    "source \"$ZSH_CONFIG_DIR/lib/env-checks.zsh\"; $(build_predicate_probe -)" \
+    >"$tmp_home/pred.zsh"
+  HOME="$tmp_home" bash -c \
+    ". \"\$HOME/.bash_aliases\"; $(build_predicate_probe -)" \
+    >"$tmp_home/pred.bash"
+
+  parity_status=0
+  for variant in zsh bash; do
+    if ! cmp -s "$tmp_home/pred.posix" "$tmp_home/pred.$variant"; then
+      echo "predicates: $variant disagrees with the POSIX lib" >&2
+      echo "  posix: $(cat "$tmp_home/pred.posix")" >&2
+      echo "  $variant: $(cat "$tmp_home/pred.$variant")" >&2
+      parity_status=1
+    fi
+  done
+
+  # Three copies that are uniformly wrong still compare equal, so pin the
+  # answers to what this host is: exactly one OS, and is_installed that can
+  # tell a present command from an absent one.
+  # || true: grep -c exits 1 on no match, which under set -e would abort with
+  # the banner instead of the message below.
+  matched_os=$(tr ' ' '\n' <"$tmp_home/pred.posix" \
+    | grep -cE '^(macos|linux|bsd|solaris|windows)=yes$' || true)
+  if [ "$matched_os" -ne 1 ]; then
+    echo "predicates: $matched_os operating systems matched, expected 1" >&2
+    cat "$tmp_home/pred.posix" >&2
+    parity_status=1
+  fi
+  if ! grep -q 'installed=yes' "$tmp_home/pred.posix" ||
+      ! grep -q 'absent=no' "$tmp_home/pred.posix"; then
+    echo "predicates: is_installed cannot tell present from absent" >&2
+    cat "$tmp_home/pred.posix" >&2
+    parity_status=1
+  fi
+
+  return "$parity_status"
+}
+
 run_dotsync_smoke_test() {
   begin_test dotsync_smoke_test
   capture_log
@@ -567,6 +638,7 @@ run_stale_link_prune_test
 run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_logging_parity_test
+run_predicate_parity_test
 run_bash_aliases_test
 run_repo_relative_link_test
 run_stow_conflict_test
