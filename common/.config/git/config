@@ -39,7 +39,9 @@
 [pull]
 	rebase = false
 [push]
-	default = upstream
+	default = simple
+	autoSetupRemote = true
+	useForceIfIncludes = true
 [safe]
 	directory = /mnt/share/hackbox-init
 	directory = /mnt/share/dotfiles
