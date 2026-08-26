@@ -39,3 +39,12 @@ Consequences of the constitution, named so they become reflex:
   class, hunt siblings, trace to root not symptom. Any review (docs, specs,
   code) = leak point: forces confronting what the system really does; a mismatch
   often indicts the code — a whole class — not just the reviewed artifact.
+- **Accept liberally, report honestly** (Postel's law, sharpened) — real inputs
+  are malformed; refusing them strands the user who most needs the tool, since
+  broken counterpart = exactly when diagnostics matter. So accept. But liberal
+  in what you ACCEPT ≠ liberal in what you CLAIM. Return what arrived *and*
+  whether it conformed; never a nonconforming value wearing a conforming type.
+  Silent coercion = the failure Postel gets blamed for (RFC 9413: divergence,
+  ossification) — cost lands on whoever debugs it later, i.e. maintenance.
+  Strictness = per-boundary decision, made deliberately; adjacent functions
+  disagreeing about it = the real defect, fix the policy not the instance.
