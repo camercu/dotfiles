@@ -1,10 +1,12 @@
 ---
 name: skill-creator
-description: Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations.
+description: Use when user wants to create a new skill or update an existing one. Triggers on "make a skill", "write a skill for X", "package this as a skill", "update the skill", or questions about how skills should be structured.
 license: Complete terms in LICENSE.txt
 ---
 
 # Skill Creator
+
+## Overview
 
 This skill provides guidance for creating effective skills.
 
@@ -66,7 +68,7 @@ skill-name/
 
 Every SKILL.md consists of:
 
-- **Frontmatter** (YAML): Contains `name` and `description` fields (required), plus optional fields like `license`, `metadata`, and `compatibility`. Only `name` and `description` are read by Claude to determine when the skill triggers, so be clear and comprehensive about what the skill is and when it should be used. The `compatibility` field is for noting environment requirements (target product, system packages, etc.) but most skills don't need it.
+- **Frontmatter** (YAML): Contains `name` and `description` fields (required), plus optional fields like `license`, `metadata`, and `compatibility`. Only `name` and `description` are read by Claude to decide whether the skill triggers, so `description` carries **trigger cues only** — situations, user phrasings, and non-triggers. What the skill does belongs in the body's `## Overview`, not here (see "Frontmatter" under Step 4). The `compatibility` field is for noting environment requirements (target product, system packages, etc.) but most skills don't need it.
 - **Body** (Markdown): Instructions and guidance for using the skill. Only loaded AFTER the skill triggers (if at all).
 
 #### Bundled Resources (optional)
@@ -307,16 +309,18 @@ Any example files and directories not needed for the skill should be deleted. Th
 Write the YAML frontmatter with `name` and `description`:
 
 - `name`: The skill name
-- `description`: This is the primary triggering mechanism for your skill, and helps Claude understand when to use the skill.
-  - Include both what the Skill does and specific triggers/contexts for when to use it.
-  - Include all "when to use" information here - Not in the body. The body is only loaded after triggering, so "When to Use This Skill" sections in the body are not helpful to Claude.
-  - Example description for a `docx` skill: "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. Use when Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks"
+- `description`: **Trigger cues only.** Sole job = tell Claude *when* to invoke. Not a summary of what the skill does — that lives in the body's `## Overview`.
+  - Write it as "Use when ..." — concrete situations, tasks, file types, and the literal phrasings a user says.
+  - Name enough of the object to make each cue unambiguous ("Use when reviewing a test suite"), but stop there. No feature lists, no how-it-works, no output format.
+  - State non-triggers when a neighbouring skill would otherwise steal the invocation ("Not for X — use `other-skill`").
+  - The body is only loaded after triggering, so a "When to Use This Skill" section in the body is dead weight — every cue must be in `description`.
+  - Example for a `docx` skill: "Use when working with .docx files — creating a document, editing or reformatting one, applying or reviewing tracked changes, adding comments, or extracting text. Triggers on \"make me a Word doc\", \"edit this .docx\", \"track changes\"."
 
 Do not include any other fields in YAML frontmatter.
 
 ##### Body
 
-Write instructions for using the skill and its bundled resources.
+First section is `## Overview`: what the skill does, in 1-3 sentences, plus what it deliberately does not do. This is the "what" that `description` no longer carries — a reader landing here cold must learn the skill's job before its instructions. Then write instructions for using the skill and its bundled resources.
 
 ### Step 5: Packaging a Skill
 

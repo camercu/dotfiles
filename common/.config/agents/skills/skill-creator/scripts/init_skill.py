@@ -17,14 +17,14 @@ from pathlib import Path
 
 SKILL_TEMPLATE = """---
 name: {skill_name}
-description: [TODO: Complete and informative explanation of what the skill does and when to use it. Include WHEN to use this skill - specific scenarios, file types, or tasks that trigger it.]
+description: [TODO: Trigger cues ONLY - when to invoke this skill, never what it does. Write as "Use when ...": specific scenarios, file types, tasks, and literal user phrasings. Add "Not for X" when a neighbouring skill would otherwise steal the invocation. What the skill does goes in the body's ## Overview.]
 ---
 
 # {skill_title}
 
 ## Overview
 
-[TODO: 1-2 sentences explaining what this skill enables]
+[TODO: 1-3 sentences on what this skill does, and what it deliberately does not do. Required first section - `description` carries no "what", so this is the only place a reader learns the skill's job.]
 
 ## Structuring This Skill
 
