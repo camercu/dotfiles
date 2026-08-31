@@ -1,9 +1,11 @@
 ---
 name: to-tasks
-description: Break a plan or spec into vertical-slice tasks. Use when user wants to break down work into tasks, slice a spec into implementable pieces, or mentions "to-tasks", "break down", "task breakdown", or "slice".
+description: Use when user wants to break work into tasks, slice a spec or plan into implementable pieces, or mentions "to-tasks", "break down", "task breakdown", "slice".
 ---
 
 # To Tasks
+
+## Overview
 
 Break a plan or spec into independently-implementable **vertical slice** tasks.
 

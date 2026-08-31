@@ -1,9 +1,11 @@
 ---
 name: improve-codebase-architecture
-description: Surface architectural friction, propose deepening opportunities. Use when user wants to clean up or improve the codebase architecture or design.
+description: Use when user wants to clean up or improve codebase architecture or design, or mentions architectural friction, coupling, cohesion, module depth, "improve architecture", "refactor the design".
 ---
 
 # Improve Codebase Architecture
+
+## Overview
 
 Surface friction, propose **deepening opportunities** — refactors that increase depth, cohesion, locality while reducing coupling.
 
@@ -58,6 +60,8 @@ Collect quantitative signals before presenting candidates. Details + commands in
 Gather what's practical — not every signal available in every project.
 
 ### 2. Present candidates
+
+Write candidates to a file as Step 1's evidence lands, before presenting — the survey (deletion test, fan-in/out, churn × complexity) is the expensive part and a lost context makes it all re-run. Declines belong in the same file, with the reason: a candidate considered and rejected is a result the next run must not re-derive.
 
 Numbered list, **ranked by priority** (impact + risk). Per candidate:
 

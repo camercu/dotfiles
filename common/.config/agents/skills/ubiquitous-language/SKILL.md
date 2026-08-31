@@ -1,9 +1,11 @@
 ---
 name: ubiquitous-language
-description: Extract a DDD-style ubiquitous language glossary from the current conversation into CONTEXT.md. Use when user wants to define domain terms, build a glossary, harden terminology, create a ubiquitous language, or mentions "domain model" or "DDD".
+description: Use when user wants to define domain terms, build a glossary, harden terminology, create a ubiquitous language, or mentions "DDD". For batch extraction from the current conversation.
 ---
 
 # Ubiquitous Language
+
+## Overview
 
 Extract and formalize domain terminology from the current conversation into `CONTEXT.md`.
 

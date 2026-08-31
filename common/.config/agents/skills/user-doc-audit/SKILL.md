@@ -1,9 +1,11 @@
 ---
 name: user-doc-audit
-description: Audit and improve a user-facing entry doc (README, docs-site landing, man-page intro, getting-started guide) for factual accuracy and for three reader audiences — evaluator, newcomer, returner. Use when asked to "improve/proofread/audit the readme (or docs)", "is my readme any good", "make the docs clearer / more motivating", or to check docs for stale/inaccurate information.
+description: Use when user asks to "improve/proofread/audit the readme (or docs)", "is my readme any good", "make the docs clearer / more motivating", or to check an entry doc (README, docs landing, man intro, getting-started) for stale or inaccurate information.
 ---
 
 # User-doc audit
+
+## Overview
 
 Goal: entry doc where every claim true + genuinely useful to 3 readers. Audit
 **entry** docs (README, docs landing, man intro, getting-started). **Reference**

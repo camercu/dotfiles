@@ -1,9 +1,11 @@
 ---
 name: to-spec
-description: Collaborative specification refinement through codebase analysis, discovery interviews, and iterative red-teaming. Use when user wants to write a spec, refine requirements, design a feature, or mentions "spec", "requirements", "PRD", or "specification".
+description: Use when user wants to write a spec, refine requirements, design a feature, or mentions "spec", "requirements", "PRD", "specification".
 ---
 
 # Specification Refinement
+
+## Overview
 
 Collaborative process: analyze codebase → interview for shared understanding → draft & red-team iteratively → produce numbered-requirement spec.
 

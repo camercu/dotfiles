@@ -1,11 +1,11 @@
 ---
 name: code-reviewer
-description:
-  Use this skill to review code. It supports both local changes (staged or working tree)
-  and remote Pull Requests (by ID or URL).
+description: Use when user asks to review code, either local changes (staged or working tree) or a remote Pull Request by ID or URL.
 ---
 
 # Code Reviewer
+
+## Overview
 
 This skill guides the agent in conducting professional and thorough code reviews for both local development and remote Pull Requests. It focuses on correctness, maintainability, and adherence to project standards.
 
@@ -50,6 +50,14 @@ Analyze the code changes based on the following pillars:
 *   **Testability**: Is the new or modified code adequately covered by tests (even if preflight checks pass)? Suggest additional test cases that would improve coverage or robustness.
 
 ### 4. Provide Feedback
+
+#### Record as you go
+Findings file open **before** analysis starts. Append each finding when found —
+file:line, defect, failure scenario, evidence — never batched at the end.
+Context dies (session limit, compaction, crash); unwritten findings die with it.
+Long review, or running as a delegated agent → the **file** is the deliverable,
+the summary just points at it. Hazard checked and cleared → write that too: a
+cleared hazard is a result, and it stops the next pass re-deriving it.
 
 #### Structure
 *   **Summary**: A high-level overview of the review.

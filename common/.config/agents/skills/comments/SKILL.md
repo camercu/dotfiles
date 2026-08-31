@@ -1,9 +1,11 @@
 ---
 name: comments
-description: Audit, write, and improve code comments against John Ousterhout's "A Philosophy of Software Design" principles. Use when the user asks to review, clean up, improve, or write comments in source code. Triggers on: "review comments", "clean up comments", "improve docs", "comment audit", "are these comments good", "write better comments", "remove redundant comments".
+description: Use when user asks to review, clean up, improve, or write comments in source code. Triggers on "review comments", "clean up comments", "improve docs", "comment audit", "are these comments good", "write better comments", "remove redundant comments".
 ---
 
 # Comments Skill
+
+## Overview
 
 Audit and improve source code comments using Ousterhout's principles from "A Philosophy of Software Design". See `references/principles.md` for the full framework.
 

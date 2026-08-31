@@ -1,20 +1,13 @@
 ---
 name: evolutionary-spike
-description: >-
-  Resolve a hard design or feasibility question empirically by building many
-  throwaway prototype "spikes" in parallel (clean-room + informed agents),
-  reviewing them independently, eliminating dominated ones while capturing their
-  lessons, converging to finalists, synthesizing a capstone, and concluding in an
-  ADR + findings doc with a cost-benefit verdict. Use when the right SHAPE or the
-  VIABILITY of something is genuinely unknown and must be BUILT to know — triggers
-  like "spike N approaches and compare", "explore the design space", "which
-  interface/shape/mechanism is best", "prototype and pick", "is it worth building
-  X / do benefits outweigh costs", "design bake-off", "run a spike tournament",
-  "evolutionary spike". NOT for a single quick throwaway with no comparison, and
-  not when one approach is already obvious (use Plan/tdd there).
+description: Use when the right SHAPE or the VIABILITY of something is genuinely unknown and must be BUILT to know. Triggers on "spike N approaches and compare", "explore the design space", "which interface/shape/mechanism is best", "prototype and pick", "is it worth building X", "do benefits outweigh costs", "design bake-off", "run a spike tournament", "evolutionary spike". NOT for a single quick throwaway with no comparison, and not when one approach is already obvious (use Plan or tdd there).
 ---
 
 # Evolutionary Spike
+
+## Overview
+
+Resolves a hard design or feasibility question empirically: many throwaway prototype spikes built in parallel (clean-room plus informed agents), reviewed independently, dominated ones eliminated while their lessons are captured, converging to finalists and a synthesized capstone.
 
 Build-to-know loop. Hard design/feasibility question, several viable answers,
 can't settle by reasoning → build throwaway prototype spikes, compare, eliminate,

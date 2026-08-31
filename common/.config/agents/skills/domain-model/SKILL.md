@@ -1,9 +1,13 @@
 ---
 name: domain-model
-description: Stress-test a plan against the project's domain model. Challenges terminology, cross-references code, updates CONTEXT.md and ADRs inline. Use when user wants to validate a plan against domain language, sharpen terminology, or mentions "domain model".
+description: Use when user wants to validate a plan against domain language, sharpen terminology, or mentions "domain model".
 ---
 
 # Domain Model
+
+## Overview
+
+Stress-tests a plan against the project domain model. Challenges terminology, cross-references code, updates CONTEXT.md and ADRs inline.
 
 Grilling session that challenges a plan against the project's existing domain language and documented decisions. Updates documentation inline as decisions crystallize.
 

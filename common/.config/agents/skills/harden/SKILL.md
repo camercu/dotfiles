@@ -1,9 +1,13 @@
 ---
 name: harden
-description: Iterative refinement loop for taking a change to a high quality bar. Sequences exercise→friction, grill→decide, TDD slices, then review→soundness→simplify→architecture→test-health→docs passes — repeating until a full round finds nothing significant — under fixed discipline (authority docs sacred, evaluative passes run fresh so the reviewer is never the author, commit per slice, verify every slice, reverse your own calls on evidence, capture decisions durably). Run state checkpointed to an on-disk ledger so /clear-and-resume is safe; repo-wide scope decomposes into a prioritized slice queue (highest value / biggest risk first) tracked in that ledger. Use when the user wants to build or refine something "properly", harden a change, run a multi-pass quality loop, evaluate an API as a real consumer, or asks to "harden", "do this properly", "full quality pass", "refine loop", "keep going until clean", or "production-grade" work. Gated — stops for the user's call at authority conflicts, fix decisions, architecture do/decline, and irreversible actions.
+description: Use when user wants to build or refine something "properly", harden a change, run a multi-pass quality loop, evaluate an API as a real consumer, or says "do this properly", "full quality pass", "refine loop", "keep going until clean", "production-grade".
 ---
 
 # Harden
+
+## Overview
+
+Iterative refinement loop taking a change to a high quality bar. Sequences exercise then friction, grill then decide, TDD slices, then review, soundness, simplify, architecture, test-health and docs passes, repeating until a full round finds nothing significant. Run state is checkpointed to an on-disk ledger so /clear-and-resume is safe; repo-wide scope decomposes into a prioritized slice queue.
 
 Gated multi-phase loop: change → high quality bar. Not replace specialist skills —
 **sequence** them + enforce the connective discipline. Stack-agnostic: phases hold
@@ -34,6 +38,15 @@ Spine. Override convenience always.
 5. **Capture decisions durably.** Load-bearing decisions — esp declines/reversals
    — go somewhere permanent (ADR, commit-body rationale, friction report), not
    just the conversation.
+5b. **Write it down when found, not when finished.** A finding exists on disk
+   **before** the next probe starts; a probe's evidence (command, output,
+   file:line) lands w/ it. Never hold findings in context to batch into a
+   closing report — context dies (session limit, compaction, crash) and the
+   whole pass dies with it. Costs one append per finding; saves the entire run.
+   Applies to main context **and every delegated pass** (#6, #7): each agent gets
+   a findings-file path in its prompt + appends as it goes, so a dead agent
+   leaves harvestable work, not nothing. Partial file > perfect summary never
+   written. Same discipline for the ledger: checkpoint the row when it happens.
 6. **Named passes delegated, not simulated.** A phase naming a skill = **that skill
    gets invoked** via the Skill tool — by the main context, or by a fresh agent it
    delegates to (#7); inline reasoning supplements, never replaces the call.
@@ -49,6 +62,15 @@ Spine. Override convenience always.
    waste not bias-reduction. Independence is the invariant; agent *count* is the dial
    (Right-size). Can't spawn → run in-context but **mark it polluted** in the ledger;
    never pass a same-context review off as independent.
+
+**Spawn contract** (every delegated pass, no exceptions). Prompt carries:
+its own **findings-file path** + "append each finding as you find it, before
+starting the next probe" (#5b); the scope (commit range / paths); the
+verification matrix; authority-doc locations; read-only + no-history-surgery
+rails; which files are off-limits *because they'd prime it* (ledger, other
+passes' findings). Agent returns a summary; the **file** is the deliverable.
+Agent died → harvest its file, relaunch for the remainder only — never re-run a
+pass whose evidence already landed.
 
 ## Right-size to blast radius (before Phase 0)
 
@@ -87,6 +109,10 @@ disk; survives /clear, crash, session end. Checkpoint, don't compact.
   done + commit subjects); phase-4 pass rows; open gates + user verdicts;
   friction-report location; pointers to captured decisions (durable homes stay
   ADR / commit bodies per #5 — ledger points, never substitutes).
+- Findings live in a sibling `<repo>/.harden/findings.md` (also git-ignored),
+  appended per #5b — ledger holds *state*, findings file holds *evidence*.
+  Delegated passes append to it too (own section per pass, so parallel agents
+  don't collide) or to their own file the ledger points at.
 - **Checkpoint = safe /clear point.** After writing one, prefer suggesting
   /clear + re-invoke over grinding into compaction. On invoke: existing ledger
   → confirm scope matches, resume at recorded position; stale ledger (scope

@@ -1,9 +1,13 @@
 ---
 name: dogfood
-description: Exercise software as real consumer would — docs-first walkthrough, full public surface coverage, adversarial misuse — producing a ranked friction report. Works for any software type (library, CLI, server/API, web UI, TUI). Use when user says "dogfood", "exercise as a consumer/user", "friction report", "consumer trial", "try it like a real user", or as harden skill Phase 1 (Exercise → friction). Re-eval mode re-runs a prior report for a resolved/still-live delta.
+description: Use when user says "dogfood", "exercise as a consumer/user", "friction report", "consumer trial", "try it like a real user", or asks to re-run a prior friction report. Also runs as harden skill Phase 1 (Exercise then friction). Any software type — library, CLI, server/API, web UI, TUI.
 ---
 
 # Dogfood
+
+## Overview
+
+Docs-first walkthrough, full public-surface coverage, adversarial misuse, producing a ranked friction report. Re-eval mode re-runs a prior report for a resolved / still-live delta.
 
 Exercise target as a real consumer. Output = friction report, nothing else.
 **Report-only: never edit target repo.** Fixes belong to harden phases 2-3 or the
@@ -93,6 +97,14 @@ preconditions, concurrent use. Misuse that runs + silently does wrong instead of
 being rejected = `soundness` finding (feeds harden Soundness pass).
 
 ## Friction report
+
+**Open the file at pass 0, not at the end.** Write Context immediately, then
+**append each finding the moment it is found** — evidence (command, output,
+file:line) with it, before the next probe starts. Never batch findings in
+context: session limit / compaction / crash kills the pass and every finding
+in it. A half-written report on disk beats a perfect one that never got typed.
+Consumer code + repro commands stay in scratch, referenced by path, so a later
+run rebuilds them without re-deriving. Re-eval mode depends on this too.
 
 Write to scratch, tell user the path. Sections in order:
 

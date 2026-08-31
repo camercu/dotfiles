@@ -1,7 +1,13 @@
 ---
 name: commit
-description: MUST be used for every git commit. Formats Conventional Commit messages, checks for breaking changes, and stages files atomically.
+description: MUST be used for every git commit. Use when about to run git commit, or when user says "commit this", "/commit", or asks for a commit message.
 ---
+
+# Conventional Commits
+
+## Overview
+
+Formats Conventional Commit messages, checks for breaking changes, stages files atomically.
 
 Message format: Conventional Commits v1.0.0 (`<type>(<scope>): <description>`).
 

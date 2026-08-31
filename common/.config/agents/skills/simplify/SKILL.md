@@ -1,9 +1,11 @@
 ---
 name: simplify
-description: Review changed code for reuse, quality, and efficiency, then fix any issues found. Understands before touching, guards against over-simplification.
+description: Use when user asks to simplify changed code, review a diff for reuse, quality or efficiency, or says "simplify", "clean this up", "any duplication here". Not for module-level structural work (seams, ports, depth); use improve-architecture there.
 ---
 
 # Simplify
+
+## Overview
 
 Review changed code for reuse, quality, efficiency; fix findings. Metric is comprehension speed, not line count: "Would a new team member understand this faster than the original?" For module-level structural work (seams, ports, depth) use `/improve-architecture` instead.
 
@@ -26,6 +28,8 @@ Launch concurrently in a single message, each with the full diff:
 ## Phase 3: Fix Issues
 
 Wait for all three, aggregate, fix each directly. False positive or not worth it → note and skip; don't argue with the finding.
+
+Each of the three writes its findings to a file **as it finds them**, not batched into a closing summary — context dies (session limit, compaction, crash) and unwritten findings die with it. Aggregate from the files. Report-only mode (running as a delegated review, no authority to edit) → the file **is** the deliverable; record skipped/false-positive calls in it too, so the next pass doesn't re-raise them.
 
 ### Do NOT simplify when
 

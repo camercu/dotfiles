@@ -1,11 +1,13 @@
 ---
 name: handoff
-description: Compact current conversation into portable handoff doc so fresh agent picks work up cold — other harness, other repo, colleague, or forked side task while you keep working. Use when user types /handoff or says "hand off", "handoff doc", "pass this to another session/agent". Not for staying put — /compact covers that.
+description: Use when user types /handoff or says "hand off", "handoff doc", "pass this to another session/agent" — work must travel to another harness, another repo, a colleague, or a forked parallel agent. Not for staying put in the same session; /compact covers that.
 argument-hint: "what next session for?"
 disable-model-invocation: true
 ---
 
 # Handoff
+
+## Overview
 
 One markdown file. Fresh agent reads it cold, continues work. Buys
 **portability**, not compression.

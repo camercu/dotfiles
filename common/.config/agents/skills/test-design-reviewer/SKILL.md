@@ -1,12 +1,14 @@
 ---
 name: test-design-reviewer
-description: Reviews a test suite on three axes — quality (Dave Farley's 8 properties → a Farley Index 0-10 with per-property evidence and tautology-theatre findings), completeness (manual behavior-gap hunt + a coverage tool), and efficacy (assertion-strength audit + mutation testing when available). Use when reviewing tests, assessing a suite's design quality, coverage, or bug-catching power, or hunting weak/flaky/tautological/untested behaviors.
+description: Use when user asks to review tests, assess a suite design quality, coverage or bug-catching power, or to hunt weak, flaky, tautological or untested behaviors.
 context: fork
 agent: Explore
 model: sonnet
 ---
 
 # Test Design Reviewer
+
+## Overview
 
 Review a test suite on three axes: **quality** (Dave Farley's 8 properties → a
 Farley Index 0-10), **completeness** (coverage), and **efficacy** (do the tests
@@ -273,6 +275,12 @@ verdict. Never fail the review over mutation tooling.**
 | C# | Stryker.NET (`dotnet stryker`) |
 
 ## Report format
+
+Report file open **before** the lenses run; fill it in as you go, section by
+section. Mutation/efficacy work especially — each survivor written the moment
+it survives, with the mutation applied and the tests that stayed green. That
+work is expensive to redo and is exactly what a session limit eats. Never hold
+a run's results in context to write up at the end.
 
 ```
 # Test Design Review
