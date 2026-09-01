@@ -20,9 +20,8 @@ settings.json (guardrail); this = the why. Applies to skill gates (`harden`,
 `grill-me`) — adapt them to prose.
 
 **State the target state.** Describing own choices — code comments, commit
-messages, docs, agent-facing text — name the property that holds, not what was
-avoided or what used to break. Naming a failure mode puts it in context and
-raises odds of reproducing it, *including* when the sentence warns against it.
+messages, docs, agent-facing text — name the property that holds. Same content,
+same space, and the sentence still stands once the history it replaced is gone.
 Domain conditions the code must handle (corrupt frame, short read) stay named
 precise — different subject. Sentence holding both: split, convert the
 own-choice half.
