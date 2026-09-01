@@ -9,6 +9,9 @@ import re
 import yaml
 from pathlib import Path
 
+# Bodies this short are grasped by reading them; an Overview would only restate them.
+OVERVIEW_EXEMPT_LINES = 25
+
 TRIGGER_CUE = re.compile(
     r"use\s+(this\s+skill\s+)?when|triggers?\s+(on|when|:)|when\s+the\s+user|when\s+user|must\s+be\s+used",
     re.IGNORECASE,
@@ -99,13 +102,23 @@ def validate_skill(skill_path):
             )
 
     # Body must open with an Overview section - `description` carries no "what",
-    # so the body is the only place a reader learns the skill's job.
+    # so the body is the only place a reader learns the skill's job. Bodies at or
+    # under OVERVIEW_EXEMPT_LINES are read whole in one glance, and an Overview
+    # there is a summary as long as the thing it summarises.
     body = content[match.end():]
     headings = re.findall(r'^(#{1,6})\s+(.*)$', body, re.MULTILINE)
     first_section = next((text.strip() for level, text in headings if len(level) >= 2), None)
+    body_lines = len(body.strip().splitlines())
     if first_section is None:
-        return False, "Body has no '## Overview' section. It must be the first section of the body."
+        if body_lines > OVERVIEW_EXEMPT_LINES:
+            return False, (
+                f"Body is {body_lines} lines and has no '## Overview' section. Bodies over "
+                f"{OVERVIEW_EXEMPT_LINES} lines must open with one."
+            )
+        return True, "Skill is valid!"
     if first_section.lower() != 'overview':
+        if body_lines <= OVERVIEW_EXEMPT_LINES:
+            return True, "Skill is valid!"
         return False, f"Body's first section is '{first_section}'; it must be '## Overview'."
     overview_body = re.split(r'^#{1,6}\s', body.split(first_section, 1)[1], maxsplit=1, flags=re.MULTILINE)[0]
     if not overview_body.strip():

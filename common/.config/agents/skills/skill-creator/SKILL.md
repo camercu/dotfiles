@@ -322,6 +322,8 @@ Do not include any other fields in YAML frontmatter.
 
 First section is `## Overview`: what the skill does, in 1-3 sentences, plus what it deliberately does not do. This is the "what" that `description` no longer carries — a reader landing here cold must learn the skill's job before its instructions. Then write instructions for using the skill and its bundled resources.
 
+**Exempt: bodies of 25 lines or fewer.** A body that short is read whole in one glance, so an Overview is a summary as long as the thing it summarises — pure duplication that has to be kept in sync. Write the instructions and stop. `scripts/quick_validate.py` applies the same threshold.
+
 ### Step 5: Packaging a Skill
 
 Once development of the skill is complete, it must be packaged into a distributable .skill file that gets shared with the user. The packaging process automatically validates the skill first to ensure it meets all requirements:

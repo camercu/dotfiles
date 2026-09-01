@@ -24,7 +24,7 @@ description: [TODO: Trigger cues ONLY - when to invoke this skill, never what it
 
 ## Overview
 
-[TODO: 1-3 sentences on what this skill does, and what it deliberately does not do. Required first section - `description` carries no "what", so this is the only place a reader learns the skill's job.]
+[TODO: 1-3 sentences on what this skill does, and what it deliberately does not do. `description` carries no "what", so this is the only place a reader learns the skill's job. Required unless the finished body is 25 lines or fewer - at that size delete this section, the body says it faster.]
 
 ## Structuring This Skill
 
