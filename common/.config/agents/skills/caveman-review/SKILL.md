@@ -1,13 +1,9 @@
 ---
 name: caveman-review
-description: Use when user says "review this PR", "code review", "review the diff", "/review", or invokes /caveman-review. Triggers when reviewing pull requests.
+description: >
+  Compressed code review - one line per finding with location, problem and fix.
+  Use for /caveman-review, "review this PR", or "review the diff".
 ---
-
-# Caveman Review
-
-## Overview
-
-Ultra-compressed code review comments. One line per finding, location then problem then fix. Noise cut, actionable signal kept.
 
 Write code review comments terse and actionable. One line per finding. Location, problem, fix. No throat-clearing.
 

@@ -22,8 +22,9 @@ SKIP_EXTENSIONS = {
 # `CMakeLists.txt` would ride the compressible `.txt` rule. Checked by
 # basename before any extension rule.
 KNOWN_CODE_FILENAMES = {
-    "dockerfile", "makefile", "gnumakefile", "jenkinsfile", "vagrantfile",
-    "rakefile", "gemfile", "justfile", "procfile", "brewfile",
+    "dockerfile", "containerfile", "makefile", "gnumakefile", "jenkinsfile",
+    "vagrantfile", "rakefile", "gemfile", "justfile", "procfile", "brewfile",
+    "earthfile", "fastfile", "podfile",
     "cmakelists.txt",
 }
 
@@ -90,7 +91,7 @@ def detect_file_type(filepath: Path) -> str:
     # Extensionless files (like CLAUDE.md, TODO) — check content
     if not ext:
         try:
-            text = filepath.read_text(errors="ignore")
+            text = filepath.read_text(encoding="utf-8", errors="ignore")
         except (OSError, PermissionError):
             return "unknown"
 
