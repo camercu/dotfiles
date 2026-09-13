@@ -1,8 +1,9 @@
 # Findings-doc template
 
-Copy to `docs/spikes/<topic>-findings.md`. LIVING record + resumable checkpoint —
-update every phase transition, review, elimination, decision. Keep ephemeral
-orchestration bits (in-flight agent IDs) OUT; put them in the run log or nowhere.
+Copy to `<topic>-findings.md` ON THE SPIKE BRANCH — never main; main carries only the
+ADR. LIVING record + resumable checkpoint — update every phase transition, review,
+elimination, decision. Keep ephemeral orchestration bits (in-flight agent IDs) OUT;
+put them in the run log or nowhere.
 
 ---
 

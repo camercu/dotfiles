@@ -6,9 +6,10 @@ drop the honesty + proof clauses.
 
 ---
 
-You are building throwaway spike `{{id}}` in `{{repo}}` on branch `{{branch}}`.
-Do NOT switch branches, commit, or push. Toolchain: `{{how-to-run-tools}}` (use it,
-not host binaries). Create ONLY `{{artifact-path}}`; touch nothing else.
+You are building throwaway spike `{{id}}` in worktree `{{worktree-path}}` on branch
+`{{branch}}` (created for you by `git worktree add`; the main checkout is off limits).
+Do NOT switch branches or push. Toolchain: `{{how-to-run-tools}}` (use it, not host
+binaries). Create ONLY `{{artifact-path}}`; touch nothing else.
 
 ## Problem
 {{one-paragraph problem statement — the thing being resolved, same for all agents}}

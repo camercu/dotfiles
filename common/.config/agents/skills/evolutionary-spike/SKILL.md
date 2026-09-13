@@ -11,8 +11,8 @@ Resolves a hard design or feasibility question empirically: many throwaway proto
 
 Build-to-know loop. Hard design/feasibility question, several viable answers,
 can't settle by reasoning → build throwaway prototype spikes, compare, eliminate,
-converge, decide. Output = ADR + findings doc w/ cost-benefit verdict. Verdict may
-= "don't build it" — valid outcome.
+converge, decide. Output = ADR (lands on main) + findings doc (spike branch only)
+w/ cost-benefit verdict. Verdict may = "don't build it" — valid outcome.
 
 ## When
 
@@ -54,6 +54,8 @@ costly / irreversible). USER forces any tier on demand — override beats heuris
    stabilize as genuine axes. Independent review to fixpoint.
 5. **DECIDE.** Findings doc + ADR: chosen design, IMPACT on the real codebase,
    cost-benefit / net-positive verdict, open items for the real build. Or "don't build".
+   ADR crosses to main; findings + spike code stay on the spike branch. Ship a winner
+   as fresh production code, never merged spike code (see Artifacts).
 
 ## Agents
 
@@ -79,6 +81,17 @@ costly / irreversible). USER forces any tier on demand — override beats heuris
   `isolation: "worktree"`), `spike/<topic>-<variant>`. Pricier to set up + compare →
   favor smaller N; comparability harness matters more here.
 
+**WHERE: worktrees under a git-excluded dir IN the repo.** Look for the repo's
+existing one first (`.spike-workspace/`, `.spikes/` — check `.gitignore`); create and
+ignore one only if absent. `git worktree add .spike-workspace/<variant> -b
+spike/<topic>-<variant>`.
+
+NEVER copy the repo to `/tmp`. Measured on one 123MB repo: worktree 1.5MB, `cp -R`
+123MB, and `cp -R` with a stale `target/` 24GB — which killed three arms twice. And
+`/tmp` is NOT durable: a reaper took every report and patch from a finished
+tournament. A worktree shares the object store, so arm commits are durable in the
+repo's own `.git` while the tree stays untracked and main stays clean.
+
 ## Gates
 
 Autonomous between decisions: dispatch, review, digest, verify.
@@ -86,7 +99,8 @@ Gated (stop + present): **eliminations** (recommend + justify; user approves —
 auto-cut STRICTLY-dominated candidates with a logged reason, gate only judgment
 calls); **round/tier transitions**; **final verdict**.
 Commits AUTOMATIC after each review pass and before each elimination — preserve every
-spike in git history for recovery. Commits are LOCAL; PUSH stays gated (outward-facing).
+spike in git history for recovery. They land on the SPIKE BRANCH, never main, and are
+never pushed. Only an ADR reaches main, and pushing that is gated (outward-facing).
 Capture lessons BEFORE deleting anything. Always.
 
 ## Stop
@@ -100,13 +114,26 @@ visibly untried (mostly satisfied by the front-loaded breadth sweep).
 
 ## Artifacts
 
-- **Findings doc**: `docs/spikes/<topic>-findings.md`. LIVING record that DOUBLES AS
-  the resumable checkpoint (safe across /clear). Skeleton = `references/findings-template.md`.
+**SPIKES NEVER TOUCH MAIN — code and findings both.** Spikes are temporary by
+definition; main is what every downstream clone/fork carries forever. Temporary work
+must not levy permanent tax. Only the ADR crosses.
+
+- **Spike branch**: `spike/<topic>`. Holds spike code AND findings doc. Auto-committed,
+  NEVER merged, never pushed. A branch is durable (survives /clear, session death, tmp
+  reaper) without taxing main — that is why the checkpoint lives there, not in `/tmp`.
+  Scratch dirs under `/tmp` are NOT durable: reaped without warning, taking every
+  report and patch with them.
+- **Findings doc**: `<topic>-findings.md`, ON THE SPIKE BRANCH. LIVING record that
+  DOUBLES AS the resumable checkpoint. Skeleton = `references/findings-template.md`.
   Keep ephemeral orchestration bits (in-flight agent IDs) OUT.
-- **ADR**: `docs/adr/NNNN-*.md`. Decision + impact analysis + cost-benefit/net-positive
-  verdict + open items. Status: proceed / don't-proceed / accepted-but-deferred.
-- **Spike code**: throwaway `spike/<topic>` branch(es), auto-committed, NOT merged.
-  Only durable outputs (findings + ADR) land on main.
+- **ADR**: `docs/adr/NNNN-*.md` — the ONLY spike output that lands on main. Decision +
+  impact analysis + cost-benefit/net-positive verdict + open items. Status: proceed /
+  don't-proceed / accepted-but-deferred. Must STAND ALONE: reader gets the lesson
+  without the spike branch, which may be gone.
+- **Shipping a winner**: write it FRESH against main, to production quality. Never
+  merge or cherry-pick spike code. Spikes are built to answer a question, not to a
+  shipping bar — no tests, no edge cases, no docs, shortcuts taken to get an answer
+  fast. Copying wholesale imports that debt. Lessons transfer; code does not.
 
 ## Comparability
 
@@ -122,5 +149,26 @@ fixed inputs). Identical demos make diffing + honesty-checking cheap.
 - **Zombie agents**: parallel spike agents can finish LATE (after a session-limit
   reset) and re-create deleted spike files — even from their own backups. Before each
   commit, re-verify the tree and remove strays so an eliminated design can't resurrect.
+- **A dead agent's uncommitted work is NOT lost.** It is on your filesystem. Read it,
+  build it, test it, commit it yourself. An arm that dies mid-run loses the ability to
+  EXPLAIN its work, not the work. Wip-commit rules exist to save you the recovery, not
+  because uncommitted means gone. Before writing off any arm: `git -C <worktree> status`,
+  then run its tests. Recovered 1300 lines and 40 passing tests from an arm that had
+  been declared unverifiable.
+  Never call an arm's code unverifiable while the compiler and its tests can still run.
+  That inverts the tournament's own rule: an arm's self-report is the weak evidence, and
+  a green suite you ran yourself is the strong evidence.
+- **"Running" is not "working".** Check disk mtimes, not agent status, to tell a live
+  arm from a stalled one. And a stalled arm is usually rate-limited rather than dead:
+  resume it before you kill it, because its transcript carries context no relaunch has.
+- **Check for the repo's existing spike convention BEFORE inventing one.** One
+  `grep spike .gitignore` would have found `/.spike-workspace`, a `spike/*` branch, and
+  a whole prior tournament's worktrees still on disk. Missing it cost a lost
+  tournament. Repos that have run this skill already carry its scaffolding.
+- **Colocated jj: deleting a spike branch can abandon its commits.** `git branch -D
+  spike/x` drops the ref; jj's next import sees the commits as unreachable and abandons
+  them — including any main-line commit that branch happened to point at. Recover with
+  `jj op log` + `jj op restore <op>`; nothing is lost if you notice. Prefer
+  `jj bookmark delete`, or verify `jj log` right after any `git branch -D`.
 - Self-review is polluted by author bias — disclose it and weight it below an
   independent review; never let it stand as the final verdict above the smallest tier.

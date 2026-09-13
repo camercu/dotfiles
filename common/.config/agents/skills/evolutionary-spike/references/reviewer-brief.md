@@ -12,6 +12,11 @@ switch branches or commit.
 ## Review these
 {{spike file(s) / branch(es)}} — prototypes that {{one-line goal}}.
 
+Review what is ON DISK, not what an arm committed. An arm killed mid-run leaves
+working-tree changes behind; `git status` each worktree first and include the
+uncommitted files. They are the arm's latest state, and reviewing the last commit
+instead silently reviews an older design.
+
 ## Check
 1. **Correctness** — logic bugs, wrong assertions, panic/overflow, behavior
    contradicting the file's own doc.
