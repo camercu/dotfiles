@@ -36,7 +36,7 @@ use_text_patch_fallback = false
 research_subagent = false
 subagents = true
 auto_install_vscode_extension = true
-merge_system_messages = false
+merge_system_messages = true
 
 [retry]
 initial_backoff_ms = 200
@@ -73,7 +73,7 @@ accept_invalid_certs = false
 
 [session]
 provider_id = "ollama"
-model_id = "qwen3.6:latest"
+model_id = "qwen3.8:27b-mlx"
 
 [updates]
 frequency = "daily"
