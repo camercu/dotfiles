@@ -42,7 +42,7 @@ return {
             return require("codecompanion.adapters.http").extend("ollama", {
               schema = {
                 model = {
-                  default = "glm-4.7-flash:latest",
+                  default = "qwen3.8:27b-mlx",
                 },
               },
             })
@@ -70,10 +70,8 @@ return {
               commands = {
                 default = command,
               },
-              schema = {
-                model = {
-                  default = "anthropic/claude-opus-4-8/high",
-                },
+              env = {
+                CLAUDE_MODEL = "opus",
               },
             })
           end,
@@ -82,18 +80,26 @@ return {
 
       interactions = {
         chat = {
-          adapter = "claude_code",
+          adapter = "ollama",
         },
         inline = {
-          adapter = "claude_code",
+          adapter = "ollama",
         },
         background = {
-          adapter = "ollama",
+          adapter = {
+            name = "ollama",
+            model = "qwen2.5-coder:latest",
+          },
+          chat = {
+            opts = {
+              enabled = true, -- auto-generate chat buffer titles
+            },
+          },
         },
         cmd = {
           adapter = {
             name = "ollama",
-            model = "codellama:7b-code",
+            model = "qwen2.5-coder:latest",
           },
         },
       },
