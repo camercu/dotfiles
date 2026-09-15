@@ -147,7 +147,6 @@ return {
           name = "Ollama",
           end_point = "http://localhost:11434/v1/completions",
           model = "qwen2.5-coder:latest",
-          -- model = "codellama:7b-code",
           optional = {
             max_tokens = 256,
             -- stop = { "\n\n" },
