@@ -17,21 +17,25 @@ return {
     init = function()
       vim.cmd("cnoreabbrev cc CodeCompanion") -- inline prompt
       vim.cmd("cnoreabbrev ccc CodeCompanionChat")
+
+      local ok, wk = pcall(require, "which-key")
+      if ok then
+        wk.add({ "<leader>a", group = "ai" })
+      end
     end,
 
+    -- claudecode.nvim used to own <leader>a*; freed up when it was removed
+    -- in favor of this plugin's own claude_code adapter.
     keys = {
-      -- was <leader>cp: collided with LazyVim's markdown-extra MarkdownPreviewToggle,
-      -- which wins as a buffer-local map in .md files. Grouped with the other
-      -- CodeCompanion binds under LocalLeader instead.
-      { "<LocalLeader>p", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "CodeCompanion Actions picker" },
+      { "<leader>ap", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "CodeCompanion Actions picker" },
       {
-        "<LocalLeader>c",
+        "<leader>ac",
         "<cmd>CodeCompanionChat Toggle<cr>",
         mode = { "n", "v" },
         desc = "CodeCompanion Chat Toggle",
       },
       {
-        "<LocalLeader>a",
+        "<leader>aa",
         "<cmd>CodeCompanionChat Add<cr>",
         mode = { "n", "v" },
         desc = "CodeCompanion Chat Add <selection>",
