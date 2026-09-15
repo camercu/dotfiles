@@ -44,6 +44,9 @@ return {
                 model = {
                   default = "qwen3.8:27b-mlx",
                 },
+                keep_alive = {
+                  default = "1h",
+                },
               },
             })
           end,
