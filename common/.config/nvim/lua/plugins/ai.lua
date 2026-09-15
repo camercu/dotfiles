@@ -20,7 +20,10 @@ return {
     end,
 
     keys = {
-      { "<leader>cp", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "CodeCompanion Actions picker" },
+      -- was <leader>cp: collided with LazyVim's markdown-extra MarkdownPreviewToggle,
+      -- which wins as a buffer-local map in .md files. Grouped with the other
+      -- CodeCompanion binds under LocalLeader instead.
+      { "<LocalLeader>p", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "CodeCompanion Actions picker" },
       {
         "<LocalLeader>c",
         "<cmd>CodeCompanionChat Toggle<cr>",
