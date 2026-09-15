@@ -1,6 +1,5 @@
 return {
   "HakonHarnes/img-clip.nvim",
-  dependencies = { "nvim-telescope/telescope.nvim" },
   event = "VeryLazy",
   init = function()
     local ok, wk = pcall(require, "which-key")
@@ -13,29 +12,17 @@ return {
     {
       "<leader>if",
       function()
-        local telescope = require("telescope.builtin")
-        local actions = require("telescope.actions")
-        local action_state = require("telescope.actions.state")
-
-        telescope.find_files({
-          attach_mappings = function(_, map)
-            local function embed_image(prompt_bufnr)
-              local entry = action_state.get_selected_entry()
-              local filepath = entry and (entry.path or entry.filename or entry.value or entry[1])
-              actions.close(prompt_bufnr)
-              if not filepath then
-                vim.notify("No file path found in selected Telescope entry", vim.log.levels.WARN)
-                return
-              end
-
-              local img_clip = require("img-clip")
-              img_clip.paste_image(nil, filepath)
+        -- Snacks' file preview renders actual images (via snacks.image), unlike
+        -- telescope's default previewer, so picking here doubles as an image browser.
+        Snacks.picker.files({
+          confirm = function(picker, item)
+            picker:close()
+            local filepath = item and Snacks.picker.util.path(item)
+            if not filepath then
+              vim.notify("No file path found in selected picker entry", vim.log.levels.WARN)
+              return
             end
-
-            map("i", "<CR>", embed_image)
-            map("n", "<CR>", embed_image)
-
-            return true
+            require("img-clip").paste_image(nil, filepath)
           end,
         })
       end,
