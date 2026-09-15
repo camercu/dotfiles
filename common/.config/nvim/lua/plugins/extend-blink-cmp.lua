@@ -67,6 +67,9 @@ return {
         default = { "lsp", "path", "snippets", "buffer", "emoji", "minuet", "codecompanion" },
         per_filetype = {
           codecompanion = { "codecompanion" },
+          -- obsidian.nvim registers these as cmp sources for [[wikilink]] / #tag
+          -- completion (see obsidian.lua); wrapped via blink.compat like emoji below.
+          markdown = { "obsidian", "obsidian_new", "obsidian_tags", "lsp", "path", "snippets", "buffer", "emoji", "minuet", "codecompanion" },
         },
         providers = {
           emoji = {
@@ -89,6 +92,9 @@ return {
             timeout_ms = request_timeout * 1000,
             score_offset = 50, -- Gives minuet higher priority among suggestions
           },
+          obsidian = { name = "obsidian", module = "blink.compat.source" },
+          obsidian_new = { name = "obsidian_new", module = "blink.compat.source" },
+          obsidian_tags = { name = "obsidian_tags", module = "blink.compat.source" },
         },
       },
       appearance = {
