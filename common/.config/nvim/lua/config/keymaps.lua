@@ -20,11 +20,6 @@ vim.keymap.set("n", "<leader><S-Enter>", "m`o<Esc>``", { desc = "Insert newline 
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next Search Result" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Prev Search Result" })
 
---
--- Text manipulation
---
--- Title case entire line
--- built referenceing :help ordinary-atom
-vim.keymap.set("n", "gat", "m`guu<cmd>s/\\<\\a/\\u&/g<cr><cmd>noh<cr>``", { desc = "Title Case Line" })
--- Sentence case entire line (capitalize first letter, rest lowercase)
-vim.keymap.set("n", "gaT", "m`guu<cmd>s/\\<\\a/\\u&/<cr><cmd>noh<cr>``", { desc = "Sentence case line" })
+-- Title Case / Sentence case moved to plugins/textcase.lua as coerce.nvim
+-- cases (`gat`/`gaT`), so they get which-key labels and word/motion/visual
+-- scope like every other coerce case instead of a whole-line-only special case.
