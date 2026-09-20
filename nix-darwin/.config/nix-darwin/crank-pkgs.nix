@@ -70,6 +70,7 @@
       "discord"
       "docker-desktop"
       "dropbox"
+      "fluidvoice"
       "folx"
       "ghostty"
       "gpg-suite"
