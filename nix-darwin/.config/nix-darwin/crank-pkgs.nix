@@ -92,7 +92,6 @@
       "visual-studio-code"
       "warp"
       "wireshark-app"
-      "wispr-flow" # AI Voice Transcription
       "zed"
       "zoom"
     ];
