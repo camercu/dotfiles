@@ -5,6 +5,7 @@ flake.lock
 
 linux/.mozilla/firefox/*
 common/.config/zsh/env/claude-oauth.zsh
+common/.config/agents/skills/synced/
 
 # BEGIN GENERATED DOTFILE ARTIFACT IGNORES
 .DS_Store
