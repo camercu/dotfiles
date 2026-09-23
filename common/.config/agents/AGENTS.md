@@ -72,6 +72,7 @@ Trunk-based. These rules = whole git workflow.
   PR; merge fast, delete.
 - Message: `conventional-commits` skill.
 - Push = outward-facing: confirm first unless user said proceed. Shared trunk:
-  fast-forward only (`guard-push` hook fetches + rebases).
+  fast-forward only; never force-push or delete it. `guard-push` hook fetches +
+  rebases.
 
 @RTK.md
