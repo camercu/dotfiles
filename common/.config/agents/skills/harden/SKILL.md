@@ -272,14 +272,14 @@ Post-implementation passes over the slices just landed. Each can reverse on evid
   lint, perf budget) → lock w/ a **ratchet** or a CI gate that runs code. Weak
   tests → mutation testing over the landed range (`cargo mutants --in-diff`);
   survivors = findings. Never lock a rule with a test that greps source or
-  config text — structure, behaviour, review instead (CLAUDE.md, *Test guards*).
+  config text — structure, behaviour, review instead (`~/.config/agents/guard-ladders.md`, *Test guards*).
 - **Docs** (implementing context, #7) — propagate every behavior change into all docs describing it: README,
   API docs, man pages, CLI help, examples, changelog. Regenerate generated docs from
   source; a doc contradicting code = defect. (Reversing an authority doc → gate, #1.)
   Close drift at the source before reaching for a guard test over prose: cut the
   over-specified detail, or generate it from the source of truth. A prose guard
   is the last resort, and says in itself why the other two did not reach —
-  CLAUDE.md, *Docs drift*.
+  `~/.config/agents/guard-ladders.md`, *Docs drift*.
 
 ## Gate protocol
 

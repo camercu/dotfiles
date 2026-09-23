@@ -142,7 +142,7 @@ tautology theatre (zero value, inflates coverage). Five types:
 - **Source-text guard** — reads source or config text for a pattern (grep for
   `/tmp`, a flag in a build recipe) and never runs code. Checks spelling, so it
   misses the next spelling of the mistake. Recommend structure, a behavioural
-  tier, or review instead (CLAUDE.md, *Test guards*); keep only when it
+  tier, or review instead (`~/.config/agents/guard-ladders.md`, *Test guards*); keep only when it
   records why none reach. (N)
 
 ## Assertion strength
