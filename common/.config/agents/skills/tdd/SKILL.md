@@ -35,6 +35,9 @@ Cross-refs: `/improve-architecture` (module-level), `/simplify` (code-level clea
 - **Call your shots.** Predict the failure, run, confirm it fails for that reason. Mismatch reveals misunderstanding.
 - **Fast and deterministic.** Whole suite ≤10s, zero flakes.
 - **Prove-It rule.** No bug fix without a failing reproduction test first; passing test = fixed + regression-proofed.
+- **Test runs code, never reads it.** Regression test for a mistake = exercise the behaviour that broke. A test that greps source or config for a banned pattern checks spelling: misses the next spelling, rots on reword. Prefer structure (one source, bad state impossible), then a behavioural tier, then review. See CLAUDE.md, *Test guards*.
+- **Can the test fail? Ask the mutation tool.** After GREEN, run mutation testing over the change (`cargo mutants --in-diff`, Stryker, mutmut). Survivor = code no test constrains: sharpen the test, or record why the mutant is equivalent.
+- **Docs: unfalsifiable beats auto-generated, which beats guarded.** Three tiers, in order. **Unfalsifiable**: state the rule, not the enumeration, so there is no volatile fact to get wrong. **Auto-generated**: the fact must appear and changes often → emit it from the source of truth, one copy. **Guarded**: a test comparing prose to code — brittle, since it parses wording and freezes the doc's shape. Guard only what must be stated, cannot be generated, and drifts expensively; say in the test why the two above did not reach. See CLAUDE.md, *Docs drift*.
 
 ## Workflow: Double Loop
 

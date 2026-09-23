@@ -59,7 +59,7 @@ strict; lower tier only when higher genuinely cannot reach:
    rot, no reviewer to catch it. Ask this first, every time.
 2. **Make it fail by itself.** Test, custom lint, CI gate, exhaustive match.
    For what types can't express. Must fail loud on the real mistake, not near
-   it.
+   it. Test must *run* code, not *read* it — see *Test guards*.
 3. **Prose.** Docs, comments, memory. Advisory only. Never alone for a mistake
    that can recur.
 
@@ -72,6 +72,50 @@ Smells that design is letting the error in:
 
 - comment says "remember to" / "callers must"
 - fix is "be careful next time"
+
+### Test guards: check behaviour, not spelling
+
+Test guard = test that scans source or config text for a pattern (grep
+`/tmp` in `src/`, recipe must contain `--all-targets`, no `return` under a
+privilege check). Reflex after a mistake, but weak: it checks spelling, not
+meaning. Misses next spelling of same mistake, flags harmless one, breaks on
+reword. Each missed shape grows the scanner; next shape still gets through.
+Order:
+
+1. **Structure.** Remove the second copy or make the bad state impossible:
+   one source (build arg, generated file, shared type), compare what the
+   code *does* (file identity, not path spelling).
+2. **Behaviour.** A tier that runs the code and fails on the mistake: a
+   platform without `/tmp`, the packaged crate built and tested, a resolved
+   dependency graph. For "can this test fail at all?": mutation testing
+   over the change (`cargo mutants --in-diff`), never a meta-test that
+   scans test shapes.
+3. **Review.** Rule about code or config shape (which flag, where a name
+   may appear): state it once at the site or in the ADR; reviewer reads the
+   diff. Scanner sees nothing reviewer doesn't.
+
+Text guard = last resort: fact must hold, no structure or behavioural tier
+reaches it, silent drift expensive. Test records why the three above did
+not reach.
+
+### Docs drift: same ladder, different tier 1
+
+Doc contradicts code = defect. Reflex is a guard test that compares prose to
+source. That is tier 2, and for prose it is the brittle kind: it parses wording,
+breaks on a reword, and freezes the doc's shape. Reach for tier 1 first. Two
+moves:
+
+1. **Say less.** Name the rule, not the enumeration. "`pub fn` wherever the
+   capability table grants `thread_count`" cannot go stale; a list of five
+   platforms goes stale the next time the table grows. Cut detail that changes
+   often — a doc that does not state a volatile fact cannot state it wrong.
+2. **Generate it.** Detail that must appear AND changes often: generate it from
+   the source of truth (build script, doc macro, `include_str!`, codegen). One
+   copy, so there is nothing to compare and nothing to drift.
+
+Guard test over prose = last resort for docs. Earns its place only when the fact
+must be stated, cannot be generated, and silent drift is expensive. Record in
+the test why the two moves above did not reach.
 
 ## Software Development Process
 
@@ -110,8 +154,10 @@ https://rust-lang.github.io/api-guidelines/checklist.html
 Repo has nix env (`shell.nix`/`flake.nix` + `.envrc`) → run ALL repo tools via
 that env (`nix-shell --run '<cmd>'` or direnv-loaded shell). NEVER host
 binaries. Applies: cargo-\*, gh, pandoc, pre-commit, everything repo touches.
-Reason: host/nix/CI toolchains drift; host tool "works" but wrong version →
-stale snapshots, CI-only breaks. No nix env in repo → host tools fine.
+Tool missing from `shell.nix`'s packages → `nix-shell -p <pkg> --run '<cmd>'`,
+not host binary. Reason: host/nix/CI toolchains drift; host tool "works" but
+wrong version → stale snapshots, CI-only breaks. No nix env in repo → host
+tools fine.
 
 ### Shell (zsh) footguns
 

@@ -130,7 +130,7 @@ Multi-property signals count for each (e.g. `Thread.sleep` hits both R and F).
 The plugin's signature check. A tautology-theatre test's outcome is
 predetermined by its own setup, independent of production code. Defining
 question: **"Would this still pass if all production code were deleted?"** Yes →
-tautology theatre (zero value, inflates coverage). Four types:
+tautology theatre (zero value, inflates coverage). Five types:
 
 - **Mock tautology** — configures a mock's return, then asserts the mock returns
   it, no production code between. `x = 5; assert x == 5`. (hits N, M)
@@ -139,6 +139,11 @@ tautology theatre (zero value, inflates coverage). Four types:
   `assertEquals(1, 1)`, `assertNotNull(new Object())`. (N)
 - **Framework test** — verifies language/framework, not app code:
   `assertNotNull(mock(Foo.class))`, `assertTrue("hello".contains("ell"))`. (N)
+- **Source-text guard** — reads source or config text for a pattern (grep for
+  `/tmp`, a flag in a build recipe) and never runs code. Checks spelling, so it
+  misses the next spelling of the mistake. Recommend structure, a behavioural
+  tier, or review instead (CLAUDE.md, *Test guards*); keep only when it
+  records why none reach. (N)
 
 ## Assertion strength
 

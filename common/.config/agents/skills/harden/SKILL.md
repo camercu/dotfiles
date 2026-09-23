@@ -220,7 +220,8 @@ Post-implementation passes over the slices just landed. Each can reverse on evid
   two-lens read below and returns ranked findings; main context implements accepted
   fixes. Two lenses:
   - *Inside the box* — bugs, regressions, **coverage gaps** (untested wiring = the
-    classic miss), security, design as written. Each finding = **lead, not ticket**:
+    classic miss), security, design as written. Mutation tool present → run it
+    over the range; each survivor = candidate finding. Each finding = **lead, not ticket**:
     defects cluster — name the class, sweep siblings; a docs/behavior mismatch often
     indicts a whole class of code.
   - *Outside the box (first principles)* — treat the current shape as accidental.
@@ -268,10 +269,17 @@ Post-implementation passes over the slices just landed. Each can reverse on evid
   or nullable infra (functional core / imperative shell). At most one narrow
   real-infra contract test per boundary. Trace tests to acceptance criteria, close
   *behavior* gaps not just uncovered lines. A quality bar that matters (coverage,
-  lint, perf budget) → lock w/ an enforcement test or **ratchet**.
+  lint, perf budget) → lock w/ a **ratchet** or a CI gate that runs code. Weak
+  tests → mutation testing over the landed range (`cargo mutants --in-diff`);
+  survivors = findings. Never lock a rule with a test that greps source or
+  config text — structure, behaviour, review instead (CLAUDE.md, *Test guards*).
 - **Docs** (implementing context, #7) — propagate every behavior change into all docs describing it: README,
   API docs, man pages, CLI help, examples, changelog. Regenerate generated docs from
   source; a doc contradicting code = defect. (Reversing an authority doc → gate, #1.)
+  Close drift at the source before reaching for a guard test over prose: cut the
+  over-specified detail, or generate it from the source of truth. A prose guard
+  is the last resort, and says in itself why the other two did not reach —
+  CLAUDE.md, *Docs drift*.
 
 ## Gate protocol
 
