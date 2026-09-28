@@ -7,12 +7,8 @@
   recommendation, reasons. Give enough context (real code, exact API) so user
   decides without reading history or diffs. Then wait.
 - Public text for user (docs, comments, PRs, commits): `/unslop` skill.
-- Agent-context files (AGENTS.md, CLAUDE.md, memory, skills): caveman style.
-  - Specialist detail in own file. Pointer says when to read it.
-  - Point to source of truth, with regex or line number. Summarize only when
-    summary saves much context.
-  - State target behavior. Prohibition only for hard guardrail with no
-    positive form; pair it with target.
+- Agent-read text (AGENTS.md, CLAUDE.md, memory, skills, subagent prompts,
+  briefs): `/writing-for-agents` skill.
 
 ## Engineering values
 

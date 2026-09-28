@@ -302,7 +302,7 @@ Any example files and directories not needed for the skill should be deleted. Th
 
 #### Update SKILL.md
 
-**Writing Guidelines:** Always use imperative/infinitive form.
+**Writing Guidelines:** Always use imperative/infinitive form. Write the body per the `writing-for-agents` skill: context pointers, done criterion, self-check, positive directives.
 
 ##### Frontmatter
 
@@ -316,7 +316,7 @@ Write the YAML frontmatter with `name` and `description`:
   - The body is only loaded after triggering, so a "When to Use This Skill" section in the body is dead weight — every cue must be in `description`.
   - Example for a `docx` skill: "Use when working with .docx files — creating a document, editing or reformatting one, applying or reviewing tracked changes, adding comments, or extracting text. Triggers on \"make me a Word doc\", \"edit this .docx\", \"track changes\"."
 
-Do not include any other fields in YAML frontmatter.
+Only other field: `disable-model-invocation: true` for a user-invoked skill (`writing-for-agents` skill, `SKILL-MECHANICS.md`).
 
 ##### Body
 
