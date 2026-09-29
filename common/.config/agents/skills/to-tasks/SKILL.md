@@ -9,7 +9,7 @@ description: Use when user wants to break work into tasks, slice a spec or plan 
 
 Break a plan or spec into independently-implementable **vertical slice** tasks.
 
-Maintenance-first sequencing: when a slice would build on a known weakness (fragile code, missing tests, an unclear abstraction), schedule the repair slice first — repair before expanding. Prefer the simplest slice that delivers value. (See the global maintenance-first values, if present.)
+Slice would build on a known weakness (fragile code, missing tests, unclear abstraction) → schedule the repair slice first.
 
 ## Input
 

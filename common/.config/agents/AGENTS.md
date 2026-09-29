@@ -42,7 +42,9 @@ read `~/.config/agents/guard-ladders.md`.
 - Behavior change: `/tdd`. Every change, refactor too: then `/harden`. Fix
   incidental issues found on the way.
 - Named skill = real Skill tool call. Cannot run: report SKIPPED + reason.
-- Fresh agent reviews own work.
+- Fresh agent reviews own work: context that authored the code spawns a fresh
+  reviewer unless a human vets the findings. Already a spawned reviewer →
+  review in place.
 - Rust library public API: follow
   https://rust-lang.github.io/api-guidelines/checklist.html
 
