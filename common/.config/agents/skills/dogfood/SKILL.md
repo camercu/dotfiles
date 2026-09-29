@@ -29,7 +29,7 @@ user. All scratch work in `/tmp`.
 - **fresh-subagent**: context contaminated (already worked target this session) *and*
   the surface wide enough that cold-walk innocence matters. Offer user: spawn a fresh
   agent whose prompt = only "dogfood per docs at <path>", collect report back.
-  Default without contamination: run inline w/ the discipline rule (below).
+  Default without contamination: run inline with the discipline rule (below).
 
 ## Safety rails (every pass)
 
@@ -46,7 +46,7 @@ user. All scratch work in `/tmp`.
 **Fast-exit:** change touches *no* consumer-observable surface (internal test,
 refactor, doc, lockfile)? Emit a one-line **N/A report** (target, change scope,
 "friction source = diff review") + stop; don't enumerate the target to learn the
-change touched none of it. Scope to *the change* — a big target w/ a doc-only diff
+change touched none of it. Scope to *the change* — a big target with a doc-only diff
 still fast-exits. (No change under review = full-target run.)
 
 Machine-enumerate when tooling exists, else docs-declared surface. Write the

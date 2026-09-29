@@ -44,7 +44,7 @@ Spine. Override convenience always.
 6. **Named passes delegated, not simulated.** A phase naming a skill = **that skill
    gets invoked** via the Skill tool — by the main context, or by a fresh agent it
    delegates to (#7); inline reasoning supplements, never replaces the call.
-   Analysis by hand w/ invocation skipped = a skipped pass — record it (Closing
+   Analysis by hand with invocation skipped = a skipped pass — record it (Closing
    ledger), don't self-substitute + report it as run. Invoking harden = consent to
    these sub-skill spawns; don't re-litigate spawn-aversion each pass.
 7. **Evaluative passes run fresh — reviewer never the author.** Passes *judging the
@@ -77,12 +77,12 @@ over-spending.
 - **Default = one fresh evaluative agent per pass (#7).** One agent may carry
   several *adjacent* evaluative passes on a small diff: a near-done diff where
   Review + Simplify + Architecture all plausibly conclude "already right shape" →
-  one structural-review agent carries all three (log each ledger row w/ the shared
+  one structural-review agent carries all three (log each ledger row with the shared
   finding). Bundle-down = a judgment call you *record*, not a corner cut.
 - **Split into multiple agents only for large blast radius** — wide public surface
   or several subsystems, more than one fresh agent can hold. Split or bundle = a
   judgment call you *record*; freshness never bends, only the count.
-- Non-review gates scale too: a gate w/ one obvious option = one chat question
+- Non-review gates scale too: a gate with one obvious option = one chat question
   (AGENTS.md *Writing*), not a full `grill-me`.
 
 ## Run ledger (state on disk)
@@ -96,7 +96,7 @@ disk; survives /clear, crash, session end. Checkpoint, don't compact.
 - Created in Phase 0. Updated at every **checkpoint**: phase transition, slice
   commit, gate verdict, pass ledger row (RAN / N/A / SKIPPED).
 - Contents: scope + target commit range; verification matrix; authority-doc
-  location; prioritized slice queue w/ per-slice status (pending / in-progress /
+  location; prioritized slice queue with per-slice status (pending / in-progress /
   done + commit subjects); phase-4 pass rows; open gates + user verdicts;
   friction-report location; pointers to captured decisions (durable homes stay
   ADR / commit bodies per #5 — ledger points, never substitutes).
@@ -146,7 +146,7 @@ Detect conventions before touching anything:
   set = the ledger checklist (#6) — one row each, RAN or SKIPPED-with-reason.
 
 Then: existing `.harden/LEDGER.md` → resume protocol (Run ledger section); none
-→ create it w/ scope, matrix, authority doc. Repo-wide scope → build the slice
+→ create it with scope, matrix, authority doc. Repo-wide scope → build the slice
 queue now (Repo-wide section).
 
 State detected matrix + authority doc in one line, proceed.
@@ -176,7 +176,7 @@ If the Phase-4 Review agent already read the final range unprimed, it *is* this 
 — don't spawn another; a separate one is needed only when Review ran mid-loop, before
 later slices landed.
 
-Skip a phase only w/ a stated reason.
+Skip a phase only with a stated reason.
 
 ### 1 — Exercise → friction
 Run the `dogfood` skill — it owns this pass (docs-first cold walk, full
@@ -185,13 +185,13 @@ Cold mode default; its fresh-subagent mode when this context already worked the
 target. Output = ranked friction report = phase 2's input (`soundness` findings feed
 the Soundness pass). Convergence close = `dogfood re-eval <report>`.
 
-`dogfood` self-determines N/A on a change w/ no consumer-observable surface + fast-
+`dogfood` self-determines N/A on a change with no consumer-observable surface + fast-
 exits — carry that to the ledger; friction source there = Phase-4 Review, pulled
 forward.
 
 ### 2 — Grill → decide ⟨GATE⟩
 Each finding → walk the decision tree, **recommend**, but the call is the user's. Use
-`grill-me`. Challenge every option w/ codebase evidence; prefer what the code
+`grill-me`. Challenge every option with codebase evidence; prefer what the code
 supports over the elegant-sounding option. Resolve inter-decision dependencies first.
 **Gate: don't implement till the user chose.** Check each chosen fix vs authority doc
 (#1) before it enters the plan. No fixable findings → gate vacuous: note it + proceed
@@ -225,7 +225,7 @@ Post-implementation passes over the slices just landed. Each can reverse on evid
     be the real defect.
 
   Apply clear in-contract wins directly. Don't suppress the rest: a reframing
-  reversing an authority doc = conflict (#1) → gate w/ the behavior-equivalence
+  reversing an authority doc = conflict (#1) → gate with the behavior-equivalence
   argument + recommendation; one too big for a slice → `to-tasks` plan. Ambition
   unbounded; authority to land it is not.
 - **Soundness** (implementing context, #7 — enumerates *this* change's invariants) —
@@ -256,11 +256,11 @@ Post-implementation passes over the slices just landed. Each can reverse on evid
   to a fresh agent already): hunt
   slow/flaky tests. **Never tolerate; fix the source** — no sleeps-as-sync, no
   retry-on-flake (a race in a test usually = a real ordering bug). Replace shared
-  mutable global state w/ per-test isolation; replace real I/O / clocks w/ injected
+  mutable global state with per-test isolation; replace real I/O / clocks with injected
   or nullable infra (functional core / imperative shell). At most one narrow
   real-infra contract test per boundary. Trace tests to acceptance criteria, close
   *behavior* gaps not just uncovered lines. A quality bar that matters (coverage,
-  lint, perf budget) → lock w/ a **ratchet** or a CI gate that runs code. Weak
+  lint, perf budget) → lock with a **ratchet** or a CI gate that runs code. Weak
   tests → mutation testing over the landed range (`cargo mutants --in-diff`);
   survivors = findings. Never lock a rule with a test that greps source or
   config text — structure, behaviour, review instead (`~/.config/agents/guard-ladders.md`, *Test guards*).

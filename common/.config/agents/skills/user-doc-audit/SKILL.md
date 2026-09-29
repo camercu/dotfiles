@@ -72,11 +72,11 @@ Techniques to reach for *only when they fit* (tools, not requirements):
 mental-model diagram, smallest-working example before fuller ones, a
 positioning line, a recipes/gotchas section for edge cases.
 
-## Phase 5 — verify result (MANDATORY gate; skip a check only w/ stated reason)
+## Phase 5 — verify result (MANDATORY gate; skip a check only with stated reason)
 - Anchors resolve (if any internal links/TOC exist) — each → real heading.
 - Examples compile + use current API (doctests / scratch build).
 - Sync-tested tables pass; re-grep stale refs (renamed/removed things).
-- Cross-doc: no contradiction w/ coupled docs (API/spec/man). Fix whichever
+- Cross-doc: no contradiction with coupled docs (API/spec/man). Fix whichever
   wrong; if from duplication, collapse to one canonical home (#2).
 
 ## Gate
