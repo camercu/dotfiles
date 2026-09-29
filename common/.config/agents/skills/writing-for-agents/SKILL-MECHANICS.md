@@ -92,10 +92,10 @@ Run after every skill edit. Passes when each line ends `Skill is valid!`:
 
 ```sh
 nix-shell -p 'python3.withPackages(p: [p.pyyaml])' --run \
-  'python3 scripts/validate_skill.py <skill-dir>...'
+  'python3 ~/.config/agents/skills/writing-for-agents/scripts/validate_skill.py <skill-dir>...'
 ```
 
-Path is relative to this file. Checks frontmatter keys, name = directory,
+Checks frontmatter keys, name = directory,
 trigger cue in description, and Overview rule.
 
 ## Iterate from use
