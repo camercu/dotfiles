@@ -667,6 +667,10 @@ run_skill_validate_test() {
     echo "skills: validator rejected a skill" >&2
     return 1
   fi
+  if ! bash "$SCRIPT_DIR/test-validate-skill-rules.sh" >"$LAST_LOG" 2>&1; then
+    echo "skills: validator rule controls failed" >&2
+    return 1
+  fi
 }
 
 run_syntax_selfcheck_test
