@@ -1,15 +1,6 @@
 {
   "version": 3,
   "skills": {
-    "conventional-commits": {
-      "source": "sundial-org/awesome-openclaw-skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/sundial-org/awesome-openclaw-skills.git",
-      "skillPath": "skills/conventional-commits/SKILL.md",
-      "skillFolderHash": "f4b50e0033f6089cef6edd7c2ddd07d8526e0d2b",
-      "installedAt": "2026-02-22T13:19:11.299Z",
-      "updatedAt": "2026-02-22T13:19:11.299Z"
-    },
     "find-skills": {
       "source": "vercel-labs/skills",
       "sourceType": "github",
