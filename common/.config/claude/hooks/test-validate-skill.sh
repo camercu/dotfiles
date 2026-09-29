@@ -26,6 +26,13 @@ expect "broken skill blocked"        "$(run_hook "$scratch/bad-skill/SKILL.md")"
 expect "reason reaches stderr"       "$(grep -c "differs from directory" "$scratch/err")" 1
 expect "missing file_path passes"    "$(bash "$hook" <<<'{}' >/dev/null 2>&1; echo $?)" 0
 
+# Third-party skills (plugins, claude.ai-synced) follow their authors' rules.
+for root in ".claude/plugins/cache/p/skills" "agents/skills/synced/id"; do
+  mkdir -p "$scratch/$root/bad-skill"
+  cp "$scratch/bad-skill/SKILL.md" "$scratch/$root/bad-skill/SKILL.md"
+  expect "third-party $root skipped" "$(run_hook "$scratch/$root/bad-skill/SKILL.md")" 0
+done
+
 # Host without nix-shell: PATH holds only the tools the hook needs besides it.
 mkdir -p "$scratch/bin-nonix" "$scratch/bin-brokennix"
 for tool in jq basename dirname mktemp tail rm; do ln -s "$(command -v "$tool")" "$scratch/bin-nonix/$tool"; done

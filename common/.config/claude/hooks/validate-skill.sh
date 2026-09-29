@@ -6,11 +6,16 @@
 #
 # Exit 2 feeds the result back to Claude: the validator's rejection, or a
 # notice that the skill went unvalidated because the validator could not run.
-# Anything other than a SKILL.md, or a payload without a path, exits 0.
+# Anything other than a SKILL.md, a third-party skill, or a payload without
+# a path exits 0.
 set -euo pipefail
 
 file="$(jq -r '.tool_input.file_path // .tool_response.filePath // ""')"
 [ "$(basename "$file")" = "SKILL.md" ] || exit 0
+# Plugin and claude.ai-synced skills follow their authors' rules, not ours.
+case "$file" in
+  */.claude/plugins/* | */skills/synced/*) exit 0 ;;
+esac
 
 here="$(cd "$(dirname "$0")" && pwd)"
 VALIDATOR="$here/../../agents/skills/writing-for-agents/scripts/validate_skill.py"
