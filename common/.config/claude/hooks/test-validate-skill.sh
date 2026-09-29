@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Controls for validate-skill.sh: a broken SKILL.md edit is reported (exit 2,
+# reason on stderr); a valid one and any other file pass silently.
+set -euo pipefail
+
+here="$(cd "$(dirname "$0")" && pwd)"
+hook="$here/validate-skill.sh"
+skills="$here/../../agents/skills"
+scratch="$(mktemp -d)"
+trap 'rm -rf "$scratch"' EXIT
+fails=0
+hook_json() { printf '{"tool_name":"Edit","tool_input":{"file_path":%s}}' "$(printf '%s' "$1" | jq -Rs .)"; }
+run_hook() { local code=0; bash "$hook" <<<"$(hook_json "$1")" >/dev/null 2>"$scratch/err" || code=$?; echo "$code"; }
+expect() { if [ "$2" = "$3" ]; then echo "ok  - $1"; else echo "FAIL- $1 (got $2 want $3)"; fails=$((fails+1)); fi; }
+
+mkdir -p "$scratch/bad-skill"
+printf -- '---\nname: other-name\ndescription: Use when testing.\n---\n\nBody.\n' >"$scratch/bad-skill/SKILL.md"
+
+expect "valid skill passes"          "$(run_hook "$skills/grill-me/SKILL.md")" 0
+expect "non-skill file passes"       "$(run_hook "$skills/unslop/technical.md")" 0
+expect "broken skill blocked"        "$(run_hook "$scratch/bad-skill/SKILL.md")" 2
+expect "reason reaches stderr"       "$(grep -c "differs from directory" "$scratch/err")" 1
+expect "missing file_path passes"    "$(bash "$hook" <<<'{}' >/dev/null 2>&1; echo $?)" 0
+
+echo "---"
+if [ "$fails" -eq 0 ]; then
+  echo "all validate-skill controls passed"
+  exit 0
+fi
+echo "$fails failed"
+exit 1

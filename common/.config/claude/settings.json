@@ -55,6 +55,19 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.dotfiles/common/.config/claude/hooks/validate-skill.sh\"",
+            "timeout": 120,
+            "statusMessage": "validate skill"
+          }
+        ]
+      }
     ]
   },
   "enableWorkflows": true,
