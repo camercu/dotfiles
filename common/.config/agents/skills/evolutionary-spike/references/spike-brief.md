@@ -1,15 +1,16 @@
 # Spike brief template
 
 Fill the `{{slots}}`, keep one mode block, dispatch. `## Problem` is identical
-for every spike in a round, so results compare. Adapt wording with judgement;
-keep the quality bar, honesty and proof sections in every brief.
+for every spike in a round, so results compare. Keep the quality bar, honesty
+and proof sections in every brief.
 
 ---
 
 You are building throwaway spike `{{spike-id}}`. Work only in
 `{{worktree-path}}` on branch `{{branch}}` (already created for you). Files in
-scope: `{{artifact-path}}` (additive) or whatever `src/` edits the mechanism
-needs (invasive); every other file stays as it is. Toolchain:
+scope: `{{new files, e.g. examples/<spike-id>.rs}}` (additive) or whatever
+existing files the mechanism needs, manifest and lockfile included
+(invasive); every other file stays as it is. Toolchain:
 `{{how-to-run-tools}}`, run through that, not host binaries. The orchestrator
 commits.
 

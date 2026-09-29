@@ -19,39 +19,46 @@ Pipeline: `to-spec` (what) → this (which shape) → `tdd` (build it) → `hard
 
 Start at the smallest tier that answers the question. Escalate when spikes
 disagree, or the choice is costly or irreversible. The user's tier choice and
-spike count override, up or down.
+spike count (total, clean-room included) override, up or down.
 
-- **Light**: steps 1-3 and 5 of the loop, no Refine. 2-4 spikes in total,
-  clean-room ones included; one agent may build them all. The Converge gate is
-  the stop gate. Self-review allowed (overrides `AGENTS.md`'s fresh-agent
-  review); the findings doc says so and rates confidence lower.
-- **Heavy**: full loop, several rounds, fresh reviewer every round, capstone
-  synthesis, ADR.
+- **Light**: loop steps 1-3 and 5, 2-4 spikes. One agent may build several
+  directed spikes; each clean-room spike gets its own agent. Self-review with
+  `references/reviewer-brief.md` checks allowed (overrides `AGENTS.md`'s
+  fresh-agent review); the findings doc's Confidence line says so. Gate says
+  continue → escalate to Heavy.
+- **Heavy**: full loop, one or more Refine rounds, fresh reviewer every round.
 
 ## Loop
 
 Breadth first, then depth.
 
-1. **Frame.** Set up the workspace (*Isolation*), copy
-   `references/findings-template.md` into it, fill Question, Constraints
-   (requirements, not solutions), Contract, and the list of known mechanisms.
-   User named no approaches → the mechanism list goes to the user for approval.
-   Done when the header is filled and the list approved.
+1. **Frame.** Set up the workspace (*Isolation*) and fill the findings doc's
+   Question, Constraints (requirements, not solutions), Mechanisms and
+   Contract. Contract = harness inputs + expected output format + verify
+   commands; you define it, each spike implements it. Feasibility question
+   ("is X worth it") → the current implementation is spike `baseline`, run on
+   the same harness. User named no approaches → the mechanism list goes to the
+   user for approval. Done when those four sections are filled and the list
+   approved.
 2. **Breadth sweep.** In parallel: one **directed** spike per listed
    mechanism, plus a few pure **clean-room** spikes to show where unanchored
    designers converge and to surface mechanisms nobody listed. Front-loading
-   the sweep is what makes later convergence trustworthy. Done when every spike
-   is built and committed.
-3. **Converge.** Independent review of every spike (`references/reviewer-brief.md`).
-   Each spike becomes finalist or eliminated, with why-lost, what-didn't-work
-   and carry-forward lines. Present the gate report (below). Done when every
-   spike has a status and the user chose continue or stop.
+   the sweep is what makes later convergence trustworthy. Done when every
+   spike compiles, its tests pass, and its harness output is captured — or its
+   failure is recorded in the findings doc.
+3. **Converge.** Diff the harness outputs. Independent review of every spike
+   (`references/reviewer-brief.md`). Each spike becomes finalist or
+   eliminated, with why-lost, what-didn't-work and carry-forward lines. Present
+   the gate report. Done when every spike has a status and the user chose
+   continue or stop.
 4. **Refine** (Heavy). **Informed** spikes iterate within the finalists. Clear
-   convergence → one capstone track; ambiguous → several finalists in parallel
-   tracks until one wins or they settle into genuine trade-off axes. Review as
-   in step 3, then present the gate report. Done when the user chose continue
-   (another Refine round with the named spikes) or stop.
-5. **Decide.** Write the ADR. Done when *Stop and done* holds.
+   convergence → one **capstone** spike combining the finalists' best parts;
+   ambiguous → several finalists in parallel tracks until one wins or they
+   settle into genuine trade-off axes. Review as in step 3, then the gate
+   report. Done when the user chose continue (another Refine round with the
+   named spikes) or stop.
+5. **Decide.** Present the verdict for approval, then write the ADR. Done when
+   *Stop and done* holds.
 
 **Gate report** (end of Converge and of every Refine round):
 
@@ -73,66 +80,67 @@ tournament is done when:
    one with why-lost and carry-forward lines, and a Verdict section.
 2. Every spike's code and the findings doc are committed on their spike
    branches; `git status` is clean in every worktree.
-3. ADR written (Heavy always; Light when the verdict changes what gets built):
+3. User approved the verdict.
+4. ADR written (Heavy always; Light when the verdict changes what gets built):
    `docs/adr/NNNN-<topic>.md`, next free number (no `docs/adr/` → start at
    `0001`), status proceed / don't-proceed / deferred. Names the chosen design,
    its impact on the codebase, and open items for the real build. Committed on
    `main`; `git show --name-only <adr-commit>` lists only the ADR. Light
    without ADR → the verdict goes to the user in chat, since the spike branch
    may be deleted.
-4. Worktrees removed (`git worktree remove`); spike branches kept for the user
+5. Worktrees removed (`git worktree remove`); spike branches kept for the user
    to delete.
-5. User approved the final verdict.
 
 ## Agents
 
-- One agent per spike (Light: one may build several), dispatched in parallel,
-  each scoped to its own file or worktree.
+- One agent per spike (Light exception in *Tiers*), dispatched in parallel,
+  each scoped to its own files or worktree. Spike id = mechanism slug
+  (`ring-buffer`, `clean-1`, `baseline`).
 - Modes: **clean-room** (reads only the problem: `src`, spec; prior spikes and
   findings stay unread), **directed** (clean-room, built around one named
   mechanism), **informed** (given lessons + finalists to build on).
-- Independent clean-room spikes converging on one shape = strong evidence.
-  Heavy tier: spend agents to test convergence on purpose.
 - Orchestrator (you) dispatches, digests reports, runs eliminations. Spike
   agents write all spike code; each review comes from a fresh agent (Light
-  excepted, see *Tiers*).
-- Briefs: `references/spike-brief.md`, `references/reviewer-brief.md`. Both
-  carry the honesty, quality-bar and proof rules.
+  excepted).
+- Briefs: `references/spike-brief.md`, `references/reviewer-brief.md`.
 
 ## Isolation
 
-1. Find the repo's spike convention first:
-   `grep -n spike .gitignore .git/info/exclude; git branch --list 'spike/*'`.
-   Repos that ran this skill already carry its dir, branches, and maybe old
-   worktrees. None → use `.spike-workspace/` and add it to `.git/info/exclude`
-   (local; `main` stays untouched).
-2. **Topic worktree**: `git worktree add .spike-workspace/<topic> -b
-   spike/<topic>`. Holds the findings doc and every additive spike. The main
-   checkout stays on `main`.
-3. **Additive** spike (preferred): standalone new file in the topic worktree,
-   no `src/` edits. Additive spikes share the branch and diff side by side.
-4. **Invasive** spike (must edit `src/` to compile): own worktree,
-   `git worktree add .spike-workspace/<spike-id> -b spike/<topic>-<spike-id>
-   spike/<topic>`. Costlier to set up and compare → fewer spikes, and the
-   comparability harness matters more.
+1. Find the repo's spike convention first: `git worktree list; git branch
+   --list 'spike/*'; grep -ns spike .gitignore .git/info/exclude`. Found →
+   use its dir as `<spike-dir>`. None → `<spike-dir>` = `.spike-workspace/`,
+   added to `.git/info/exclude` (local; `main` stays untouched).
+   `spike/<topic>` already exists → ask the user: resume that tournament, or
+   pick a new topic name.
+2. **Topic worktree**: `git worktree add <spike-dir>/<topic> -b spike/<topic>
+   main`. Holds the findings doc and every additive spike. The main checkout
+   stays on `main`.
+3. **Additive** spike (preferred): new files only, placed where the build finds
+   them without editing existing files (Rust: `examples/`, `tests/`,
+   `benches/`). Additive spikes share the topic branch and diff side by side.
+4. **Invasive** spike: edits any existing tracked file (`src/`, manifest,
+   lockfile). Own worktree from `main`, so clean-room agents see no other
+   spike: `git worktree add <spike-dir>/<spike-id> -b spike/<topic>-<spike-id>
+   main`. Costlier to set up and compare → fewer spikes.
 
-Worktrees under the repo's spike dir share the object store, so spike commits
-are durable in `.git` while `main` stays clean. Copies elsewhere failed:
-`cp -R` with a stale `target/` hit 24GB and killed spikes, and a `/tmp` reaper
-deleted a finished tournament's reports and patches.
+Worktrees under the spike dir share the object store, so spike commits are
+durable in `.git` while `main` stays clean. Copies elsewhere failed: `cp -R`
+with a stale `target/` hit 24GB and killed spikes, and a `/tmp` reaper deleted
+a finished tournament's reports and patches.
 
 ## Commits and gates
 
 Spike branches are local and never merge, so `AGENTS.md`'s trunk rules (every
-commit green, one commit per finding, merge fast) cover only the ADR commit.
-Spike-branch commits: after each build, after each review, and before each
-elimination, so every spike stays in history. Messages follow
-`conventional-commits` with scope `spike`.
+commit green, one commit per finding, merge fast, a Skill call per commit)
+cover only the ADR commit. Spike-branch commits: after each build, after each
+review, and before each elimination, so every spike stays in history — red
+builds included, with the failure noted in the findings doc. Message format:
+`chore(spike): <topic> <what>`.
 
 Capture a spike's lessons in the findings doc before deleting its files.
 
 Gate (stop, present, recommend) at: approving the mechanism list, each gate
-report, judgement-call eliminations, tier changes, the final verdict.
+report, judgement-call eliminations, tier changes, the verdict.
 Strictly-dominated spikes you cut yourself, with the reason in the findings
 doc.
 
@@ -145,8 +153,8 @@ crosses, and pushing it is gated.
 - **Spike branches** `spike/<topic>` (+ `spike/<topic>-<id>` for invasive):
   spike code + findings doc, local only. Durable across `/clear` and session
   death.
-- **Findings doc** `<topic>-findings.md` at the topic worktree root: living
-  record and resume checkpoint.
+- **Findings doc** `<topic>-findings.md` at the topic worktree root, from
+  `references/findings-template.md`.
 - **ADR**: see *Stop and done*. It must read without the spike branch.
 - **Shipping a winner**: write it fresh against `main` to production quality.
   Spikes skip edge cases, docs and polish to get an answer; lessons transfer,
@@ -157,18 +165,18 @@ crosses, and pushing it is gated.
 Every spike in a round runs the same deterministic harness with byte-identical
 output, so results diff directly and honesty checks stay cheap. Harness
 impossible (e.g. perf bake-off) → best deterministic comparison available
-(fixed inputs, deterministic metrics), stated in the findings doc's Contract.
+(fixed inputs, deterministic metrics), stated in the Contract.
 
 ## Self-check
 
 Before each gate report:
 
 1. `git -C <worktree> status` for each worktree. Uncommitted work → run its
-   build and tests, then commit it.
-2. `git -C .spike-workspace/<topic> ls-files` and `git worktree list`: every
-   spike file and worktree belongs to a spike the findings doc lists as live
-   or finalist. An eliminated spike's files reappeared (late-finishing agent)
-   → delete them and commit.
+   build and tests, record the result, commit.
+2. `git -C <spike-dir>/<topic> ls-files` and `git worktree list`: every spike
+   file and worktree belongs to a spike the findings doc lists as live or
+   finalist. An eliminated spike's files reappeared (late-finishing agent) →
+   delete them and commit.
 
 Before done, when an ADR exists: a fresh agent reads only the ADR and states
 the decision, the reason, and what's open. It needs the spike branch →

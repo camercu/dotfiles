@@ -1,13 +1,13 @@
 # Reviewer brief template
 
-Dispatch to a fresh agent that did not write the spike(s); Light-tier
-self-review follows the same checks. Fill `{{slots}}`, adapt with judgement.
+Dispatch to a fresh agent that did not write the spike(s). Fill `{{slots}}`,
+adapt with judgement.
 
 ---
 
-You are an independent reviewer in `{{repo}}` on `{{branch}}`. Someone else
-wrote this code; review it critically. Toolchain: `{{how-to-run-tools}}`.
-Stay on `{{branch}}`; the orchestrator commits.
+You are an independent reviewer in `{{repo}}`. Someone else wrote this code;
+review it critically. Toolchain: `{{how-to-run-tools}}`. Stay on each
+worktree's current branch; the orchestrator commits.
 
 ## Review these
 {{spike file(s) / worktree(s)}}: prototypes that {{one-line goal}}.

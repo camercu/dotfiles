@@ -1,8 +1,8 @@
 # Findings-doc template
 
-Copy to `<topic>-findings.md` at the topic worktree root (`spike/<topic>`).
-Living record and resume checkpoint: update at every phase transition, review, elimination and decision.
-It holds durable state only; in-flight agent IDs stay in the conversation.
+Copy everything below the line to `<topic>-findings.md`. Living record and
+resume checkpoint: update at every phase transition, review, elimination
+and decision. It holds durable state only; in-flight agent IDs stay in the conversation.
 
 ---
 
@@ -23,8 +23,8 @@ It holds durable state only; in-flight agent IDs stay in the conversation.
 ## Run state (resume from here)
 - Phase: <frame | breadth | converge | refine | decide>
 - Tier: <light | heavy>
+- Confidence: <normal | lower: self-reviewed (Light)>
 - Pending spikes: <ids awaiting build or review>
-- Finalists: <ids + one line each>
 - Next action: <what to do on resume>
 
 ## Round log
