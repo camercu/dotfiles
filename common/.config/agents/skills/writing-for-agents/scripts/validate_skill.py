@@ -4,11 +4,14 @@
 Validate skill directories: frontmatter, trigger-only description, Overview.
 
 Usage: validate_skill.py <skill_dir>...
+       validate_skill.py --repo   (every SKILL.md git tracks under cwd;
+                                  claude.ai-synced skills excluded)
 
 Exit 0 = all valid, 10 = some skill invalid. Any other code = the validator
 itself failed (nix, python, usage), so callers can tell a verdict from a crash.
 """
 
+import subprocess
 import sys
 import os
 import re
@@ -149,13 +152,23 @@ def validate_skill(skill_path):
 
 INVALID = 10
 
+
+def repo_skill_dirs():
+    """Dirs of every SKILL.md git tracks under cwd, synced (third-party) ones excluded."""
+    paths = subprocess.run(['git', 'ls-files', '-z', '*SKILL.md'],
+                           check=True, capture_output=True, text=True).stdout.split('\0')
+    return sorted(os.path.dirname(p) or '.' for p in paths
+                  if p and '/skills/synced/' not in f'/{p}')
+
+
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: validate_skill.py <skill_directory>...")
+    args = repo_skill_dirs() if sys.argv[1:] == ['--repo'] else sys.argv[1:]
+    if not args:
+        print("Usage: validate_skill.py <skill_directory>... | --repo")
         sys.exit(1)
 
     failed = False
-    for arg in sys.argv[1:]:
+    for arg in args:
         valid, message = validate_skill(arg)
         print(f"{arg}: {message}")
         failed |= not valid

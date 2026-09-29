@@ -661,12 +661,9 @@ run_skill_validate_test() {
   fi
 
   capture_log
-  skill_dirs=$(find "$DOTFILE_DIR" -name SKILL.md -not -path '*/.git/*' \
-    -not -path '*/skills/synced/*' -exec dirname {} \; | sort)
-  # Word splitting on purpose: skill paths here hold no whitespace.
-  # shellcheck disable=SC2086
-  if ! "$DOTFILE_DIR/common/.config/agents/skills/writing-for-agents/scripts/validate_skill.py" \
-      $skill_dirs >"$LAST_LOG" 2>&1; then
+  if ! (cd "$DOTFILE_DIR" \
+      && common/.config/agents/skills/writing-for-agents/scripts/validate_skill.py --repo) \
+      >"$LAST_LOG" 2>&1; then
     echo "skills: validator rejected a skill" >&2
     return 1
   fi
