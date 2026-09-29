@@ -34,6 +34,14 @@ capture_log() {
   register_cleanup "$LAST_LOG"
 }
 
+# require_tool TOOL WHAT: succeed when TOOL is on PATH; else say, loudly, that
+# WHAT is skipped. Tests use it for tools bootstrap has not installed yet.
+require_tool() {
+  command -v "$1" >/dev/null 2>&1 && return 0
+  echo "$1 not installed, skipping $2" >&2
+  return 1
+}
+
 on_exit() {
   exit_status=$?
   if [ "$exit_status" -ne 0 ]; then
@@ -551,10 +559,7 @@ run_syntax_test() {
 run_shellcheck_test() {
   begin_test shellcheck_test
 
-  if ! command -v shellcheck >/dev/null 2>&1; then
-    echo "shellcheck: not installed, skipping static analysis" >&2
-    return 0
-  fi
+  require_tool shellcheck "static analysis" || return 0
 
   capture_log
   shellcheck_status=0
@@ -633,10 +638,7 @@ run_syntax_selfcheck_test() {
 run_claude_hook_test() {
   begin_test claude_hook_test
 
-  if ! command -v jq >/dev/null 2>&1; then
-    echo "claude hooks: jq not installed, skipping hook controls" >&2
-    return 0
-  fi
+  require_tool jq "claude hook controls" || return 0
 
   capture_log
   hook_status=0
@@ -655,10 +657,7 @@ run_claude_hook_test() {
 run_skill_validate_test() {
   begin_test skill_validate_test
 
-  if ! command -v nix-shell >/dev/null 2>&1; then
-    echo "skills: nix-shell not installed, skipping skill validation" >&2
-    return 0
-  fi
+  require_tool nix-shell "skill validation" || return 0
 
   capture_log
   if ! (cd "$DOTFILE_DIR" \
