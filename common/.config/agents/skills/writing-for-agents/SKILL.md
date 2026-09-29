@@ -169,7 +169,7 @@ by invocation (distinct trigger, see `SKILL-MECHANICS.md`).
 
 ## Style
 
-Caveman full (`~/.config/agents/caveman.md`), plus `→` for causality.
+`→` fine for causality.
 
 Every rule carries its reason: "Commit only when green — every commit on
 `main` must build." CAPS only for a hard guardrail whose miss can't be undone
