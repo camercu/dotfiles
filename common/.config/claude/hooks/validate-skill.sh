@@ -18,12 +18,11 @@ case "$file" in
 esac
 
 here="$(cd "$(dirname "$0")" && pwd)"
-VALIDATOR="$here/../../agents/skills/writing-for-agents/scripts/validate_skill.py"
-SKILL_DIR="$(dirname "$file")"
-export VALIDATOR SKILL_DIR
+validator="$here/../../agents/skills/writing-for-agents/scripts/validate_skill.py"
+skill_dir="$(dirname "$file")"
 
 not_validated() {
-  echo "validate-skill: $1; $SKILL_DIR NOT validated." >&2
+  echo "validate-skill: $1; $skill_dir NOT validated." >&2
   echo "Run the Validate command in ~/.config/agents/skills/writing-for-agents/SKILL-MECHANICS.md by hand." >&2
   exit 2
 }
@@ -32,14 +31,11 @@ not_validated() {
 # tracebacks go to stderr. A failure without that line = validator never ran.
 err="$(mktemp)"
 trap 'rm -f "$err"' EXIT
-# Single quotes on purpose: the bash nix-shell starts expands the variables.
-# shellcheck disable=SC2016
-if out="$(nix-shell -p 'python3.withPackages(p: [p.pyyaml])' \
-  --run 'python3 "$VALIDATOR" "$SKILL_DIR"' 2>"$err")"; then
+if out="$("$validator" "$skill_dir" 2>"$err")"; then
   exit 0
 fi
 case "$out" in
-  "$SKILL_DIR: "*) ;;
+  "$skill_dir: "*) ;;
   *) not_validated "validator did not run ($(tail -n 1 "$err"))" ;;
 esac
 echo "validate-skill: $out" >&2

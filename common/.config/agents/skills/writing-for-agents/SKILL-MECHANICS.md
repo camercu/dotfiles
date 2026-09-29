@@ -91,8 +91,7 @@ invoke the skills it names.
 Run after every skill edit. Passes when each line ends `Skill is valid!`:
 
 ```sh
-nix-shell -p 'python3.withPackages(p: [p.pyyaml])' --run \
-  'python3 ~/.config/agents/skills/writing-for-agents/scripts/validate_skill.py <skill-dir>...'
+~/.config/agents/skills/writing-for-agents/scripts/validate_skill.py <skill-dir>...
 ```
 
 Checks frontmatter keys, name = directory,

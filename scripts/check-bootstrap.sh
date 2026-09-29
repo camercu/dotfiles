@@ -663,12 +663,10 @@ run_skill_validate_test() {
   capture_log
   skill_dirs=$(find "$DOTFILE_DIR" -name SKILL.md -not -path '*/.git/*' \
     -not -path '*/skills/synced/*' -exec dirname {} \; | sort)
-  # Single quotes on purpose: nix-shell's bash expands the variables, and
-  # splits SKILL_DIRS on whitespace (skill paths here hold none).
-  # shellcheck disable=SC2016
-  if ! SKILL_DIRS=$skill_dirs VALIDATOR="$DOTFILE_DIR/common/.config/agents/skills/writing-for-agents/scripts/validate_skill.py" \
-      nix-shell -p 'python3.withPackages(p: [p.pyyaml])' \
-      --run 'python3 "$VALIDATOR" $SKILL_DIRS' >"$LAST_LOG" 2>&1; then
+  # Word splitting on purpose: skill paths here hold no whitespace.
+  # shellcheck disable=SC2086
+  if ! "$DOTFILE_DIR/common/.config/agents/skills/writing-for-agents/scripts/validate_skill.py" \
+      $skill_dirs >"$LAST_LOG" 2>&1; then
     echo "skills: validator rejected a skill" >&2
     return 1
   fi
