@@ -281,11 +281,8 @@ verdict. Never fail the review over mutation tooling.**
 
 ## Report format
 
-Report file open **before** the lenses run; fill it in as you go, section by
-section. Mutation/efficacy work especially — each survivor written the moment
-it survives, with the mutation applied and the tests that stayed green. That
-work is expensive to redo and is exactly what a session limit eats. Never hold
-a run's results in context to write up at the end.
+Fill the report per `~/.config/agents/record-as-you-go.md`. Each mutation
+survivor records the mutation applied and the tests that stayed green.
 
 ```
 # Test Design Review
