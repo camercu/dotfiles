@@ -26,6 +26,21 @@ expect "broken skill blocked"        "$(run_hook "$scratch/bad-skill/SKILL.md")"
 expect "reason reaches stderr"       "$(grep -c "differs from directory" "$scratch/err")" 1
 expect "missing file_path passes"    "$(bash "$hook" <<<'{}' >/dev/null 2>&1; echo $?)" 0
 
+# Host without nix-shell: PATH holds only the tools the hook needs besides it.
+mkdir -p "$scratch/bin-nonix" "$scratch/bin-brokennix"
+for tool in jq basename dirname mktemp tail rm; do ln -s "$(command -v "$tool")" "$scratch/bin-nonix/$tool"; done
+run_hook_path() { local code=0; PATH="$1" "$BASH" "$hook" <<<"$(hook_json "$2")" >/dev/null 2>"$scratch/err" || code=$?; echo "$code"; }
+expect "no nix-shell: agent told"    "$(run_hook_path "$scratch/bin-nonix" "$scratch/user-invocable/SKILL.md")" 2
+expect "no nix-shell: NOT validated" "$(grep -c "NOT validated" "$scratch/err")" 1
+expect "no nix-shell: no rules hint" "$(grep -c "Rules:" "$scratch/err" || true)" 0
+
+# nix-shell present but failing before the validator runs (eval, network).
+printf '#!/bin/sh\necho "error: nix eval failed" >&2\nexit 1\n' >"$scratch/bin-brokennix/nix-shell"
+chmod +x "$scratch/bin-brokennix/nix-shell"
+expect "broken nix: agent told"      "$(run_hook_path "$scratch/bin-brokennix:$scratch/bin-nonix" "$scratch/user-invocable/SKILL.md")" 2
+expect "broken nix: NOT validated"   "$(grep -c "NOT validated" "$scratch/err")" 1
+expect "broken nix: no rules hint"   "$(grep -c "Rules:" "$scratch/err" || true)" 0
+
 echo "---"
 if [ "$fails" -eq 0 ]; then
   echo "all validate-skill controls passed"
