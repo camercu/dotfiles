@@ -29,9 +29,9 @@ Phrasings become the description's triggers.
     reachable by the human alone; name it as `/skill-name` for the human.
   - Body section "When to use this skill" = dead weight: body loads only after
     triggering. Every cue goes in `description`.
-  - Max 1024 chars, no `<` or `>`.
-- Other keys only when needed: `disable-model-invocation`, `argument-hint`,
-  `context: fork` + `agent` + `model` (run in a subagent).
+- Other keys only when needed, e.g. `disable-model-invocation`, `argument-hint`,
+  `context: fork` + `agent` + `model` (run in a subagent). Allowed keys and
+  limits: the validator (*Validate*).
 
 ## Body
 
