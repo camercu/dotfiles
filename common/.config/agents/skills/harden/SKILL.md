@@ -91,8 +91,8 @@ over-spending.
 - **Split into multiple agents only for large blast radius** — wide public surface
   or several subsystems, more than one fresh agent can hold. Split or bundle = a
   judgment call you *record*; freshness never bends, only the count.
-- Non-review gates scale too: a gate w/ one obvious option = one `AskUserQuestion`,
-  not a full `grill-me`.
+- Non-review gates scale too: a gate w/ one obvious option = one chat question
+  (AGENTS.md *Writing*), not a full `grill-me`.
 
 ## Run ledger (state on disk)
 
@@ -292,9 +292,8 @@ HARD-STOP, hand the decision to the user at:
 - **Any irreversible / outward-facing action** — push, publish, delete, migration,
   dependency change.
 
-Between gates, run autonomously. Each gate: options, evidence, a clear
-recommendation, wait. `AskUserQuestion` for discrete choices; prose for open
-grilling.
+Between gates, run autonomously. Each gate: chat prose per AGENTS.md *Writing*
+(options, evidence, recommendation), then wait.
 
 ## Closing
 

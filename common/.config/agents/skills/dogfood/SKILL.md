@@ -60,8 +60,8 @@ inventory checklist to scratch — becomes the coverage tracker.
 | Web UI | browser walkthrough | pages/flows from docs | claude-in-chrome |
 | TUI | scripted pty session | keybinding/command docs | tmux / expect |
 
-Unknown type → derive the three columns from the entry doc, say so. Use `run`/`verify`
-skills for launching; don't re-derive.
+Unknown type → derive the three columns from the entry doc, say so. Launch via the `run`
+skill.
 
 ## Pass 1 — Docs-first cold walk
 
