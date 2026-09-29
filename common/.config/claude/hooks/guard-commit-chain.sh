@@ -10,6 +10,10 @@
 # it idles harmlessly in non-cargo repos. Exit 2 blocks.
 set -euo pipefail
 
+# Without jq the payload can't be read; exit 127 would be non-blocking and
+# silently disarm the hook, so refuse instead.
+command -v jq >/dev/null 2>&1 || { echo "guard-commit-chain: jq not installed; blocking every Bash call so the guard cannot be bypassed. Install jq." >&2; exit 2; }
+
 cmd="$(jq -r '.tool_input.command // ""')"
 if grep -Eq '^(rtk +)?(nextest|cargo +(test|nextest|build|check|run)|just +(test|ci|build|pre-push|pre-commit)).*(&&|;|\|\|).*git +commit' <<<"$cmd"; then
   echo "guard-commit-chain: don't chain a build/test with 'git commit' (rtk can mask a failed exit, landing the commit mid-red). Run the check as its own command, confirm it passed, then commit separately." >&2

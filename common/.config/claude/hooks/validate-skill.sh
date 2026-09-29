@@ -10,6 +10,10 @@
 # a path exits 0.
 set -euo pipefail
 
+# Without jq the payload can't be read; exit 127 would be non-blocking and
+# silently disarm the hook, so refuse instead.
+command -v jq >/dev/null 2>&1 || { echo "validate-skill: jq not installed; skill NOT validated. Install jq." >&2; exit 2; }
+
 file="$(jq -r '.tool_input.file_path // ""')"
 [ "$(basename "$file")" = "SKILL.md" ] || exit 0
 # Plugin and claude.ai-synced skills follow their authors' rules, not ours.

@@ -18,6 +18,12 @@ expect "plain commit passes"               "$(run_guard 'git commit -m x -- a.tx
 expect "pattern inside message passes"     "$(run_guard 'git commit -m "cargo test && git commit note" -- a.txt')" 0
 expect "non-git command passes"            "$(run_guard 'ls -la')" 0
 
+# Host without jq: the hook refuses rather than silently disarming.
+nojq="$(mktemp -d)"
+code=0; PATH="$nojq" "$BASH" "$guard" <<<'{}' >/dev/null 2>"$nojq/err" || code=$?
+if [ "$code" = 2 ] && grep -q "jq not installed" "$nojq/err"; then echo "ok  - no jq: refuses"; else echo "FAIL- no jq: refuses (exit $code)"; fails=$((fails+1)); fi
+rm -rf "$nojq"
+
 echo "---"
 if [ "$fails" -eq 0 ]; then
   echo "all chain-guard controls passed"

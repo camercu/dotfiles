@@ -15,6 +15,10 @@
 # copy). The jj path reconciles the `main` bookmark against `main@origin`.
 set -euo pipefail
 
+# Without jq the payload can't be read; exit 127 would be non-blocking and
+# silently disarm the hook, so refuse instead.
+command -v jq >/dev/null 2>&1 || { echo "guard-push: jq not installed; blocking every Bash call so the guard cannot be bypassed. Install jq." >&2; exit 2; }
+
 cmd="$(jq -r '.tool_input.command // ""')"
 
 if grep -Eq '^(rtk +)?git( +-C +[^ ]+)? +push' <<<"$cmd"; then

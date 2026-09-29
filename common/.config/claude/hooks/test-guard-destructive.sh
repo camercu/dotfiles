@@ -43,6 +43,12 @@ want_allow "dd if=/dev/zero of=./scratch.img bs=1m count=10"  # of= not a device
 want_allow "echo done > /dev/null"       # /dev/null is not a block device
 want_allow "printf 'x' > out.txt"
 
+# Host without jq: the hook refuses rather than silently disarming.
+nojq="$(mktemp -d)"
+code=0; PATH="$nojq" "$BASH" "$guard" <<<'{}' >/dev/null 2>"$nojq/err" || code=$?
+if [ "$code" = 2 ] && grep -q "jq not installed" "$nojq/err"; then echo "ok  - no jq: refuses"; else echo "FAIL- no jq: refuses (exit $code)"; fails=$((fails+1)); fi
+rm -rf "$nojq"
+
 echo "---"
 if [ "$fails" -eq 0 ]; then
   echo "all destructive-guard controls passed"

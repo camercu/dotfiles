@@ -76,6 +76,12 @@ expect "broken nix: no rules hint"   "$(grep -c "Rules:" "$scratch/err" || true)
 expect "broken nix: cause shown"     "$(grep -c "nix eval failed" "$scratch/err")" 1
 expect "broken nix: manual hint"     "$(grep -c "Run the Validate command" "$scratch/err")" 1
 
+# Host without jq: the hook refuses rather than silently disarming.
+nojq="$(mktemp -d)"
+code=0; PATH="$nojq" "$BASH" "$hook" <<<'{}' >/dev/null 2>"$nojq/err" || code=$?
+if [ "$code" = 2 ] && grep -q "jq not installed" "$nojq/err"; then echo "ok  - no jq: refuses"; else echo "FAIL- no jq: refuses (exit $code)"; fails=$((fails+1)); fi
+rm -rf "$nojq"
+
 echo "---"
 if [ "$fails" -eq 0 ]; then
   echo "all validate-skill controls passed"

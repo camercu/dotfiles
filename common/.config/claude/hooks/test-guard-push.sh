@@ -107,6 +107,12 @@ else
   echo "ok  - (jj not installed; jj push-guard cases skipped)"
 fi
 
+# Host without jq: the hook refuses rather than silently disarming.
+nojq="$(mktemp -d)"
+code=0; PATH="$nojq" "$BASH" "$guard" <<<'{}' >/dev/null 2>"$nojq/err" || code=$?
+if [ "$code" = 2 ] && grep -q "jq not installed" "$nojq/err"; then echo "ok  - no jq: refuses"; else echo "FAIL- no jq: refuses (exit $code)"; fails=$((fails+1)); fi
+rm -rf "$nojq"
+
 echo "---"
 if [ "$fails" -eq 0 ]; then
   echo "all push-guard controls passed"
