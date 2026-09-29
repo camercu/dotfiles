@@ -81,13 +81,10 @@ tournament is done when:
 2. Every spike's code and the findings doc are committed on their spike
    branches; `git status` is clean in every worktree.
 3. User approved the verdict.
-4. ADR written (Heavy always; Light when the verdict changes what gets built):
-   `docs/adr/NNNN-<topic>.md`, next free number (no `docs/adr/` → start at
+4. ADR written, every tier: `docs/adr/NNNN-<topic>.md`, next free number (no `docs/adr/` → start at
    `0001`), status proceed / don't-proceed / deferred. Names the chosen design,
    its impact on the codebase, and open items for the real build. Committed on
-   `main`; `git show --name-only <adr-commit>` lists only the ADR. Light
-   without ADR → the verdict goes to the user in chat, since the spike branch
-   may be deleted.
+   `main`; `git show --name-only <adr-commit>` lists only the ADR.
 5. Worktrees removed (`git worktree remove`); spike branches kept for the user
    to delete.
 
@@ -178,7 +175,7 @@ Before each gate report:
    finalist. An eliminated spike's files reappeared (late-finishing agent) →
    delete them and commit.
 
-Before done, when an ADR exists: a fresh agent reads only the ADR and states
+Before done: a fresh agent reads only the ADR and states
 the decision, the reason, and what's open. It needs the spike branch →
 rewrite the ADR.
 
