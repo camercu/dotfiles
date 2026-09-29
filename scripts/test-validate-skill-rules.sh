@@ -27,6 +27,8 @@ fixture long-wrong-first   ""                               "Use when testing." 
 fixture empty-overview     ""                               "Use when testing."  "$(printf '## Overview\n\n## Steps\n\n%s' "$long_body")"
 fixture unknown-key        $'colour: red\n'                 "Use when testing."  "Body."
 fixture angle-brackets     ""                               "Use when <x>."      "Body."
+fixture int-key            $'1: x\n'                        "Use when testing."  "Body."
+fixture not-utf8           ""                               "Use when testing."  "$(printf 'caf\351')"
 
 code=0
 "$validator" "$scratch"/*/ >"$scratch/out" 2>&1 || code=$?
@@ -50,6 +52,8 @@ expect long-wrong-first   "first section is 'Steps'"
 expect empty-overview     "'## Overview' section is empty"
 expect unknown-key        "Unexpected key(s) in SKILL.md frontmatter: colour"
 expect angle-brackets     "angle brackets"
+expect int-key            "Unexpected key(s) in SKILL.md frontmatter: 1"
+expect not-utf8           "not UTF-8"
 if [ "$code" = 10 ]; then echo "ok  - exit 10 on invalid"; else echo "FAIL- exit $code, want 10"; fails=$((fails+1)); fi
 
 echo "---"

@@ -37,7 +37,10 @@ def validate_skill(skill_path):
         return False, "SKILL.md not found"
 
     # Read and validate frontmatter
-    content = skill_md.read_text()
+    try:
+        content = skill_md.read_text(encoding='utf-8')
+    except UnicodeDecodeError as e:
+        return False, f"SKILL.md is not UTF-8: {e}"
     if not content.startswith('---'):
         return False, "No YAML frontmatter found"
 
@@ -64,7 +67,7 @@ def validate_skill(skill_path):
     unexpected_keys = set(frontmatter.keys()) - ALLOWED_PROPERTIES
     if unexpected_keys:
         return False, (
-            f"Unexpected key(s) in SKILL.md frontmatter: {', '.join(sorted(unexpected_keys))}. "
+            f"Unexpected key(s) in SKILL.md frontmatter: {', '.join(sorted(map(str, unexpected_keys)))}. "
             f"Allowed properties are: {', '.join(sorted(ALLOWED_PROPERTIES))}"
         )
 
