@@ -19,7 +19,7 @@ Read `CONTEXT.md` / `CLAUDE.md` / project conventions if present, then study the
 
 ## Phase 2: Three Review Agents in Parallel
 
-Launch concurrently in a single message, each with the full diff:
+Launch concurrently in a single message. Each prompt carries the full diff, its own findings-file path, and `~/.config/agents/record-as-you-go.md`:
 
 1. **Reuse** — find existing utilities/helpers that replace newly written code (check utility dirs, shared modules, adjacent files); flag new functions duplicating existing ones and inline logic an existing utility covers.
 2. **Quality** — redundant/derivable state; parameter sprawl instead of restructuring; copy-paste with slight variation; leaky abstractions; stringly-typed code where constants/enums/branded types exist; comments explaining WHAT or narrating the change (keep only non-obvious WHY).
@@ -29,7 +29,7 @@ Launch concurrently in a single message, each with the full diff:
 
 Wait for all three, aggregate, fix each directly. False positive or not worth it → note and skip; don't argue with the finding.
 
-Each of the three records findings per `~/.config/agents/record-as-you-go.md`; aggregate from the files. Report-only mode (delegated review, no authority to edit) → record skipped and false-positive calls in the file too, so the next pass doesn't re-raise them.
+Aggregate from the three findings files. Report-only mode (delegated review, no authority to edit) → record skipped and false-positive calls in the file too, so the next pass doesn't re-raise them.
 
 ### Do NOT simplify when
 
