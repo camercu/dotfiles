@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Quick validation script for skills - minimal version
+Validate skill directories: frontmatter, trigger-only description, Overview.
+
+Usage: validate_skill.py <skill_dir>...   (exit 1 if any fails)
 """
 
 import sys
@@ -79,6 +81,10 @@ def validate_skill(skill_path):
         # Check name length (max 64 characters per spec)
         if len(name) > 64:
             return False, f"Name is too long ({len(name)} characters). Maximum is 64 characters."
+        # Harness lists the skill by directory, other skills call it by name;
+        # a mismatch leaves one of the two pointing at nothing.
+        if name != skill_path.resolve().name:
+            return False, f"Name '{name}' differs from directory '{skill_path.resolve().name}'"
 
     # Extract and validate description
     description = frontmatter.get('description', '')
@@ -93,8 +99,11 @@ def validate_skill(skill_path):
         if len(description) > 1024:
             return False, f"Description is too long ({len(description)} characters). Maximum is 1024 characters."
 
-        # Description carries trigger cues only; it must actually contain one
-        if not TRIGGER_CUE.search(description):
+        # Description carries trigger cues only; it must actually contain one.
+        # User-invoked skills are exempt: their description is written for the
+        # human browsing slash commands, not for the model's trigger match.
+        user_invoked = frontmatter.get('disable-model-invocation') is True
+        if not user_invoked and not TRIGGER_CUE.search(description):
             return False, (
                 "Description has no trigger cue. It must say WHEN to invoke the skill "
                 "(\"Use when ...\", \"Triggers on ...\", \"when the user ...\"), not what the "
@@ -135,10 +144,13 @@ def validate_skill(skill_path):
     return True, "Skill is valid!"
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python quick_validate.py <skill_directory>")
+    if len(sys.argv) < 2:
+        print("Usage: validate_skill.py <skill_directory>...")
         sys.exit(1)
-    
-    valid, message = validate_skill(sys.argv[1])
-    print(message)
-    sys.exit(0 if valid else 1)
+
+    failed = False
+    for arg in sys.argv[1:]:
+        valid, message = validate_skill(arg)
+        print(f"{arg}: {message}")
+        failed |= not valid
+    sys.exit(1 if failed else 0)

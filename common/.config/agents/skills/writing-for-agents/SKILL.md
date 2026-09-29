@@ -1,17 +1,19 @@
 ---
 name: writing-for-agents
-description: Use when writing or editing any text an agent reads — a skill, AGENTS.md / CLAUDE.md, memory file, subagent or workflow prompt, task brief, spec an agent executes, or a doc reached by a pointer. Human-facing docs → `unslop`.
+description: Use when writing or editing any text an agent reads — a skill (including "make a skill", "write a skill for X", "update the skill"), AGENTS.md / CLAUDE.md, memory file, subagent or workflow prompt, task brief, spec an agent executes, or a doc reached by a pointer. Human-facing docs → `unslop`.
 ---
 
 # Writing for agents
+
+## Overview
 
 Reader = agent. Knows everything general, nothing local. Explanation of general
 knowledge = waste; precision about the local = the whole job. Default edit =
 delete.
 
 Aim: same *process* every run, not same output. Levers below make it
-repeatable. Skill packaging (frontmatter, invocation, routers): read
-[`SKILL-MECHANICS.md`](SKILL-MECHANICS.md).
+repeatable. Doc is a skill (new skill, frontmatter, bundled files, invocation):
+read [`SKILL-MECHANICS.md`](SKILL-MECHANICS.md).
 
 ## Shape of a task-bearing doc
 
@@ -19,7 +21,7 @@ Any doc that asks for work (skill, brief, subagent prompt, spec step) carries
 five parts. Omit a part only when it is empty for this task.
 
 1. **Goal** — outcome + why, one or two lines. Why lets agent judge edge cases
-   the doc never names. In a skill this is `## Overview` (`skill-creator`).
+   the doc never names. In a skill this is `## Overview` (`SKILL-MECHANICS.md`).
 2. **Context** — where to look (next section). Pointers, not pasted content.
 3. **Steps** — ordered actions, only where order matters. Else rules.
 4. **Done criterion** — how agent knows it is finished (below).

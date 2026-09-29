@@ -46,15 +46,6 @@
       "installedAt": "2026-02-22T13:36:42.339Z",
       "updatedAt": "2026-02-22T13:36:42.339Z"
     },
-    "skill-creator": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/anthropics/skills.git",
-      "skillPath": "skills/skill-creator/SKILL.md",
-      "skillFolderHash": "a01fbe3fa7f17f64173bd4fdcfecea86a3fd664c",
-      "installedAt": "2026-02-22T13:36:42.413Z",
-      "updatedAt": "2026-02-22T13:45:16.784Z"
-    },
     "summarize": {
       "source": "openclaw/openclaw",
       "sourceType": "github",
