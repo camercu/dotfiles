@@ -58,12 +58,10 @@ Spine. Override convenience always.
    never pass a same-context review off as independent.
 
 **Spawn contract** (every delegated pass, no exceptions). Prompt carries:
-its own **findings-file path** + record-as-you-go (#5b); the scope (commit range / paths); the
+its own **findings-file path** + `~/.config/agents/record-as-you-go.md`; the scope (commit range / paths); the
 verification matrix; authority-doc locations; read-only + no-history-surgery
 rails; which files are off-limits *because they'd prime it* (ledger, other
-passes' findings). Agent returns a summary; the **file** is the deliverable.
-Agent died → harvest its file, relaunch for the remainder only — never re-run a
-pass whose evidence already landed.
+passes' findings).
 
 ## Right-size to blast radius (before Phase 0)
 
