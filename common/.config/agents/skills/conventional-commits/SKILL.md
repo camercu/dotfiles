@@ -21,7 +21,7 @@ Message format: Conventional Commits v1.0.0 (`<type>(<scope>): <description>`).
   reverts: future debuggers need the why. Body states facts about the code, so
   "this commit", "I", "we", "now" add nothing.
 - Assess breaking-change impact every commit; if breaking, mark with `!` AND a `BREAKING CHANGE:` footer. Pre-1.0.0, breaking changes bump MINOR, not MAJOR.
-- Message ends at body or `BREAKING CHANGE:` footer. NEVER add co-authored-by footers (e.g. `Co-Authored-By:`) or any agent-attribution trailer.
+- Footers: `BREAKING CHANGE:`, `Closes #N`, `Refs #N` only. NEVER add co-authored-by footers (e.g. `Co-Authored-By:`) or any agent-attribution trailer.
 - Subject-only commit: single `-m`:
 
 ```sh
