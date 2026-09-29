@@ -10,7 +10,7 @@
 # a path exits 0.
 set -euo pipefail
 
-file="$(jq -r '.tool_input.file_path // .tool_response.filePath // ""')"
+file="$(jq -r '.tool_input.file_path // ""')"
 [ "$(basename "$file")" = "SKILL.md" ] || exit 0
 # Plugin and claude.ai-synced skills follow their authors' rules, not ours.
 case "$file" in
