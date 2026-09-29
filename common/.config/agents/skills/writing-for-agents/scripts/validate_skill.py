@@ -51,7 +51,7 @@ def validate_skill(skill_path):
 
     # Define allowed properties
     ALLOWED_PROPERTIES = {'name', 'description', 'license', 'allowed-tools', 'metadata', 'compatibility',
-                          'argument-hint', 'disable-model-invocation', 'context', 'agent', 'model'}
+                          'argument-hint', 'disable-model-invocation', 'user-invocable', 'context', 'agent', 'model'}
 
     # Check for unexpected properties (excluding nested keys under metadata)
     unexpected_keys = set(frontmatter.keys()) - ALLOWED_PROPERTIES

@@ -16,6 +16,10 @@ expect() { if [ "$2" = "$3" ]; then echo "ok  - $1"; else echo "FAIL- $1 (got $2
 mkdir -p "$scratch/bad-skill"
 printf -- '---\nname: other-name\ndescription: Use when testing.\n---\n\nBody.\n' >"$scratch/bad-skill/SKILL.md"
 
+mkdir -p "$scratch/user-invocable"
+printf -- '---\nname: user-invocable\ndescription: Use when testing.\nuser-invocable: false\n---\n\n# T\n\n## Overview\n\nBody.\n' >"$scratch/user-invocable/SKILL.md"
+
+expect "user-invocable key passes"   "$(run_hook "$scratch/user-invocable/SKILL.md")" 0
 expect "valid skill passes"          "$(run_hook "$skills/grill-me/SKILL.md")" 0
 expect "non-skill file passes"       "$(run_hook "$skills/unslop/technical.md")" 0
 expect "broken skill blocked"        "$(run_hook "$scratch/bad-skill/SKILL.md")" 2
