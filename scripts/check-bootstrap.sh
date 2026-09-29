@@ -648,6 +648,19 @@ run_claude_hook_test() {
       hook_status=1
     fi
   done
+
+  # A hook settings.json names but the repo no longer ships (renamed, lost
+  # its exec bit) is disarmed: the harness logs the error and carries on.
+  # The sed pattern matches a literal $HOME in the settings text.
+  # shellcheck disable=SC2016
+  for hook_cmd in $(jq -r '.hooks[][].hooks[].command' \
+      "$DOTFILE_DIR/common/.config/claude/settings.json" \
+      | sed -n 's|^"\$HOME/\.dotfiles/\(.*\)"$|\1|p'); do
+    if [ ! -x "$DOTFILE_DIR/$hook_cmd" ]; then
+      echo "claude hooks: settings.json runs missing or non-executable $hook_cmd" >&2
+      hook_status=1
+    fi
+  done
   return "$hook_status"
 }
 
