@@ -31,6 +31,7 @@ if command -v nix-shell >/dev/null 2>&1; then
   expect "user-invocable key passes"   "$(run_hook "$scratch/user-invocable/SKILL.md")" 0
   expect "broken skill blocked"        "$(run_hook "$scratch/bad-skill/SKILL.md")" 2
   expect "reason reaches stderr"       "$(grep -c "differs from directory" "$scratch/err")" 1
+  expect "rules hint on reject"        "$(grep -c "Rules:" "$scratch/err")" 1
 else
   echo "skip - validator controls (nix-shell not installed)"
 fi
@@ -50,6 +51,8 @@ run_hook_path() { local code=0; PATH="$1" "$BASH" "$hook" <<<"$(hook_json "$2")"
 expect "no nix-shell: agent told"    "$(run_hook_path "$scratch/bin-nonix" "$scratch/user-invocable/SKILL.md")" 2
 expect "no nix-shell: NOT validated" "$(grep -c "NOT validated" "$scratch/err")" 1
 expect "no nix-shell: no rules hint" "$(grep -c "Rules:" "$scratch/err" || true)" 0
+expect "no nix-shell: cause shown"   "$(grep -c "nix-shell" "$scratch/err")" 1
+expect "no nix-shell: manual hint"   "$(grep -c "Run the Validate command" "$scratch/err")" 1
 
 # nix-shell present but failing before the validator runs (eval, network).
 printf '#!/bin/sh\necho "error: nix eval failed" >&2\nexit 1\n' >"$scratch/bin-brokennix/nix-shell"
@@ -57,6 +60,8 @@ chmod +x "$scratch/bin-brokennix/nix-shell"
 expect "broken nix: agent told"      "$(run_hook_path "$scratch/bin-brokennix:$scratch/bin-nonix" "$scratch/user-invocable/SKILL.md")" 2
 expect "broken nix: NOT validated"   "$(grep -c "NOT validated" "$scratch/err")" 1
 expect "broken nix: no rules hint"   "$(grep -c "Rules:" "$scratch/err" || true)" 0
+expect "broken nix: cause shown"     "$(grep -c "nix eval failed" "$scratch/err")" 1
+expect "broken nix: manual hint"     "$(grep -c "Run the Validate command" "$scratch/err")" 1
 
 echo "---"
 if [ "$fails" -eq 0 ]; then
