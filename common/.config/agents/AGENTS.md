@@ -6,7 +6,7 @@
 |---|---|---|
 | Chat to user | caveman full | — |
 | Agent-read: AGENTS.md, CLAUDE.md, memory, skills, subagent prompts, briefs | caveman full | `writing-for-agents` |
-| Commits, PRs, code comments | caveman lite | `unslop` patterns, no soul |
+| Commits, PRs, code comments | caveman lite | `unslop` incl. `technical.md`, no soul |
 | Other public text for user: docs, emails, posts | plain | `unslop` |
 
 @caveman.md
