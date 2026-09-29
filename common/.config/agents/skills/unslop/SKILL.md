@@ -26,7 +26,8 @@ ADRs, man pages, PR descriptions, commit messages) also follows
 
 Removing patterns is half the job. Sterile, voiceless writing is just as obvious.
 Soul scales with the mode: an email, post, or explanation doc gets a view and a
-voice; reference docs and commit messages stay dry and specific.
+voice; reference docs, commit messages, PR descriptions, issues, review
+comments, and code comments stay dry and specific.
 
 - **Have opinions.** React to facts instead of neutrally listing pros and cons.
 - **Vary rhythm.** Short sentences. Then longer ones that take their time. Mix it up.
