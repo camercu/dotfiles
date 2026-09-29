@@ -12,9 +12,12 @@ file="$(jq -r '.tool_input.file_path // .tool_response.filePath // ""')"
 [ "$(basename "$file")" = "SKILL.md" ] || exit 0
 
 here="$(cd "$(dirname "$0")" && pwd)"
-export VALIDATOR="$here/../../agents/skills/writing-for-agents/scripts/validate_skill.py"
-export SKILL_DIR="$(dirname "$file")"
+VALIDATOR="$here/../../agents/skills/writing-for-agents/scripts/validate_skill.py"
+SKILL_DIR="$(dirname "$file")"
+export VALIDATOR SKILL_DIR
 
+# Single quotes on purpose: the bash nix-shell starts expands the variables.
+# shellcheck disable=SC2016
 if out="$(nix-shell -p 'python3.withPackages(p: [p.pyyaml])' \
   --run 'python3 "$VALIDATOR" "$SKILL_DIR"' 2>&1)"; then
   exit 0
