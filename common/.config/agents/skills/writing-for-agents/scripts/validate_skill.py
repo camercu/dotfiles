@@ -3,7 +3,10 @@
 """
 Validate skill directories: frontmatter, trigger-only description, Overview.
 
-Usage: validate_skill.py <skill_dir>...   (exit 1 if any fails)
+Usage: validate_skill.py <skill_dir>...
+
+Exit 0 = all valid, 10 = some skill invalid. Any other code = the validator
+itself failed (nix, python, usage), so callers can tell a verdict from a crash.
 """
 
 import sys
@@ -144,6 +147,8 @@ def validate_skill(skill_path):
 
     return True, "Skill is valid!"
 
+INVALID = 10
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: validate_skill.py <skill_directory>...")
@@ -154,4 +159,4 @@ if __name__ == "__main__":
         valid, message = validate_skill(arg)
         print(f"{arg}: {message}")
         failed |= not valid
-    sys.exit(1 if failed else 0)
+    sys.exit(INVALID if failed else 0)

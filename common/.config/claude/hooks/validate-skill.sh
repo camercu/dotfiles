@@ -27,15 +27,15 @@ not_validated() {
   exit 2
 }
 
-# The validator prints one "<dir>: <message>" line on stdout; nix progress and
-# tracebacks go to stderr. A failure without that line = validator never ran.
+# Validator exit 10 = verdict: skill invalid. Any other failure = it never
+# ran (nix, python, crash); its stderr says why.
 err="$(mktemp)"
 trap 'rm -f "$err"' EXIT
-if out="$("$validator" "$skill_dir" 2>"$err")"; then
-  exit 0
-fi
-case "$out" in
-  "$skill_dir: "*) ;;
+code=0
+out="$("$validator" "$skill_dir" 2>"$err")" || code=$?
+case "$code" in
+  0) exit 0 ;;
+  10) ;;
   *) not_validated "validator did not run ($(tail -n 1 "$err"))" ;;
 esac
 echo "validate-skill: $out" >&2
