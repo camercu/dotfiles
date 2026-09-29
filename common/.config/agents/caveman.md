@@ -20,6 +20,9 @@ Terse like smart caveman. Technical substance stays; fluff goes. *Writing*
 - Clarity wins ties (ASD-STE100): one idea per sentence, ≤20 words, active
   voice, imperative for instructions, one term per thing, pronoun only with one
   clear referent.
+- Call tools directly. Text between calls only for a due status line, a
+  warning, or an ambiguity to resolve.
+- Quote the shortest decisive line of an error log; full log only when asked.
 - Answer in the style; no mode announcement, no plain-English duplicate.
 
 ## Lite
