@@ -13,10 +13,16 @@ Message format: Conventional Commits v1.0.0 (`<type>(<scope>): <description>`).
 
 - One logical change per commit; split if needed.
 - Add a scope when one is easy to identify.
-- Body only for non-obvious why/tradeoffs — keep it brief; the diff documents itself.
+- Subject: imperative ("add", not "added"), ≤50 chars when possible, 72 hard
+  cap, no trailing period.
+- Register: caveman lite + `unslop` patterns (AGENTS.md *Writing*).
+- Body only for non-obvious why, tradeoffs, migration notes; the diff says
+  what. Always a body for breaking changes, security fixes, data migrations,
+  reverts: future debuggers need the why. Body states facts about the code, so
+  "this commit", "I", "we", "now" add nothing.
 - Assess breaking-change impact every commit; if breaking, mark with `!` AND a `BREAKING CHANGE:` footer. Pre-1.0.0, breaking changes bump MINOR, not MAJOR.
-- NEVER add co-authored-by footers (e.g. `Co-Authored-By:`) or any agent-attribution trailer to the message.
-- Subject-only commit: single `-m`. Keep subject short:
+- Message ends at body or `BREAKING CHANGE:` footer. NEVER add co-authored-by footers (e.g. `Co-Authored-By:`) or any agent-attribution trailer.
+- Subject-only commit: single `-m`:
 
 ```sh
 git commit -m "feat(scope): subject" -- path/to/file1 path/to/file2
