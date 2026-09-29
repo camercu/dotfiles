@@ -15,7 +15,7 @@ Message format: Conventional Commits v1.0.0 (`<type>(<scope>): <description>`).
 - Add a scope when one is easy to identify.
 - Subject: imperative ("add", not "added"), ≤50 chars when possible, 72 hard
   cap, no trailing period.
-- Register: caveman lite + `unslop` patterns (AGENTS.md *Writing*).
+- Register and style skill: AGENTS.md *Writing*.
 - Body only for non-obvious why, tradeoffs, migration notes; the diff says
   what. Always a body for breaking changes, security fixes, data migrations,
   reverts: future debuggers need the why. Body states facts about the code, so
