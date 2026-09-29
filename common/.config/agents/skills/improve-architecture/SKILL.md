@@ -1,5 +1,5 @@
 ---
-name: improve-codebase-architecture
+name: improve-architecture
 description: Use when user wants to clean up or improve codebase architecture or design, or mentions architectural friction, coupling, cohesion, module depth, "improve architecture", "refactor the design".
 ---
 

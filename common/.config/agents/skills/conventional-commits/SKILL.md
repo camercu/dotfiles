@@ -1,5 +1,5 @@
 ---
-name: commit
+name: conventional-commits
 description: MUST be used for every git commit. Use when about to run git commit, or when user says "commit this", "/commit", or asks for a commit message.
 ---
 
