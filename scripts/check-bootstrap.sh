@@ -649,6 +649,31 @@ run_claude_hook_test() {
   return "$hook_status"
 }
 
+# The skill hook sees only Write/Edit; a SKILL.md changed through the shell
+# (sed, heredoc, mv) bypasses it. Validating every skill in the repo here
+# catches those. Skipped (loudly) without nix-shell, which supplies pyyaml.
+run_skill_validate_test() {
+  begin_test skill_validate_test
+
+  if ! command -v nix-shell >/dev/null 2>&1; then
+    echo "skills: nix-shell not installed, skipping skill validation" >&2
+    return 0
+  fi
+
+  capture_log
+  skill_dirs=$(find "$DOTFILE_DIR" -name SKILL.md -not -path '*/.git/*' \
+    -not -path '*/skills/synced/*' -exec dirname {} \; | sort)
+  # Single quotes on purpose: nix-shell's bash expands the variables, and
+  # splits SKILL_DIRS on whitespace (skill paths here hold none).
+  # shellcheck disable=SC2016
+  if ! SKILL_DIRS=$skill_dirs VALIDATOR="$DOTFILE_DIR/common/.config/agents/skills/writing-for-agents/scripts/validate_skill.py" \
+      nix-shell -p 'python3.withPackages(p: [p.pyyaml])' \
+      --run 'python3 "$VALIDATOR" $SKILL_DIRS' >"$LAST_LOG" 2>&1; then
+    echo "skills: validator rejected a skill" >&2
+    return 1
+  fi
+}
+
 run_syntax_selfcheck_test
 run_syntax_test
 run_shellcheck_test
@@ -666,5 +691,6 @@ run_bash_aliases_test
 run_repo_relative_link_test
 run_stow_conflict_test
 run_claude_hook_test
+run_skill_validate_test
 
 echo "check-bootstrap: all checks passed"
