@@ -5,7 +5,6 @@ set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"
 hook="$here/validate-skill.sh"
-skills="$here/../../agents/skills"
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 fails=0
@@ -16,14 +15,25 @@ expect() { if [ "$2" = "$3" ]; then echo "ok  - $1"; else echo "FAIL- $1 (got $2
 mkdir -p "$scratch/bad-skill"
 printf -- '---\nname: other-name\ndescription: Use when testing.\n---\n\nBody.\n' >"$scratch/bad-skill/SKILL.md"
 
+mkdir -p "$scratch/good-skill"
+printf -- '---\nname: good-skill\ndescription: Use when testing.\n---\n\n# T\n\n## Overview\n\nBody.\n' >"$scratch/good-skill/SKILL.md"
+
 mkdir -p "$scratch/user-invocable"
 printf -- '---\nname: user-invocable\ndescription: Use when testing.\nuser-invocable: false\n---\n\n# T\n\n## Overview\n\nBody.\n' >"$scratch/user-invocable/SKILL.md"
 
-expect "user-invocable key passes"   "$(run_hook "$scratch/user-invocable/SKILL.md")" 0
-expect "valid skill passes"          "$(run_hook "$skills/grill-me/SKILL.md")" 0
-expect "non-skill file passes"       "$(run_hook "$skills/unslop/technical.md")" 0
-expect "broken skill blocked"        "$(run_hook "$scratch/bad-skill/SKILL.md")" 2
-expect "reason reaches stderr"       "$(grep -c "differs from directory" "$scratch/err")" 1
+# A non-skill file inside a broken skill: passing proves the filename filter.
+printf 'notes\n' >"$scratch/bad-skill/notes.md"
+expect "non-skill file passes"       "$(run_hook "$scratch/bad-skill/notes.md")" 0
+
+# Controls that run the validator need nix-shell.
+if command -v nix-shell >/dev/null 2>&1; then
+  expect "valid skill passes"          "$(run_hook "$scratch/good-skill/SKILL.md")" 0
+  expect "user-invocable key passes"   "$(run_hook "$scratch/user-invocable/SKILL.md")" 0
+  expect "broken skill blocked"        "$(run_hook "$scratch/bad-skill/SKILL.md")" 2
+  expect "reason reaches stderr"       "$(grep -c "differs from directory" "$scratch/err")" 1
+else
+  echo "skip - validator controls (nix-shell not installed)"
+fi
 expect "missing file_path passes"    "$(bash "$hook" <<<'{}' >/dev/null 2>&1; echo $?)" 0
 
 # Third-party skills (plugins, claude.ai-synced) follow their authors' rules.
