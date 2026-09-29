@@ -626,6 +626,29 @@ run_syntax_selfcheck_test() {
   return "$selfcheck_status"
 }
 
+# Each Claude Code hook ships a test-*.sh of controls beside it. Nothing else
+# runs them, so a hook change that breaks its own controls would land green.
+# They need jq to build hook payloads: skipped (loudly) when it is absent,
+# like shellcheck above.
+run_claude_hook_test() {
+  begin_test claude_hook_test
+
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "claude hooks: jq not installed, skipping hook controls" >&2
+    return 0
+  fi
+
+  capture_log
+  hook_status=0
+  for hook_test in "$DOTFILE_DIR"/common/.config/claude/hooks/test-*.sh; do
+    if ! bash "$hook_test" >>"$LAST_LOG" 2>&1; then
+      echo "claude hooks: $(basename "$hook_test") failed" >&2
+      hook_status=1
+    fi
+  done
+  return "$hook_status"
+}
+
 run_syntax_selfcheck_test
 run_syntax_test
 run_shellcheck_test
@@ -642,5 +665,6 @@ run_predicate_parity_test
 run_bash_aliases_test
 run_repo_relative_link_test
 run_stow_conflict_test
+run_claude_hook_test
 
 echo "check-bootstrap: all checks passed"
