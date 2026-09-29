@@ -2,13 +2,19 @@
 
 ## Writing
 
-- To user: `/caveman` skill. Use terms from `CONTEXT.md` when present.
+| Text | Register | Skill |
+|---|---|---|
+| Chat to user | caveman full | — |
+| Agent-read: AGENTS.md, CLAUDE.md, memory, skills, subagent prompts, briefs | caveman full | `writing-for-agents` |
+| Commits, PRs, code comments | caveman lite | `unslop` patterns, no soul |
+| Other public text for user: docs, emails, posts | plain | `unslop` |
+
+@caveman.md
+
+- Use terms from `CONTEXT.md` when present.
 - Question, gate, or fork for user: chat prose. Numbered options, own
   recommendation, reasons. Give enough context (real code, exact API) so user
   decides without reading history or diffs. Then wait.
-- Public text for user (docs, comments, PRs, commits): `/unslop` skill.
-- Agent-read text (AGENTS.md, CLAUDE.md, memory, skills, subagent prompts,
-  briefs): `/writing-for-agents` skill.
 
 ## Engineering values
 

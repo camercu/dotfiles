@@ -169,10 +169,7 @@ by invocation (distinct trigger, see `SKILL-MECHANICS.md`).
 
 ## Style
 
-Caveman compression (`caveman` skill): drop articles, filler, hedging;
-fragments fine; `→` for causality; symbols and paths verbatim. Keep whatever
-removes ambiguity (the *only*/*not* placement, a repeated noun over an unclear
-*it*).
+Caveman full (`~/.config/agents/caveman.md`), plus `→` for causality.
 
 Every rule carries its reason: "Commit only when green — every commit on
 `main` must build." CAPS only for a hard guardrail whose miss can't be undone
