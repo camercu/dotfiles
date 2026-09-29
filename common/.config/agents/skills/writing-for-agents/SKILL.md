@@ -172,9 +172,10 @@ fragments fine; `→` for causality; symbols and paths verbatim. Keep whatever
 removes ambiguity (the *only*/*not* placement, a repeated noun over an unclear
 *it*).
 
-Emphasis (CAPS, **MUST**, NEVER) = volume, not precision; current models
-over-apply shouted rules. Give the reason instead: "Commit only when green —
-every commit on `main` must build." Reserve bold for defined terms.
+Every rule carries its reason: "Commit only when green — every commit on
+`main` must build." CAPS only for a hard guardrail whose miss can't be undone
+(push, delete, secrets), reason attached there too. Emphasis spread wide loses
+its signal, and models over-apply it.
 
 ## Reviewing a doc
 
