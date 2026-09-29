@@ -61,7 +61,7 @@ Gather what's practical — not every signal available in every project.
 
 ### 2. Present candidates
 
-Write candidates to a file as Step 1's evidence lands, before presenting — the survey (deletion test, fan-in/out, churn × complexity) is the expensive part and a lost context makes it all re-run. Declines belong in the same file, with the reason: a candidate considered and rejected is a result the next run must not re-derive.
+Record candidates and declines per `~/.config/agents/record-as-you-go.md` as Step 1's evidence lands; the survey is the expensive part.
 
 Numbered list, **ranked by priority** (impact + risk). Per candidate:
 

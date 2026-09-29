@@ -38,15 +38,9 @@ Spine. Override convenience always.
 5. **Capture decisions durably.** Load-bearing decisions — esp declines/reversals
    — go somewhere permanent (ADR, commit-body rationale, friction report), not
    just the conversation.
-5b. **Write it down when found, not when finished.** A finding exists on disk
-   **before** the next probe starts; a probe's evidence (command, output,
-   file:line) lands w/ it. Never hold findings in context to batch into a
-   closing report — context dies (session limit, compaction, crash) and the
-   whole pass dies with it. Costs one append per finding; saves the entire run.
-   Applies to main context **and every delegated pass** (#6, #7): each agent gets
-   a findings-file path in its prompt + appends as it goes, so a dead agent
-   leaves harvestable work, not nothing. Partial file > perfect summary never
-   written. Same discipline for the ledger: checkpoint the row when it happens.
+5b. **Record as you go** (`~/.config/agents/record-as-you-go.md`) — main
+   context and every delegated pass (#6, #7). Same for the ledger: checkpoint
+   the row when it happens.
 6. **Named passes delegated, not simulated.** A phase naming a skill = **that skill
    gets invoked** via the Skill tool — by the main context, or by a fresh agent it
    delegates to (#7); inline reasoning supplements, never replaces the call.
@@ -64,8 +58,7 @@ Spine. Override convenience always.
    never pass a same-context review off as independent.
 
 **Spawn contract** (every delegated pass, no exceptions). Prompt carries:
-its own **findings-file path** + "append each finding as you find it, before
-starting the next probe" (#5b); the scope (commit range / paths); the
+its own **findings-file path** + record-as-you-go (#5b); the scope (commit range / paths); the
 verification matrix; authority-doc locations; read-only + no-history-surgery
 rails; which files are off-limits *because they'd prime it* (ledger, other
 passes' findings). Agent returns a summary; the **file** is the deliverable.

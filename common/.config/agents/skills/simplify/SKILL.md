@@ -29,7 +29,7 @@ Launch concurrently in a single message, each with the full diff:
 
 Wait for all three, aggregate, fix each directly. False positive or not worth it → note and skip; don't argue with the finding.
 
-Each of the three writes its findings to a file **as it finds them**, not batched into a closing summary — context dies (session limit, compaction, crash) and unwritten findings die with it. Aggregate from the files. Report-only mode (running as a delegated review, no authority to edit) → the file **is** the deliverable; record skipped/false-positive calls in it too, so the next pass doesn't re-raise them.
+Each of the three records findings per `~/.config/agents/record-as-you-go.md`; aggregate from the files. Report-only mode (delegated review, no authority to edit) → record skipped and false-positive calls in the file too, so the next pass doesn't re-raise them.
 
 ### Do NOT simplify when
 

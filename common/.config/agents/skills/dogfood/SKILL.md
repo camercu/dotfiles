@@ -98,13 +98,8 @@ being rejected = `soundness` finding (feeds harden Soundness pass).
 
 ## Friction report
 
-**Open the file at pass 0, not at the end.** Write Context immediately, then
-**append each finding the moment it is found** — evidence (command, output,
-file:line) with it, before the next probe starts. Never batch findings in
-context: session limit / compaction / crash kills the pass and every finding
-in it. A half-written report on disk beats a perfect one that never got typed.
-Consumer code + repro commands stay in scratch, referenced by path, so a later
-run rebuilds them without re-deriving. Re-eval mode depends on this too.
+Open the report at pass 0 and fill it per `~/.config/agents/record-as-you-go.md`.
+Re-eval mode rebuilds consumers from the scratch paths it records.
 
 Write to scratch, tell user the path. Sections in order:
 
