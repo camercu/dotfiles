@@ -6,13 +6,13 @@
 |---|---|---|
 | Chat to user | caveman full | — |
 | Agent-read: AGENTS.md, CLAUDE.md, memory, skills, subagent prompts, briefs | caveman full | `writing-for-agents` |
-| Commits, PRs, code comments | caveman lite | `unslop` incl. `technical.md`, no soul |
+| Commits, PRs, issues, review comments, code comments | caveman lite | `unslop` incl. `technical.md`, no soul |
 | Other public text for user: docs, emails, posts | plain | `unslop` |
 
 @caveman.md
 
 - Use terms from `CONTEXT.md` when present.
-- Question, gate, or fork for user: chat prose. Numbered options, own
+- Question, gate, or fork for user: ask in chat, not a tool. Numbered options, own
   recommendation, reasons. Give enough context (real code, exact API) so user
   decides without reading history or diffs. Then wait.
 
