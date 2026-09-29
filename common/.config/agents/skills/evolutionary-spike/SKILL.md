@@ -1,174 +1,187 @@
 ---
 name: evolutionary-spike
-description: Use when the right SHAPE or the VIABILITY of something is genuinely unknown and must be BUILT to know. Triggers on "spike N approaches and compare", "explore the design space", "which interface/shape/mechanism is best", "prototype and pick", "is it worth building X", "do benefits outweigh costs", "design bake-off", "run a spike tournament", "evolutionary spike". NOT for a single quick throwaway with no comparison, and not when one approach is already obvious (use Plan or tdd there).
+description: Use when the right shape of a design, or whether it's worth building, can only be found by building it. Triggers on "spike N approaches", "explore the design space", "design bake-off", "prototype and pick", "is X worth building", "evolutionary spike". One obvious approach or a single throwaway → `tdd`.
 ---
 
-# Evolutionary Spike
+# Evolutionary spike
 
 ## Overview
 
-Resolves a hard design or feasibility question empirically: many throwaway prototype spikes built in parallel (clean-room plus informed agents), reviewed independently, dominated ones eliminated while their lessons are captured, converging to finalists and a synthesized capstone.
+Settle a design or feasibility question by building: throwaway **spikes** in
+parallel, independent review, eliminate losers while keeping their lessons,
+converge on finalists, decide. One run = a **tournament**. Output = ADR on
+`main` with a cost-benefit verdict; "don't build it" is a valid verdict.
 
-Build-to-know loop. Hard design/feasibility question, several viable answers,
-can't settle by reasoning → build throwaway prototype spikes, compare, eliminate,
-converge, decide. Output = ADR (lands on main) + findings doc (spike branch only)
-w/ cost-benefit verdict. Verdict may = "don't build it" — valid outcome.
+Pipeline: `to-spec` (what) → this (which shape) → `tdd` (build it) → `harden`
+(refine it). Name the next skill in the verdict; the user starts it.
 
-## When
+## Tiers
 
-- Design bake-off: which shape/interface/mechanism best.
-- Feasibility: worth building? benefits > costs? Build spike to see for real.
-- Pipeline: [to-spec = what] → THIS [= which shape] → [tdd = build real] →
-  [harden = refine]. Spikes throwaway, NOT tdd'd. Name neighbors, don't auto-invoke.
-- Sibling to harden (shared discipline: reviewer independence, gates,
-  commit-to-preserve, capture decisions, reverse own calls on evidence, finding=lead).
-  Different phase/output → standalone skill, not a harden mode.
-- NOT: one obvious approach → Plan/tdd. Single quick throwaway, no compare → not this.
+Start at the smallest tier that answers the question. Escalate when spikes
+disagree, or the choice is costly or irreversible. The user's tier choice and
+spike count override, up or down.
 
-## Tiers (adaptive)
+- **Light**: steps 1-3 and 5 of the loop, no Refine. 2-4 spikes in total,
+  clean-room ones included; one agent may build them all. The Converge gate is
+  the stop gate. Self-review allowed (overrides `AGENTS.md`'s fresh-agent
+  review); the findings doc says so and rates confidence lower.
+- **Heavy**: full loop, several rounds, fresh reviewer every round, capstone
+  synthesis, ADR.
 
-Default smallest tier that answers question. Escalate on signal (spikes disagree /
-costly / irreversible). USER forces any tier on demand — override beats heuristic
-(both up and down).
+## Loop
 
-- **Light**: 1 round, 2-4 spikes, maybe 1 agent builds the variants, 1 review,
-  short findings note, verdict. Self-review allowed ONLY at this smallest tier
-  (disclose reduced confidence).
-- **Heavy tournament**: multi-round, clean-room + informed, fresh independent
-  review per round, strict eliminate+lessons, capstone synthesis, ADR.
+Breadth first, then depth.
 
-## Loop — BREADTH first, THEN depth
+1. **Frame.** Set up the workspace (*Isolation*), copy
+   `references/findings-template.md` into it, fill Question, Constraints
+   (requirements, not solutions), Contract, and the list of known mechanisms.
+   User named no approaches → the mechanism list goes to the user for approval.
+   Done when the header is filled and the list approved.
+2. **Breadth sweep.** In parallel: one **directed** spike per listed
+   mechanism, plus a few pure **clean-room** spikes to show where unanchored
+   designers converge and to surface mechanisms nobody listed. Front-loading
+   the sweep is what makes later convergence trustworthy. Done when every spike
+   is built and committed.
+3. **Converge.** Independent review of every spike (`references/reviewer-brief.md`).
+   Each spike becomes finalist or eliminated, with why-lost, what-didn't-work
+   and carry-forward lines. Present the gate report (below). Done when every
+   spike has a status and the user chose continue or stop.
+4. **Refine** (Heavy). **Informed** spikes iterate within the finalists. Clear
+   convergence → one capstone track; ambiguous → several finalists in parallel
+   tracks until one wins or they settle into genuine trade-off axes. Review as
+   in step 3, then present the gate report. Done when the user chose continue
+   (another Refine round with the named spikes) or stop.
+5. **Decide.** Write the ADR. Done when *Stop and done* holds.
 
-1. **FRAME.** Question + hard constraints (as REQUIREMENTS, not solutions) +
-   honesty/proof contract. Write findings-doc header.
-2. **BREADTH SWEEP** (space-exhaustion, front-loaded). Parallel clean-room agents:
-   - space-exhaustion agents: one per KNOWN way to build it (mechanism/region).
-   - + small number PURE unanchored clean-room: reveal where convergence points,
-     surface a region you didn't enumerate.
-   Front-load so later convergence is trustworthy (blind-spot guarded up front).
-3. **CONVERGE.** Independent review. Capture lessons per candidate: why-lost +
-   what-didn't-work + carry-forward tidbits/leads. Name finalists / promising region.
-4. **REFINE** (informed generation). Iterate within survivors. Breadth ∝
-   1/convergence-clarity: overwhelming convergence → single capstone track;
-   ambiguous → carry MULTIPLE finalists in parallel tracks until one wins or they
-   stabilize as genuine axes. Independent review to fixpoint.
-5. **DECIDE.** Findings doc + ADR: chosen design, IMPACT on the real codebase,
-   cost-benefit / net-positive verdict, open items for the real build. Or "don't build".
-   ADR crosses to main; findings + spike code stay on the spike branch. Ship a winner
-   as fresh production code, never merged spike code (see Artifacts).
+**Gate report** (end of Converge and of every Refine round):
+
+1. Each spike built this round: finalist, or which finalist beat it and why.
+2. Open axes: trade-offs the finalists still split on; each marked values call
+   (user decides) or spikeable (another round could settle it).
+3. Untried: listed mechanisms never built, and mechanisms clean-room spikes
+   surfaced that no directed spike has explored.
+4. Recommendation: **stop** when this round produced no new finalist, nothing
+   spikeable is untried, and every open axis is a values call; else
+   **continue**, naming the next spikes.
+
+## Stop and done
+
+Stop is the user's call at a gate report. After the user calls stop, the
+tournament is done when:
+
+1. Findings doc lists every spike id as finalist or eliminated, each eliminated
+   one with why-lost and carry-forward lines, and a Verdict section.
+2. Every spike's code and the findings doc are committed on their spike
+   branches; `git status` is clean in every worktree.
+3. ADR written (Heavy always; Light when the verdict changes what gets built):
+   `docs/adr/NNNN-<topic>.md`, next free number (no `docs/adr/` → start at
+   `0001`), status proceed / don't-proceed / deferred. Names the chosen design,
+   its impact on the codebase, and open items for the real build. Committed on
+   `main`; `git show --name-only <adr-commit>` lists only the ADR. Light
+   without ADR → the verdict goes to the user in chat, since the spike branch
+   may be deleted.
+4. Worktrees removed (`git worktree remove`); spike branches kept for the user
+   to delete.
+5. User approved the final verdict.
 
 ## Agents
 
-- Each spike = throwaway agent. Dispatch in PARALLEL. Scope each to its own
-  artifact (own file/branch) so concurrent builds don't collide.
-- Modes: **clean-room** (forbid reading prior spikes + findings; explicit
-  forbidden-file list) / **informed** (given accumulated lessons + finalists to
-  build on) / **directed** (build around one named mechanism).
-- Convergence across INDEPENDENT clean-room agents = first-class signal (N unanchored
-  designers landing on same shape = strong evidence). Heavy tier: spend agents to
-  test convergence deliberately.
-- Reviewer ≠ author. Independence absolute EXCEPT smallest tier.
-- Orchestrator (you) never authors spikes — dispatch, digest reports, drive elimination.
-- Briefs = fill-in templates: `references/spike-brief.md`, `references/reviewer-brief.md`.
-  Adapt with judgment.
+- One agent per spike (Light: one may build several), dispatched in parallel,
+  each scoped to its own file or worktree.
+- Modes: **clean-room** (reads only the problem: `src`, spec; prior spikes and
+  findings stay unread), **directed** (clean-room, built around one named
+  mechanism), **informed** (given lessons + finalists to build on).
+- Independent clean-room spikes converging on one shape = strong evidence.
+  Heavy tier: spend agents to test convergence on purpose.
+- Orchestrator (you) dispatches, digests reports, runs eliminations. Spike
+  agents write all spike code; each review comes from a fresh agent (Light
+  excepted, see *Tiers*).
+- Briefs: `references/spike-brief.md`, `references/reviewer-brief.md`. Both
+  carry the honesty, quality-bar and proof rules.
 
 ## Isolation
 
-- **Additive (default, prefer):** standalone new file, no `src/` edits. Coexist on
-  one branch, parallel-safe by file-scope, diff side-by-side. A spike expressible as
-  a standalone example is cheaper AND better isolated.
-- **Invasive (must edit `src/` to compile):** own git worktree/branch (Agent
-  `isolation: "worktree"`), `spike/<topic>-<variant>`. Pricier to set up + compare →
-  favor smaller N; comparability harness matters more here.
+1. Find the repo's spike convention first:
+   `grep -n spike .gitignore .git/info/exclude; git branch --list 'spike/*'`.
+   Repos that ran this skill already carry its dir, branches, and maybe old
+   worktrees. None → use `.spike-workspace/` and add it to `.git/info/exclude`
+   (local; `main` stays untouched).
+2. **Topic worktree**: `git worktree add .spike-workspace/<topic> -b
+   spike/<topic>`. Holds the findings doc and every additive spike. The main
+   checkout stays on `main`.
+3. **Additive** spike (preferred): standalone new file in the topic worktree,
+   no `src/` edits. Additive spikes share the branch and diff side by side.
+4. **Invasive** spike (must edit `src/` to compile): own worktree,
+   `git worktree add .spike-workspace/<spike-id> -b spike/<topic>-<spike-id>
+   spike/<topic>`. Costlier to set up and compare → fewer spikes, and the
+   comparability harness matters more.
 
-**WHERE: worktrees under a git-excluded dir IN the repo.** Look for the repo's
-existing one first (`.spike-workspace/`, `.spikes/` — check `.gitignore`); create and
-ignore one only if absent. `git worktree add .spike-workspace/<variant> -b
-spike/<topic>-<variant>`.
+Worktrees under the repo's spike dir share the object store, so spike commits
+are durable in `.git` while `main` stays clean. Copies elsewhere failed:
+`cp -R` with a stale `target/` hit 24GB and killed spikes, and a `/tmp` reaper
+deleted a finished tournament's reports and patches.
 
-NEVER copy the repo to `/tmp`. Measured on one 123MB repo: worktree 1.5MB, `cp -R`
-123MB, and `cp -R` with a stale `target/` 24GB — which killed three arms twice. And
-`/tmp` is NOT durable: a reaper took every report and patch from a finished
-tournament. A worktree shares the object store, so arm commits are durable in the
-repo's own `.git` while the tree stays untracked and main stays clean.
+## Commits and gates
 
-## Gates
+Spike branches are local and never merge, so `AGENTS.md`'s trunk rules (every
+commit green, one commit per finding, merge fast) cover only the ADR commit.
+Spike-branch commits: after each build, after each review, and before each
+elimination, so every spike stays in history. Messages follow
+`conventional-commits` with scope `spike`.
 
-Autonomous between decisions: dispatch, review, digest, verify.
-Gated (stop + present): **eliminations** (recommend + justify; user approves — but
-auto-cut STRICTLY-dominated candidates with a logged reason, gate only judgment
-calls); **round/tier transitions**; **final verdict**.
-Commits AUTOMATIC after each review pass and before each elimination — preserve every
-spike in git history for recovery. They land on the SPIKE BRANCH, never main, and are
-never pushed. Only an ADR reaches main, and pushing that is gated (outward-facing).
-Capture lessons BEFORE deleting anything. Always.
+Capture a spike's lessons in the findings doc before deleting its files.
 
-## Stop
-
-Stop generating → move to decide when any fire: convergence fixpoint / space
-exhausted / diminishing returns (new round yields only variants that map to finalists
-or lose) / decision-ready (finalists bracket the open axes, rest is a values call).
-Skill PROACTIVELY recommends stopping — don't spike forever. Premature-stop guard:
-don't stop while spikes still disagree on a fundamental property, or a whole region is
-visibly untried (mostly satisfied by the front-loaded breadth sweep).
+Gate (stop, present, recommend) at: approving the mechanism list, each gate
+report, judgement-call eliminations, tier changes, the final verdict.
+Strictly-dominated spikes you cut yourself, with the reason in the findings
+doc.
 
 ## Artifacts
 
-**SPIKES NEVER TOUCH MAIN — code and findings both.** Spikes are temporary by
-definition; main is what every downstream clone/fork carries forever. Temporary work
-must not levy permanent tax. Only the ADR crosses.
+**SPIKES NEVER TOUCH MAIN — code and findings both.** `main` is what every
+clone carries forever; temporary work must not levy permanent tax. Only the ADR
+crosses, and pushing it is gated.
 
-- **Spike branch**: `spike/<topic>`. Holds spike code AND findings doc. Auto-committed,
-  NEVER merged, never pushed. A branch is durable (survives /clear, session death, tmp
-  reaper) without taxing main — that is why the checkpoint lives there, not in `/tmp`.
-  Scratch dirs under `/tmp` are NOT durable: reaped without warning, taking every
-  report and patch with them.
-- **Findings doc**: `<topic>-findings.md`, ON THE SPIKE BRANCH. LIVING record that
-  DOUBLES AS the resumable checkpoint. Skeleton = `references/findings-template.md`.
-  Keep ephemeral orchestration bits (in-flight agent IDs) OUT.
-- **ADR**: `docs/adr/NNNN-*.md` — the ONLY spike output that lands on main. Decision +
-  impact analysis + cost-benefit/net-positive verdict + open items. Status: proceed /
-  don't-proceed / accepted-but-deferred. Must STAND ALONE: reader gets the lesson
-  without the spike branch, which may be gone.
-- **Shipping a winner**: write it FRESH against main, to production quality. Never
-  merge or cherry-pick spike code. Spikes are built to answer a question, not to a
-  shipping bar — no tests, no edge cases, no docs, shortcuts taken to get an answer
-  fast. Copying wholesale imports that debt. Lessons transfer; code does not.
+- **Spike branches** `spike/<topic>` (+ `spike/<topic>-<id>` for invasive):
+  spike code + findings doc, local only. Durable across `/clear` and session
+  death.
+- **Findings doc** `<topic>-findings.md` at the topic worktree root: living
+  record and resume checkpoint.
+- **ADR**: see *Stop and done*. It must read without the spike branch.
+- **Shipping a winner**: write it fresh against `main` to production quality.
+  Spikes skip edge cases, docs and polish to get an answer; lessons transfer,
+  code doesn't.
 
 ## Comparability
 
-Deterministic byte-identical demo harness REQUIRED unless genuinely impossible (e.g.
-perf bake-off) → then flex to the best comparability available (deterministic metrics,
-fixed inputs). Identical demos make diffing + honesty-checking cheap.
+Every spike in a round runs the same deterministic harness with byte-identical
+output, so results diff directly and honesty checks stay cheap. Harness
+impossible (e.g. perf bake-off) → best deterministic comparison available
+(fixed inputs, deterministic metrics), stated in the findings doc's Contract.
+
+## Self-check
+
+Before each gate report:
+
+1. `git -C <worktree> status` for each worktree. Uncommitted work → run its
+   build and tests, then commit it.
+2. `git -C .spike-workspace/<topic> ls-files` and `git worktree list`: every
+   spike file and worktree belongs to a spike the findings doc lists as live
+   or finalist. An eliminated spike's files reappeared (late-finishing agent)
+   → delete them and commit.
+
+Before done, when an ADR exists: a fresh agent reads only the ADR and states
+the decision, the reason, and what's open. It needs the spike branch →
+rewrite the ADR.
 
 ## Gotchas
 
-- **Honesty mandate** (every brief): a negative "this loses" result is valuable; never
-  fake a win, hide a regression (Rc, unsafe, unstable feature, lost property), or
-  oversell. An unmet requirement = a first-class finding.
-- **Zombie agents**: parallel spike agents can finish LATE (after a session-limit
-  reset) and re-create deleted spike files — even from their own backups. Before each
-  commit, re-verify the tree and remove strays so an eliminated design can't resurrect.
-- **A dead agent's uncommitted work is NOT lost.** It is on your filesystem. Read it,
-  build it, test it, commit it yourself. An arm that dies mid-run loses the ability to
-  EXPLAIN its work, not the work. Wip-commit rules exist to save you the recovery, not
-  because uncommitted means gone. Before writing off any arm: `git -C <worktree> status`,
-  then run its tests. Recovered 1300 lines and 40 passing tests from an arm that had
-  been declared unverifiable.
-  Never call an arm's code unverifiable while the compiler and its tests can still run.
-  That inverts the tournament's own rule: an arm's self-report is the weak evidence, and
-  a green suite you ran yourself is the strong evidence.
-- **"Running" is not "working".** Check disk mtimes, not agent status, to tell a live
-  arm from a stalled one. And a stalled arm is usually rate-limited rather than dead:
-  resume it before you kill it, because its transcript carries context no relaunch has.
-- **Check for the repo's existing spike convention BEFORE inventing one.** One
-  `grep spike .gitignore` would have found `/.spike-workspace`, a `spike/*` branch, and
-  a whole prior tournament's worktrees still on disk. Missing it cost a lost
-  tournament. Repos that have run this skill already carry its scaffolding.
-- **Colocated jj: deleting a spike branch can abandon its commits.** `git branch -D
-  spike/x` drops the ref; jj's next import sees the commits as unreachable and abandons
-  them — including any main-line commit that branch happened to point at. Recover with
-  `jj op log` + `jj op restore <op>`; nothing is lost if you notice. Prefer
-  `jj bookmark delete`, or verify `jj log` right after any `git branch -D`.
-- Self-review is polluted by author bias — disclose it and weight it below an
-  independent review; never let it stand as the final verdict above the smallest tier.
+- **A dead spike's work is on disk.** An agent that dies loses the ability to
+  explain its work, not the work. Before writing a spike off, run its build and
+  tests yourself: a green suite you ran beats any self-report. One spike
+  written off as unverifiable held 1300 lines and 40 passing tests.
+- **"Running" ≠ working.** Judge liveness by file mtimes on disk, not agent
+  status. A stalled spike is usually rate-limited: resume it before killing it,
+  since its transcript holds context a relaunch lacks.
+- **jj repo** (`.jj/` exists): read `references/jj.md` before deleting any
+  spike branch.

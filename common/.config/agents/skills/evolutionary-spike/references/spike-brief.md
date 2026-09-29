@@ -1,50 +1,62 @@
-# Spike-agent brief template
+# Spike brief template
 
-Fill the `{{slots}}`, pick ONE mode block, dispatch. Keep `## Problem` IDENTICAL
-across every agent in a round (comparability). Adapt wording with judgment; never
-drop the honesty + proof clauses.
+Fill the `{{slots}}`, keep one mode block, dispatch. `## Problem` is identical
+for every spike in a round, so results compare. Adapt wording with judgement;
+keep the quality bar, honesty and proof sections in every brief.
 
 ---
 
-You are building throwaway spike `{{id}}` in worktree `{{worktree-path}}` on branch
-`{{branch}}` (created for you by `git worktree add`; the main checkout is off limits).
-Do NOT switch branches or push. Toolchain: `{{how-to-run-tools}}` (use it, not host
-binaries). Create ONLY `{{artifact-path}}`; touch nothing else.
+You are building throwaway spike `{{spike-id}}`. Work only in
+`{{worktree-path}}` on branch `{{branch}}` (already created for you). Files in
+scope: `{{artifact-path}}` (additive) or whatever `src/` edits the mechanism
+needs (invasive); every other file stays as it is. Toolchain:
+`{{how-to-run-tools}}`, run through that, not host binaries. The orchestrator
+commits.
 
 ## Problem
-{{one-paragraph problem statement — the thing being resolved, same for all agents}}
+{{one paragraph: the question being resolved, same for every spike}}
 
-## Requirements (satisfy all, or report honestly which the mechanism CANNOT)
-{{hard constraints as REQUIREMENTS, not solutions — e.g. safety property, perf
-bound, no_std, zero-cost, stable-toolchain, no-unsafe. State the property; do not
-prescribe how.}}
+## Requirements
+Meet all of these, or report which ones the mechanism cannot meet:
+{{hard constraints stated as properties, not solutions — e.g. no unsafe,
+stable toolchain, zero-alloc, perf bound}}
 
-## Mode — pick ONE
-- CLEAN-ROOM: Do NOT read `{{forbidden-files: prior spikes + findings doc}}` — I
-  want your approach unanchored. You MAY read `{{allowed: src/spec}}` for the
-  problem, not the solution. If you see a forbidden file, stop and say so.
-- DIRECTED (space-exhaustion): build your design AROUND `{{named mechanism}}`.
-  Same clean-room forbidden list. If the mechanism can't meet a requirement, that
-  is a first-class finding — report it, don't force it.
-- INFORMED: read `{{finalists + findings}}` and build on them. Take/reject
-  explicitly; state what you took from each and why.
+## Mode (keep one)
+- **Clean-room:** read only `{{allowed: src, spec}}`, for the problem, not a
+  solution. `{{forbidden: prior spikes, findings doc}}` hold prior designs;
+  opening one anchors you. If you open one, say so in your report.
+- **Directed:** clean-room rules, and build your design around
+  `{{named mechanism}}`. If the mechanism can't meet a requirement, report that
+  as a finding.
+- **Informed:** read `{{finalists + findings}}` and build on them. State what
+  you took from each, what you rejected, and why.
+
+## Quality bar
+Throwaway spike. Build the least code that answers {{the key question}} with
+proof, then stop. Write tests that prove the core behaviour correct; writing
+them after the code is fine, and edge cases are out of scope. This spike is
+exempt from `AGENTS.md`'s `tdd` and `harden` steps; the fresh production build
+runs them. Error handling, docs and refactoring belong to that build.
 
 ## Comparability harness
-Same scenario for all: {{deterministic demo — inputs + expected output}}. Produce
-BYTE-IDENTICAL deterministic output so files diff directly (unless impossible →
-best deterministic comparison you can, and say why).
+Run this scenario: {{deterministic demo — inputs + expected output}}. Produce
+byte-identical deterministic output so results diff directly. Impossible →
+use the best deterministic comparison you can and say why.
 
-## Honesty mandate
-A negative "this loses" result is valuable. Never fake a win, hide a regression
-(alloc/`Rc`, unsafe, unstable feature, lost property, a lying stub), or oversell.
-If a requirement is unmet, that's a first-class finding, not a thing to paper over.
+## Honesty
+A "this loses" result is as valuable as a win. Report every regression
+(alloc, `Rc`, unsafe, unstable feature, lost property, stub that fakes
+behaviour) and every unmet requirement as a finding, at the size it really is.
 
-## Proof, not claims
-Compile AND run: {{verify commands / configs}}. PROVE key claims with evidence,
-not assertion (e.g. add a probe that must fail to compile, capture the exact
-error, then remove it). Paste the load-bearing output lines.
+## Proof
+Compile, run, and test: {{verify commands / configs}}. Prove each key claim
+with evidence (e.g. add a probe that must fail to compile, capture the exact
+error, remove the probe). Paste the load-bearing output lines.
 
-## Report back
-(1) interface/shape (key signatures); (2) what it satisfies / can't; (3) THE KEY
-QUESTION: {{the decisive property}} — answered with proof; (4) every wart named;
-(5) honest verdict vs the alternatives; (6) all verification results.
+## Report
+1. Interface / shape (key signatures).
+2. Requirements met and unmet.
+3. {{the key question}}, answered with proof.
+4. Every wart.
+5. Honest verdict against the alternatives.
+6. All verification and test results.

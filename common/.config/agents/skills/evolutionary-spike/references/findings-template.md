@@ -1,40 +1,42 @@
 # Findings-doc template
 
-Copy to `<topic>-findings.md` ON THE SPIKE BRANCH — never main; main carries only the
-ADR. LIVING record + resumable checkpoint — update every phase transition, review,
-elimination, decision. Keep ephemeral orchestration bits (in-flight agent IDs) OUT;
-put them in the run log or nowhere.
+Copy to `<topic>-findings.md` at the topic worktree root (`spike/<topic>`).
+Living record and resume checkpoint: update at every phase transition, review, elimination and decision.
+It holds durable state only; in-flight agent IDs stay in the conversation.
 
 ---
 
 # Spike: <topic> — findings
 
 ## Question
-<the design/feasibility question being resolved>
+<the design or feasibility question>
 
 ## Constraints (requirements, not solutions)
-<the hard properties every spike must satisfy>
+<hard properties every spike must meet>
+
+## Mechanisms
+<known ways to build it, one directed spike each; user-approved>
 
 ## Contract
-<honesty mandate + comparability harness (the deterministic demo) + verify commands>
+<comparability harness (the deterministic demo) + verify commands>
 
-## Run state (checkpoint — resume from here)
+## Run state (resume from here)
 - Phase: <frame | breadth | converge | refine | decide>
 - Tier: <light | heavy>
-- Pending spikes: <ids awaiting build/review>
-- Live finalists: <ids + one-line each>
+- Pending spikes: <ids awaiting build or review>
+- Finalists: <ids + one line each>
 - Next action: <what to do on resume>
 
 ## Round log
-- Round N: <spiked what, modes, convergence observations>
+- Round N: <what was spiked, modes, convergence seen>
 
 ## Eliminated
-For each cut — capture BEFORE deleting:
-- <id> — ELIMINATED (dominated by <x>). Why lost: <…>. What didn't work: <…>.
-  Carry forward: <salvageable tidbit / lead for a future spike>.
+Write each entry before deleting the spike's files:
+- <id> — eliminated (lost to <x>). Why lost: <…>. What didn't work: <…>.
+  Carry forward: <salvageable idea or lead>.
 
 ## Finalists
-- <id> — <what it represents> — open axis: <the tradeoff it sits on>.
+- <id> — <what it represents> — open axis: <the trade-off it sits on>.
 
-## Recommendation
-<the winner + why> → see ADR <docs/adr/NNNN-…>.
+## Verdict
+<winner + why, or don't-build + why> → ADR `docs/adr/NNNN-<topic>.md`.
