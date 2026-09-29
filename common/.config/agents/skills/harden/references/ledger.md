@@ -24,6 +24,7 @@ Matrix: <command per line>
 Last matrix run: <commit> <green|red: which command>
 Authority docs: <paths or "working contract: README + API + tests">
 Friction report: <path>
+Findings files: <path per pass and round>
 Position: step <n>, slice <id>, round <n>
 
 ## Slices
