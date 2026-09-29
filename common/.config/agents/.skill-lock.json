@@ -100,15 +100,6 @@
       "installedAt": "2026-02-22T13:40:16.037Z",
       "updatedAt": "2026-02-22T13:40:16.037Z"
     },
-    "code-reviewer": {
-      "source": "google-gemini/gemini-cli",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/google-gemini/gemini-cli.git",
-      "skillPath": ".gemini/skills/code-reviewer/SKILL.md",
-      "skillFolderHash": "e580e60f488d74811fbec80427183553295d7ceb",
-      "installedAt": "2026-02-22T13:40:16.149Z",
-      "updatedAt": "2026-02-22T13:42:36.507Z"
-    },
     "data-analyst": {
       "source": "Shubhamsaboo/awesome-llm-apps",
       "sourceType": "github",
