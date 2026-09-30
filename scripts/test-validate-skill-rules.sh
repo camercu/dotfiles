@@ -30,6 +30,7 @@ fixture angle-brackets     ""                               "Use when <x>."     
 # Claude Code frontmatter keys beyond the Agent Skills spec
 # (https://code.claude.com/docs/en/skills).
 fixture harness-keys       $'when_to_use: x\narguments: x\ndisallowed-tools: x\neffort: high\nbackground: true\nhooks: {}\npaths: x\nshell: bash\nuser-invocable: false\n' "Use when testing." "Body."
+fixture short-bad-compat   $'compatibility: [1]\n'          "Use when testing."  "Body."
 fixture int-key            $'1: x\n'                        "Use when testing."  "Body."
 fixture not-utf8           ""                               "Use when testing."  "$(printf 'caf\351')"
 mkdir -p "$scratch/empty-name" && printf -- '---\nname: ""\ndescription: Use when testing.\n---\n\nBody.\n' >"$scratch/empty-name/SKILL.md"
@@ -60,6 +61,7 @@ expect angle-brackets     "angle brackets"
 expect empty-name         "'name' is empty"
 expect empty-description  "'description' is empty"
 expect harness-keys       "Skill is valid!"
+expect short-bad-compat   "Compatibility must be a string"
 expect int-key            "Unexpected key(s) in SKILL.md frontmatter: 1"
 expect not-utf8           "not UTF-8"
 if [ "$code" = 10 ]; then echo "ok  - exit 10 on invalid"; else echo "FAIL- exit $code, want 10"; fails=$((fails+1)); fi

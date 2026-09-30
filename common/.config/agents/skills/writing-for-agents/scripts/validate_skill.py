@@ -125,6 +125,16 @@ def validate_skill(skill_path):
             "skill does - that belongs in the body's '## Overview' section."
         )
 
+    # Validate compatibility field if present (optional)
+    compatibility = frontmatter.get('compatibility', '')
+    if compatibility:
+        if not isinstance(compatibility, str):
+            return False, f"Compatibility must be a string, got {type(compatibility).__name__}"
+        if len(compatibility) > 500:
+            return False, f"Compatibility is too long ({len(compatibility)} characters). Maximum is 500 characters."
+
+    # Body checks come last: short bodies return valid early, so a check placed
+    # after them would never run for small skills.
     # Body must open with an Overview section - `description` carries no "what",
     # so the body is the only place a reader learns the skill's job. Bodies at or
     # under OVERVIEW_EXEMPT_LINES are read whole in one glance, and an Overview
@@ -147,14 +157,6 @@ def validate_skill(skill_path):
     overview_body = re.split(r'^#{1,6}\s', body.split(first_section, 1)[1], maxsplit=1, flags=re.MULTILINE)[0]
     if not overview_body.strip():
         return False, "'## Overview' section is empty. It must say what the skill does."
-
-    # Validate compatibility field if present (optional)
-    compatibility = frontmatter.get('compatibility', '')
-    if compatibility:
-        if not isinstance(compatibility, str):
-            return False, f"Compatibility must be a string, got {type(compatibility).__name__}"
-        if len(compatibility) > 500:
-            return False, f"Compatibility is too long ({len(compatibility)} characters). Maximum is 500 characters."
 
     return True, "Skill is valid!"
 
