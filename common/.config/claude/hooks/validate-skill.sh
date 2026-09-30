@@ -17,8 +17,9 @@ command -v jq >/dev/null 2>&1 || { echo "validate-skill: jq not installed; skill
 file="$(jq -r '.tool_input.file_path // ""')"
 [ "$(basename "$file")" = "SKILL.md" ] || exit 0
 # Plugin and claude.ai-synced skills follow their authors' rules, not ours.
+# ~/.claude links to ~/.config/claude, so plugins have two spellings.
 case "$file" in
-  */.claude/plugins/* | */skills/synced/*) exit 0 ;;
+  */.claude/plugins/* | */.config/claude/plugins/* | */skills/synced/*) exit 0 ;;
 esac
 
 here="$(cd "$(dirname "$0")" && pwd)"

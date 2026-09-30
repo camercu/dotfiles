@@ -51,7 +51,7 @@ fi
 expect "missing file_path passes"    "$(bash "$hook" <<<'{}' >/dev/null 2>&1; echo $?)" 0
 
 # Third-party skills (plugins, claude.ai-synced) follow their authors' rules.
-for root in ".claude/plugins/cache/p/skills" "agents/skills/synced/id"; do
+for root in ".claude/plugins/cache/p/skills" ".config/claude/plugins/cache/p/skills" "agents/skills/synced/id"; do
   mkdir -p "$scratch/$root/bad-skill"
   cp "$scratch/bad-skill/SKILL.md" "$scratch/$root/bad-skill/SKILL.md"
   expect "third-party $root skipped" "$(run_hook "$scratch/$root/bad-skill/SKILL.md")" 0
