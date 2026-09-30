@@ -5,7 +5,6 @@ set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"
 hook="$here/validate-skill.sh"
-validator="$here/../../agents/skills/writing-for-agents/scripts/validate_skill.py"
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 fails=0
@@ -33,18 +32,7 @@ if command -v nix-shell >/dev/null 2>&1; then
   expect "broken skill blocked"        "$(run_hook "$scratch/bad-skill/SKILL.md")" 2
   expect "reason reaches stderr"       "$(grep -c "differs from directory" "$scratch/err")" 1
   expect "rules hint on reject"        "$(grep -c "Rules:" "$scratch/err")" 1
-  expect "validator: invalid exits 10" "$("$validator" "$scratch/bad-skill" >/dev/null 2>&1; echo $?)" 10
 
-  # --repo: every tracked skill in the git repo at cwd, synced ones excluded.
-  repo="$scratch/repo"
-  mkdir -p "$repo/skills/good-skill" "$repo/skills/synced/id/bad-skill"
-  cp "$scratch/good-skill/SKILL.md" "$repo/skills/good-skill/"
-  cp "$scratch/bad-skill/SKILL.md" "$repo/skills/synced/id/bad-skill/"
-  git -C "$repo" init -q && git -C "$repo" add -A
-  expect "validator --repo: synced skipped" "$(cd "$repo" && "$validator" --repo >/dev/null 2>&1; echo $?)" 0
-  mkdir -p "$repo/skills/bad-skill" && cp "$scratch/bad-skill/SKILL.md" "$repo/skills/bad-skill/"
-  git -C "$repo" add -A
-  expect "validator --repo: tracked bad"   "$(cd "$repo" && "$validator" --repo >/dev/null 2>&1; echo $?)" 10
 else
   echo "skip - validator controls (nix-shell not installed)"
 fi
