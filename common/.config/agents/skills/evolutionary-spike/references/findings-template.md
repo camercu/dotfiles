@@ -12,7 +12,10 @@ and decision. It holds durable state only; in-flight agent IDs stay in the conve
 <the design or feasibility question>
 
 ## Constraints (requirements, not solutions)
-<hard properties every spike must meet>
+<hard properties every spike must meet, each tagged with the question it serves>
+
+## Owed to production spec
+<scope cut from the spike, owed to the production spec>
 
 ## Mechanisms
 <known ways to build it, one directed spike each; user-approved>

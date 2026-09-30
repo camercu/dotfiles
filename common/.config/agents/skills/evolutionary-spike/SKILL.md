@@ -38,8 +38,11 @@ Breadth first, then depth.
    commands; you define it, each spike implements it. Feasibility question
    ("is X worth it") → the current implementation is spike `baseline`, run on
    the same harness. User named no approaches → the mechanism list goes to the
-   user for approval. Done when those four sections are filled and the list
-   approved.
+   user for approval. Each Constraint names the question it serves; one that
+   serves none (protocol completeness, CI gates, mutation or property tests,
+   hardware adapters) goes to the findings doc's Owed to production spec
+   list: spike code is deleted, so extra scope only delays the answer. Done
+   when those four sections are filled and the list approved.
 2. **Breadth sweep.** In parallel: one **directed** spike per listed
    mechanism, plus a few pure **clean-room** spikes to show where unanchored
    designers converge and to surface mechanisms nobody listed. Front-loading
