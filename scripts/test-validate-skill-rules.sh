@@ -32,6 +32,8 @@ fixture angle-brackets     ""                               "Use when <x>."     
 fixture harness-keys       $'when_to_use: x\narguments: x\ndisallowed-tools: x\neffort: high\nbackground: true\nhooks: {}\npaths: x\nshell: bash\nuser-invocable: false\n' "Use when testing." "Body."
 fixture int-key            $'1: x\n'                        "Use when testing."  "Body."
 fixture not-utf8           ""                               "Use when testing."  "$(printf 'caf\351')"
+mkdir -p "$scratch/empty-name" && printf -- '---\nname: ""\ndescription: Use when testing.\n---\n\nBody.\n' >"$scratch/empty-name/SKILL.md"
+fixture empty-description  ""                               '""'                 "Body."
 
 code=0
 "$validator" "$scratch"/*/ >"$scratch/out" 2>&1 || code=$?
@@ -55,6 +57,8 @@ expect long-wrong-first   "first section is 'Steps'"
 expect empty-overview     "'## Overview' section is empty"
 expect unknown-key        "Unexpected key(s) in SKILL.md frontmatter: colour"
 expect angle-brackets     "angle brackets"
+expect empty-name         "'name' is empty"
+expect empty-description  "'description' is empty"
 expect harness-keys       "Skill is valid!"
 expect int-key            "Unexpected key(s) in SKILL.md frontmatter: 1"
 expect not-utf8           "not UTF-8"

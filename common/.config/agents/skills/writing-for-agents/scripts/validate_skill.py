@@ -85,43 +85,45 @@ def validate_skill(skill_path):
     if not isinstance(name, str):
         return False, f"Name must be a string, got {type(name).__name__}"
     name = name.strip()
-    if name:
-        # Check naming convention (kebab-case: lowercase with hyphens)
-        if not re.match(r'^[a-z0-9-]+$', name):
-            return False, f"Name '{name}' should be kebab-case (lowercase letters, digits, and hyphens only)"
-        if name.startswith('-') or name.endswith('-') or '--' in name:
-            return False, f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens"
-        # Check name length (max 64 characters per spec)
-        if len(name) > 64:
-            return False, f"Name is too long ({len(name)} characters). Maximum is 64 characters."
-        # Harness lists the skill by directory, other skills call it by name;
-        # a mismatch leaves one of the two pointing at nothing.
-        if name != skill_path.resolve().name:
-            return False, f"Name '{name}' differs from directory '{skill_path.resolve().name}'"
+    if not name:
+        return False, "'name' is empty"
+    # Check naming convention (kebab-case: lowercase with hyphens)
+    if not re.match(r'^[a-z0-9-]+$', name):
+        return False, f"Name '{name}' should be kebab-case (lowercase letters, digits, and hyphens only)"
+    if name.startswith('-') or name.endswith('-') or '--' in name:
+        return False, f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens"
+    # Check name length (max 64 characters per spec)
+    if len(name) > 64:
+        return False, f"Name is too long ({len(name)} characters). Maximum is 64 characters."
+    # Harness lists the skill by directory, other skills call it by name;
+    # a mismatch leaves one of the two pointing at nothing.
+    if name != skill_path.resolve().name:
+        return False, f"Name '{name}' differs from directory '{skill_path.resolve().name}'"
 
     # Extract and validate description
     description = frontmatter.get('description', '')
     if not isinstance(description, str):
         return False, f"Description must be a string, got {type(description).__name__}"
     description = description.strip()
-    if description:
-        # Check for angle brackets
-        if '<' in description or '>' in description:
-            return False, "Description cannot contain angle brackets (< or >)"
-        # Check description length (max 1024 characters per spec)
-        if len(description) > 1024:
-            return False, f"Description is too long ({len(description)} characters). Maximum is 1024 characters."
+    if not description:
+        return False, "'description' is empty. It must say WHEN to invoke the skill."
+    # Check for angle brackets
+    if '<' in description or '>' in description:
+        return False, "Description cannot contain angle brackets (< or >)"
+    # Check description length (max 1024 characters per spec)
+    if len(description) > 1024:
+        return False, f"Description is too long ({len(description)} characters). Maximum is 1024 characters."
 
-        # Description carries trigger cues only; it must actually contain one.
-        # User-invoked skills are exempt: their description is written for the
-        # human browsing slash commands, not for the model's trigger match.
-        user_invoked = frontmatter.get('disable-model-invocation') is True
-        if not user_invoked and not TRIGGER_CUE.search(description):
-            return False, (
-                "Description has no trigger cue. It must say WHEN to invoke the skill "
-                "(\"Use when ...\", \"Triggers on ...\", \"when the user ...\"), not what the "
-                "skill does - that belongs in the body's '## Overview' section."
-            )
+    # Description carries trigger cues only; it must actually contain one.
+    # User-invoked skills are exempt: their description is written for the
+    # human browsing slash commands, not for the model's trigger match.
+    user_invoked = frontmatter.get('disable-model-invocation') is True
+    if not user_invoked and not TRIGGER_CUE.search(description):
+        return False, (
+            "Description has no trigger cue. It must say WHEN to invoke the skill "
+            "(\"Use when ...\", \"Triggers on ...\", \"when the user ...\"), not what the "
+            "skill does - that belongs in the body's '## Overview' section."
+        )
 
     # Body must open with an Overview section - `description` carries no "what",
     # so the body is the only place a reader learns the skill's job. Bodies at or
