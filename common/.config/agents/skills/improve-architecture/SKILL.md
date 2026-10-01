@@ -46,6 +46,27 @@ Navigate organically. Note: shallow modules, scattered understanding, coupling l
 
 Apply **deletion test** to suspect modules. Check [references/ANTI-PATTERNS.md](references/ANTI-PATTERNS.md).
 
+### 1a. Cohesion map
+
+Depth judges a module's interface; the map judges where code lives. Write a
+two-way table, from code (`ls`/`rg` of the module tree):
+
+- **File → concept.** Name the one domain concept each file serves (use
+  `CONTEXT.md` terms). A file that serves several concepts, or a mechanism
+  (`unsafe`, `utils`, `helpers`, `common`) instead of a concept, is a
+  mismatch, even when a lint or a layer rule motivates the grouping: keep
+  the rule, regroup by concept. Tests count: a file's tests serve its
+  concept, so tests of another file's concept are a mismatch. A test that
+  spans several concepts belongs with the code that ties them together.
+- **Concept → files.** List the files each concept spans. More than one is a
+  mismatch, unless one file is the concept's interface and the others its
+  private parts. A directory module is one concept tying related
+  sub-concepts together: map each submodule to one sub-concept.
+
+Each mismatch is a candidate (God Module or Shotgun Surgery in
+[ANTI-PATTERNS.md](references/ANTI-PATTERNS.md)). Done when every source file
+has one concept or a recorded mismatch.
+
 ### 1b. Gather evidence
 
 Collect quantitative signals before presenting candidates. Details + commands in [references/EVIDENCE.md](references/EVIDENCE.md):
@@ -70,6 +91,13 @@ Numbered list, **ranked by priority** (impact + risk). Per candidate:
 - **Evidence** — from Step 1b
 
 Use `CONTEXT.md` domain language. Flag ADR contradictions only when friction is real. Do NOT propose interfaces — ask which to explore.
+
+A cohesion-map mismatch whose fix changes no interface is a **relocation**:
+pure moves. Its candidate carries the target map (file → concept) and the
+ordered moves, one commit each, test count equal before and after. Rank it by
+the same evidence as any candidate; it skips steps 3–5 and goes to the user as
+the map. A relocation that makes a hot file smaller or ends a co-change pair is
+real work, not polish.
 
 ### 3. Grill
 

@@ -1,5 +1,9 @@
 # Evidence Gathering
 
+rtk installed (`command -v rtk`): run these pipelines as `rtk proxy sh -c
+'<pipeline>'`; the hook filters `git log` output and the counts come out wrong.
+History shorter than a window below: use all of it.
+
 Quantitative signals to ground architectural analysis. Collect before presenting candidates (Step 2). Not every signal available in every project — gather what's practical.
 
 ## Git hotspots
@@ -34,6 +38,14 @@ Modules with low coverage are high-risk deepening candidates — but also high-v
 ## Churn x complexity
 
 Files with both high churn AND high complexity = top priority. Use `wc -l` as rough complexity proxy if no tooling available. Cross-reference the hotspots command output with line counts on those files.
+
+## Coupling tools
+
+Rust: `cargo-coupling` reports cycles, fan-in/out, and co-change pairs. Run it
+with `--exclude-tests --no-git` for structure. Report threshold crossings
+apart from the grade: splitting modules adds edges and can drop the grade
+while cycles fall. It counts `#[cfg(test)]` code inside functions, so a
+test-helper module can show as a hub.
 
 ## Using evidence
 
