@@ -139,7 +139,9 @@ passes: brief from `references/pass-brief.md`.
 | Docs | here | every behaviour change reaches every doc describing it: README, API docs, man page, `--help`, examples, changelog. Regenerate generated docs. Drift → `~/.config/agents/guard-ladders.md` *Docs drift* |
 
 Each finding: **significant** = bug, coverage or contract gap, flaky or slow
-test, reframing that deletes code or concepts, doc contradicting code. Else
+test, reframing that deletes code or concepts, cohesion-map mismatch in a
+file touched by > 25% of recent commits (`improve-architecture` step 1a), doc
+contradicting code. Else
 cosmetic or false positive → one line in findings, no slice. Passes disagree
 on a finding's rating → the higher rating wins. Significant findings → step 2
 when a choice is open, else step 3 directly.
