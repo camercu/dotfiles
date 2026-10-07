@@ -32,6 +32,26 @@ fi
 repo="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}"
 [ -n "$repo" ] && cd "$repo"
 
+# A pushed tree whose submodule link names a commit missing from the
+# submodule's own remote leaves every clone with a dangling link. Block until
+# the submodule is pushed. Checks the tree being pushed: HEAD for git, the
+# `main` bookmark for jj (jj ignores submodules, but the gitlink still ships).
+pushed=HEAD; [ "$mode" = jj ] && pushed=main
+if [ -f .gitmodules ] && git rev-parse -q --verify "$pushed^{tree}" >/dev/null 2>&1; then
+  while IFS=$'\t' read -r meta path; do
+    sha="${meta##* }"
+    git -C "$path" rev-parse --git-dir >/dev/null 2>&1 || continue  # not checked out
+    if ! git -C "$path" fetch -q origin >/dev/null 2>&1; then
+      echo "guard-push: fetch in submodule $path failed; cannot confirm $sha is pushed." >&2
+      exit 2
+    fi
+    if [ -z "$(git -C "$path" branch -r --contains "$sha" 2>/dev/null)" ]; then
+      echo "guard-push: submodule $path commit $sha is not on its remote. Push the submodule first, then retry." >&2
+      exit 2
+    fi
+  done < <(git ls-tree -r "$pushed" | awk -F'\t' '$1 ~ /^160000 /')
+fi
+
 if [ "$mode" = jj ]; then
   # jj-native reconcile of the `main` bookmark against `main@origin`. A diverging
   # fetch turns `main` into a conflicted bookmark, so drive everything off the

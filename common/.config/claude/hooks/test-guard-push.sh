@@ -56,6 +56,25 @@ printf 'LOCAL_LINE\n' > f.txt; git add f.txt; git commit -qm local-conflict
 expect "conflicting remote move blocked" "$(run_guard 'git push')" 2
 check "conflicting rebase aborted, no dangling state" test ! -e .git/rebase-merge -a ! -e .git/rebase-apply
 
+# 5. pushed tree points at a submodule commit missing from the submodule's
+#    remote: the parent's link would dangle, so block until it is pushed.
+sroot="$(mktemp -d)"; trap 'rm -rf "$root" "$sroot"' EXIT
+git init -q --bare "$sroot/sub.git"; git init -q --bare "$sroot/parent.git"
+git clone -q "$sroot/sub.git" "$sroot/subseed" 2>/dev/null
+( cd "$sroot/subseed"; git config user.email t@t; git config user.name t; git checkout -q -b main
+  printf 's1\n' > s.txt; git add s.txt; git commit -qm init; git push -q -u origin main )
+git clone -q "$sroot/parent.git" "$sroot/pwork" 2>/dev/null
+cd "$sroot/pwork"; git config user.email t@t; git config user.name t; git checkout -q -b main
+git -c protocol.file.allow=always submodule add -q "$sroot/sub.git" sub 2>/dev/null
+git commit -qm "add sub"; git push -q -u origin main
+( cd sub; git config user.email t@t; git config user.name t
+  printf 's2\n' >> s.txt; git commit -qam unpushed )
+git commit -qm "bump sub" -- sub
+expect "unpushed submodule commit blocked" "$(run_guard 'git push')" 2
+( cd sub; git push -q origin HEAD:main )
+expect "pushed submodule commit passes" "$(run_guard 'git push')" 0
+cd "$root/work"
+
 # ── jj backend ──────────────────────────────────────────────────────────────
 # Same four cases against a colocated jj clone, driving `jj push` / `jj git push`
 # through the guard's jj-native reconcile. Skipped where jj is not installed.
