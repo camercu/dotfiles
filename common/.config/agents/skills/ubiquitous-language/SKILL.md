@@ -16,7 +16,7 @@ Cross-ref: `/domain-model` for interactive plan-review grilling with inline upda
 **Public surface** below = anything a user writes, runs, reads or depends on, at any stage: e.g. API, macros, CLI flags, exit codes, config and env vars, features, wire or file formats, compile errors. An item documented as internal is outside it, even when `pub`.
 
 1. **Scan sources** for domain nouns, verbs and concepts, in this order: the conversation (if any), existing `CONTEXT.md`, specs, ADRs, README, user docs (man pages, `--help`), then the public surface.
-2. **Event-model the domain** to surface the verbs. Split the model where the code splits: by layer, interface, actor or stage (e.g. build, compile, run). Walk one real scenario per part as a timeline and list:
+2. **Event-model the domain** to surface the verbs. Split the model where the domain splits (its subdomains and their processes), not where the implementation does: a hotel-booking site splits into search, reservation and payment, not frontend, backend and database. Code structure counts only where it mirrors a real domain boundary, such as a protocol layer. Walk one real scenario per part as a timeline and list:
     - **Commands**: what a caller asks for, imperative.
     - **Events**: facts that happened, past tense: anything the code reports, emits or reacts to as having happened, whatever its form (e.g. an enum variant, a callback, an error, a compile error, an exit, an expired timeout).
     - **Views**: state a caller reads to decide.
@@ -30,6 +30,7 @@ Cross-ref: `/domain-model` for interactive plan-review grilling with inline upda
     - A command or event the code names with a noun or a different verb than the model
     - Behaviour that contradicts its name (a defect: report it with the term)
     - Two sources that describe the same thing differently (a defect in one of them)
+    - A module or crate boundary that cuts across a domain split with no technical reason given
 4. **Check every term, old and new, against four bars**: the standard name (step 2 order), clear, plain technical English, concise. A term that fails → propose the better one. A **settled** name (any public-surface name, a term defined in `CONTEXT.md` or an ADR, or one the user chose) → flag a rename as open, with evidence, instead of making it. Settling freezes the name only: fix a wrong or stale definition directly.
 5. **Write `CONTEXT.md`** using the format below, with opinionated term choices. When it exists, merge: keep resolved flags and every fact; move a load-bearing invariant that does not fit one sentence (layout, formula, ordering rule) into Relationships, never drop it.
 6. **Output a summary** to whoever invoked the skill (the user, or the calling agent), listing open flags as numbered questions with a recommendation each.
