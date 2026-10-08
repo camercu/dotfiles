@@ -13,12 +13,12 @@ Cross-ref: `/domain-model` for interactive plan-review grilling with inline upda
 
 ## Process
 
-**Public surface** below = every way a user drives or observes the software: library API, CLI subcommands and flags, exit codes, config keys, wire messages, files it writes.
+**Public surface** below = anything a user writes, runs, reads or depends on, at any stage: e.g. API, macros, CLI flags, exit codes, config and env vars, features, wire or file formats, compile errors. An item documented as internal is outside it, even when `pub`.
 
 1. **Scan sources** for domain nouns, verbs and concepts, in this order: the conversation (if any), existing `CONTEXT.md`, specs, ADRs, README, user docs (man pages, `--help`), then the public surface.
-2. **Event-model the domain** to surface the verbs. Split the model where the code splits: by layer, by interface (API vs CLI), or by actor (client/server, parent/child process). Walk one real scenario per part as a timeline and list:
+2. **Event-model the domain** to surface the verbs. Split the model where the code splits: by layer, interface, actor or stage (e.g. build, compile, run). Walk one real scenario per part as a timeline and list:
     - **Commands**: what a caller asks for, imperative.
-    - **Events**: facts that happened, past tense. Count whatever the code uses to report that something happened: event enums, callbacks and hooks, result and error variants, state transitions, input arriving, timers expiring, signals delivered, processes exiting.
+    - **Events**: facts that happened, past tense: anything the code reports, emits or reacts to as having happened, whatever its form (e.g. an enum variant, a callback, an error, a compile error, an exit, an expired timeout).
     - **Views**: state a caller reads to decide.
     - **Automations**: rules where an event triggers a command.
 
@@ -30,8 +30,8 @@ Cross-ref: `/domain-model` for interactive plan-review grilling with inline upda
     - A command or event the code names with a noun or a different verb than the model
     - Behaviour that contradicts its name (a defect: report it with the term)
     - Two sources that describe the same thing differently (a defect in one of them)
-4. **Check every term, old and new, against four bars**: the standard name (step 2 order), clear, plain technical English, concise. A term that fails → propose the better one. A **settled** term (any public-surface name, a term defined in `CONTEXT.md` or an ADR, or one the user chose) → flag it as open, with evidence, instead of changing it.
-5. **Write `CONTEXT.md`** using the format below, with opinionated term choices.
+4. **Check every term, old and new, against four bars**: the standard name (step 2 order), clear, plain technical English, concise. A term that fails → propose the better one. A **settled** name (any public-surface name, a term defined in `CONTEXT.md` or an ADR, or one the user chose) → flag a rename as open, with evidence, instead of making it. Settling freezes the name only: fix a wrong or stale definition directly.
+5. **Write `CONTEXT.md`** using the format below, with opinionated term choices. When it exists, merge: keep resolved flags and every fact; move a load-bearing invariant that does not fit one sentence (layout, formula, ordering rule) into Relationships, never drop it.
 6. **Output a summary** to whoever invoked the skill (the user, or the calling agent), listing open flags as numbered questions with a recommendation each.
 
 ## Output Format
@@ -95,10 +95,4 @@ Unmapped: `OrderRepo` (storage plumbing, no domain meaning).
 
 ## Re-running
 
-When invoked again in the same conversation:
-
-1. Read existing `CONTEXT.md`
-2. Incorporate new terms from subsequent discussion
-3. Update definitions if understanding has evolved
-4. Re-flag any new ambiguities
-5. Rewrite example dialogue to incorporate new terms
+When `CONTEXT.md` already exists (this or an earlier conversation): read it first, add terms from new sources or discussion, re-flag new ambiguities, and rewrite the example dialogue to use the new terms. Step 5's merge rules apply.
