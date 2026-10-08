@@ -56,6 +56,10 @@ _Avoid_: Bill, payment request
 
 ## Event model
 
+### {Domain part}
+
+{One-line scenario walked.}
+
 | Command | Events | Standard name | Code |
 |---|---|---|---|
 | Place an order | Order placed; order rejected | | `Orders::place`, `shop order place` |
@@ -81,13 +85,14 @@ Unmapped: `OrderRepo` (storage plumbing, no domain meaning).
 ## Flagged ambiguities
 
 - "account" was used to mean both **Customer** and **User** — resolved: these are distinct concepts.
+- "cart" and "basket" both name the **Order** draft — open: rename `Basket` to `Cart`? Recommend yes (dominant e-commerce term).
 ```
 
 ## Rules
 
 - **Be opinionated.** Multiple words for same concept → pick one, list others as _Avoid_.
 - **Flag conflicts explicitly.** Ambiguous terms go in "Flagged ambiguities" with clear resolution.
-- **Keep definitions tight.** One sentence max. Define what it IS, not what it does; define a role by what it is responsible for.
+- **Keep definitions tight.** One sentence max. Define what it IS, not what it does; define a role by what it is responsible for. Facts beyond the sentence go to Relationships.
 - **Name verbs by role.** Commands imperative, events past tense, one verb per action across all layers.
 - **Show relationships.** Bold term names, express cardinality where obvious.
 - **Domain terms only.** Include a term, module or class name only when a domain expert would use it.
@@ -96,4 +101,4 @@ Unmapped: `OrderRepo` (storage plumbing, no domain meaning).
 
 ## Re-running
 
-When `CONTEXT.md` already exists (this or an earlier conversation): read it first, add terms from new sources or discussion, re-flag new ambiguities, and rewrite the example dialogue to use the new terms. Step 5's merge rules apply.
+When `CONTEXT.md` already exists (this or an earlier conversation): read it first, add terms from new sources or discussion, re-flag new ambiguities, and write or rewrite the example dialogue to use the new terms. Step 5's merge rules apply.
