@@ -13,23 +13,26 @@ Cross-ref: `/domain-model` for interactive plan-review grilling with inline upda
 
 ## Process
 
-1. **Scan sources** for domain nouns, verbs and concepts, in this order: the conversation (if any), existing `CONTEXT.md`, specs, ADRs and README, then the public API.
-2. **Event-model the domain** to surface the verbs. Split by domain or layer only when the code has more than one. Walk one real scenario per part as a timeline and list:
-    - **Commands**: what a caller asks for, imperative (`Send a request`).
-    - **Events**: facts that happened, past tense (`Request sent`, `Timer expired`). Count as events whatever the code uses to report that something happened: event enums, callbacks and hooks, result or error variants, state transitions, external input arriving, timers expiring.
-    - **Views**: state a caller reads to decide (`Outstanding request`).
-    - **Automations**: rules where an event triggers a command (`Attempt failed → wait, then retry`).
+**Public surface** below = every way a user drives or observes the software: library API, CLI subcommands and flags, exit codes, config keys, wire messages, files it writes.
 
-    Map each command and event to its **standard name**: the governing standard, RFC or protocol if one exists (e.g. ISO service primitives `.req`/`.ind`/`.con`); else the prior-art libraries the project cites or competes with; else the dominant term in the field. Done when every public function and every event (as defined above) maps to a row, and every other public type maps to a term or is listed as unmapped.
+1. **Scan sources** for domain nouns, verbs and concepts, in this order: the conversation (if any), existing `CONTEXT.md`, specs, ADRs, README, user docs (man pages, `--help`), then the public surface.
+2. **Event-model the domain** to surface the verbs. Split the model where the code splits: by layer, by interface (API vs CLI), or by actor (client/server, parent/child process). Walk one real scenario per part as a timeline and list:
+    - **Commands**: what a caller asks for, imperative.
+    - **Events**: facts that happened, past tense. Count whatever the code uses to report that something happened: event enums, callbacks and hooks, result and error variants, state transitions, input arriving, timers expiring, signals delivered, processes exiting.
+    - **Views**: state a caller reads to decide.
+    - **Automations**: rules where an event triggers a command.
+
+    Map each command and event to its **standard name**, from the first source that has one: a formal standard for the operation (ISO, RFC, POSIX); a de facto reference the field treats as canonical (dominant implementation, textbook, man page); prior art the project cites or competes with; the dominant term in the field. Done when every public-surface entry point and every event maps to a row (related setters or flags may share one row), and every other public type maps to a term or is listed as unmapped.
 3. **Identify problems**:
     - Same word used for different concepts (ambiguity)
     - Different words used for the same concept (synonyms)
     - Vague or overloaded terms
     - A command or event the code names with a noun or a different verb than the model
     - Behaviour that contradicts its name (a defect: report it with the term)
-4. **Check every term, old and new, against four bars**: the standard name (step 2 order), clear, plain technical English, concise. A term that fails → propose the better one. A **settled** term (public API name, or defined in `CONTEXT.md` or an ADR, or chosen by the user) → flag it as open, with evidence, instead of changing it.
+    - Two sources that describe the same thing differently (a defect in one of them)
+4. **Check every term, old and new, against four bars**: the standard name (step 2 order), clear, plain technical English, concise. A term that fails → propose the better one. A **settled** term (any public-surface name, a term defined in `CONTEXT.md` or an ADR, or one the user chose) → flag it as open, with evidence, instead of changing it.
 5. **Write `CONTEXT.md`** using the format below, with opinionated term choices.
-6. **Output a summary** inline in the conversation, listing open flags as numbered questions with a recommendation each.
+6. **Output a summary** to whoever invoked the skill (the user, or the calling agent), listing open flags as numbered questions with a recommendation each.
 
 ## Output Format
 
@@ -54,8 +57,9 @@ _Avoid_: Bill, payment request
 
 | Command | Events | Standard name | Code |
 |---|---|---|---|
-| Place an order | Order placed; order rejected | | `Orders::place` |
+| Place an order | Order placed; order rejected | | `Orders::place`, `shop order place` |
 | | Payment received | | `PaymentReceived` |
+| | Order refused for bad input | sysexits `EX_DATAERR` | exit code 65 |
 
 Views: **Open order** (`Orders::open`).
 Automations: order placed → reserve stock.
@@ -82,7 +86,7 @@ Unmapped: `OrderRepo` (storage plumbing, no domain meaning).
 
 - **Be opinionated.** Multiple words for same concept → pick one, list others as _Avoid_.
 - **Flag conflicts explicitly.** Ambiguous terms go in "Flagged ambiguities" with clear resolution.
-- **Keep definitions tight.** One sentence max. Define what it IS, not what it does.
+- **Keep definitions tight.** One sentence max. Define what it IS, not what it does; define a role by what it is responsible for.
 - **Name verbs by role.** Commands imperative, events past tense, one verb per action across all layers.
 - **Show relationships.** Bold term names, express cardinality where obvious.
 - **Domain terms only.** Include a term, module or class name only when a domain expert would use it.
