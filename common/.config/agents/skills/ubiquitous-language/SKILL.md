@@ -9,27 +9,27 @@ description: Use when user wants to define domain terms, build a glossary, harde
 
 Extract and formalize domain terminology from the current conversation and codebase into `CONTEXT.md`. Nouns name the things; verbs (commands, events, processes) name the module and public-interface abstractions, so the glossary needs both.
 
-Cross-ref: `/domain-model` for interactive plan-review grilling with inline updates. This skill is for batch extraction from conversation.
+Cross-ref: `/domain-model` for interactive plan-review grilling with inline updates. This skill is for batch extraction from conversation and codebase.
 
 ## Process
 
-1. **Scan the conversation, code and specs** for domain nouns, verbs and concepts.
-2. **Event-model each domain or layer** to surface the verbs. Per domain, walk one real scenario as a timeline and list:
+1. **Scan sources** for domain nouns, verbs and concepts, in this order: the conversation (if any), existing `CONTEXT.md`, specs, ADRs and README, then the public API.
+2. **Event-model the domain** to surface the verbs. Split by domain or layer only when the code has more than one. Walk one real scenario per part as a timeline and list:
     - **Commands**: what a caller asks for, imperative (`Send a request`).
-    - **Events**: facts that happened, past tense (`Request sent`, `Timer expired`), including external events arriving and timers expiring.
+    - **Events**: facts that happened, past tense (`Request sent`, `Timer expired`). Count as events whatever the code uses to report that something happened: event enums, callbacks and hooks, result or error variants, state transitions, external input arriving, timers expiring.
     - **Views**: state a caller reads to decide (`Outstanding request`).
-    - **Automations**: rules where an event triggers a command (`Response pending received → wait P2*`).
+    - **Automations**: rules where an event triggers a command (`Attempt failed → wait, then retry`).
 
-    Map each command and event to the standard's own name where one exists (ISO service primitives `.req`/`.ind`/`.con`, RFC verbs, protocol state names). Done when every public function and event type in the code maps to a row, or is flagged as unmapped.
+    Map each command and event to its **standard name**: the governing standard, RFC or protocol if one exists (e.g. ISO service primitives `.req`/`.ind`/`.con`); else the prior-art libraries the project cites or competes with; else the dominant term in the field. Done when every public function and every event (as defined above) maps to a row, and every other public type maps to a term or is listed as unmapped.
 3. **Identify problems**:
     - Same word used for different concepts (ambiguity)
     - Different words used for the same concept (synonyms)
     - Vague or overloaded terms
     - A command or event the code names with a noun or a different verb than the model
-4. **Check every term, old and new, against four bars**: the standard or established-practice term (unsurprising to an expert), clear, plain technical English, concise. A term that fails → propose the better one; a term the user settled earlier → flag it as open, with evidence, instead of changing it.
-5. **Propose a canonical glossary** with opinionated term choices
-6. **Write to `CONTEXT.md`** using the format below
-7. **Output a summary** inline in the conversation, listing open flags as numbered questions with a recommendation each
+    - Behaviour that contradicts its name (a defect: report it with the term)
+4. **Check every term, old and new, against four bars**: the standard name (step 2 order), clear, plain technical English, concise. A term that fails → propose the better one. A **settled** term (public API name, or defined in `CONTEXT.md` or an ADR, or chosen by the user) → flag it as open, with evidence, instead of changing it.
+5. **Write `CONTEXT.md`** using the format below, with opinionated term choices.
+6. **Output a summary** inline in the conversation, listing open flags as numbered questions with a recommendation each.
 
 ## Output Format
 
@@ -57,6 +57,10 @@ _Avoid_: Bill, payment request
 | Place an order | Order placed; order rejected | | `Orders::place` |
 | | Payment received | | `PaymentReceived` |
 
+Views: **Open order** (`Orders::open`).
+Automations: order placed → reserve stock.
+Unmapped: `OrderRepo` (storage plumbing, no domain meaning).
+
 ## Relationships
 
 - An **Order** produces one or more **Invoices**
@@ -81,7 +85,7 @@ _Avoid_: Bill, payment request
 - **Keep definitions tight.** One sentence max. Define what it IS, not what it does.
 - **Name verbs by role.** Commands imperative, events past tense, one verb per action across all layers.
 - **Show relationships.** Bold term names, express cardinality where obvious.
-- **Domain terms only.** No general programming concepts. Don't glossary-ify module or class names unless they have meaning to domain experts. Ask: would a domain expert use this term?
+- **Domain terms only.** Include a term, module or class name only when a domain expert would use it.
 - **Group terms** under subheadings when natural clusters emerge. Flat list fine if cohesive.
 - **Write an example dialogue.** Dev + domain expert conversation (3-5 exchanges) demonstrating how terms interact and clarifying boundaries.
 
