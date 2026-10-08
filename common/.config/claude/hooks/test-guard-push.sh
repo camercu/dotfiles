@@ -71,6 +71,7 @@ git commit -qm "add sub"; git push -q -u origin main
   printf 's2\n' >> s.txt; git commit -qam unpushed )
 git commit -qm "bump sub" -- sub
 expect "unpushed submodule commit blocked" "$(run_guard 'git push')" 2
+expect "pushing the submodule itself passes" "$(run_guard 'git -C sub push')" 0
 ( cd sub; git push -q origin HEAD:main )
 expect "pushed submodule commit passes" "$(run_guard 'git push')" 0
 cd "$root/work"

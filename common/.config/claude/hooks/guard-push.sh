@@ -31,6 +31,12 @@ fi
 
 repo="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}"
 [ -n "$repo" ] && cd "$repo"
+# `git -C <dir> push` pushes the repo at <dir> (a submodule, say), so every
+# check below runs there.
+dir="$(sed -nE 's/^(rtk +)?git +-C +([^ ]+) +push.*/\2/p' <<<"$cmd")"
+if [ -n "$dir" ]; then
+  cd "$dir" || { echo "guard-push: cannot enter $dir." >&2; exit 2; }
+fi
 
 # A pushed tree whose submodule link names a commit missing from the
 # submodule's own remote leaves every clone with a dangling link. Block until
