@@ -53,6 +53,8 @@ choice in the ledger.
 - **No consumer surface** (internal refactor, test, doc, lockfile): friction
   comes from diff review, not consumption. Passes that act on consumer surface
   → `N/A` in the ledger.
+- **Infrastructure code**: Exercise = converge on the target (check mode while
+  the host is unreachable) plus the verify playbook.
 - **Agent count.** Default: one fresh agent per evaluative pass. Small diff
   where Review, Simplify, Architecture all look near-done → one agent carries
   all three (combined brief in `references/pass-brief.md`); each ledger row

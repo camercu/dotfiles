@@ -44,6 +44,10 @@ Read together: high Index + thin coverage = well-crafted tests of too little;
 high coverage + low efficacy = tests that run the code but wouldn't notice it
 breaking (coverage theatre).
 
+Suite tests infrastructure code → judge Completeness and Necessary against
+`~/.config/agents/skills/tdd/iac.md`: a missing test counts as a gap only where
+its row there demands one.
+
 ## The 8 properties
 
 | Code | Property | Weight | Measures |
