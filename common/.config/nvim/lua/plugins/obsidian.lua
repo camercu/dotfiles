@@ -9,9 +9,11 @@ return {
     workspaces = {
       {
         path = function()
-          local dir = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
-          local vault = vim.fs.find(".obsidian", { path = dir, upward = true, type = "directory" })[1]
-          return vault and vim.fs.dirname(vault) or dir
+          local name = vim.api.nvim_buf_get_name(0)
+          if name == "" then return vim.fn.getcwd() end
+          local dir = vim.fs.dirname(name)
+	          local vault = vim.fs.find(".obsidian", { path = dir, upward = true, type = "directory" })[1]
+	          return vault and vim.fs.dirname(vault) or dir
         end,
       },
     },

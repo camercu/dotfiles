@@ -69,7 +69,7 @@ return {
           codecompanion = { "codecompanion" },
           -- obsidian.nvim registers these as cmp sources for [[wikilink]] / #tag
           -- completion (see obsidian.lua); wrapped via blink.compat like emoji below.
-          markdown = { "obsidian", "obsidian_new", "obsidian_tags", "lsp", "path", "snippets", "buffer", "emoji", "minuet", "codecompanion" },
+          markdown = { "obsidian", "lsp", "path", "snippets", "buffer", "emoji", "minuet", "codecompanion" },
         },
         providers = {
           emoji = {
