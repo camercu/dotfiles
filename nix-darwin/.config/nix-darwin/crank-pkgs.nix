@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{pkgs, omp, ...}: {
   environment.systemPackages = with pkgs; [
     arduino-cli # arduino IDE alternative
     bandwhich # display network usage by process
@@ -32,6 +32,7 @@
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
     nushell # modern shell written in Rust
+    (omp.packages."${pkgs.stdenv.hostPlatform.system}".default) # oh-my-pi (omp) terminal coding agent
     openjdk # Java SDK
     pngpaste # paste images into terminal
     procs # ps alternative
@@ -53,11 +54,6 @@
 
   homebrew = {
     taps = [
-      "anomalyco/tap" # for opencode
-    ];
-
-    brews = [
-      "opencode" # AI coding agent (Claude Code alternative)
     ];
 
     casks = [

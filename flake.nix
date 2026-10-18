@@ -13,6 +13,7 @@
       url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
       inputs.nixpkgs.follows = "nixpkgsDarwin";
     };
+    omp.url = "github:can1357/oh-my-pi";
   };
 
   outputs = {
@@ -22,6 +23,7 @@
     nix-darwin,
     nixpkgs,
     nixpkgsDarwin,
+    omp,
     ...
   }: let
     lib = nixpkgs.lib;
@@ -155,6 +157,7 @@
       nix-darwin.lib.darwinSystem {
         modules =
           [
+            { _module.args = { omp = omp; }; }
             darwinBaseModule
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
