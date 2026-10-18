@@ -649,18 +649,29 @@ run_claude_hook_test() {
     fi
   done
 
-  # A hook settings.json names but the repo no longer ships (renamed, lost
-  # its exec bit) is disarmed: the harness logs the error and carries on.
-  # The sed pattern matches a literal $HOME in the settings text.
-  # shellcheck disable=SC2016
-  for hook_cmd in $(jq -r '.hooks[][].hooks[].command' \
-      "$DOTFILE_DIR/common/.config/claude/settings.json" \
-      | sed -n 's|^"\$HOME/\.dotfiles/\(.*\)"$|\1|p'); do
-    if [ ! -x "$DOTFILE_DIR/$hook_cmd" ]; then
-      echo "claude hooks: settings.json runs missing or non-executable $hook_cmd" >&2
-      hook_status=1
-    fi
-  done
+  # Run each hook command settings.json names the way the harness does: empty
+  # payload, HOME whose .dotfiles is this checkout. Exit 126/127 = the hook is
+  # disarmed (script gone or not executable) and the harness only logs it. A
+  # command starting with a bare tool name (rtk) is external: skipped, loudly,
+  # when bootstrap has not installed it yet.
+  fake_home=$(mktemp -d "${TMPDIR:-/tmp}/check-bootstrap-home.XXXXXX")
+  register_cleanup "$fake_home"
+  ln -s "$DOTFILE_DIR" "$fake_home/.dotfiles"
+  jq -r '.hooks[][].hooks[] | select(.type == "command") | .command' \
+    "$DOTFILE_DIR/common/.config/claude/settings.json" >"$fake_home/cmds"
+  while IFS= read -r hook_cmd; do
+    case ${hook_cmd%% *} in
+      *[/~\"]*) ;;
+      *) require_tool "${hook_cmd%% *}" "hook: $hook_cmd" || continue ;;
+    esac
+    code=0
+    HOME=$fake_home sh -c "$hook_cmd" </dev/null >/dev/null 2>&1 || code=$?
+    case $code in
+      126|127)
+        echo "claude hooks: settings.json runs missing or non-executable: $hook_cmd" >&2
+        hook_status=1 ;;
+    esac
+  done <"$fake_home/cmds"
   return "$hook_status"
 }
 
