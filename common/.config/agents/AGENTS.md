@@ -58,6 +58,15 @@ tool gives stale snapshots, CI-only failures.
 zsh: separator `---`; test `[ x = y ]`. (`==` triggers `=cmd` expansion:
 `(eval):1: == not found`.) Absolute paths; cwd drifts after `cd`.
 
+## Working files
+
+Repo-local working state → `<repo>/.scratch/<skill>/`: handoffs, spike
+worktrees, ledgers, review and dogfood reports, throwaway consumers. First
+write: `git check-ignore -q .scratch` fails → append `.scratch/` to
+`.git/info/exclude`. Why: survives reboot and `/tmp` reapers; exclude keeps
+it out of git and colocated jj snapshots (jj honours `info/exclude`). No repo
+→ OS temp dir.
+
 ## Guardrails
 
 Machine-enforceable rule (confirm, ban, workflow gate): encode in settings.json

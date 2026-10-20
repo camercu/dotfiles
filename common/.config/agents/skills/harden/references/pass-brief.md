@@ -15,14 +15,14 @@ Scope: commits <base>..<head> (`git log --oneline <base>..<head>`).
 Verify: <matrix commands, one per line>.
 Authority docs: <paths>. A finding that would reverse one → report it as a
 conflict with the doc quote; leave the doc as is.
-Findings file: <repo>/.harden/<pass>-r<n>.md. Follow
+Findings file: <repo>/.scratch/harden/<pass>-r<n>.md. Follow
 ~/.config/agents/record-as-you-go.md; the file is the deliverable. Header
 lists each skill you invoked via the Skill tool.
 Rails: read-only on tracked files; history stays as is (no rebase, amend,
 reset). The skill's own subagent spawns are fine. Skill step says fix → write the fix as a finding with the proposed
 diff; harden's main context lands it. Skill step asks the user → write the
 question, options, and your recommendation as a finding; continue.
-Leave unread: .harden/LEDGER.md and other passes' findings files — they
+Leave unread: .scratch/harden/LEDGER.md and other passes' findings files — they
 would prime you.
 Report: path to findings file; each finding ranked, with file:line, evidence,
 and significant / cosmetic / false-positive.

@@ -5,15 +5,13 @@ Ledger holds run **state**; findings file holds **evidence**.
 
 ## Files
 
-- `<repo>/.harden/LEDGER.md` — state.
-- `<repo>/.harden/findings.md` — evidence, per
+- `<repo>/.scratch/harden/LEDGER.md` — state.
+- `<repo>/.scratch/harden/findings.md` — evidence, per
   `~/.config/agents/record-as-you-go.md`. Each delegated pass writes its own
-  section or own file under `.harden/`, named in the ledger, so parallel
+  section or own file under `.scratch/harden/`, named in the ledger, so parallel
   agents never collide.
 
-`.harden/` is working state. Before first write: `git check-ignore -q
-.harden` fails → add `.harden/` to `.git/info/exclude` (local; tracked files
-stay untouched).
+`.scratch/harden/` is working state; exclude rule: AGENTS.md *Working files*.
 
 ## Template
 
@@ -57,4 +55,4 @@ Ledger exists on invoke:
    the user's request.
 2. All match → continue at Position.
 3. Any mismatch → report which, ask the user: resume, or start fresh (delete
-   `.harden/`).
+   `.scratch/harden/`).

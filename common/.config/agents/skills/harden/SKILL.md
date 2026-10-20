@@ -194,7 +194,7 @@ Run is done when step 5's criterion holds, and the closing report gives:
 4. Convergence verdict quoted from the fresh agent, marked independent; or the
    significant findings deliberately deferred, with why.
 
-Then delete `.harden/`.
+Then delete `.scratch/harden/`.
 
 ## Self-check
 

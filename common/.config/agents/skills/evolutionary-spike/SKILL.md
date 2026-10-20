@@ -108,8 +108,8 @@ tournament is done when:
 
 1. Find the repo's spike convention first: `git worktree list; git branch
    --list 'spike/*'; grep -ns spike .gitignore .git/info/exclude`. Found →
-   use its dir as `<spike-dir>`. None → `<spike-dir>` = `.spike-workspace/`,
-   added to `.git/info/exclude` (local; `main` stays untouched).
+   use its dir as `<spike-dir>`. None → `<spike-dir>` = `.scratch/spikes/`
+   (AGENTS.md *Working files*).
    `spike/<topic>` already exists → ask the user: resume that tournament, or
    pick a new topic name.
 2. **Topic worktree**: `git worktree add <spike-dir>/<topic> -b spike/<topic>

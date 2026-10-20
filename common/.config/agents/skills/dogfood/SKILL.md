@@ -10,14 +10,15 @@ description: Use when user says "dogfood", "exercise as a consumer/user", "frict
 Docs-first walkthrough, full public-surface coverage, adversarial misuse, producing a ranked friction report. Re-eval mode re-runs a prior report for a resolved / still-live delta.
 
 Exercise target as a real consumer. Output = friction report, nothing else.
-**Report-only: never edit target repo.** Fixes belong to harden phases 2-3 or the
-user. All scratch work in `/tmp`.
+**Report-only: tracked files of the target repo stay untouched.** Fixes belong
+to harden phases 2-3 or the user. Scratch work and the report go under
+`.scratch/dogfood/<run>/` (AGENTS.md *Working files*).
 
 ## Modes
 
 - **cold** (default): full run, passes 0-3.
 - **re-eval `<prior-report>`**: rebuild consumers from the prior report's coverage
-  matrix in fresh `/tmp`, re-walk, emit resolved / still-live / new delta. The
+  matrix in a fresh `.scratch/dogfood/<run>/`, re-walk, emit resolved / still-live / new delta. The
   re-sync *is* the convergence check.
 - **contract-verify**: context already knows the internals but the change is narrow
   — a pretend-cold walk is dishonest ("answer only from docs" un-followable once you

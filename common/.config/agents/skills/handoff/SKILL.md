@@ -29,7 +29,8 @@ session, hand copy of context to parallel agent, get answer back, reference it.
 
 ## Write
 
-- Save to OS temp dir. **Never workspace** — transit doc, not artifact.
+- Save to `<repo>/.scratch/handoff/<topic>.md` (AGENTS.md *Working files*)
+  — transit doc, not artifact; excluded, so it never lands in a commit.
 - Print absolute path back to user as last line.
 - Never duplicate settled artifacts. Specs, plans, ADRs, issues, commits, diffs
   → path or URL only. Copies drift.
@@ -59,9 +60,10 @@ incomplete brief.
 
 ## Durability
 
-Temp dies on reboot; some harnesses clear it between sessions. Next session
->1h away or under different harness → copy file somewhere durable now. Same
-for everything doc points at — refs into temp = refs next agent can't follow.
+No repo → OS temp, which dies on reboot; some harnesses clear it between
+sessions. Next session >1h away or under different harness → copy file
+somewhere durable now. Same for everything doc points at — refs into temp =
+refs next agent can't follow.
 
 ## Done when
 
