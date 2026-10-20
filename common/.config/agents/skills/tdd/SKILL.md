@@ -37,7 +37,7 @@ Cross-refs: `/improve-architecture` (module-level), `/simplify` (code-level clea
 - **Fast and deterministic.** Whole suite ≤10s, zero flakes.
 - **Prove-It rule.** No bug fix without a failing reproduction test first; passing test = fixed + regression-proofed.
 - **Test runs code, never reads it.** Regression test for a mistake = exercise the behaviour that broke. Before writing a test that greps source or config: `~/.config/agents/guard-ladders.md`, *Test guards*.
-- **Can the test fail? Ask the mutation tool.** After GREEN, run mutation testing over the change (`cargo mutants --in-diff`, Stryker, mutmut). Survivor = code no test constrains: sharpen the test, or record why the mutant is equivalent. Tool absent or broken → hand-mutate each branch and boundary, report the kill count.
+- **Can the test fail? Ask the mutation tool.** After GREEN, run mutation testing over the change (`cargo mutants --in-diff <diff> --output .scratch/tdd`, Stryker, mutmut), tool output under `.scratch/tdd/`. Survivor = code no test constrains: sharpen the test, or record why the mutant is equivalent. Tool absent or broken → hand-mutate each branch and boundary, report the kill count.
 - **Docs: say less, then generate, guard last.** Before writing a doc that mirrors code: `~/.config/agents/guard-ladders.md`, *Docs drift*.
 
 ## Workflow: Double Loop

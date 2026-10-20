@@ -20,11 +20,12 @@ Review (assertion-strength audit + mutation testing when available).
 
 Never modify source or tests — no Write/Edit/rename/delete, don't add tests to
 chase coverage. **Running** the suite / a coverage or mutation tool is allowed:
-it reads code and emits reports to the build/output dir (leave those artifacts
-where the tool puts them; don't commit them). A mutation tool rewrites source in
-place then restores it, and drops an output dir (e.g. `mutants.out/`) — expected,
-not a boundary breach; leave it, suggest gitignoring, don't commit. Report is
-structured text. Consumer requesting
+it reads code and emits reports. Point every tool's output at
+`.scratch/test-health/` (AGENTS.md *Working files*), e.g. `cargo mutants
+--output .scratch/test-health`, so nothing lands beside tracked files. A tool
+that mutates source in place runs against a copy under `.scratch/test-health/`:
+colocated jj snapshots the working tree, so an in-place mutant can land in a
+commit. Report is structured text. Consumer requesting
 fixes → point to the recommendations; the caller (e.g. harden TDD slice)
 implements.
 

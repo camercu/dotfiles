@@ -10,8 +10,9 @@ held in context die with it. File on disk survives.
    command, output, `file:line`.
 3. Record cleared hazards and declined candidates too, each with the reason. A
    cleared result stops the next pass re-deriving it.
-4. Repro code and commands stay in scratch, referenced from the file by path,
-   so a later run rebuilds them.
+4. Findings file, repro code and commands live under `.scratch/<skill>/`
+   (AGENTS.md *Working files*); the file references repros by path, so a
+   later run rebuilds them.
 5. Delegated pass: its prompt names the findings-file path and step 2. The file
    is the deliverable; the returned summary points at it. Agent died → harvest
    its file, relaunch for the remainder only.
