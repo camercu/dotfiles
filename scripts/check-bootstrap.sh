@@ -503,11 +503,6 @@ run_bash_aliases_test() {
   return "$aliases_status"
 }
 
-# check_script_syntax FILE [INTERPRETER]: syntax-check one script with the
-# interpreter its shebang names, or with INTERPRETER for the sourced files that
-# have no shebang to name one. One file per invocation: `sh -n a b` and
-# `zsh -n a b` parse only `a` and treat `b` as a positional argument, so
-# batching silently skips every file after the first.
 # Shell scripts in common/.local/bin, found by shebang so new ones are checked
 # without editing this file (python and uv scripts live there too).
 bin_shell_scripts() {
@@ -519,6 +514,11 @@ bin_shell_scripts() {
   done
 }
 
+# check_script_syntax FILE [INTERPRETER]: syntax-check one script with the
+# interpreter its shebang names, or with INTERPRETER for the sourced files that
+# have no shebang to name one. One file per invocation: `sh -n a b` and
+# `zsh -n a b` parse only `a` and treat `b` as a positional argument, so
+# batching silently skips every file after the first.
 check_script_syntax() {
   if [ -n "${2:-}" ]; then
     "$2" -n -- "$1"
@@ -526,6 +526,7 @@ check_script_syntax() {
   fi
   case "$(head -n 1 "$1")" in
     *zsh*) zsh -n -- "$1" ;;
+    *bash*) bash -n -- "$1" ;;
     *) sh -n -- "$1" ;;
   esac
 }
@@ -620,6 +621,18 @@ run_syntax_selfcheck_test() {
   printf '#!/usr/bin/env zsh\n(((\n' >"$tmp_dir/broken.zsh"
   if check_script_syntax "$tmp_dir/broken.zsh" 2>/dev/null; then
     echo "syntax selfcheck: broken zsh file passed" >&2
+    selfcheck_status=1
+  fi
+
+  # macOS sh is bash in POSIX mode and accepts bash syntax that dash rejects,
+  # so prove dispatch directly: with a failing `sh` first on PATH, a valid
+  # bash script passes only if bash -n checked it.
+  mkdir -p "$tmp_dir/fake-sh"
+  printf '#!/bin/sh\nexit 2\n' >"$tmp_dir/fake-sh/sh"
+  chmod +x "$tmp_dir/fake-sh/sh"
+  printf '#!/usr/bin/env bash\necho hi\n' >"$tmp_dir/bash-script"
+  if ! (PATH="$tmp_dir/fake-sh:$PATH" && check_script_syntax "$tmp_dir/bash-script") 2>/dev/null; then
+    echo "syntax selfcheck: bash shebang not dispatched to bash -n" >&2
     selfcheck_status=1
   fi
 
