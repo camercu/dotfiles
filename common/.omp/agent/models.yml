@@ -1,0 +1,24 @@
+# Local models for omp. Every entry needs an explicit contextWindow equal to
+# the alias's num_ctx (common/.config/ollama/*.Modelfile): omp otherwise reads
+# the architecture maximum (262K) from Ollama, never compacts, and the server
+# silently drops the oldest context past num_ctx.
+#
+# Thinking: without this block omp sends a reasoning effort only for
+# `medium`; every other level falls back to the Ollama tag default.
+providers:
+  ollama:
+    baseUrl: http://127.0.0.1:11434/v1
+    api: openai-responses
+    auth: none
+    models:
+      - id: local-agent
+        contextWindow: 131072
+        maxTokens: 32768
+        reasoning: true
+        thinking:
+          mode: effort
+          efforts: [low, medium, xhigh]
+        compat:
+          supportsReasoningEffort: true
+          reasoningDisableMode: none-effort
+          thinkingFormat: openai
