@@ -25,14 +25,6 @@
   ];
 
   homebrew = {
-    # taps = [
-    #   "anomalyco/tap" # AI coding agent (Claude Code alternative)
-    # ];
-    #
-    # brews = [
-    #   "opencode" # AI coding agent (Claude Code alternative)
-    # ];
-
     casks = [
       "obsidian"
       "raspberry-pi-imager"
