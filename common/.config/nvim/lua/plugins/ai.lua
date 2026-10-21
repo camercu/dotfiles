@@ -61,7 +61,15 @@ return {
             return require("codecompanion.adapters.http").extend("ollama", {
               schema = {
                 model = { default = "local-agent:latest" },
-                think = { default = false },
+                -- Always send think=false: the stock condition looks the
+                -- model up in /api/tags, so a server that is down when nvim
+                -- starts would drop the field and titles would think.
+                think = {
+                  default = false,
+                  condition = function()
+                    return true
+                  end,
+                },
               },
             })
           end,
