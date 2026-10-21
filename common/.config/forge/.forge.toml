@@ -24,7 +24,9 @@ use_forge_committer = true
 max_commit_count = 20
 top_p = 0.8
 top_k = 30
-max_tokens = 65536
+# max_tokens + [compact].token_threshold must stay under local-agent num_ctx
+# (131072), or the server truncates before forge compacts.
+max_tokens = 32768
 max_tool_failure_per_turn = 3
 max_requests_per_turn = 100
 restricted = false
@@ -73,7 +75,7 @@ accept_invalid_certs = false
 
 [session]
 provider_id = "ollama"
-model_id = "local-agent"
+model_id = "local-agent:latest"
 
 [updates]
 frequency = "daily"
@@ -83,7 +85,7 @@ auto_update = true
 retention_window = 6
 eviction_window = 0.2
 max_tokens = 2000
-token_threshold = 100000
+token_threshold = 90000
 message_threshold = 200
 on_turn_end = false
 
