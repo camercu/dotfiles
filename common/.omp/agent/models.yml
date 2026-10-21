@@ -11,7 +11,10 @@ providers:
     api: openai-responses
     auth: none
     models:
-      - id: local-agent
+      # Full tag: Ollama lists models as <name>:latest, and a bare id makes
+      # omp show a second, auto-discovered row with the wrong context.
+      - id: local-agent:latest
+        input: [text, image]
         contextWindow: 131072
         maxTokens: 32768
         reasoning: true
