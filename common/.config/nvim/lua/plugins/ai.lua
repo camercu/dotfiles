@@ -45,15 +45,23 @@ return {
 
       adapters = {
         http = {
+          -- local-agent is an alias (common/.config/ollama) carrying its own
+          -- 128K context; a raw tag would get the server's 8K default.
+          -- keep_alive is left to the server, which pins loaded models.
           ollama = function()
             return require("codecompanion.adapters.http").extend("ollama", {
               schema = {
-                model = {
-                  default = "qwen3.8:27b-mlx",
-                },
-                keep_alive = {
-                  default = "1h",
-                },
+                model = { default = "local-agent" },
+              },
+            })
+          end,
+          -- Same model without thinking, for titles and commands: one model
+          -- stays resident instead of swapping in a second one.
+          ollama_quick = function()
+            return require("codecompanion.adapters.http").extend("ollama", {
+              schema = {
+                model = { default = "local-agent" },
+                think = { default = false },
               },
             })
           end,
@@ -96,10 +104,7 @@ return {
           adapter = "ollama",
         },
         background = {
-          adapter = {
-            name = "ollama",
-            model = "qwen2.5-coder:latest",
-          },
+          adapter = "ollama_quick",
           chat = {
             opts = {
               enabled = true, -- auto-generate chat buffer titles
@@ -107,10 +112,7 @@ return {
           },
         },
         cmd = {
-          adapter = {
-            name = "ollama",
-            model = "qwen2.5-coder:latest",
-          },
+          adapter = "ollama_quick",
         },
       },
 

@@ -73,7 +73,7 @@ accept_invalid_certs = false
 
 [session]
 provider_id = "ollama"
-model_id = "qwen3.8:27b-mlx"
+model_id = "local-agent"
 
 [updates]
 frequency = "daily"

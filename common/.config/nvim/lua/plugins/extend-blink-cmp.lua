@@ -152,7 +152,8 @@ return {
           end,
           name = "Ollama",
           end_point = "http://localhost:11434/v1/completions",
-          model = "qwen2.5-coder:latest",
+          -- FIM alias with its own context size (common/.config/ollama).
+          model = "local-fim",
           optional = {
             max_tokens = 256,
             -- stop = { "\n\n" },
