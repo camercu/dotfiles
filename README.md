@@ -86,7 +86,16 @@ maintain
 maintain
 ```
 
-The `ollama-aliases` step runs only for non-admin accounts with `ollama` installed. It turns each `~/.config/ollama/<name>.Modelfile` into an Ollama model named `<name>`. This is where each model gets its own context size. A failure prints a warning and doesn't stop `maintain`.
+The `ollama-aliases` step turns each `~/.config/ollama/<name>.Modelfile` into an Ollama model named `<name>`. This is where each model gets its own context size. It skips itself when no Ollama server answers, so in practice it runs only for the daily account. A failure prints a warning and doesn't stop `maintain`.
+
+### Ollama server
+
+The daily account runs `ollama serve` from the LaunchAgent `macos/Library/LaunchAgents/com.cameron.ollama-serve.plist`, not from Ollama.app, so that the server's environment (KV cache type, keep-alive, default context) is under version control. Two rules follow:
+
+- Turn Ollama.app off under System Settings → General → Login Items. Otherwise it starts its own server and holds port 11434.
+- Don't run `ollama` commands while the agent is stopped. The CLI launches Ollama.app when no server answers.
+
+The server logs to `~/.ollama/logs/serve.log`. The plist's header comment lists the restart and reload commands.
 
 **Linux (admin):**
 ```sh

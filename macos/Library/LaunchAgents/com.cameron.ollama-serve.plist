@@ -10,9 +10,18 @@
   also launches the app whenever no server answers, so restart this agent
   with kickstart, never by stopping it and running `ollama` in between.
 
-  Per-model context sizes live in common/.config/ollama/Modelfile.*;
-  OLLAMA_CONTEXT_LENGTH is only the floor for models without one.
-  Apply edits: launchctl kickstart -k gui/$(id -u)/com.cameron.ollama-serve
+  Only the daily (non-admin) account runs the server; stow links this file
+  for every account, so the script exits 0 for admins and launchd, which
+  restarts only on failure, leaves it stopped.
+
+  Per-model context sizes live in common/.config/ollama/*.Modelfile;
+  OLLAMA_CONTEXT_LENGTH is the default for models without one.
+  Log: ~/.ollama/logs/serve.log (server.log belongs to Ollama.app).
+  Restart: launchctl kickstart -k gui/$(id -u)/com.cameron.ollama-serve
+  After editing this file, kickstart is not enough (launchd keeps the old
+  copy): launchctl bootout gui/$(id -u)/com.cameron.ollama-serve, then
+  launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/<this file>.
+  bootstrap can fail with "Input/output error" right after bootout; retry.
 -->
 <plist version="1.0">
 <dict>
@@ -23,7 +32,7 @@
     <string>/bin/sh</string>
     <string>-c</string>
     <!-- sh, not a bare exec: launchd does not expand $HOME -->
-    <string>export OLLAMA_MODELS="$HOME/.cache/ollama/models"; exec /Applications/Ollama.app/Contents/Resources/ollama serve &gt;&gt;"$HOME/.ollama/logs/server.log" 2&gt;&amp;1</string>
+    <string>id -Gn | tr ' ' '\n' | grep -qx admin &amp;&amp; exit 0; mkdir -p "$HOME/.ollama/logs"; export OLLAMA_MODELS="$HOME/.cache/ollama/models"; exec /Applications/Ollama.app/Contents/Resources/ollama serve &gt;&gt;"$HOME/.ollama/logs/serve.log" 2&gt;&amp;1</string>
   </array>
   <key>EnvironmentVariables</key>
   <dict>
@@ -37,12 +46,13 @@
     <string>-1</string>
     <key>OLLAMA_NO_CLOUD</key>
     <string>1</string>
-    <key>OLLAMA_DEBUG_LOG_REQUESTS</key>
-    <string>1</string>
   </dict>
   <key>RunAtLoad</key>
   <true/>
   <key>KeepAlive</key>
-  <true/>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
 </dict>
 </plist>

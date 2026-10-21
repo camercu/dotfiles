@@ -107,8 +107,8 @@ function maintain {
   info "dotfiles: relink (stow)"
   dotsync || return
 
-  # Models live per user, and only the daily account runs the server.
-  if is-installed ollama && ! is-admin; then
+  # Skips itself when no server answers (the admin account never runs one).
+  if is-installed ollama; then
     info "ollama: pull bases + recreate aliases"
     ollama-aliases --pull || warn "ollama-aliases failed; see output above"
   fi
