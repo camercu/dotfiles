@@ -1,4 +1,5 @@
 # Coding agent for omp and codecompanion. Clients use the alias, so swapping
 # the base quant here needs no client change. Base chosen pending agent-bench.
 FROM qwen3.8:27b-mtp-q4_K_M
+# Keep equal to contextWindow for this model in common/.omp/agent/models.yml.
 PARAMETER num_ctx 131072

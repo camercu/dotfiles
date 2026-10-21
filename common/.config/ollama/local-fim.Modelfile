@@ -1,4 +1,4 @@
-# Fill-in-the-middle completion for minuet.nvim. minuet sends ~4K tokens of
-# context; 8K leaves room for the completion without wasting KV memory.
+# Fill-in-the-middle completion for minuet.nvim. minuet's context_window is
+# 4096 characters (~1-2K tokens); 8K tokens leaves ample room at low KV cost.
 FROM qwen2.5-coder:7b-base
 PARAMETER num_ctx 8192
