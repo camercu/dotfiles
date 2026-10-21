@@ -55,5 +55,10 @@
     <key>SuccessfulExit</key>
     <false/>
   </dict>
+  <!-- Retry a failed start once a minute, not launchd's default 10 s: when
+       Ollama.app holds the port, each failed start appends ~1.7 KB to
+       serve.log, which is never rotated. -->
+  <key>ThrottleInterval</key>
+  <integer>60</integer>
 </dict>
 </plist>
