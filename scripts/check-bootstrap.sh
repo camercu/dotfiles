@@ -508,6 +508,17 @@ run_bash_aliases_test() {
 # have no shebang to name one. One file per invocation: `sh -n a b` and
 # `zsh -n a b` parse only `a` and treat `b` as a positional argument, so
 # batching silently skips every file after the first.
+# Shell scripts in common/.local/bin, found by shebang so new ones are checked
+# without editing this file (python and uv scripts live there too).
+bin_shell_scripts() {
+  for f in "$DOTFILE_DIR"/common/.local/bin/*; do
+    [ -f "$f" ] || continue
+    case "$(head -n 1 "$f")" in
+      '#!'*sh*) printf '%s\n' "$f" ;;
+    esac
+  done
+}
+
 check_script_syntax() {
   if [ -n "${2:-}" ]; then
     "$2" -n -- "$1"
@@ -527,7 +538,7 @@ run_syntax_test() {
   for script in \
       "$DOTFILE_DIR/install.sh" \
       "$DOTFILE_DIR/uninstall.zsh" \
-      "$DOTFILE_DIR/common/.local/bin/dotsync" \
+      $(bin_shell_scripts) \
       "$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/*.zsh "$SCRIPT_DIR"/lib/*.sh; do
     [ -f "$script" ] || continue
     if ! check_script_syntax "$script"; then
@@ -571,10 +582,14 @@ run_shellcheck_test() {
 
   for script in \
       "$DOTFILE_DIR/install.sh" \
-      "$DOTFILE_DIR/common/.local/bin/dotsync" \
+      $(bin_shell_scripts) \
       "$DOTFILE_DIR"/common/.config/claude/hooks/*.sh \
       "$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/lib/*.sh; do
     [ -f "$script" ] || continue
+    # Vendored upstream copies: kept byte-identical, so their style is theirs.
+    case "${script##*/}" in starship-claude | static-get) continue ;; esac
+    # zsh scripts: no shellcheck support for that dialect.
+    case "$(head -n 1 "$script")" in *zsh*) continue ;; esac
     if ! shellcheck -x "$script" >>"$LAST_LOG" 2>&1; then
       shellcheck_status=1
     fi
@@ -696,6 +711,20 @@ run_skill_validate_test() {
   fi
 }
 
+# LaunchAgents load silently broken: launchd logs a malformed plist to the
+# system log and moves on. plutil exists only on macOS.
+run_launch_agent_lint_test() {
+  begin_test launch_agent_lint_test
+
+  require_tool plutil "LaunchAgent lint" || return 0
+
+  capture_log
+  if ! plutil -lint "$DOTFILE_DIR"/macos/Library/LaunchAgents/*.plist >"$LAST_LOG" 2>&1; then
+    echo "launch agents: plutil rejected a plist" >&2
+    return 1
+  fi
+}
+
 run_ollama_aliases_test() {
   begin_test ollama_aliases_test
 
@@ -724,6 +753,7 @@ run_repo_relative_link_test
 run_stow_conflict_test
 run_claude_hook_test
 run_skill_validate_test
+run_launch_agent_lint_test
 run_ollama_aliases_test
 
 echo "check-bootstrap: all checks passed"
