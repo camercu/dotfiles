@@ -82,9 +82,11 @@ maintain
 
 **macOS (non-admin):**
 ```sh
-# git pull + submodule update (float to upstream) + dotsync
+# git pull + submodule update (float to upstream) + dotsync + ollama-aliases --pull
 maintain
 ```
+
+The `ollama-aliases` step runs only for non-admin accounts with `ollama` installed. It turns each `~/.config/ollama/<name>.Modelfile` into an Ollama model named `<name>`. This is where each model gets its own context size. A failure prints a warning and doesn't stop `maintain`.
 
 **Linux (admin):**
 ```sh
