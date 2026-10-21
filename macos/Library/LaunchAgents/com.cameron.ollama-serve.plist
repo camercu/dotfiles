@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Runs the Ollama server directly instead of through Ollama.app, so its
+  environment is set before the process starts. `launchctl setenv` at login
+  raced the app and lost: the server kept OLLAMA_KEEP_ALIVE=5m.
+
+  Ollama.app must not also start at login (System Settings > General >
+  Login Items), or it fights this agent for port 11434. The `ollama` CLI
+  also launches the app whenever no server answers, so restart this agent
+  with kickstart, never by stopping it and running `ollama` in between.
+
+  Per-model context sizes live in common/.config/ollama/Modelfile.*;
+  OLLAMA_CONTEXT_LENGTH is only the floor for models without one.
+  Apply edits: launchctl kickstart -k gui/$(id -u)/com.cameron.ollama-serve
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.cameron.ollama-serve</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>-c</string>
+    <!-- sh, not a bare exec: launchd does not expand $HOME -->
+    <string>export OLLAMA_MODELS="$HOME/.cache/ollama/models"; exec /Applications/Ollama.app/Contents/Resources/ollama serve &gt;&gt;"$HOME/.ollama/logs/server.log" 2&gt;&amp;1</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>OLLAMA_CONTEXT_LENGTH</key>
+    <string>8192</string>
+    <key>OLLAMA_FLASH_ATTENTION</key>
+    <string>1</string>
+    <key>OLLAMA_KV_CACHE_TYPE</key>
+    <string>q8_0</string>
+    <key>OLLAMA_KEEP_ALIVE</key>
+    <string>-1</string>
+    <key>OLLAMA_NO_CLOUD</key>
+    <string>1</string>
+    <key>OLLAMA_DEBUG_LOG_REQUESTS</key>
+    <string>1</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+</dict>
+</plist>
