@@ -86,7 +86,7 @@ maintain
 maintain
 ```
 
-The `ollama-aliases` step turns each `~/.config/ollama/<name>.Modelfile` into an Ollama model named `<name>`. This is where each model gets its own context size. It skips itself when no Ollama server answers, so in practice it runs only for the daily account. A failure prints a warning and doesn't stop `maintain`.
+The `ollama-aliases` step turns each `~/.config/ollama/<name>.Modelfile` into an Ollama model named `<name>`. This is where each model gets its own context size. It runs only for non-admin accounts: under `su cadmin`, the daily account's server still answers on localhost. It also skips itself when no Ollama server answers. A failure prints a warning and doesn't stop `maintain`.
 
 ### Ollama server
 

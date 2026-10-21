@@ -107,8 +107,9 @@ function maintain {
   info "dotfiles: relink (stow)"
   dotsync || return
 
-  # Skips itself when no server answers (the admin account never runs one).
-  if is-installed ollama; then
+  # Daily account only. Under `su cadmin` the daily account's server still
+  # answers on localhost, so the script's no-server skip is not enough.
+  if is-installed ollama && ! is-admin; then
     info "ollama: pull bases + recreate aliases"
     ollama-aliases --pull || warn "ollama-aliases failed; see output above"
   fi
