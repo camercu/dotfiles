@@ -1,33 +1,57 @@
 #!/bin/sh
 # Create one Ollama model per ~/.config/ollama/<name>.Modelfile, named <name>.
 # Idempotent. --pull first pulls each FROM base (downloads only on change).
+# Deleting a Modelfile leaves its model behind; remove it with `ollama rm`.
 set -eu
 
-dir=${OLLAMA_ALIAS_DIR:-$HOME/.config/ollama}
-pull=0
-[ "${1:-}" = --pull ] && pull=1
+usage() {
+  echo "usage: ollama-aliases [--pull]" >&2
+  exit 2
+}
 
-if ! ollama list >/dev/null 2>&1; then
-  echo "ollama-aliases: server not reachable; skipped" >&2
+pull=0
+case $# in
+  0) ;;
+  1) if [ "$1" = --pull ]; then pull=1; else usage; fi ;;
+  *) usage ;;
+esac
+
+dir=${OLLAMA_ALIAS_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/ollama}
+host=${OLLAMA_HOST:-127.0.0.1:11434}
+case $host in
+  http://* | https://*) ;;
+  *) host=http://$host ;;
+esac
+
+# Probe with curl, never the ollama CLI: the CLI launches Ollama.app when no
+# server answers, and the app then holds the port with its own environment.
+if ! curl -fsS --max-time 3 "$host/api/version" >/dev/null 2>&1; then
+  echo "ollama-aliases: no server at $host; skipped" >&2
   exit 0
 fi
 
+# ollama prints progress with terminal escapes; on failure, show only the
+# final line, which carries the error.
+last_line() { printf '%s\n' "$1" | tail -n 1; }
+
+found=0
 status=0
 for file in "$dir"/*.Modelfile; do
   [ -e "$file" ] || continue
+  found=1
   name=$(basename "$file" .Modelfile)
-  base=$(sed -n 's/^FROM[[:space:]]\{1,\}//p' "$file" | head -n 1)
-  # ollama prints progress on stderr; show it only when a step fails.
+  base=$(sed -n 's/^[Ff][Rr][Oo][Mm][[:space:]]\{1,\}//p' "$file" | tr -d '\r' | head -n 1)
+  # A failed pull is only a warning: the base may be another local alias, or
+  # already present while offline. create below fails if it is truly missing.
   if [ "$pull" = 1 ] && ! out=$(ollama pull "$base" 2>&1); then
-    printf 'ollama-aliases: pull failed: %s\n%s\n' "$base" "$out" >&2
-    status=1
-    continue
+    echo "ollama-aliases: pull $base: $(last_line "$out")" >&2
   fi
   if out=$(ollama create "$name" -f "$file" 2>&1); then
     echo "$name <- $base"
   else
-    printf 'ollama-aliases: create failed: %s\n%s\n' "$name" "$out" >&2
+    echo "ollama-aliases: create $name: $(last_line "$out")" >&2
     status=1
   fi
 done
+[ "$found" = 1 ] || echo "ollama-aliases: no Modelfiles in $dir" >&2
 exit "$status"

@@ -696,6 +696,16 @@ run_skill_validate_test() {
   fi
 }
 
+run_ollama_aliases_test() {
+  begin_test ollama_aliases_test
+
+  capture_log
+  if ! bash "$SCRIPT_DIR/test-ollama-aliases.sh" >"$LAST_LOG" 2>&1; then
+    echo "ollama-aliases: controls failed" >&2
+    return 1
+  fi
+}
+
 run_syntax_selfcheck_test
 run_syntax_test
 run_shellcheck_test
@@ -714,5 +724,6 @@ run_repo_relative_link_test
 run_stow_conflict_test
 run_claude_hook_test
 run_skill_validate_test
+run_ollama_aliases_test
 
 echo "check-bootstrap: all checks passed"
