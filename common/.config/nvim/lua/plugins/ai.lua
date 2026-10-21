@@ -51,7 +51,7 @@ return {
           ollama = function()
             return require("codecompanion.adapters.http").extend("ollama", {
               schema = {
-                model = { default = "local-agent" },
+                model = { default = "local-agent:latest" },
               },
             })
           end,
@@ -60,7 +60,7 @@ return {
           ollama_quick = function()
             return require("codecompanion.adapters.http").extend("ollama", {
               schema = {
-                model = { default = "local-agent" },
+                model = { default = "local-agent:latest" },
                 think = { default = false },
               },
             })
