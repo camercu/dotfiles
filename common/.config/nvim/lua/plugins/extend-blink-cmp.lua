@@ -153,7 +153,7 @@ return {
           name = "Ollama",
           end_point = "http://localhost:11434/v1/completions",
           -- FIM alias with its own context size (common/.config/ollama).
-          model = "local-fim",
+          model = "local-fim:latest",
           optional = {
             max_tokens = 256,
             -- stop = { "\n\n" },
