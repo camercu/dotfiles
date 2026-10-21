@@ -12,7 +12,8 @@
 
   Only the daily (non-admin) account runs the server; stow links this file
   for every account, so the script exits 0 for admins and launchd, which
-  restarts only on failure, leaves it stopped.
+  restarts only on failure, leaves it stopped. Same when Ollama.app (which
+  ships the binary) is not installed.
 
   Per-model context sizes live in common/.config/ollama/*.Modelfile;
   OLLAMA_CONTEXT_LENGTH is the default for models without one.
@@ -32,7 +33,7 @@
     <string>/bin/sh</string>
     <string>-c</string>
     <!-- sh, not a bare exec: launchd does not expand $HOME -->
-    <string>id -Gn | tr ' ' '\n' | grep -qx admin &amp;&amp; exit 0; mkdir -p "$HOME/.ollama/logs"; export OLLAMA_MODELS="$HOME/.cache/ollama/models"; exec /Applications/Ollama.app/Contents/Resources/ollama serve &gt;&gt;"$HOME/.ollama/logs/serve.log" 2&gt;&amp;1</string>
+    <string>id -Gn | tr ' ' '\n' | grep -qx admin &amp;&amp; exit 0; bin=/Applications/Ollama.app/Contents/Resources/ollama; [ -x "$bin" ] || exit 0; mkdir -p "$HOME/.ollama/logs"; export OLLAMA_MODELS="$HOME/.cache/ollama/models"; exec "$bin" serve &gt;&gt;"$HOME/.ollama/logs/serve.log" 2&gt;&amp;1</string>
   </array>
   <key>EnvironmentVariables</key>
   <dict>
