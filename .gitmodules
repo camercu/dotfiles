@@ -7,3 +7,6 @@
 [submodule "common/.config/zsh/plugins/20-zsh-syntax-highlighting"]
 	path = common/.config/zsh/plugins/20-zsh-syntax-highlighting
 	url = https://github.com/zsh-users/zsh-syntax-highlighting
+[submodule "common/.config/agents/bench"]
+	path = common/.config/agents/bench
+	url = https://github.com/camercu/agent-bench.git
