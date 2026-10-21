@@ -1,0 +1,33 @@
+#!/bin/sh
+# Create one Ollama model per ~/.config/ollama/<name>.Modelfile, named <name>.
+# Idempotent. --pull first pulls each FROM base (downloads only on change).
+set -eu
+
+dir=${OLLAMA_ALIAS_DIR:-$HOME/.config/ollama}
+pull=0
+[ "${1:-}" = --pull ] && pull=1
+
+if ! ollama list >/dev/null 2>&1; then
+  echo "ollama-aliases: server not reachable; skipped" >&2
+  exit 0
+fi
+
+status=0
+for file in "$dir"/*.Modelfile; do
+  [ -e "$file" ] || continue
+  name=$(basename "$file" .Modelfile)
+  base=$(sed -n 's/^FROM[[:space:]]\{1,\}//p' "$file" | head -n 1)
+  # ollama prints progress on stderr; show it only when a step fails.
+  if [ "$pull" = 1 ] && ! out=$(ollama pull "$base" 2>&1); then
+    printf 'ollama-aliases: pull failed: %s\n%s\n' "$base" "$out" >&2
+    status=1
+    continue
+  fi
+  if out=$(ollama create "$name" -f "$file" 2>&1); then
+    echo "$name <- $base"
+  else
+    printf 'ollama-aliases: create failed: %s\n%s\n' "$name" "$out" >&2
+    status=1
+  fi
+done
+exit "$status"

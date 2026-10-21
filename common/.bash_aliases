@@ -107,6 +107,12 @@ function maintain {
   info "dotfiles: relink (stow)"
   dotsync || return
 
+  # Models live per user, and only the daily account runs the server.
+  if is-installed ollama && ! is-admin; then
+    info "ollama: pull bases + recreate aliases"
+    ollama-aliases --pull || warn "ollama-aliases failed; see output above"
+  fi
+
   if is-macos; then
     # nix-darwin and Homebrew are owned by the admin account on this machine;
     # a non-admin user can neither rebuild nix-darwin nor write to /opt/homebrew.
