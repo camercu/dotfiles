@@ -15,7 +15,8 @@ cat >"$scratch/bin/ollama" <<'FAKE'
 #!/bin/sh
 echo "$*" >>"$FAKE_LOG"
 case $1 in
-  pull) [ -z "${FAKE_PULL_FAIL:-}" ] || { echo "Error: pull model manifest: file does not exist" >&2; exit 1; } ;;
+  pull) echo "pulling manifest 42%" >&2
+    [ -z "${FAKE_PULL_FAIL:-}" ] || { echo "Error: pull model manifest: file does not exist" >&2; exit 1; } ;;
   create) [ -z "${FAKE_CREATE_FAIL:-}" ] || { printf 'gathering\033[K\nError: bad Modelfile\n' >&2; exit 1; } ;;
 esac
 FAKE
@@ -65,6 +66,8 @@ mkdir -p "$scratch/crlf/models"
 modelfile crlf 'from base:1\r\n' a
 run crlf --pull
 check "--pull: lowercase FROM and CRLF give a clean base name" has_line "$log" '^pull base:1$'
+
+check "--pull: download progress reaches the terminal" has_line "$out" 'pulling manifest 42%'
 
 mkdir -p "$scratch/pullfail/models"
 modelfile pullfail 'FROM local-agent\n' a

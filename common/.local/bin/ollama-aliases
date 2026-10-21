@@ -17,11 +17,9 @@ case $# in
 esac
 
 dir=${OLLAMA_ALIAS_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/ollama}
-host=${OLLAMA_HOST:-127.0.0.1:11434}
-case $host in
-  http://* | https://*) ;;
-  *) host=http://$host ;;
-esac
+# Fixed address, as in every other client config here (omp, nvim, the
+# LaunchAgent): parsing OLLAMA_HOST would add cases nothing uses.
+host=http://127.0.0.1:11434
 
 # Probe with curl, never the ollama CLI: the CLI launches Ollama.app when no
 # server answers, and the app then holds the port with its own environment.
@@ -30,8 +28,8 @@ if ! curl -fsS --max-time 3 "$host/api/version" >/dev/null 2>&1; then
   exit 0
 fi
 
-# ollama prints progress with terminal escapes; on failure, show only the
-# final line, which carries the error.
+# ollama create prints progress with terminal escapes; on failure, show only
+# the final line, which carries the error.
 last_line() { printf '%s\n' "$1" | tail -n 1; }
 
 found=0
@@ -41,10 +39,11 @@ for file in "$dir"/*.Modelfile; do
   found=1
   name=$(basename "$file" .Modelfile)
   base=$(sed -n 's/^[Ff][Rr][Oo][Mm][[:space:]]\{1,\}//p' "$file" | tr -d '\r' | head -n 1)
-  # A failed pull is only a warning: the base may be another local alias, or
-  # already present while offline. create below fails if it is truly missing.
-  if [ "$pull" = 1 ] && ! out=$(ollama pull "$base" 2>&1); then
-    echo "ollama-aliases: pull $base: $(last_line "$out")" >&2
+  # Pull progress streams to stderr: a multi-GB download would otherwise look
+  # like a hang. A failed pull is only a warning: the base may be another
+  # local alias, or already present while offline; create fails if it is not.
+  if [ "$pull" = 1 ] && ! ollama pull "$base" >&2; then
+    echo "ollama-aliases: pull $base failed; trying the local copy" >&2
   fi
   if out=$(ollama create "$name" -f "$file" 2>&1); then
     echo "$name <- $base"
