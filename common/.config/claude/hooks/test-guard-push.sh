@@ -41,6 +41,8 @@ expect "non-push passes" "$(run_guard 'git status')" 0
 # 2. local ahead by an unpushed commit, remote unchanged: fast-forwardable, allow
 printf 'l2\n' >> f.txt; git add f.txt; git commit -qm local2
 expect "local-ahead ff passes" "$(run_guard 'git push')" 0
+expect "push with piped output passes" "$(run_guard 'git push 2>&1 | tail -1')" 0
+expect "push on a later line blocked" "$(run_guard $'git status\ngit push')" 2
 git push -q
 
 # 3. remote moved (disjoint file) + a new local commit: guard rebases, allow
@@ -71,6 +73,12 @@ git commit -qm "add sub"; git push -q -u origin main
   printf 's2\n' >> s.txt; git commit -qam unpushed )
 git commit -qm "bump sub" -- sub
 expect "unpushed submodule commit blocked" "$(run_guard 'git push')" 2
+# A push after `&&`, `;` or `|` skipped every check below the match (seen:
+# `cd … && git commit … && git push` shipped a dangling submodule link).
+expect "push inside a compound command blocked" "$(run_guard 'git status && git push')" 2
+expect "push after ; blocked" "$(run_guard 'cd . ; rtk git push')" 2
+expect "jj push inside a compound command blocked" "$(run_guard 'jj st && jj git push')" 2
+expect "push only named in a message passes" "$(run_guard 'git commit -m "push fix"')" 0
 expect "pushing the submodule itself passes" "$(run_guard 'git -C sub push')" 0
 ( cd sub; git push -q origin HEAD:main )
 expect "pushed submodule commit passes" "$(run_guard 'git push')" 0

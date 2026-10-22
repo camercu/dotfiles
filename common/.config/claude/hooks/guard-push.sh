@@ -21,6 +21,16 @@ command -v jq >/dev/null 2>&1 || { echo "guard-push: jq not installed; blocking 
 
 cmd="$(jq -r '.tool_input.command // ""')"
 
+# A push behind `&&`, `;`, `|` or on a later line dodges the anchored match
+# below and so every check after it. Require it first; output filters after
+# it (`| tail`) are fine, since the push itself is still checked.
+push_re='(rtk +)?(git( +-C +[^ ]+)?|jj( +git)?) +push'
+if grep -Eq "(&&|\|\||[;|&(])[[:space:]]*${push_re}" <<<"$cmd" \
+  || { [ "$(wc -l <<<"$cmd")" -gt 1 ] && grep -Eq "^[[:space:]]*${push_re}" <<<"$cmd"; }; then
+  echo "guard-push: run the push as its own Bash call so the guard can check it." >&2
+  exit 2
+fi
+
 if grep -Eq '^(rtk +)?git( +-C +[^ ]+)? +push' <<<"$cmd"; then
   mode=git
 elif grep -Eq '^(rtk +)?jj( +git)? +push' <<<"$cmd"; then
