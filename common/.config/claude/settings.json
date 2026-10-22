@@ -6,6 +6,9 @@
     "sessionUrl": false
   },
   "includeGitInstructions": false,
+  "env": {
+    "CLAUDE_CODE_SHELL": "/run/current-system/sw/bin/bash"
+  },
   "permissions": {
     "allow": [
       "Edit",
