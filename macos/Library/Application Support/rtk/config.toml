@@ -1,0 +1,52 @@
+[tracking]
+enabled = true
+history_days = 90
+
+[display]
+colors = true
+emoji = true
+max_width = 120
+
+[filters]
+ignore_dirs = [
+    ".git",
+    "node_modules",
+    "target",
+    "__pycache__",
+    ".venv",
+    "vendor",
+]
+ignore_files = [
+    "*.lock",
+    "*.min.js",
+    "*.min.css",
+]
+
+[tee]
+enabled = true
+mode = "failures"
+max_files = 20
+max_file_size = 1048576
+
+[telemetry]
+enabled = false
+consent_given = false
+consent_date = "2026-06-17T06:08:08.722592+00:00"
+
+[hooks]
+# Agents get raw output from every command whose rewrite was lossy or wrong
+# in transcripts: git (log capped at 50, bodies stripped, "ok" on a failed
+# commit, and `rtk git` is refused inside isolated worktrees), cat/head/tail
+# (whole logs hidden), grep/rg (regex errors; rg flags differ from grep's),
+# find (predicates rejected), diff (differing files called identical), dig
+# (+short swallowed). Test runners and ls keep rtk: most real savings are there.
+# Controls: ~/.dotfiles/scripts/test-rtk.sh
+exclude_commands = ["git", "cat", "head", "tail", "grep", "rg", "find", "diff", "dig"]
+transparent_prefixes = []
+
+[limits]
+grep_max_results = 200
+grep_max_per_file = 25
+status_max_files = 15
+status_max_untracked = 10
+passthrough_max_chars = 2000
