@@ -80,6 +80,7 @@ expect "push after ; blocked" "$(run_guard 'cd . ; rtk git push')" 2
 expect "jj push inside a compound command blocked" "$(run_guard 'jj st && jj git push')" 2
 expect "push only named in a message passes" "$(run_guard 'git commit -m "push fix"')" 0
 expect "pushing the submodule itself passes" "$(run_guard 'git -C sub push')" 0
+expect "-C path with ~ is expanded" "$(HOME="$sroot" run_guard 'git -C ~/pwork/sub push')" 0
 ( cd sub; git push -q origin HEAD:main )
 expect "pushed submodule commit passes" "$(run_guard 'git push')" 0
 cd "$root/work"

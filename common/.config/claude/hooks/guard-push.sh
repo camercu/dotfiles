@@ -45,6 +45,7 @@ repo="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}"
 # check below runs there.
 dir="$(sed -nE 's/^(rtk +)?git +-C +([^ ]+) +push.*/\2/p' <<<"$cmd")"
 if [ -n "$dir" ]; then
+  dir="${dir/#\~/$HOME}"  # the shell would expand it; this text is raw
   cd "$dir" || { echo "guard-push: cannot enter $dir." >&2; exit 2; }
 fi
 
