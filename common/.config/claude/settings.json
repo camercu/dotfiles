@@ -9,6 +9,8 @@
   "env": {
     "CLAUDE_CODE_SHELL": "/run/current-system/sw/bin/bash"
   },
+  "autoContinueAtUsageLimit": true,
+  "autoCompactWindow": 300000,
   "permissions": {
     "allow": [
       "Edit",
