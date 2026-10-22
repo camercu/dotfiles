@@ -37,7 +37,7 @@
     pngpaste # paste images into terminal
     procs # ps alternative
     repgrep # interactive replacement with ripgrep
-    rtk # CLI proxy to reduce LLM tokens
+    (import ./rtk.nix {inherit pkgs;}) # CLI proxy to reduce LLM tokens; upstream release
     sad # sed alternative
     sd # sed alternative
     simple-http-server # simple HTTP server with upload and HTTPS
