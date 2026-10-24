@@ -52,7 +52,6 @@
     watchexec # run arbitrary commands on file change
     wget # web file downloader
     xh # curl alternative
-    zellij # terminal multiplexer/workspace; tmux alternative
     zoxide # cd alternative; z and zq commands
   ];
 
