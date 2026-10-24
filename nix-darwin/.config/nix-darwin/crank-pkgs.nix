@@ -1,4 +1,8 @@
-{pkgs, omp, ...}: {
+{
+  pkgs,
+  omp,
+  ...
+}: {
   environment.systemPackages = with pkgs; [
     arduino-cli # arduino IDE alternative
     bandwhich # display network usage by process
@@ -64,7 +68,7 @@
       "cleanmymac"
       # "cutter"
       "discord"
-      "docker-desktop"
+      # "docker-desktop"
       "dropbox"
       "fluidvoice"
       "folx"
@@ -86,9 +90,9 @@
       "vagrant"
       "virtualbox"
       "visual-studio-code"
-      "warp"
+      # "warp"
       "wireshark-app"
-      "zed"
+      # "zed"
       "zoom"
     ];
   };
