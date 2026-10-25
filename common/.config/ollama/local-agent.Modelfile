@@ -1,6 +1,2 @@
-# Coding agent for omp and codecompanion. Clients use the alias, so swapping
-# the base quant here needs no client change. Base chosen pending agent-bench.
-FROM qwen3.8:27b-mtp-q4_K_M
-# Clients sized to this: omp contextWindow (common/.omp/agent/models.yml) must
-# equal it; forge max_tokens + compact.token_threshold must stay below it.
+FROM laguna-xs-2.1:q4_K_M
 PARAMETER num_ctx 131072
