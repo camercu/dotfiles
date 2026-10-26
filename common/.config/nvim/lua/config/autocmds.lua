@@ -15,16 +15,15 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-
--- Disable smartindent and comments for justfiles. Both treat '#' as a comment
--- character, which prevents the >> command from indenting comment lines.
+-- 'smartindent' makes >> skip lines starting with '#' (:h 'smartindent'),
+-- so comments in a justfile recipe could not be indented.
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "just",
   callback = function()
     vim.opt_local.smartindent = false
-    vim.opt_local.comments = ""
   end,
 })
+
 -- Refresh CodeLens when attaching to a language server
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
