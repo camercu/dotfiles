@@ -24,4 +24,12 @@ T[">> indents a comment line in a justfile"] = function()
   eq(child.api.nvim_get_current_line(), "\t# comment")
 end
 
+T["comment leader stays set in a justfile"] = function()
+  child.cmd "filetype plugin on"
+
+  child.bo.filetype = "just"
+
+  eq(child.bo.comments ~= "", true)
+end
+
 return T
