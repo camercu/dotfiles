@@ -21,8 +21,9 @@ dir=${OLLAMA_ALIAS_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/ollama}
 # LaunchAgent): parsing OLLAMA_HOST would add cases nothing uses.
 host=http://127.0.0.1:11434
 
-# Probe with curl, never the ollama CLI: the CLI launches Ollama.app when no
-# server answers, and the app then holds the port with its own environment.
+# Probe with curl, never the ollama CLI: where Ollama.app is installed, the
+# CLI launches it when no server answers, and the app then holds the port
+# with its own environment.
 if ! curl -fsS --max-time 3 "$host/api/version" >/dev/null 2>&1; then
   echo "ollama-aliases: no server at $host; skipped" >&2
   exit 0

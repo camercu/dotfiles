@@ -60,6 +60,13 @@
     taps = [
     ];
 
+    brews = [
+      # CLI only, served by macos/Library/LaunchAgents/com.cameron.ollama-serve.plist.
+      # Not the ollama-app cask: the app re-registers itself as a login item
+      # on every launch and takes port 11434 from the LaunchAgent.
+      "ollama" # local LLM runner
+    ];
+
     casks = [
       "adobe-acrobat-reader"
       # "appgate-sdp-client"
@@ -78,7 +85,6 @@
       # "imhex"
       "microsoft-office"
       "obsidian"
-      "ollama-app" # local LLM runner/manager
       "podman-desktop"
       "private-internet-access"
       "qflipper"

@@ -102,10 +102,7 @@ Note: nix-darwin and Homebrew updates require the admin account, which owns `~/.
 
 ### Ollama server
 
-The daily account runs `ollama serve` from the LaunchAgent `macos/Library/LaunchAgents/com.cameron.ollama-serve.plist`, not from Ollama.app, so that the server's environment (KV cache type, keep-alive, default context) is under version control. Two rules follow:
-
-- Turn Ollama.app off under System Settings → General → Login Items. Otherwise it starts its own server and holds port 11434.
-- Don't run `ollama` commands while the agent is stopped. The CLI launches Ollama.app when no server answers.
+The daily account runs `ollama serve` from the LaunchAgent `macos/Library/LaunchAgents/com.cameron.ollama-serve.plist`, so that the server's environment (KV cache type, keep-alive, default context) is under version control. The binary comes from the Homebrew formula `ollama`. Don't install Ollama.app alongside it: the app registers itself as a login item every time it runs and takes port 11434 at boot.
 
 The server logs to `~/.ollama/logs/serve.log`. The plist's header comment lists the restart and reload commands.
 

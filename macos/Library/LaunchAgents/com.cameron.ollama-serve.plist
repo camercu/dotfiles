@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  Runs the Ollama server directly instead of through Ollama.app, so its
-  environment is set before the process starts. `launchctl setenv` at login
-  raced the app and lost: the server kept OLLAMA_KEEP_ALIVE=5m.
-
-  Ollama.app must not also start at login (System Settings > General >
-  Login Items), or it fights this agent for port 11434. The `ollama` CLI
-  also launches the app whenever no server answers, so restart this agent
-  with kickstart, never by stopping it and running `ollama` in between.
+  Runs the Ollama server (Homebrew formula `ollama`) with its environment
+  under version control. Ollama.app is not installed: it re-registers
+  itself as a login item on every launch and takes port 11434 at boot.
 
   Only the daily (non-admin) account runs the server; stow links this file
   for every account, so the script exits 0 for admins and launchd, which
-  restarts only on failure, leaves it stopped. Same when Ollama.app (which
-  ships the binary) is not installed.
+  restarts only on failure, leaves it stopped. Same when the formula is not
+  installed.
 
   Per-model context sizes live in common/.config/ollama/*.Modelfile;
   OLLAMA_CONTEXT_LENGTH is the default for models without one.
@@ -33,7 +28,7 @@
     <string>/bin/sh</string>
     <string>-c</string>
     <!-- sh, not a bare exec: launchd does not expand $HOME -->
-    <string>id -Gn | tr ' ' '\n' | grep -qx admin &amp;&amp; exit 0; bin=/Applications/Ollama.app/Contents/Resources/ollama; [ -x "$bin" ] || exit 0; mkdir -p "$HOME/.ollama/logs"; export OLLAMA_MODELS="$HOME/.cache/ollama/models"; exec "$bin" serve &gt;&gt;"$HOME/.ollama/logs/serve.log" 2&gt;&amp;1</string>
+    <string>id -Gn | tr ' ' '\n' | grep -qx admin &amp;&amp; exit 0; bin=/opt/homebrew/bin/ollama; [ -x "$bin" ] || exit 0; mkdir -p "$HOME/.ollama/logs"; export OLLAMA_MODELS="$HOME/.cache/ollama/models"; exec "$bin" serve &gt;&gt;"$HOME/.ollama/logs/serve.log" 2&gt;&amp;1</string>
   </array>
   <key>EnvironmentVariables</key>
   <dict>
