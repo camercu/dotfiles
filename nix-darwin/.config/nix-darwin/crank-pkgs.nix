@@ -38,6 +38,7 @@
     nushell # modern shell written in Rust
     (omp.packages."${pkgs.stdenv.hostPlatform.system}".default) # oh-my-pi (omp) terminal coding agent
     openjdk # Java SDK
+    pkg-config # helper for compiling binaries
     pngpaste # paste images into terminal
     procs # ps alternative
     repgrep # interactive replacement with ripgrep
