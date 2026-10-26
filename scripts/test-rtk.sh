@@ -26,7 +26,7 @@ rewrite() {
 for cmd in 'git log --format=%b' 'git commit -m x' 'cd /tmp && git status' 'cat build.log' \
   'head -50 f' "grep -n 'a\\|b' f" 'find . -name x -not -path y' 'diff a b' 'dig +short x'; do
   out="$(rewrite "$cmd")"
-  [ -z "$out" ] || [ "$out" = "$cmd" ] && ok "raw: $cmd" || fail "raw: $cmd  (rewritten to: $out)"
+  if [ -z "$out" ] || [ "$out" = "$cmd" ]; then ok "raw: $cmd"; else fail "raw: $cmd  (rewritten to: $out)"; fi
 done
 
 # Test runners carry most of rtk's real savings; keep them compressed.
@@ -39,7 +39,8 @@ done
 # 1.0.1, which is why git stays excluded above.
 cd "$scratch"
 printf 'alpha\nfork(x)\n' >f
-"$rtk" grep -n 'alpha\|fork(' f >/dev/null 2>&1 && ok "rtk grep reads ( as literal in BRE" || fail "rtk grep turns BRE ( into a regex group"
-"$rtk" find . -name f -not -path './.git/*' >/dev/null 2>&1 && ok "rtk find accepts -not" || fail "rtk find rejects -not"
+if "$rtk" grep -n 'alpha\|fork(' f >/dev/null 2>&1; then ok "rtk grep reads ( as literal in BRE"; else fail "rtk grep turns BRE ( into a regex group"; fi
+if "$rtk" find . -name f -not -path './.git/*' >/dev/null 2>&1; then ok "rtk find accepts -not"; else fail "rtk find rejects -not"; fi
 
-[ "$fails" -eq 0 ] && echo "all rtk controls passed" || { echo "$fails rtk control(s) failed"; exit 1; }
+if [ "$fails" -ne 0 ]; then echo "$fails rtk control(s) failed"; exit 1; fi
+echo "all rtk controls passed"
