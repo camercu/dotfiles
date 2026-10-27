@@ -142,9 +142,12 @@ passes: brief from `references/pass-brief.md`.
 
 Each finding: **significant** = bug, coverage or contract gap, flaky or slow
 test, reframing that deletes code or concepts, cohesion-map mismatch in a
-file touched by > 25% of recent commits (`improve-architecture` step 1a), doc
-contradicting code. Else
-cosmetic or false positive → one line in findings, no slice. Passes disagree
+file touched by > 25% of recent commits (`improve-architecture` step 1a). Doc
+findings (stale, imprecise, or contradicting code) are cosmetic: fix them in
+passing, but they never block convergence. Exception: doc so misleading that it
+would frustrate a large share of users (wrong install, wrong core API usage,
+claims a guarantee the code breaks) → significant. Else cosmetic or false
+positive → one line in findings, no slice. Passes disagree
 on a finding's rating → the higher rating wins. Significant findings → step 2
 when a choice is open, else step 3 directly.
 

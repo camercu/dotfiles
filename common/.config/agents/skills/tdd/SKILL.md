@@ -82,6 +82,10 @@ Coverage audit: edge cases, error paths, boundaries. Consider **property-based t
 
 Then review and refactor via `/code-review`, `/simplify`, `/improve-architecture`. Tests stay GREEN throughout (design changes only, no behavior changes).
 
+### 6. Docs sweep → Done
+
+Docs describe the old behavior until swept. List the change's terms: renamed or new identifiers, flags, config keys, error names, requirement IDs, and domain words for the behavior. `rg -n -i '<term>'` each over the whole workspace (docs, comments, README, man page, `--help`, examples, specs, glossary, tests). Done when every hit matches the new behavior or is fixed, each in the same commit as the change it describes.
+
 ## Checklist
 
 ```
@@ -92,4 +96,5 @@ Then review and refactor via `/code-review`, `/simplify`, `/improve-architecture
 [ ] Minimal code, no speculative features
 [ ] Actually ran tests — no "should pass" or "probably works"
 [ ] Code review and refactor after GREEN to simplify/clean up design
+[ ] Docs sweep: rg every changed term over the workspace; every hit matches
 ```

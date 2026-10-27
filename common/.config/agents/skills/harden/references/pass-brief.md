@@ -26,6 +26,8 @@ Leave unread: .scratch/harden/LEDGER.md and other passes' findings files — the
 would prime you.
 Report: path to findings file; each finding ranked, with file:line, evidence,
 and significant / cosmetic / false-positive.
+Doc findings rate cosmetic unless so misleading they would frustrate a large
+share of users.
 ```
 
 ## Exercise — add
