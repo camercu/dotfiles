@@ -1,6 +1,8 @@
 old/
 .github-api-token
 flake.lock
+result
+result-*
 .tmp-dotsync-home.*
 
 linux/.mozilla/firefox/*
