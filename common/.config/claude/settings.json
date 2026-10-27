@@ -19,17 +19,6 @@
     "deny": [
       "AskUserQuestion"
     ],
-    "ask": [
-      "Bash(git push:*)",
-      "Bash(rtk git push:*)",
-      "Bash(jj git push:*)",
-      "Bash(jj push:*)",
-      "Bash(rm:*)",
-      "Bash(cargo publish:*)",
-      "Bash(cargo yank:*)",
-      "Bash(git reset --hard:*)",
-      "Bash(git clean:*)"
-    ],
     "defaultMode": "auto"
   },
   "model": "opus",
