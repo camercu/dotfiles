@@ -72,7 +72,8 @@
   },
   "enabledPlugins": {
     "rust-analyzer-lsp@claude-plugins-official": false,
-    "starship-claude@starship-claude": true
+    "starship-claude@starship-claude": true,
+    "nono@nolabs-ai": true
   },
   "tui": "fullscreen",
   "editorMode": "vim",
