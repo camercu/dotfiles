@@ -22,8 +22,6 @@ max_parallel_file_reads = 64
 model_cache_ttl_secs = 604800
 use_forge_committer = true
 max_commit_count = 20
-top_p = 0.8
-top_k = 30
 # max_tokens + [compact].token_threshold must stay under local-agent num_ctx
 # (131072), or the server truncates before forge compacts.
 max_tokens = 32768
