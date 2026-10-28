@@ -79,7 +79,7 @@ model_id = "local-agent:latest"
 
 [updates]
 frequency = "daily"
-auto_update = true
+auto_update = false
 
 [compact]
 retention_window = 6
