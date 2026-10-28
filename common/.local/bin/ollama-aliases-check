@@ -1,0 +1,42 @@
+#!/bin/sh
+# Fail when omp's resolved view of an alias from ~/.config/ollama/*.Modelfile
+# disagrees with what Ollama serves: context window or image input. omp builds
+# these rows by discovery; a stale catalog or an omp regression to the
+# architecture maximum would otherwise go unnoticed until the server silently
+# truncates context.
+set -eu
+
+dir=${OLLAMA_ALIAS_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/ollama}
+host=http://127.0.0.1:11434
+
+if ! curl -fsS --max-time 3 "$host/api/version" >/dev/null 2>&1; then
+  echo "ollama-aliases-check: no server at $host; skipped" >&2
+  exit 0
+fi
+
+omp models refresh >/dev/null
+catalog=$(omp models --json)
+
+status=0
+for file in "$dir"/*.Modelfile; do
+  [ -e "$file" ] || continue
+  name=$(basename "$file" .Modelfile):latest
+  row=$(printf '%s' "$catalog" |
+    jq -c --arg id "$name" '.models[] | select(.provider == "ollama" and .id == $id)')
+  # Not every alias is offered as a chat model (local-fim).
+  [ -n "$row" ] || continue
+  show=$(curl -fsS "$host/api/show" -d "{\"model\":\"$name\"}")
+  ctx=$(printf '%s' "$show" | jq -r '.parameters' | sed -n 's/^num_ctx[[:space:]]*//p')
+  vision=$(printf '%s' "$show" | jq '.capabilities | index("vision") != null')
+  omp_ctx=$(printf '%s' "$row" | jq '.contextWindow')
+  omp_image=$(printf '%s' "$row" | jq '.input | index("image") != null')
+  if [ "$omp_ctx" != "$ctx" ]; then
+    echo "$name: omp contextWindow $omp_ctx != ollama num_ctx $ctx" >&2
+    status=1
+  fi
+  if [ "$omp_image" != "$vision" ]; then
+    echo "$name: omp image input $omp_image != ollama vision $vision" >&2
+    status=1
+  fi
+done
+exit "$status"

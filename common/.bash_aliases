@@ -112,6 +112,9 @@ function maintain {
   if is-installed ollama && ! is-admin; then
     info "ollama: pull bases + recreate aliases"
     ollama-aliases --pull || warn "ollama-aliases failed; see output above"
+    if is-installed omp; then
+      ollama-aliases-check || warn "omp disagrees with an Ollama alias; see output above"
+    fi
   fi
 
   if is-macos; then
