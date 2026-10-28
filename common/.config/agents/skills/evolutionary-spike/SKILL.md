@@ -106,12 +106,10 @@ tournament is done when:
 
 ## Isolation
 
-1. Find the repo's spike convention first: `git worktree list; git branch
-   --list 'spike/*'; grep -ns spike .gitignore .git/info/exclude`. Found →
-   use its dir as `<spike-dir>`. None → `<spike-dir>` = `.scratch/spikes/`
-   (AGENTS.md *Working files*).
-   `spike/<topic>` already exists → ask the user: resume that tournament, or
-   pick a new topic name.
+1. `<spike-dir>` = `.scratch/evolutionary-spike/` (AGENTS.md *Working
+   files*). Check `git branch --list 'spike/*'; git worktree list` first.
+   `spike/<topic>` already exists → ask the user: resume that tournament (in
+   whatever dir its worktree list shows), or pick a new topic name.
 2. **Topic worktree**: `git worktree add <spike-dir>/<topic> -b spike/<topic>
    main`. Holds the findings doc and every additive spike. The main checkout
    stays on `main`.
