@@ -3,8 +3,9 @@
 # the architecture maximum (262K) from Ollama, never compacts, and the server
 # silently drops the oldest context past num_ctx.
 #
-# Thinking: without this block omp sends a reasoning effort only for
-# `medium`; every other level falls back to the Ollama tag default.
+# Thinking: declare `thinking`/`compat` only for a base whose `ollama show`
+# lists effort levels. laguna-xs is on/off (default on), so omp levels are
+# no-ops; agent-bench measured it in this shape.
 providers:
   ollama:
     baseUrl: http://127.0.0.1:11434/v1
@@ -14,14 +15,6 @@ providers:
       # Full tag: Ollama lists models as <name>:latest, and a bare id makes
       # omp show a second, auto-discovered row with the wrong context.
       - id: local-agent:latest
-        input: [text, image]
         contextWindow: 131072
         maxTokens: 32768
         reasoning: true
-        thinking:
-          mode: effort
-          efforts: [low, medium, xhigh]
-        compat:
-          supportsReasoningEffort: true
-          reasoningDisableMode: none-effort
-          thinkingFormat: openai
