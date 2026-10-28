@@ -106,7 +106,7 @@ tournament is done when:
 
 ## Isolation
 
-1. `<spike-dir>` = `.scratch/evolutionary-spike/` (AGENTS.md *Working
+1. `<spike-dir>` = `.scratch/spikes/` (AGENTS.md *Working
    files*). Check `git branch --list 'spike/*'; git worktree list` first.
    `spike/<topic>` already exists → ask the user: resume that tournament (in
    whatever dir its worktree list shows), or pick a new topic name.
