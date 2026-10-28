@@ -1,4 +1,10 @@
+# Coding agent for omp, forge, and codecompanion. Clients use the alias, so a
+# quant swap needs no client change. A base swap can: check `ollama show` for
+# capabilities clients rely on (tools, thinking), then `omp models refresh`.
+# Base chosen by agent-bench (laguna-q4 5/6, 2026-10-28).
 FROM laguna-xs-2.1:q4_K_M
+# Clients sized to this: omp discovers it as contextWindow; forge max_tokens +
+# compact.token_threshold must stay below it.
 PARAMETER num_ctx 131072
 # laguna aborts with "token repeat limit reached" on any request without a
 # system message (codecompanion quick prompts, forge titles). A client's own
