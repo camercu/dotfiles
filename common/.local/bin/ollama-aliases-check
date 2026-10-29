@@ -23,7 +23,7 @@ for file in "$dir"/*.Modelfile; do
   name=$(basename "$file" .Modelfile):latest
   row=$(printf '%s' "$catalog" |
     jq -c --arg id "$name" '.models[] | select(.provider == "ollama" and .id == $id)')
-  # Not every alias is offered as a chat model (local-fim).
+  # Skip aliases omp does not list as models.
   [ -n "$row" ] || continue
   show=$(curl -fsS "$host/api/show" -d "{\"model\":\"$name\"}")
   ctx=$(printf '%s' "$show" | jq -r '.parameters' | sed -n 's/^num_ctx[[:space:]]*//p')
