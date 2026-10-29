@@ -51,11 +51,6 @@
             "type": "command",
             "command": "\"$HOME/.dotfiles/common/.config/claude/hooks/guard-commit-chain.sh\"",
             "statusMessage": "guard: no test+commit chain"
-          },
-          {
-            "type": "command",
-            "command": "\"$HOME/.dotfiles/common/.config/claude/hooks/guard-destructive.sh\"",
-            "statusMessage": "guard: destructive command"
           }
         ]
       }
