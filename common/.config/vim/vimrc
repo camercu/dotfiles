@@ -2,6 +2,7 @@
 " Personal Settings
 "***************************************************************
 set nocompatible    " be iMproved
+set encoding=utf-8  " listchars below needs it; a C or unset locale defaults to latin1
 set modelines=0     " prevent secuirty exploits via modelines, which I never use
 " vim reads this file from $XDG_CONFIG_HOME/vim, a stow link into the dotfiles
 " repo, so every default under the first 'runtimepath' dir lands in the repo.
