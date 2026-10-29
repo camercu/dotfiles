@@ -313,7 +313,7 @@ run_zsh_startup_stdin_test() {
 
   stub_dir=$(mktemp -d "${TMPDIR:-/tmp}/stdin-stub.XXXXXX")
   register_cleanup "$stub_dir"
-  printf '#!/bin/sh\ncat >/dev/null\necho :\n' >"$stub_dir/forge"
+  printf '#!/bin/sh\ntouch "%s/ran"\ncat >/dev/null\necho :\n' "$stub_dir" >"$stub_dir/forge"
   chmod +x "$stub_dir/forge"
 
   # A FIFO held open by a background writer, not a pipe: the shell waits for
@@ -329,6 +329,11 @@ run_zsh_startup_stdin_test() {
   kill "$writer" 2>/dev/null || :
   if [ "$elapsed" -ge 5 ]; then
     echo "interactive zsh startup blocked on stdin (${elapsed}s)" >&2
+    exit 1
+  fi
+  # Fast is vacuous if startup never reached the stub.
+  if [ ! -e "$stub_dir/ran" ]; then
+    echo "stdin test: zsh startup never ran the stub forge" >&2
     exit 1
   fi
 }
