@@ -303,6 +303,36 @@ run_zsh_startup_test() {
   fi
 }
 
+# Agents and editors start `zsh -i` with an open, non-tty stdin. A startup
+# hook that reads stdin (forge 2.14 `zsh plugin` reads to EOF) stalls the
+# shell until the writer closes and swallows its input. Stub forge with a
+# stdin reader and hold the pipe open longer than startup may take.
+run_zsh_startup_stdin_test() {
+  begin_test zsh_startup_stdin_test
+  capture_log
+
+  stub_dir=$(mktemp -d "${TMPDIR:-/tmp}/stdin-stub.XXXXXX")
+  register_cleanup "$stub_dir"
+  printf '#!/bin/sh\ncat >/dev/null\necho :\n' >"$stub_dir/forge"
+  chmod +x "$stub_dir/forge"
+
+  # A FIFO held open by a background writer, not a pipe: the shell waits for
+  # every pipeline member, so elapsed would include the writer's sleep.
+  mkfifo "$stub_dir/stdin"
+  sleep 6 >"$stub_dir/stdin" &
+  writer=$!
+  start=$(date +%s)
+  env -u _FORGE_PLUGIN_LOADED -u _FORGE_THEME_LOADED -u _FORGE_BIN \
+    PATH="$stub_dir:$PATH" ZDOTDIR="$ZSH_CONFIG_DIR" zsh -ic true \
+    <"$stub_dir/stdin" >"$LAST_LOG" 2>&1
+  elapsed=$(( $(date +%s) - start ))
+  kill "$writer" 2>/dev/null || :
+  if [ "$elapsed" -ge 5 ]; then
+    echo "interactive zsh startup blocked on stdin (${elapsed}s)" >&2
+    exit 1
+  fi
+}
+
 # zsh-health only runs by hand in an interactive shell, so nothing catches a
 # regression in it. Drive it against the real config (a broken zsh config
 # file fails check-bootstrap) and against fixture ZDOTDIRs proving it can
@@ -807,6 +837,7 @@ run_sourced_lib_test
 begin_test verify_home_manager_hosts
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
 run_zsh_startup_test
+run_zsh_startup_stdin_test
 run_zsh_health_test
 run_stale_link_prune_test
 run_stale_link_besteffort_test
