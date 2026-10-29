@@ -181,6 +181,10 @@ alias astronvim="NVIM_APPNAME=astronvim nvim"
 if is-installed vim; then
   alias vi=vim
 fi
+# wget has no env var for its HSTS cache; default is ~/.wget-hsts.
+if is-installed wget; then
+  alias wget='wget --hsts-file="$XDG_STATE_HOME/wget-hsts"'
+fi
 
 ## easy dotfile editing commands
 DOTFILE_EDITOR=$(command -v nvim || command -v vim || command -v vi || true)

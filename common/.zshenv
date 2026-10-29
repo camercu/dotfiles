@@ -29,6 +29,17 @@ export XDG_STATE_HOME="$HOME/.local/state"
 # settings over the config.yml omp rewrites.
 export PI_CONFIG_DIR=.config/omp
 export PI_CONFIG_FILES="$XDG_CONFIG_HOME/agents/omp.yml"
+export ANSIBLE_HOME="$XDG_DATA_HOME/ansible"
+export CODEX_HOME="$XDG_CONFIG_HOME/codex"
+export FORGE_CONFIG="$XDG_CONFIG_HOME/forge"
+export NODENV_ROOT="$XDG_DATA_HOME/nodenv"
+export NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm"
+export VAGRANT_HOME="$XDG_DATA_HOME/vagrant"
+# History files sit directly in XDG_STATE_HOME: these tools do not create a
+# missing parent dir.
+export LESSHISTFILE="$XDG_STATE_HOME/lesshst"
+export PYTHON_HISTORY="$XDG_STATE_HOME/python_history"
+export SQLITE_HISTORY="$XDG_STATE_HOME/sqlite_history"
 
 # Disable Apple Terminal session restore files such as ~/.zsh_sessions.
 export SHELL_SESSIONS_DISABLE=1
