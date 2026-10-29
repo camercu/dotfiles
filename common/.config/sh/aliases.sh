@@ -113,7 +113,7 @@ function maintain {
     info "ollama: pull bases + recreate aliases"
     ollama-aliases --pull || warn "ollama-aliases failed; see output above"
     if is-installed omp; then
-      ollama-aliases-check || warn "omp disagrees with an Ollama alias; see output above"
+      ollama-aliases-check || warn "ollama-aliases-check failed; see output above"
     fi
   fi
 

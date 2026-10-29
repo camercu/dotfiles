@@ -40,7 +40,8 @@ row() { printf '{"provider":"ollama","id":"%s","contextWindow":%s,"input":%s}' "
 models() { local IFS=,; printf '{"models":[%s]}' "$*"; }
 
 # run CASE MODELS_JSON [NAME SHOW_JSON]...: one Modelfile and one /api/show
-# body per NAME (alias local-NAME); sets rc, out, log.
+# body per NAME (alias local-NAME); SHOW_JSON "-" = not served. Sets rc, out,
+# log.
 run() {
   case_dir="$scratch/$1"
   catalog=$2
@@ -48,7 +49,7 @@ run() {
   mkdir -p "$case_dir/models" "$case_dir/show"
   while [ "$#" -ge 2 ]; do
     printf 'FROM base:1\n' >"$case_dir/models/local-$1.Modelfile"
-    printf '%s' "$2" >"$case_dir/show/local-$1:latest"
+    [ "$2" = - ] || printf '%s' "$2" >"$case_dir/show/local-$1:latest"
     shift 2
   done
   : >"$case_dir/log"
@@ -88,6 +89,20 @@ run two "$(models "$(row local-x:latest 262144 '["text"]')" "$(row local-y:lates
 check "mismatch before a match still exits 1" [ "$rc" = 1 ]
 check "reports the mismatched alias" has_line "$out" '^local-x:latest:'
 check "does not report the matching alias" lacks_line "$out" '^local-y:latest:'
+
+run other "$(models '{"provider":"openai","id":"local-x:latest","contextWindow":1,"input":["text","image"]}')" \
+  x "$(show 131072 '["completion"]')"
+check "same id from another provider is not compared: exits 0" [ "$rc" = 0 ]
+
+run skip-then-check "$(models "$(row local-y:latest 262144 '["text"]')")" \
+  x "$(show 8192 '["completion"]')" y "$(show 131072 '["completion"]')"
+check "alias omp does not offer, then a mismatch: exits 1" [ "$rc" = 1 ]
+
+run unserved "$(models "$(row local-x:latest 131072 '["text"]')" "$(row local-y:latest 262144 '["text"]')")" \
+  x - y "$(show 131072 '["completion"]')"
+check "unserved alias: exits 1" [ "$rc" = 1 ]
+check "unserved alias: names it" has_line "$out" '^local-x:latest: ollama does not serve it'
+check "unserved alias: still checks the rest" has_line "$out" '^local-y:latest: omp contextWindow'
 
 run absent '{"models":[]}' x "$(show 8192 '["completion"]')"
 check "alias omp does not offer: exits 0" [ "$rc" = 0 ]
