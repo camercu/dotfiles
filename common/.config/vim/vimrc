@@ -3,20 +3,21 @@
 "***************************************************************
 set nocompatible    " be iMproved
 set modelines=0     " prevent secuirty exploits via modelines, which I never use
-" Keep viminfo out of $HOME (vim reads this file from $XDG_CONFIG_HOME/vim).
-" ~/.config/vim is a stow link into the dotfiles repo: send netrw history to
-" state too, not the first 'runtimepath' dir.
-if !empty($XDG_STATE_HOME)
-  set viminfofile=$XDG_STATE_HOME/viminfo
-  let g:netrw_home = $XDG_STATE_HOME
-endif
-" Same for `zg` words: the default spellfile is the first 'runtimepath' dir.
-if !empty($XDG_DATA_HOME)
-  if !isdirectory($XDG_DATA_HOME . '/vim/spell')
-    call mkdir($XDG_DATA_HOME . '/vim/spell', 'p')
+" vim reads this file from $XDG_CONFIG_HOME/vim, a stow link into the dotfiles
+" repo, so every default under the first 'runtimepath' dir lands in the repo.
+" Send state (viminfo, netrw history, views) and data (`zg` words) to XDG
+" dirs, with the spec's defaults when a launcher did not export them.
+let s:state = empty($XDG_STATE_HOME) ? $HOME . '/.local/state' : $XDG_STATE_HOME
+let s:data = empty($XDG_DATA_HOME) ? $HOME . '/.local/share' : $XDG_DATA_HOME
+for s:dir in [s:state . '/vim/view', s:data . '/vim/spell']
+  if !isdirectory(s:dir)
+    call mkdir(s:dir, 'p')
   endif
-  set spellfile=$XDG_DATA_HOME/vim/spell/en.utf-8.add
-endif
+endfor
+let &viminfofile = s:state . '/viminfo'
+let g:netrw_home = s:state
+let &viewdir = s:state . '/vim/view'
+let &spellfile = s:data . '/vim/spell/en.utf-8.add'
 
 " Indentation settings
 filetype plugin indent on
