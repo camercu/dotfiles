@@ -42,6 +42,6 @@ file-written/parsed output or toolchain-pinned runs. Don't "fix" those.
 **rtk masks child exit codes** on some paths — never trust `cargo test && git
 commit`. Assert green from the nextest "Summary … N passed" line. Build-script
 panics get filtered out of view; full log under
-`~/Library/Application Support/rtk/tee/*.log`. Guard hook blocks the chain form.
+`~/Library/Application Support/rtk/tee/*.log`.
 
 Full command reference: CLAUDE.md.
