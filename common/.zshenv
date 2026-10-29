@@ -21,6 +21,15 @@ export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_LIB_HOME="$HOME/.local/lib"
 export XDG_STATE_HOME="$HOME/.local/state"
 
+# Tools that follow XDG only when told. Here, not in .zshrc, so every zsh
+# (and whatever it launches) agrees on where their files live.
+# omp: config root is $HOME joined with PI_CONFIG_DIR (relative path), so
+# ~/.config/omp. Data, state, and cache go under $XDG_*_HOME/omp because those
+# dirs exist (`omp config init-xdg`). PI_CONFIG_FILES layers the tracked
+# settings over the config.yml omp rewrites.
+export PI_CONFIG_DIR=.config/omp
+export PI_CONFIG_FILES="$XDG_CONFIG_HOME/agents/omp.yml"
+
 # Disable Apple Terminal session restore files such as ~/.zsh_sessions.
 export SHELL_SESSIONS_DISABLE=1
 
