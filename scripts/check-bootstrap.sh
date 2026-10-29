@@ -465,7 +465,7 @@ run_stow_conflict_test() {
 
 # Tool locations in zsh/env/*.sh keep files out of $HOME only if every shell
 # exports them: non-interactive zsh (scripts, editors), interactive zsh, and
-# bash (Claude Code's shell, via ~/.bashrc where a platform ships one). An
+# bash (Claude Code's shell, via macos/.bashrc; Linux via .bash_aliases). An
 # interactive-only file overriding one of them (an env/*.zsh export) splits
 # the shells, so compare each shell against the files sourced on their own.
 run_tool_env_test() {
@@ -502,6 +502,17 @@ run_tool_env_test() {
       tool_env_status=1
     fi
   done
+  # Linux bash loads linux/.bash_aliases from the host's skeleton ~/.bashrc,
+  # which a scratch HOME lacks: source it directly, on every platform.
+  # shellcheck disable=SC2016 # expanded by the bash under test
+  env -i HOME="$tmp_home" PATH="$PATH" bash --norc -c '. "$1" && env' _ \
+    "$DOTFILE_DIR/linux/.bash_aliases" 2>/dev/null | sort >"$tmp_home/got"
+  missing=$(comm -23 "$tmp_home/want" "$tmp_home/got")
+  if [ -n "$missing" ]; then
+    echo "tool env: linux/.bash_aliases lacks or overrides:" >&2
+    printf '%s\n' "$missing" >&2
+    tool_env_status=1
+  fi
   [ "$tool_env_status" = 0 ] || exit 1
 }
 
@@ -648,10 +659,20 @@ run_shellcheck_test() {
   capture_log
   shellcheck_status=0
 
-  # -s bash for the shebang-less sourced file, matching the syntax pass.
-  if ! shellcheck -x -s bash "$DOTFILE_DIR/common/.config/sh/aliases.sh" >"$LAST_LOG" 2>&1; then
-    shellcheck_status=1
-  fi
+  # Shebang-less sourced files: bash rc files, and the POSIX per-tool env
+  # files both bash and zsh load.
+  for script in \
+      "$DOTFILE_DIR/common/.config/sh/aliases.sh" \
+      "$DOTFILE_DIR/macos/.bashrc" "$DOTFILE_DIR/linux/.bash_aliases"; do
+    if ! (cd "${script%/*}" && shellcheck -x -s bash "${script##*/}") >>"$LAST_LOG" 2>&1; then
+      shellcheck_status=1
+    fi
+  done
+  for script in "$ZSH_CONFIG_DIR"/env/*.sh; do
+    if ! shellcheck -s sh "$script" >>"$LAST_LOG" 2>&1; then
+      shellcheck_status=1
+    fi
+  done
 
   for script in \
       "$DOTFILE_DIR/install.sh" \
