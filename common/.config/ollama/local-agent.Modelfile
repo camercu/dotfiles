@@ -6,7 +6,8 @@ FROM laguna-xs-2.1:q4_K_M
 # Clients sized to this: omp discovers it as contextWindow; forge max_tokens +
 # compact.token_threshold must stay below it.
 PARAMETER num_ctx 131072
-# laguna aborts with "token repeat limit reached" on any request without a
-# system message (codecompanion quick prompts, forge titles). A client's own
-# system message replaces this default.
+# laguna aborts with "token repeat limit reached" on requests without a
+# system message; this default fixes those. A client's own system message
+# replaces it, and some still abort the same way: codecompanion and forge
+# title generation (2026-10-28), so new conversations go untitled.
 SYSTEM You are a helpful assistant.
