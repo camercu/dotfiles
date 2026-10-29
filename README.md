@@ -2,7 +2,7 @@
 
 A [Nix](https://nixos.org/)-based dotfiles repository using a two-layer approach:
 
-1. **GNU Stow** manages shell-managed dotfile symlinks (`.zshrc`, `.vimrc`, etc.).
+1. **GNU Stow** manages shell-managed dotfile symlinks (`.zshenv`, `.config/vim/vimrc`, etc.).
 2. **Nix flakes** (Home Manager and nix-darwin) manage declarative packages and user configuration.
 
 ## Hosts

@@ -3,6 +3,13 @@
 "***************************************************************
 set nocompatible    " be iMproved
 set modelines=0     " prevent secuirty exploits via modelines, which I never use
+" Keep viminfo out of $HOME (vim reads this file from $XDG_CONFIG_HOME/vim).
+" ~/.config/vim is a stow link into the dotfiles repo: send netrw history to
+" state too, not the first 'runtimepath' dir.
+if !empty($XDG_STATE_HOME)
+  set viminfofile=$XDG_STATE_HOME/viminfo
+  let g:netrw_home = $XDG_STATE_HOME
+endif
 
 " Indentation settings
 filetype plugin indent on
