@@ -3,6 +3,7 @@
 modelRoles:
   default: ollama/local-agent:latest
 images:
-  # local-agent has no vision. Without this, omp routes each image to the
-  # first vision model it finds and swaps 20 GB models on the shared server.
-  describeForTextModels: false
+  # local-agent has no vision. Otherwise omp sends images (attachments and
+  # `read <img>?q=`) to the first vision model it finds, swapping 20 GB models
+  # on the shared server. Blocked images fail loud with a settings message.
+  blockImages: true
