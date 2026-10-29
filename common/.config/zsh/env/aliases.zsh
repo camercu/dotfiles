@@ -3,7 +3,9 @@
 #
 # Bash Aliases
 #
-[[ -s "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"
+_aliases="${XDG_CONFIG_HOME:-$HOME/.config}/sh/aliases.sh"
+[[ -s "$_aliases" ]] && source "$_aliases"
+unset _aliases
 
 #
 # Zsh-specific Aliases

@@ -71,7 +71,7 @@ rel_path() {
 
 # Every entry point into the logging functions must emit the same message for
 # the same call: the POSIX script lib, the zsh startup lib, and the
-# .bash_aliases copy interactive shells load. They began as three hand-synced
+# aliases.sh copy interactive shells load. They began as three hand-synced
 # copies and had already drifted (debug aliased info in two of them, the zsh
 # lib had no info at all). Stowing into a scratch HOME first, because the
 # interactive copies resolve the shared lib through $HOME.
@@ -93,7 +93,7 @@ run_logging_parity_test() {
      source \"$ZSH_CONFIG_DIR/lib/logging.zsh\"; $calls" \
     >/dev/null 2>"$tmp_home/out.zsh"
   HOME="$tmp_home" bash -c \
-    ". \"$tmp_home/.bash_aliases\"; $calls" \
+    ". \"$tmp_home/.config/sh/aliases.sh\"; $calls" \
     >/dev/null 2>"$tmp_home/out.bash"
 
   # Color is a TTY affordance: piped or captured output (logs, CI) must carry
@@ -136,7 +136,7 @@ run_logging_parity_test() {
       zsh) leaked=$(HOME="$tmp_home" zsh -c \
         "source \"$ZSH_CONFIG_DIR/lib/logging.zsh\"; $probe") ;;
       bash) leaked=$(HOME="$tmp_home" bash -c \
-        ". \"$tmp_home/.bash_aliases\"; $probe") ;;
+        ". \"$tmp_home/.config/sh/aliases.sh\"; $probe") ;;
     esac
     if [ "$leaked" != "unset unset" ]; then
       echo "logging: $variant leaked helper state after a call: $leaked" >&2
@@ -147,7 +147,7 @@ run_logging_parity_test() {
 
 # The is-* predicates exist three times over — POSIX (scripts/lib/checks.sh,
 # underscores, uname-based), interactive zsh (zsh/lib/env-checks.zsh) and
-# interactive bash (.bash_aliases), the latter two hyphenated and $OSTYPE-based.
+# interactive bash (aliases.sh), the latter two hyphenated and $OSTYPE-based.
 # The names cannot be unified (POSIX sh forbids hyphens) so only a test keeps
 # them honest: same question, same answer, whichever copy is asked. This is the
 # drift that already bit the logging functions.
@@ -181,7 +181,7 @@ run_predicate_parity_test() {
     "source \"$ZSH_CONFIG_DIR/lib/env-checks.zsh\"; $(build_predicate_probe -)" \
     >"$tmp_home/pred.zsh"
   HOME="$tmp_home" bash -c \
-    ". \"\$HOME/.bash_aliases\"; $(build_predicate_probe -)" \
+    ". \"\$HOME/.config/sh/aliases.sh\"; $(build_predicate_probe -)" \
     >"$tmp_home/pred.bash"
 
   parity_status=0
@@ -227,21 +227,21 @@ run_dotsync_smoke_test() {
   # simulated link identical to a real stow-owned one.
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/dotsync-home.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
-  rel_target=$(rel_path "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home")
+  rel_target=$(rel_path "$DOTFILE_DIR/common/.zshenv" "$tmp_home")
 
-  ln -s "$rel_target" "$tmp_home/.bash_aliases"
+  ln -s "$rel_target" "$tmp_home/.zshenv"
 
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
-  [ -L "$tmp_home/.bash_aliases" ]
-  [ "$(resolve_path "$tmp_home/.bash_aliases")" = "$(resolve_path "$DOTFILE_DIR/common/.bash_aliases")" ]
+  [ -L "$tmp_home/.zshenv" ]
+  [ "$(resolve_path "$tmp_home/.zshenv")" = "$(resolve_path "$DOTFILE_DIR/common/.zshenv")" ]
 
   HOME="$tmp_home" "$SCRIPT_DIR/uninstall-dotfiles.sh" >"$LAST_LOG" 2>&1
-  [ ! -L "$tmp_home/.bash_aliases" ]
+  [ ! -L "$tmp_home/.zshenv" ]
 
-  ln -s "$rel_target" "$tmp_home/.bash_aliases"
+  ln -s "$rel_target" "$tmp_home/.zshenv"
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" --auto-discover >"$LAST_LOG" 2>&1
-  [ -L "$tmp_home/.bash_aliases" ]
-  [ "$(resolve_path "$tmp_home/.bash_aliases")" = "$(resolve_path "$DOTFILE_DIR/common/.bash_aliases")" ]
+  [ -L "$tmp_home/.zshenv" ]
+  [ "$(resolve_path "$tmp_home/.zshenv")" = "$(resolve_path "$DOTFILE_DIR/common/.zshenv")" ]
 }
 
 run_repo_relative_link_test() {
@@ -255,8 +255,8 @@ run_repo_relative_link_test() {
   register_cleanup "$tmp_home"
 
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
-  [ -L "$tmp_home/.bash_aliases" ]
-  [ "$(resolve_path "$tmp_home/.bash_aliases")" = "$(resolve_path "$DOTFILE_DIR/common/.bash_aliases")" ]
+  [ -L "$tmp_home/.zshenv" ]
+  [ "$(resolve_path "$tmp_home/.zshenv")" = "$(resolve_path "$DOTFILE_DIR/common/.zshenv")" ]
 
   HOME="$tmp_home" "$SCRIPT_DIR/uninstall-dotfiles.sh" >"$LAST_LOG" 2>&1
 }
@@ -372,14 +372,14 @@ run_stale_link_prune_test() {
   ln -s "$DOTFILE_DIR/common/.config/no-such-file" "$tmp_home/.config/nested/repo-stale"
   ln -s "$rel_stale" "$tmp_home/.config/nested/repo-stale-rel"
   ln -s "../../.dotfiles-elsewhere/gone" "$tmp_home/.config/foreign-stale"
-  ln -s "$DOTFILE_DIR/common/.bash_aliases" "$tmp_home/.bash_aliases"
+  ln -s "$DOTFILE_DIR/common/.zshenv" "$tmp_home/.zshenv"
 
   HOME="$tmp_home" zsh "$DOTFILE_DIR/uninstall.zsh" </dev/null >"$LAST_LOG" 2>&1
 
   [ ! -L "$tmp_home/.config/nested/repo-stale" ]
   [ ! -L "$tmp_home/.config/nested/repo-stale-rel" ]
   [ -L "$tmp_home/.config/foreign-stale" ]
-  [ -L "$tmp_home/.bash_aliases" ]
+  [ -L "$tmp_home/.zshenv" ]
 }
 
 # The prune must be best-effort: one link it cannot remove (unwritable parent)
@@ -433,13 +433,13 @@ run_stow_conflict_test() {
   fi
 }
 
-# .bash_aliases is the one file every interactive session loads, so a
+# aliases.sh is the one file every interactive session loads, so a
 # regression there greets the user in every new terminal. Source it in bash
 # against a scratch HOME and read back the alias table and the environment,
 # once per platform branch (OSTYPE drives the is-macos/is-linux split, so
 # forcing it exercises the Linux half from a Mac and vice versa).
-run_bash_aliases_test() {
-  begin_test bash_aliases_test
+run_aliases_test() {
+  begin_test aliases_test
   capture_log
 
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/bash-aliases.XXXXXX")" && pwd -P)
@@ -450,14 +450,14 @@ run_bash_aliases_test() {
 
   for platform in darwin24 linux-gnu; do
     HOME="$tmp_home" bash -c \
-      "OSTYPE=$platform; . \"\$HOME/.bash_aliases\"; alias" \
+      "OSTYPE=$platform; . \"\$HOME/.config/sh/aliases.sh\"; alias" \
       >"$tmp_home/alias.$platform" 2>"$tmp_home/err.$platform"
 
     # Startup must be silent: probing for a file that only exists on the other
     # platform (/proc/version, /etc/os-release) is expected to come up empty,
     # not to print to the user's terminal.
     if [ -s "$tmp_home/err.$platform" ]; then
-      echo "bash_aliases: $platform startup wrote to stderr" >&2
+      echo "aliases.sh: $platform startup wrote to stderr" >&2
       cat "$tmp_home/err.$platform" >&2
       aliases_status=1
     fi
@@ -465,17 +465,17 @@ run_bash_aliases_test() {
     # The public-IP lookup is not the ip(8) command; one name for both means
     # whichever branch runs last wins and the other meaning disappears.
     if ! grep -q "^alias myip=" "$tmp_home/alias.$platform"; then
-      echo "bash_aliases: $platform defines no myip alias" >&2
+      echo "aliases.sh: $platform defines no myip alias" >&2
       aliases_status=1
     fi
     if grep -q "^alias ip=.*dig" "$tmp_home/alias.$platform"; then
-      echo "bash_aliases: $platform aliases ip to the public-IP lookup" >&2
+      echo "aliases.sh: $platform aliases ip to the public-IP lookup" >&2
       aliases_status=1
     fi
   done
 
   if ! grep -qE "^alias ip='ip -{1,2}color=auto'" "$tmp_home/alias.linux-gnu"; then
-    echo "bash_aliases: linux does not colorize ip(8)" >&2
+    echo "aliases.sh: linux does not colorize ip(8)" >&2
     aliases_status=1
   fi
 
@@ -483,7 +483,7 @@ run_bash_aliases_test() {
   # fdfind only on Debian, and aliasing it blind shadows a real fd binary.
   if ! command -v fdfind >/dev/null 2>&1 &&
       grep -q "^alias fd=" "$tmp_home/alias.linux-gnu"; then
-    echo "bash_aliases: aliases fd to fdfind that is not installed" >&2
+    echo "aliases.sh: aliases fd to fdfind that is not installed" >&2
     aliases_status=1
   fi
 
@@ -494,8 +494,8 @@ run_bash_aliases_test() {
   for xdg_var in XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME; do
     if ! env -u XDG_CACHE_HOME -u XDG_CONFIG_HOME -u XDG_DATA_HOME \
         -u XDG_STATE_HOME HOME="$tmp_home" bash -c \
-        ". \"\$HOME/.bash_aliases\"; env" | grep -q "^$xdg_var="; then
-      echo "bash_aliases: $xdg_var is not exported" >&2
+        ". \"\$HOME/.config/sh/aliases.sh\"; env" | grep -q "^$xdg_var="; then
+      echo "aliases.sh: $xdg_var is not exported" >&2
       aliases_status=1
     fi
   done
@@ -548,12 +548,12 @@ run_syntax_test() {
     fi
   done
 
-  # .bash_aliases has no shebang (it is sourced, never run) and is bash/zsh
+  # aliases.sh has no shebang (it is sourced, never run) and is bash/zsh
   # dialect, so `sh -n` would reject it on a dash-as-sh host. A break here
   # reaches every new terminal, and without this the harness only catches it
   # further along, as a puzzling logging-parity failure.
-  if ! check_script_syntax "$DOTFILE_DIR/common/.bash_aliases" bash; then
-    echo "syntax check failed: common/.bash_aliases" >&2
+  if ! check_script_syntax "$DOTFILE_DIR/common/.config/sh/aliases.sh" bash; then
+    echo "syntax check failed: common/.config/sh/aliases.sh" >&2
     syntax_status=1
   fi
 
@@ -577,7 +577,7 @@ run_shellcheck_test() {
   shellcheck_status=0
 
   # -s bash for the shebang-less sourced file, matching the syntax pass.
-  if ! shellcheck -x -s bash "$DOTFILE_DIR/common/.bash_aliases" >"$LAST_LOG" 2>&1; then
+  if ! shellcheck -x -s bash "$DOTFILE_DIR/common/.config/sh/aliases.sh" >"$LAST_LOG" 2>&1; then
     shellcheck_status=1
   fi
 
@@ -771,7 +771,7 @@ run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_logging_parity_test
 run_predicate_parity_test
-run_bash_aliases_test
+run_aliases_test
 run_repo_relative_link_test
 run_stow_conflict_test
 run_claude_hook_test

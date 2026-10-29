@@ -2,7 +2,7 @@
 # Colorized log messages — the one implementation behind every entry point:
 # repo scripts (scripts/lib/logging.sh symlinks here), zsh startup
 # (common/.config/zsh/lib/logging.zsh), and interactive bash/zsh
-# (common/.bash_aliases). Three hand-synced copies used to live in those
+# (common/.config/sh/aliases.sh). Three hand-synced copies used to live in those
 # places and had already drifted apart.
 #
 # POSIX sh only: install.sh sources it under /bin/sh before anything is

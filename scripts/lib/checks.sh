@@ -7,7 +7,7 @@
 # (is_macos, not is-macos). The interactive shells keep their own hyphenated
 # copies for their own reasons:
 #   - common/.config/zsh/lib/env-checks.zsh  (interactive zsh)
-#   - common/.bash_aliases                   (interactive bash + zsh)
+#   - common/.config/sh/aliases.sh            (interactive bash + zsh)
 # Keep the semantics of all three in sync.
 
 is_macos()   { [ "$(uname -s)" = "Darwin" ]; }

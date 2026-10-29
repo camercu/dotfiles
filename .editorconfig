@@ -23,5 +23,5 @@ indent_size = 2
 [*.{sh,bash,zsh}]
 indent_size = 2
 
-[.bash_aliases]
+[common/.config/sh/aliases.sh]
 indent_size = 2

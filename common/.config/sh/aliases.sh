@@ -67,7 +67,7 @@ fi
 # file. The shellcheck directive path is relative to this file and resolves
 # both in-repo (common/.config/sh/logging.sh) and stowed (~/.config/sh/...).
 # shellcheck source-path=SCRIPTDIR
-# shellcheck source=.config/sh/logging.sh
+# shellcheck source=logging.sh
 source "${XDG_CONFIG_HOME:-$HOME/.config}/sh/logging.sh"
 
 ##? md: shortcut to make a directory and cd into it
@@ -199,7 +199,7 @@ if [ -n "$DOTFILE_EDITOR" ]; then
   esac
   # Edit (Neo)Vim Config
   alias ev="$DOTFILE_EDITOR --cmd 'cd ~/.config/nvim'"
-  alias ea="$DOTFILE_EDITOR ~/.bash_aliases --cmd 'cd ~/.dotfiles'"
+  alias ea="$DOTFILE_EDITOR ~/.config/sh/aliases.sh --cmd 'cd ~/.dotfiles'"
 fi
 unset DOTFILE_EDITOR
 alias reload='exec $SHELL'

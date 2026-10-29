@@ -1,6 +1,6 @@
-# Canonical is-* predicates for interactive zsh. Loaded before ~/.bash_aliases
+# Canonical is-* predicates for interactive zsh. Loaded before ~/.config/sh/aliases.sh
 # (which defines these only if unset, so bash gets its own copy). Keep semantics
-# in sync with common/.bash_aliases and scripts/lib/checks.sh (POSIX).
+# in sync with common/.config/sh/aliases.sh and scripts/lib/checks.sh (POSIX).
 
 # OS checks
 function is-macos   { [[ "$OSTYPE" == darwin*  ]]; }

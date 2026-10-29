@@ -72,7 +72,7 @@ HOME_MANAGER_CONFIG=roci ./scripts/apply-home-manager.sh
 
 ### `maintain` function
 
-`maintain` (a shell function from `.bash_aliases`) is the primary daily maintenance command: one-shot, non-interactive, fails fast, never changes your cwd. It updates all managed software and dotfiles in one step. Its behavior differs by OS and account:
+`maintain` (a shell function from `.config/sh/aliases.sh`) is the primary daily maintenance command: one-shot, non-interactive, fails fast, never changes your cwd. It updates all managed software and dotfiles in one step. Its behavior differs by OS and account:
 
 **macOS (admin):**
 ```sh
@@ -197,7 +197,7 @@ scripts/home-manager-host.sh lookup-system roci
 
 Two checks guard this repo; both are quick and safe to run anytime.
 
-`scripts/check-bootstrap.sh` is the test suite for the install/bootstrap scripts. It syntax-checks every script (including the shell scripts in `common/.local/bin`) with the interpreter its shebang names (plus `.bash_aliases`, which is sourced and has no shebang), runs `shellcheck` over the shell sources when it is installed, verifies sourced lib files exist, validates host definitions, runs dotsync smoke/conflict tests against throwaway home directories, checks the interactive aliases and the three copies of the `is-*` predicates for drift, drives `zsh-health` against both the real zsh config and broken/healthy fixtures, runs each Claude Code hook's `test-*.sh` controls and checks that every hook `settings.json` names exists when `jq` is installed, validates every git-tracked skill plus the validator's own rules when `nix-shell` is installed, lints the LaunchAgent plists with `plutil` on macOS, and runs the `ollama-aliases` controls. Run it after changing anything under `scripts/`, `install.sh`, `common/.local/bin`, `.bash_aliases`, the zsh config, the Claude Code hooks, a LaunchAgent, or an agent skill:
+`scripts/check-bootstrap.sh` is the test suite for the install/bootstrap scripts. It syntax-checks every script (including the shell scripts in `common/.local/bin`) with the interpreter its shebang names (plus `.config/sh/aliases.sh`, which is sourced and has no shebang), runs `shellcheck` over the shell sources when it is installed, verifies sourced lib files exist, validates host definitions, runs dotsync smoke/conflict tests against throwaway home directories, checks the interactive aliases and the three copies of the `is-*` predicates for drift, drives `zsh-health` against both the real zsh config and broken/healthy fixtures, runs each Claude Code hook's `test-*.sh` controls and checks that every hook `settings.json` names exists when `jq` is installed, validates every git-tracked skill plus the validator's own rules when `nix-shell` is installed, lints the LaunchAgent plists with `plutil` on macOS, and runs the `ollama-aliases` controls. Run it after changing anything under `scripts/`, `install.sh`, `common/.local/bin`, `aliases.sh`, the zsh config, the Claude Code hooks, a LaunchAgent, or an agent skill:
 
 ```sh
 ./scripts/check-bootstrap.sh
