@@ -33,9 +33,9 @@ for _zf in "$ZDOTDIR"/lib/*.zsh(N-.); do builtin source "$_zf"; done
 unset _zf
 
 #
-# Environment Variables
+# Environment Variables (interactive; env/*.sh already loaded by .zshenv)
 #
-for _zf in "$ZDOTDIR"/env/***/*.(sh|zsh)(N-.); do builtin source "$_zf"; done
+for _zf in "$ZDOTDIR"/env/***/*.zsh(N-.); do builtin source "$_zf"; done
 unset _zf
 
 #

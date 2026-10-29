@@ -433,6 +433,48 @@ run_stow_conflict_test() {
   fi
 }
 
+# Tool locations in zsh/env/*.sh keep files out of $HOME only if every shell
+# exports them: non-interactive zsh (scripts, editors), interactive zsh, and
+# bash (Claude Code's shell, via ~/.bashrc where a platform ships one). An
+# interactive-only file overriding one of them (an env/*.zsh export) splits
+# the shells, so compare each shell against the files sourced on their own.
+run_tool_env_test() {
+  begin_test tool_env_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/tool-env.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  # SC2016: single quotes on purpose; the sh under test expands them.
+  # shellcheck disable=SC2016
+  env -i HOME="$tmp_home" PATH="$PATH" sh -c \
+    'for f in "$HOME"/.config/zsh/env/*.sh; do . "$f"; done; env' \
+    | sort >"$tmp_home/want.all"
+  env -i HOME="$tmp_home" PATH="$PATH" sh -c env | sort >"$tmp_home/base"
+  comm -23 "$tmp_home/want.all" "$tmp_home/base" >"$tmp_home/want"
+  if ! grep -q '^PI_CONFIG_DIR=' "$tmp_home/want"; then
+    echo "tool env: env/*.sh exports no PI_CONFIG_DIR" >&2
+    exit 1
+  fi
+
+  set -- "zsh -c" "zsh -ic"
+  [ -e "$tmp_home/.bashrc" ] && set -- "$@" "bash -ic"
+  tool_env_status=0
+  for shell_cmd in "$@"; do
+    # shellcheck disable=SC2086 # split "zsh -ic" into command and flag
+    env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb $shell_cmd env </dev/null 2>/dev/null \
+      | sort >"$tmp_home/got"
+    missing=$(comm -23 "$tmp_home/want" "$tmp_home/got")
+    if [ -n "$missing" ]; then
+      echo "tool env: '$shell_cmd' lacks or overrides:" >&2
+      printf '%s\n' "$missing" >&2
+      tool_env_status=1
+    fi
+  done
+  [ "$tool_env_status" = 0 ] || exit 1
+}
+
 # aliases.sh is the one file every interactive session loads, so a
 # regression there greets the user in every new terminal. Source it in bash
 # against a scratch HOME and read back the alias table and the environment,
@@ -772,6 +814,7 @@ run_dotsync_smoke_test
 run_logging_parity_test
 run_predicate_parity_test
 run_aliases_test
+run_tool_env_test
 run_repo_relative_link_test
 run_stow_conflict_test
 run_claude_hook_test
