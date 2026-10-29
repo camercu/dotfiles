@@ -20,5 +20,5 @@ indent_size = 2
 [*.nix]
 indent_size = 2
 
-[*.{sh,bash,zsh}]
+[{*.{sh,bash,zsh},.bashrc,.bash_aliases,.zshenv,.zshrc}]
 indent_size = 2
