@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 
-# enable nvm
-export NVM_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/nvm"
+# NVM_DIR: nvm.sh
 
 # Lazy-load nvm: source on first use of any node-related command
 _nvm_load() {

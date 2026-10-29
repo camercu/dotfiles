@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 
-export RUSTUP_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/rustup"
-export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
+# RUSTUP_HOME, CARGO_HOME: rust.sh
 export PATH="${PATH}:${CARGO_HOME}/bin"
 if [[ -s "$CARGO_HOME/env" ]]; then
     source "$CARGO_HOME/env"

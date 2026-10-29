@@ -488,7 +488,8 @@ run_tool_env_test() {
     exit 1
   fi
 
-  set -- "zsh -c" "zsh -ic"
+  # A zsh that inherits ZDOTDIR reads $ZDOTDIR/.zshenv, not ~/.zshenv.
+  set -- "zsh -c" "zsh -ic" "env ZDOTDIR=$tmp_home/.config/zsh zsh -ic"
   [ -e "$tmp_home/.bashrc" ] && set -- "$@" "bash -ic"
   tool_env_status=0
   for shell_cmd in "$@"; do
@@ -502,6 +503,20 @@ run_tool_env_test() {
       tool_env_status=1
     fi
   done
+  # A location var exported only by interactive zsh (an env/*.zsh export) is
+  # invisible to scripts and to bash: it belongs in env/*.sh. Shell-internal
+  # vars are exempt.
+  env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb zsh -c env </dev/null | sort >"$tmp_home/nc"
+  env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb zsh -ic env </dev/null 2>/dev/null | sort >"$tmp_home/ic"
+  interactive_only=$(comm -13 "$tmp_home/nc" "$tmp_home/ic" |
+    grep "^[A-Za-z_]*=$tmp_home/" |
+    grep -Ev '^(PATH|HISTFILE|ZSH_COMPDUMP|XDG_DATA_DIRS)=' || :)
+  if [ -n "$interactive_only" ]; then
+    echo "tool env: location vars only interactive zsh exports (move to env/*.sh):" >&2
+    printf '%s\n' "$interactive_only" >&2
+    tool_env_status=1
+  fi
+
   # Linux bash loads linux/.bash_aliases from the host's skeleton ~/.bashrc,
   # which a scratch HOME lacks: source it directly, on every platform.
   # shellcheck disable=SC2016 # expanded by the bash under test

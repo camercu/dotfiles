@@ -6,7 +6,7 @@ local file
 
 files=(
     "$root/.zshrc"
-    "$HOME"/.zshenv(N)
+    "$HOME"/.zshenv(N) "$root"/.zshenv(N)
     "$root"/p10k*.zsh(N)
     "$root"/lib/***/*.(sh|zsh)(N-)
     "$root"/env/***/*.(sh|zsh)(N-)
