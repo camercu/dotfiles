@@ -23,6 +23,3 @@ if is-installed uv; then
     command uv "$@"
   }
 fi
-
-# put .python_history in $XDG_CACHE_HOME
-export PYTHON_HISTORY=${XDG_CACHE_HOME:-$HOME/.cache}/python/history
