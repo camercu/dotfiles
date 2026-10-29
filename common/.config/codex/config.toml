@@ -5,9 +5,6 @@ model_reasoning_effort = "high"
 [projects."/Users/cameron/.dotfiles"]
 trust_level = "trusted"
 
-[projects."/Users/cameron/.codex"]
-trust_level = "trusted"
-
 [projects."/Users/cameron/repos/daemonize"]
 trust_level = "trusted"
 
