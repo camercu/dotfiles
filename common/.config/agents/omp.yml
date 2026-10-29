@@ -1,4 +1,4 @@
-# omp settings overlay, loaded via PI_CONFIG_FILES (.zshenv). Wins over
+# omp settings overlay, loaded via PI_CONFIG_FILES (zsh/env/omp.sh). Wins over
 # ~/.config/omp/agent/config.yml, which omp rewrites itself and stays untracked.
 modelRoles:
   default: ollama/local-agent:latest
