@@ -823,6 +823,9 @@ run_ollama_aliases_test() {
 run_ollama_aliases_check_test() {
   begin_test ollama_aliases_check_test
 
+  # Only curl and omp are faked; the script under test parses with real jq.
+  require_tool jq "ollama-aliases-check controls" || return 0
+
   capture_log
   if ! bash "$SCRIPT_DIR/test-ollama-aliases-check.sh" >"$LAST_LOG" 2>&1; then
     echo "ollama-aliases-check: controls failed" >&2
