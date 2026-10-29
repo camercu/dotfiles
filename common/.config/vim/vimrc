@@ -10,6 +10,13 @@ if !empty($XDG_STATE_HOME)
   set viminfofile=$XDG_STATE_HOME/viminfo
   let g:netrw_home = $XDG_STATE_HOME
 endif
+" Same for `zg` words: the default spellfile is the first 'runtimepath' dir.
+if !empty($XDG_DATA_HOME)
+  if !isdirectory($XDG_DATA_HOME . '/vim/spell')
+    call mkdir($XDG_DATA_HOME . '/vim/spell', 'p')
+  endif
+  set spellfile=$XDG_DATA_HOME/vim/spell/en.utf-8.add
+endif
 
 " Indentation settings
 filetype plugin indent on
