@@ -23,6 +23,16 @@
   },
   "model": "opus",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat \"${XDG_CONFIG_HOME:-$HOME/.config}\"/zsh/env/*.sh >>\"$CLAUDE_ENV_FILE\""
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",

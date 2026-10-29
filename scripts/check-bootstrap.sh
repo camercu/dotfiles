@@ -522,6 +522,28 @@ run_tool_env_test() {
     tool_env_status=1
   fi
 
+  # Claude Code's shell snapshot keeps only PATH from ~/.bashrc; its
+  # SessionStart hook feeds the env files through CLAUDE_ENV_FILE instead.
+  # Run the hook command as settings.json has it, then source the result.
+  if command -v jq >/dev/null 2>&1; then
+    hook_cmd=$(jq -r '.hooks.SessionStart[].hooks[].command' \
+      "$DOTFILE_DIR/common/.config/claude/settings.json")
+    : >"$tmp_home/claude-env"
+    env -i HOME="$tmp_home" PATH="$PATH" CLAUDE_ENV_FILE="$tmp_home/claude-env" \
+      bash -c "$hook_cmd" </dev/null
+    # shellcheck disable=SC2016 # expanded by the bash under test
+    env -i HOME="$tmp_home" PATH="$PATH" bash --norc -c '. "$1" && env' _ \
+      "$tmp_home/claude-env" | sort >"$tmp_home/got"
+    missing=$(comm -23 "$tmp_home/want" "$tmp_home/got")
+    if [ -n "$missing" ]; then
+      echo "tool env: Claude Code SessionStart env file lacks:" >&2
+      printf '%s\n' "$missing" >&2
+      tool_env_status=1
+    fi
+  else
+    echo "tool env: jq missing; Claude Code env hook unchecked" >&2
+  fi
+
   # Linux bash loads linux/.bash_aliases from the host's skeleton ~/.bashrc,
   # which a scratch HOME lacks: source it directly, on every platform.
   # shellcheck disable=SC2016 # expanded by the bash under test
