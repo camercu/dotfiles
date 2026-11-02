@@ -3,10 +3,9 @@ set -euo pipefail
 
 source "$(cd "$(dirname "$0")" && pwd -P)/lib/logging.sh"
 
-: "${XDG_CONFIG_HOME:=$HOME/.config}"
-
 legacy_dir="${CLAUDE_LEGACY_DIR:-$HOME/.claude}"
-xdg_dir="${CLAUDE_XDG_DIR:-$XDG_CONFIG_HOME/claude}"
+# Shipped config: stow links it under $HOME/.config whatever XDG_CONFIG_HOME says.
+xdg_dir="${CLAUDE_XDG_DIR:-$HOME/.config/claude}"
 xdg_parent="${xdg_dir:h}"
 
 if [[ -L "$legacy_dir" ]]; then

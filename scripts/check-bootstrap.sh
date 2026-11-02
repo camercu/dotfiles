@@ -915,6 +915,26 @@ run_claude_hook_test() {
   return "$hook_status"
 }
 
+# Stow links the shipped Claude config at $HOME/.config/claude whatever
+# XDG_CONFIG_HOME says, so the migration must point ~/.claude there.
+run_claude_migrate_test() {
+  begin_test claude_migrate_test
+  capture_log
+
+  tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/claude-migrate.XXXXXX")
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/.claude" "$tmp_home/.config/claude"
+
+  HOME="$tmp_home" XDG_CONFIG_HOME="$tmp_home/alt" \
+    zsh "$DOTFILE_DIR/scripts/migrate-claude-config.zsh" </dev/null >"$LAST_LOG" 2>&1
+
+  link=$(readlink "$tmp_home/.claude")
+  if [ "$link" != "$tmp_home/.config/claude" ]; then
+    echo "claude migrate: ~/.claude -> '$link', want $tmp_home/.config/claude" >&2
+    return 1
+  fi
+}
+
 # The skill hook sees only Write/Edit; a SKILL.md changed through the shell
 # (sed, heredoc, mv) bypasses it. Validating every skill in the repo here
 # catches those. Skipped (loudly) without nix-shell, which supplies pyyaml.
@@ -993,6 +1013,7 @@ run_vim_startup_test
 run_repo_relative_link_test
 run_stow_conflict_test
 run_claude_hook_test
+run_claude_migrate_test
 run_skill_validate_test
 run_launch_agent_lint_test
 run_ollama_aliases_test
