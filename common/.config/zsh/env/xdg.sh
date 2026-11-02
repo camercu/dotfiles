@@ -2,9 +2,9 @@
 # ref: https://specifications.freedesktop.org/basedir/latest/
 # The other env/*.sh files fall back to the same defaults, so load order
 # does not matter.
-export XDG_BIN_HOME="$HOME/.local/bin"
-export XDG_CACHE_HOME="$HOME/.cache"
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_LIB_HOME="$HOME/.local/lib"
-export XDG_STATE_HOME="$HOME/.local/state"
+export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_LIB_HOME="${XDG_LIB_HOME:-$HOME/.local/lib}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"

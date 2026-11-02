@@ -508,6 +508,28 @@ run_tool_env_test() {
       tool_env_status=1
     fi
   done
+  # A caller's own XDG dir (a launcher, a test harness with a scratch config)
+  # must survive every shell's env load, and the tool env still loads: the
+  # env files live under $HOME/.config whatever XDG_CONFIG_HOME says.
+  xdg_vars="XDG_BIN_HOME XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_LIB_HOME XDG_STATE_HOME"
+  inherited=$(for v in $xdg_vars; do printf '%s=%s ' "$v" "$tmp_home/alt/$v"; done)
+  { for v in $xdg_vars; do echo "$v=$tmp_home/alt/$v"; done
+    grep '^PI_CONFIG_DIR=' "$tmp_home/want"; } | sort >"$tmp_home/want.inherited"
+  inherited_env() { # <shell and flags...> <script>
+    # shellcheck disable=SC2086 # split the inherited assignments
+    env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb $inherited "$@" </dev/null 2>/dev/null |
+      grep -E '^(XDG_[A-Z]+_HOME|PI_CONFIG_DIR)=' | sort >"$tmp_home/got"
+    if ! cmp -s "$tmp_home/want.inherited" "$tmp_home/got"; then
+      echo "tool env: '$*' with inherited XDG dirs differs:" >&2
+      diff "$tmp_home/want.inherited" "$tmp_home/got" >&2 || :
+      tool_env_status=1
+    fi
+  }
+  for shell_cmd in "$@"; do
+    # shellcheck disable=SC2086 # split "zsh -ic" into command and flag
+    inherited_env $shell_cmd env
+  done
+  inherited_env bash --norc -c ". '$DOTFILE_DIR/linux/.bash_aliases'; env"
   # A location var exported only by interactive zsh (an env/*.zsh export) is
   # invisible to scripts and to bash: it belongs in env/*.sh. Shell-internal
   # vars are exempt.
@@ -525,12 +547,14 @@ run_tool_env_test() {
   # Claude Code's shell snapshot keeps only PATH from ~/.bashrc; its
   # SessionStart hook feeds the env files through CLAUDE_ENV_FILE instead.
   # Run the hook command as settings.json has it, then source the result.
+  # Claude Code may inherit its own XDG_CONFIG_HOME; the hook must still
+  # find the env files.
   if command -v jq >/dev/null 2>&1; then
     hook_cmd=$(jq -r '.hooks.SessionStart[].hooks[].command' \
       "$DOTFILE_DIR/common/.config/claude/settings.json")
     : >"$tmp_home/claude-env"
     env -i HOME="$tmp_home" PATH="$PATH" CLAUDE_ENV_FILE="$tmp_home/claude-env" \
-      bash -c "$hook_cmd" </dev/null
+      XDG_CONFIG_HOME="$tmp_home/alt" bash -c "$hook_cmd" </dev/null
     # shellcheck disable=SC2016 # expanded by the bash under test
     env -i HOME="$tmp_home" PATH="$PATH" bash --norc -c '. "$1" && env' _ \
       "$tmp_home/claude-env" | sort >"$tmp_home/got"
