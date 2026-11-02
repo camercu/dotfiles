@@ -124,7 +124,7 @@ check "slow /api/show: names the curl failure" has_line "$out" '^local-x:latest:
 
 run none '{"models":[]}'
 check "no Modelfiles: exits 1" [ "$rc" = 1 ]
-check "no Modelfiles: says where it looked" has_line "$out" 'no Modelfiles in '
+check "no Modelfiles: says where it looked" has_line "$out" "no Modelfiles in $scratch/none/models\$"
 
 # The Modelfiles ship with this repo, so stow puts them under $HOME/.config
 # even when the caller has its own XDG_CONFIG_HOME.
