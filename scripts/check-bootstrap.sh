@@ -536,7 +536,7 @@ run_tool_env_test() {
   env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb zsh -c env </dev/null | sort >"$tmp_home/nc"
   env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb zsh -ic env </dev/null 2>/dev/null | sort >"$tmp_home/ic"
   interactive_only=$(comm -13 "$tmp_home/nc" "$tmp_home/ic" |
-    grep "^[A-Za-z_]*=$tmp_home/" |
+    grep -E "^[A-Za-z_][A-Za-z0-9_]*=$tmp_home(/|\$)" |
     grep -Ev '^(PATH|HISTFILE|ZSH_COMPDUMP|XDG_DATA_DIRS)=' || :)
   if [ -n "$interactive_only" ]; then
     echo "tool env: location vars only interactive zsh exports (move to env/*.sh):" >&2
