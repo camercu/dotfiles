@@ -120,6 +120,7 @@ check "unserved alias omp does not list: exits 1" [ "$rc" = 1 ]
 run slow '{"models":[]}' x timeout
 check "slow /api/show: exits 1" [ "$rc" = 1 ]
 check "slow /api/show: not blamed on a missing alias" lacks_line "$out" 'does not serve'
+check "slow /api/show: names the curl failure" has_line "$out" '^local-x:latest: /api/show failed (curl exit 28)$'
 
 run absent '{"models":[]}' x "$(show 8192 '["completion"]')"
 check "alias omp does not offer: exits 0" [ "$rc" = 0 ]
