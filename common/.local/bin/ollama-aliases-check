@@ -24,8 +24,14 @@ for file in "$dir"/*.Modelfile; do
   # Served check first: omp discovers rows from this server, so an unserved
   # alias has no row. One broken alias must not hide the rest: report it and
   # keep going.
-  if ! show=$(curl -fsS --max-time 10 "$host/api/show" -d "{\"model\":\"$name\"}" 2>/dev/null); then
+  rc=0
+  show=$(curl -fsS --max-time 10 "$host/api/show" -d "{\"model\":\"$name\"}" 2>/dev/null) || rc=$?
+  if [ "$rc" = 22 ]; then
     echo "$name: ollama does not serve it (rebuild with ollama-aliases)" >&2
+  elif [ "$rc" != 0 ]; then
+    echo "$name: /api/show failed (curl exit $rc)" >&2
+  fi
+  if [ "$rc" != 0 ]; then
     status=1
     continue
   fi
