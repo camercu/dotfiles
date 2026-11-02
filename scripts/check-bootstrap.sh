@@ -504,8 +504,9 @@ run_vim_startup_test() {
 # Tool locations in zsh/env/*.sh keep files out of $HOME only if every shell
 # exports them: non-interactive zsh (scripts, editors), interactive zsh, bash
 # (macos/.bashrc; Linux via .bash_aliases), and Claude Code's Bash (its
-# SessionStart hook writes CLAUDE_ENV_FILE). An interactive-only file overriding one of them (an env/*.zsh export) splits
-# the shells, so compare each shell against the files sourced on their own.
+# SessionStart hook writes CLAUDE_ENV_FILE). An interactive-only file
+# overriding one of them (an env/*.zsh export) splits the shells, so compare
+# each shell against the files sourced on their own.
 run_tool_env_test() {
   begin_test tool_env_test
   capture_log
