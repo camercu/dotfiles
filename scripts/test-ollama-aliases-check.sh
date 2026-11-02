@@ -16,6 +16,7 @@ mkdir -p "$scratch/bin"
 # when FAKE_SERVER_DOWN.
 cat >"$scratch/bin/curl" <<'FAKE'
 #!/bin/sh
+echo "$*" >>"$FAKE_CURL_LOG"
 [ -z "${FAKE_SERVER_DOWN:-}" ] || exit 7
 case "$*" in
   */api/show*)
@@ -53,11 +54,14 @@ run() {
     shift 2
   done
   : >"$case_dir/log"
+  : >"$case_dir/curl.log"
   rc=0
-  out=$(env PATH="$scratch/bin:$PATH" FAKE_LOG="$case_dir/log" OLLAMA_ALIAS_DIR="$case_dir/models" \
+  out=$(env PATH="$scratch/bin:$PATH" FAKE_LOG="$case_dir/log" FAKE_CURL_LOG="$case_dir/curl.log" \
+    OLLAMA_ALIAS_DIR="$case_dir/models" \
     FAKE_SHOW_DIR="$case_dir/show" FAKE_MODELS="$catalog" FAKE_SERVER_DOWN="${FAKE_SERVER_DOWN:-}" \
     "$script" 2>&1) || rc=$?
   log=$(cat "$case_dir/log")
+  curl_log=$(cat "$case_dir/curl.log")
 }
 
 check() { # check NAME COMMAND...: passes when COMMAND succeeds
@@ -68,11 +72,15 @@ check() { # check NAME COMMAND...: passes when COMMAND succeeds
 
 has_line() { printf '%s\n' "$1" | grep -q -- "$2"; }
 lacks_line() { ! has_line "$@"; }
+# every_line TEXT PATTERN: TEXT has lines and each one matches PATTERN.
+every_line() { [ -n "$1" ] && ! printf '%s\n' "$1" | grep -qv -- "$2"; }
 
 run match "$(models "$(row local-x:latest 131072 '["text"]')")" \
   x "$(show 131072 '["completion","tools"]')"
 check "omp agrees with ollama: exits 0" [ "$rc" = 0 ]
 check "refreshes omp's model catalog before reading it" has_line "$log" '^models refresh$'
+# A wedged server must not hang maintain.
+check "every server request has a time limit" every_line "$curl_log" '--max-time'
 
 run ctx "$(models "$(row local-x:latest 262144 '["text"]')")" \
   x "$(show 131072 '["completion"]')"
