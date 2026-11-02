@@ -104,6 +104,10 @@ check "unserved alias: exits 1" [ "$rc" = 1 ]
 check "unserved alias: names it" has_line "$out" '^local-x:latest: ollama does not serve it'
 check "unserved alias: still checks the rest" has_line "$out" '^local-y:latest: omp contextWindow'
 
+# Live omp discovers rows from the same server, so an unserved alias has no row.
+run unserved-unlisted '{"models":[]}' x -
+check "unserved alias omp does not list: exits 1" [ "$rc" = 1 ]
+
 run absent '{"models":[]}' x "$(show 8192 '["completion"]')"
 check "alias omp does not offer: exits 0" [ "$rc" = 0 ]
 
