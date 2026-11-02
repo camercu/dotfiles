@@ -1,11 +1,10 @@
 #!/usr/bin/env zsh
 
 #
-# Bash Aliases
+# Bash Aliases: same stow package as this file, so a missing one is a broken
+# install and should be loud.
 #
-_aliases="$HOME/.config/sh/aliases.sh"
-[[ -s "$_aliases" ]] && source "$_aliases"
-unset _aliases
+builtin source "$HOME/.config/sh/aliases.sh"
 
 #
 # Zsh-specific Aliases
