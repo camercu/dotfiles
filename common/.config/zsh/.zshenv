@@ -33,7 +33,6 @@ export ZSH_USER_DATA_DIR="$__zsh_user_data_dir"
 #
 export EDITOR="nvim"
 export VISUAL="nvim"
-export VIMCONFIG="$XDG_CONFIG_HOME/nvim"
 
 # Language environment
 export LANG=en_US.UTF-8
