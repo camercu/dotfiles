@@ -545,11 +545,17 @@ run_tool_env_test() {
   # A caller's own XDG dir (a launcher, a test harness with a scratch config)
   # must survive every shell's env load, and the tool env still loads. Config
   # this repo ships sits where stow links it, under $HOME/.config, whatever
-  # XDG_CONFIG_HOME says: every export pointing there keeps its value.
+  # XDG_CONFIG_HOME says: every export naming a file stow linked there keeps
+  # its value. Exports for config the repo does not ship may follow XDG.
   xdg_vars="XDG_BIN_HOME XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_LIB_HOME XDG_STATE_HOME"
   inherited=$(for v in $xdg_vars; do printf '%s=%s ' "$v" "$tmp_home/alt/$v"; done)
   { for v in $xdg_vars; do echo "$v=$tmp_home/alt/$v"; done
-    grep -E "^PI_CONFIG_DIR=|=$tmp_home/\.config/" "$tmp_home/want"; } | sort >"$tmp_home/want.inherited"
+    grep '^PI_CONFIG_DIR=' "$tmp_home/want"
+    while IFS= read -r line; do
+      case ${line#*=} in
+        "$tmp_home/.config/"*) [ -e "${line#*=}" ] && printf '%s\n' "$line" ;;
+      esac
+    done <"$tmp_home/want"; } | sort >"$tmp_home/want.inherited"
   pinned=$(sed 's/=.*//' "$tmp_home/want.inherited" | paste -sd '|' -)
   inherited_env() { # <shell and flags...> <script>
     # shellcheck disable=SC2086 # split the inherited assignments
