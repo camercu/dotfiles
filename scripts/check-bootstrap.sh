@@ -572,6 +572,17 @@ run_tool_env_test() {
     inherited_env $shell_cmd env
   done
   inherited_env bash --norc -c ". '$DOTFILE_DIR/linux/.bash_aliases'; env"
+  # A loader that skips a missing file silently prints no error for the check
+  # above: require an aliases.sh alias.
+  inherited_alias() { # <shell and flags...> <script ending in `alias g`>
+    # shellcheck disable=SC2086 # split the inherited assignments
+    if ! env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb $inherited "$@" </dev/null >/dev/null 2>&1; then
+      echo "tool env: '$*' with inherited XDG dirs lacks aliases.sh" >&2
+      tool_env_status=1
+    fi
+  }
+  inherited_alias zsh -ic 'alias g'
+  inherited_alias bash --norc -c ". '$DOTFILE_DIR/linux/.bash_aliases'; alias g"
   # A location var exported only by interactive zsh (an env/*.zsh export) is
   # invisible to scripts and to bash: it belongs in env/*.sh. Shell-internal
   # vars are exempt.
