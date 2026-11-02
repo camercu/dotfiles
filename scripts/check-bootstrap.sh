@@ -550,11 +550,17 @@ run_tool_env_test() {
     grep '^PI_CONFIG_DIR=' "$tmp_home/want"; } | sort >"$tmp_home/want.inherited"
   inherited_env() { # <shell and flags...> <script>
     # shellcheck disable=SC2086 # split the inherited assignments
-    env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb $inherited "$@" </dev/null 2>/dev/null |
+    env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb $inherited "$@" </dev/null 2>"$tmp_home/err" |
       grep -E '^(XDG_[A-Z]+_HOME|PI_CONFIG_DIR)=' | sort >"$tmp_home/got"
     if ! cmp -s "$tmp_home/want.inherited" "$tmp_home/got"; then
       echo "tool env: '$*' with inherited XDG dirs differs:" >&2
       diff "$tmp_home/want.inherited" "$tmp_home/got" >&2 || :
+      tool_env_status=1
+    fi
+    # Repo files sit at $HOME/.config whatever XDG_CONFIG_HOME says: a loader
+    # that looks there through XDG_CONFIG_HOME fails to source them.
+    if grep -i 'no such file' "$tmp_home/err" >&2; then
+      echo "tool env: '$*' with inherited XDG dirs misses a startup file" >&2
       tool_env_status=1
     fi
   }
@@ -563,6 +569,16 @@ run_tool_env_test() {
     inherited_env $shell_cmd env
   done
   inherited_env bash --norc -c ". '$DOTFILE_DIR/linux/.bash_aliases'; env"
+  # Some loaders skip a missing file silently: require an aliases.sh alias.
+  inherited_alias() { # <shell and flags...> <script ending in `alias g`>
+    # shellcheck disable=SC2086 # split the inherited assignments
+    if ! env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb $inherited "$@" </dev/null >/dev/null 2>&1; then
+      echo "tool env: '$*' with inherited XDG dirs lacks aliases.sh" >&2
+      tool_env_status=1
+    fi
+  }
+  inherited_alias zsh -ic 'alias g'
+  inherited_alias bash --norc -c ". '$DOTFILE_DIR/linux/.bash_aliases'; alias g"
   # A location var exported only by interactive zsh (an env/*.zsh export) is
   # invisible to scripts and to bash: it belongs in env/*.sh. Shell-internal
   # vars are exempt.

@@ -7,4 +7,4 @@ for _f in "$HOME"/.config/zsh/env/*.sh; do
 done
 unset _f
 # shellcheck source=../common/.config/sh/aliases.sh
-. "${XDG_CONFIG_HOME:-$HOME/.config}/sh/aliases.sh"
+. "$HOME/.config/sh/aliases.sh"

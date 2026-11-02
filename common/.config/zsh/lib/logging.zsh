@@ -3,4 +3,4 @@
 # ~/.config/sh/logging.sh, common/.config/sh/logging.sh in the repo. Both files
 # come from the same stow package, so one being linked means the other is too;
 # a failure here is a broken install and should be loud.
-builtin source "${XDG_CONFIG_HOME:-$HOME/.config}/sh/logging.sh"
+builtin source "$HOME/.config/sh/logging.sh"

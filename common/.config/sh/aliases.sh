@@ -68,7 +68,7 @@ fi
 # both in-repo (common/.config/sh/logging.sh) and stowed (~/.config/sh/...).
 # shellcheck source-path=SCRIPTDIR
 # shellcheck source=logging.sh
-source "${XDG_CONFIG_HOME:-$HOME/.config}/sh/logging.sh"
+source "$HOME/.config/sh/logging.sh"
 
 ##? md: shortcut to make a directory and cd into it
 function md {
