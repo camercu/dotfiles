@@ -89,4 +89,14 @@ check "unknown argument runs nothing" [ -z "$log" ]
 run empty
 check "empty dir says so" has_line "$out" 'no Modelfiles'
 
+# The Modelfiles ship with this repo, so stow puts them under $HOME/.config
+# even when the caller has its own XDG_CONFIG_HOME.
+home="$scratch/xdg/home"
+mkdir -p "$home/.config/ollama"
+printf 'FROM base:1\n' >"$home/.config/ollama/local-x.Modelfile"
+: >"$scratch/xdg/log"
+env -u OLLAMA_ALIAS_DIR PATH="$scratch/bin:$PATH" FAKE_LOG="$scratch/xdg/log" HOME="$home" \
+  XDG_CONFIG_HOME="$scratch/xdg/alt" "$script" >/dev/null 2>&1
+check "inherited XDG_CONFIG_HOME: still reads ~/.config/ollama" has_line "$(cat "$scratch/xdg/log")" '^create local-x '
+
 [ "$fails" = 0 ] || { echo "$fails failing control(s)"; exit 1; }

@@ -122,6 +122,21 @@ check "slow /api/show: exits 1" [ "$rc" = 1 ]
 check "slow /api/show: not blamed on a missing alias" lacks_line "$out" 'does not serve'
 check "slow /api/show: names the curl failure" has_line "$out" '^local-x:latest: /api/show failed (curl exit 28)$'
 
+run none '{"models":[]}'
+check "no Modelfiles: exits 1" [ "$rc" = 1 ]
+check "no Modelfiles: says where it looked" has_line "$out" 'no Modelfiles in '
+
+# The Modelfiles ship with this repo, so stow puts them under $HOME/.config
+# even when the caller has its own XDG_CONFIG_HOME.
+home="$scratch/xdg/home"
+mkdir -p "$home/.config/ollama" "$scratch/xdg/show"
+printf 'FROM base:1\n' >"$home/.config/ollama/local-x.Modelfile"
+: >"$scratch/xdg/log"
+out=$(env -u OLLAMA_ALIAS_DIR PATH="$scratch/bin:$PATH" FAKE_LOG="$scratch/xdg/log" \
+  FAKE_CURL_LOG="$scratch/xdg/curl.log" FAKE_SHOW_DIR="$scratch/xdg/show" FAKE_MODELS='{"models":[]}' \
+  HOME="$home" XDG_CONFIG_HOME="$scratch/xdg/alt" "$script" 2>&1)
+check "inherited XDG_CONFIG_HOME: still reads ~/.config/ollama" has_line "$out" '^local-x:latest: ollama does not serve it'
+
 run absent '{"models":[]}' x "$(show 8192 '["completion"]')"
 check "alias omp does not offer: exits 0" [ "$rc" = 0 ]
 

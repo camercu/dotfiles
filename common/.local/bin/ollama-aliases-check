@@ -6,7 +6,9 @@
 # unnoticed until the server silently truncates context.
 set -eu
 
-dir=${OLLAMA_ALIAS_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/ollama}
+# The Modelfiles ship with this repo, so stow links them under $HOME/.config
+# whatever XDG_CONFIG_HOME says.
+dir=${OLLAMA_ALIAS_DIR:-$HOME/.config/ollama}
 host=http://127.0.0.1:11434
 
 if ! curl -fsS --max-time 3 "$host/api/version" >/dev/null 2>&1; then
@@ -17,9 +19,11 @@ fi
 omp models refresh >/dev/null
 catalog=$(omp models --json)
 
+found=0
 status=0
 for file in "$dir"/*.Modelfile; do
   [ -e "$file" ] || continue
+  found=1
   name=$(basename "$file" .Modelfile):latest
   # Served check first: omp discovers rows from this server, so an unserved
   # alias has no row. One broken alias must not hide the rest: report it and
@@ -52,4 +56,8 @@ for file in "$dir"/*.Modelfile; do
     status=1
   fi
 done
+if [ "$found" = 0 ]; then
+  echo "ollama-aliases-check: no Modelfiles in $dir" >&2
+  status=1
+fi
 exit "$status"

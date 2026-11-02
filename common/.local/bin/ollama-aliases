@@ -16,7 +16,9 @@ case $# in
   *) usage ;;
 esac
 
-dir=${OLLAMA_ALIAS_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/ollama}
+# The Modelfiles ship with this repo, so stow links them under $HOME/.config
+# whatever XDG_CONFIG_HOME says.
+dir=${OLLAMA_ALIAS_DIR:-$HOME/.config/ollama}
 # Fixed address, as in every other client config here (omp, nvim, the
 # LaunchAgent): parsing OLLAMA_HOST would add cases nothing uses.
 host=http://127.0.0.1:11434
