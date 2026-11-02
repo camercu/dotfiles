@@ -144,4 +144,9 @@ FAKE_SERVER_DOWN=1 run down '{"models":[]}' x "$(show 8192 '["completion"]')"
 check "server down: exits 0" [ "$rc" = 0 ]
 check "server down: never calls omp" [ -z "$log" ]
 
+# The Modelfiles ship with this repo: a missing set is a broken install,
+# server or not.
+FAKE_SERVER_DOWN=1 run down-none '{"models":[]}'
+check "server down, no Modelfiles: exits 1" [ "$rc" = 1 ]
+
 [ "$fails" = 0 ] || { echo "$fails failing control(s)"; exit 1; }

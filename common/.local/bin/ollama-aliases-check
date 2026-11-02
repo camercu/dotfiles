@@ -11,6 +11,13 @@ set -eu
 dir=${OLLAMA_ALIAS_DIR:-$HOME/.config/ollama}
 host=http://127.0.0.1:11434
 
+# A missing set is a broken install, server or not.
+set -- "$dir"/*.Modelfile
+if [ ! -e "$1" ]; then
+  echo "ollama-aliases-check: no Modelfiles in $dir" >&2
+  exit 1
+fi
+
 if ! curl -fsS --max-time 3 "$host/api/version" >/dev/null 2>&1; then
   echo "ollama-aliases-check: no server at $host; skipped" >&2
   exit 0
@@ -19,11 +26,8 @@ fi
 omp models refresh >/dev/null
 catalog=$(omp models --json)
 
-found=0
 status=0
-for file in "$dir"/*.Modelfile; do
-  [ -e "$file" ] || continue
-  found=1
+for file in "$@"; do
   name=$(basename "$file" .Modelfile):latest
   # Served check first: omp discovers rows from this server, so an unserved
   # alias has no row. One broken alias must not hide the rest: report it and
@@ -56,8 +60,4 @@ for file in "$dir"/*.Modelfile; do
     status=1
   fi
 done
-if [ "$found" = 0 ]; then
-  echo "ollama-aliases-check: no Modelfiles in $dir" >&2
-  status=1
-fi
 exit "$status"
