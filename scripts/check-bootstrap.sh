@@ -543,16 +543,18 @@ run_tool_env_test() {
     fi
   done
   # A caller's own XDG dir (a launcher, a test harness with a scratch config)
-  # must survive every shell's env load, and the tool env still loads: the
-  # env files live under $HOME/.config whatever XDG_CONFIG_HOME says.
+  # must survive every shell's env load, and the tool env still loads. Config
+  # this repo ships sits where stow links it, under $HOME/.config, whatever
+  # XDG_CONFIG_HOME says: every export pointing there keeps its value.
   xdg_vars="XDG_BIN_HOME XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_LIB_HOME XDG_STATE_HOME"
   inherited=$(for v in $xdg_vars; do printf '%s=%s ' "$v" "$tmp_home/alt/$v"; done)
   { for v in $xdg_vars; do echo "$v=$tmp_home/alt/$v"; done
-    grep '^PI_CONFIG_DIR=' "$tmp_home/want"; } | sort >"$tmp_home/want.inherited"
+    grep -E "^PI_CONFIG_DIR=|=$tmp_home/\.config/" "$tmp_home/want"; } | sort >"$tmp_home/want.inherited"
+  pinned=$(sed 's/=.*//' "$tmp_home/want.inherited" | paste -sd '|' -)
   inherited_env() { # <shell and flags...> <script>
     # shellcheck disable=SC2086 # split the inherited assignments
     env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb $inherited "$@" </dev/null 2>"$tmp_home/err" |
-      grep -E '^(XDG_[A-Z]+_HOME|PI_CONFIG_DIR)=' | sort >"$tmp_home/got"
+      grep -E "^($pinned)=" | sort >"$tmp_home/got"
     if ! cmp -s "$tmp_home/want.inherited" "$tmp_home/got"; then
       echo "tool env: '$*' with inherited XDG dirs differs:" >&2
       diff "$tmp_home/want.inherited" "$tmp_home/got" >&2 || :

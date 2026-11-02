@@ -1,1 +1,1 @@
-export ARDUINO_CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/arduino/config.yaml"
+export ARDUINO_CONFIG_FILE="$HOME/.config/arduino/config.yaml"

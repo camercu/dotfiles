@@ -3,4 +3,4 @@
 # dirs exist (`omp config init-xdg`). PI_CONFIG_FILES layers the tracked
 # settings over the config.yml omp rewrites.
 export PI_CONFIG_DIR=.config/omp
-export PI_CONFIG_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/agents/omp.yml"
+export PI_CONFIG_FILES="$HOME/.config/agents/omp.yml"
