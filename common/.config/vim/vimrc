@@ -75,7 +75,6 @@ set autoread        " update automatically when a file is changed from the outsi
 set autowrite       " Automatically save before commands like :next and :make
 set backspace=indent,eol,start  " make backspace behave like normal again
 set clipboard^=unnamed,unnamedplus  " use system clipboard by default
-set encoding=utf-8  " Make sure vim works with python3 files
 set lazyredraw      " Don't redraw during macros (improves performance)
 set hidden          " Hide buffers when they are abandoned (vs. closing them)
 set history=1000    " Sets how many lines of history Vim has to remember
