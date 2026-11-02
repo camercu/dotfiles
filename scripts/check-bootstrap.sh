@@ -468,6 +468,39 @@ run_stow_conflict_test() {
   fi
 }
 
+# vim reads its vimrc through a stow link into the repo, so every default
+# under the first 'runtimepath' dir lands in the repo. A launcher with no XDG
+# vars and a C locale (launchd, cron, env -i) must still start cleanly and
+# keep state under ~/.local.
+run_vim_startup_test() {
+  begin_test vim_startup_test
+  capture_log
+  require_tool vim "vim startup" || return 0
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/vim-home.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  # Real dirs, as on a used HOME: else stow links ~/.local into the repo and
+  # vim's state lands there.
+  mkdir -p "$tmp_home/.local/state" "$tmp_home/.local/share"
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  # -es skips startup files unless -u names one.
+  if ! env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb LC_ALL=C \
+    vim -N -u "$tmp_home/.config/vim/vimrc" -es \
+    "+redir! > $tmp_home/out" \
+    '+echo &viminfofile' '+echo g:netrw_home' '+echo &viewdir' '+echo &spellfile' \
+    '+redir END' '+qa!' </dev/null >>"$LAST_LOG" 2>&1; then
+    echo "vim startup failed with no XDG vars in a C locale" >&2
+    exit 1
+  fi
+  outside=$(grep -v "^$tmp_home/\.local/" "$tmp_home/out" | grep . || :)
+  if [ -n "$outside" ]; then
+    echo "vim keeps state outside ~/.local:" >&2
+    printf '%s\n' "$outside" >&2
+    exit 1
+  fi
+}
+
 # Tool locations in zsh/env/*.sh keep files out of $HOME only if every shell
 # exports them: non-interactive zsh (scripts, editors), interactive zsh, and
 # bash (Claude Code's shell, via macos/.bashrc; Linux via .bash_aliases). An
@@ -936,6 +969,7 @@ run_logging_parity_test
 run_predicate_parity_test
 run_aliases_test
 run_tool_env_test
+run_vim_startup_test
 run_repo_relative_link_test
 run_stow_conflict_test
 run_claude_hook_test
