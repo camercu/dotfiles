@@ -4,6 +4,10 @@ set -eu
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
 DOTFILE_DIR=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd -P)
 ZSH_CONFIG_DIR="$DOTFILE_DIR/common/.config/zsh"
+# Tests run tools under a throwaway HOME. The caller's XDG dirs would point
+# their writes back at the real home: drop them, so every test gets the
+# defaults under its own HOME or sets them itself.
+unset XDG_BIN_HOME XDG_CACHE_HOME XDG_CONFIG_HOME XDG_DATA_HOME XDG_LIB_HOME XDG_STATE_HOME
 
 # set -e aborts on the first failed assertion, which by itself prints
 # nothing. Track the running test, its captured command output, and every
@@ -1016,7 +1020,8 @@ run_claude_dotsync_test() {
 
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/claude-dotsync.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
-  mkdir -p "$tmp_home/.claude"
+  # A real ~/.local: stow would otherwise link it whole into the repo.
+  mkdir -p "$tmp_home/.claude" "$tmp_home/.local"
   echo legacy >"$tmp_home/.claude/settings.json"
   echo legacy >"$tmp_home/.claude/history.jsonl"
 
@@ -1032,6 +1037,10 @@ run_claude_dotsync_test() {
   fi
   if [ ! -f "$tmp_home/.config/claude/history.jsonl" ]; then
     echo "claude dotsync: legacy history.jsonl not merged" >&2
+    return 1
+  fi
+  if ! grep -qx legacy "$tmp_home"/.local/state/claude-migrate/*/settings.json; then
+    echo "claude dotsync: legacy copy not kept under the test HOME" >&2
     return 1
   fi
 }
