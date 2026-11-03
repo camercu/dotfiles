@@ -240,9 +240,9 @@ run_dotsync_smoke_test() {
   [ "$(resolve_path "$tmp_home/.zshenv")" = "$(resolve_path "$DOTFILE_DIR/common/.zshenv")" ]
   # A dir whose .gitignore starts with `*` takes tool state beside shipped
   # files. Linked whole, that state would land in the repo.
-  for marker in $(git -C "$DOTFILE_DIR/common" ls-files -- '*.gitignore'); do
-    [ "$(head -n 1 "$DOTFILE_DIR/common/$marker")" = '*' ] || continue
-    state_dir=$tmp_home/$(dirname "$marker")
+  dirs=$(marked_dirs "$DOTFILE_DIR/common") || return 1
+  for dir in $dirs; do
+    state_dir=$tmp_home/$dir
     if [ -L "$state_dir" ] || [ ! -d "$state_dir" ]; then
       echo "dotsync: $state_dir is not a real dir; tool state would land in the repo" >&2
       return 1
@@ -288,13 +288,28 @@ run_dotsync_unlink_test() {
   done
 }
 
+# marked_dirs DIR: the state dirs under DIR (tracked .gitignore starting with
+# `*`), one per line. Fails when git fails or finds none: a loop over an empty
+# list would pass without checking anything.
+marked_dirs() {
+  markers=$(git -C "$1" ls-files -- '*.gitignore') || return 1
+  found=$(for marker in $markers; do
+    if [ "$(head -n 1 "$1/$marker")" = '*' ]; then dirname "$marker"; fi
+  done)
+  if [ -z "$found" ]; then
+    echo "no marked state dirs under $1" >&2
+    return 1
+  fi
+  printf '%s\n' "$found"
+}
+
 # repo_state_files: ignored files in the marked dirs, i.e. tool state in the
 # repo. The heal tests below move such files into a throwaway HOME, so they
 # run only while the repo holds none of the user's.
 repo_state_files() {
-  for marker in $(git -C "$DOTFILE_DIR/common" ls-files -- '*.gitignore'); do
-    [ "$(head -n 1 "$DOTFILE_DIR/common/$marker")" = '*' ] || continue
-    git -C "$DOTFILE_DIR/common" ls-files --others --ignored --exclude-standard -- "$(dirname "$marker")"
+  dirs=$(marked_dirs "$DOTFILE_DIR/common") || return 1
+  for dir in $dirs; do
+    git -C "$DOTFILE_DIR/common" ls-files --others --ignored --exclude-standard -- "$dir"
   done
 }
 
@@ -305,9 +320,10 @@ run_state_dir_link_test() {
   begin_test state_dir_link_test
   capture_log
 
-  if [ -n "$(repo_state_files)" ]; then
+  state=$(repo_state_files) || return 1
+  if [ -n "$state" ]; then
     echo "state dir: repo holds tool state; move it out first:" >&2
-    repo_state_files >&2
+    printf '%s\n' "$state" >&2
     return 1
   fi
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-home.XXXXXX")" && pwd -P)
@@ -363,9 +379,10 @@ run_state_dir_sub_link_test() {
   begin_test state_dir_sub_link_test
   capture_log
 
-  if [ -n "$(repo_state_files)" ]; then
+  state=$(repo_state_files) || return 1
+  if [ -n "$state" ]; then
     echo "state dir: repo holds tool state; move it out first:" >&2
-    repo_state_files >&2
+    printf '%s\n' "$state" >&2
     return 1
   fi
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-sub.XXXXXX")" && pwd -P)
@@ -417,9 +434,10 @@ run_state_dir_parent_link_test() {
   begin_test state_dir_parent_link_test
   capture_log
 
-  if [ -n "$(repo_state_files)" ]; then
+  state=$(repo_state_files) || return 1
+  if [ -n "$state" ]; then
     echo "state dir: repo holds tool state; move it out first:" >&2
-    repo_state_files >&2
+    printf '%s\n' "$state" >&2
     return 1
   fi
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-parent.XXXXXX")" && pwd -P)
@@ -526,11 +544,11 @@ run_state_dir_ignored_test() {
   begin_test state_dir_ignored_test
 
   ignored_status=0
-  for marker in $(git -C "$DOTFILE_DIR" ls-files -- '*.gitignore'); do
-    [ "$(head -n 1 "$DOTFILE_DIR/$marker")" = '*' ] || continue
-    ignored=$(git -C "$DOTFILE_DIR" ls-files --others --ignored --exclude-standard -- "$(dirname "$marker")")
+  dirs=$(marked_dirs "$DOTFILE_DIR") || return 1
+  for dir in $dirs; do
+    ignored=$(git -C "$DOTFILE_DIR" ls-files --others --ignored --exclude-standard -- "$dir")
     if [ -n "$ignored" ]; then
-      echo "state dir: ignored in $(dirname "$marker") (add a !name line, or move it out):" >&2
+      echo "state dir: ignored in $dir (add a !name line, or move it out):" >&2
       printf '%s\n' "$ignored" >&2
       ignored_status=1
     fi
