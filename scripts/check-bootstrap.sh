@@ -381,6 +381,36 @@ run_state_dir_foreign_link_test() {
   fi
 }
 
+# A clone owned by another user (a shared mount) fails git's ownership check.
+# The safe.directory entry that would allow it ships in the git config that
+# only dotsync links, so dotsync must trust its own repo.
+run_state_dir_foreign_owner_test() {
+  begin_test state_dir_foreign_owner_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-owner.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/bin"
+  real_git=$(command -v git)
+  cat >"$tmp_home/bin/git" <<EOF
+#!/bin/sh
+case " \$* " in
+  *" safe.directory=$DOTFILE_DIR "*) exec "$real_git" "\$@" ;;
+esac
+echo "fatal: detected dubious ownership in repository at '$DOTFILE_DIR'" >&2
+exit 128
+EOF
+  chmod +x "$tmp_home/bin/git"
+
+  rc=0
+  HOME="$tmp_home" PATH="$tmp_home/bin:$PATH" \
+    "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1 || rc=$?
+  if [ "$rc" != 0 ] || [ -L "$tmp_home/.config/claude" ] || [ ! -d "$tmp_home/.config/claude" ]; then
+    echo "dotsync: fails in a clone another user owns (rc $rc)" >&2
+    return 1
+  fi
+}
+
 # A marked dir ignores all but its `!name` lines. A file ignored there is a
 # shipped file missing its line (git add -A skips it, so other machines never
 # get it) or tool state that reached the repo.
@@ -1340,6 +1370,7 @@ run_dotsync_unlink_test
 run_state_dir_link_test
 run_state_dir_parent_link_test
 run_state_dir_foreign_link_test
+run_state_dir_foreign_owner_test
 run_state_dir_git_fail_test
 run_state_dir_ignored_test
 run_logging_parity_test

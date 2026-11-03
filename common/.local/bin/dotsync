@@ -111,6 +111,15 @@ select_packages() {
   fi
 }
 
+# repo_git PACKAGE ARGS...: git in a package of this repo. The repo is trusted
+# even when another user owns it (a shared mount): the safe.directory entry
+# for it ships in the git config dotsync has yet to link.
+repo_git() {
+  package_dir=$DOTFILE_DIR/$1
+  shift
+  git -c safe.directory="$DOTFILE_DIR" -C "$package_dir" "$@"
+}
+
 # unfold_repo_links DIR: replace each link from $HOME down to DIR that an
 # older dotsync made into the repo (stow folded the dir) with an empty real
 # dir; stow then relinks the shipped files one by one. Returns 1 at a link
@@ -141,7 +150,7 @@ unfold_repo_links() {
 # move_repo_state PACKAGE DIR: move the ignored files (tool state) in a marked
 # repo dir to the same place under $HOME.
 move_repo_state() {
-  git -C "$DOTFILE_DIR/$1" ls-files --others --ignored --exclude-standard -- "$2" |
+  repo_git "$1" ls-files --others --ignored --exclude-standard -- "$2" |
     while IFS= read -r file; do
       if [ -e "$HOME/$file" ] || [ -L "$HOME/$file" ]; then
         warn "$HOME/$file exists, so $DOTFILE_DIR/$1/$file stays in the repo"
@@ -163,7 +172,7 @@ make_state_dirs() {
 
   # Tracked files only: untracked worktrees inside a package carry copies.
   # Without the list, linking would put tool state in the repo: stop.
-  if ! markers=$(git -C "$DOTFILE_DIR/$package_name" ls-files -- '*.gitignore'); then
+  if ! markers=$(repo_git "$package_name" ls-files -- '*.gitignore'); then
     error "cannot list tracked files in $package_name; nothing linked"
     exit 1
   fi
