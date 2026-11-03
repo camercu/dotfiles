@@ -1,0 +1,11 @@
+*
+!.gitignore
+!CLAUDE.md
+!RTK.md
+!settings.json
+!skills
+!starship.toml
+!hooks/
+!hooks/*
+!memory/
+!memory/MEMORY.md
