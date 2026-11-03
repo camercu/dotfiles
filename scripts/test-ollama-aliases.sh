@@ -87,7 +87,12 @@ check "unknown argument exits 2" [ "$rc" = 2 ]
 check "unknown argument runs nothing" [ -z "$log" ]
 
 run empty
-check "empty dir says so" has_line "$out" 'no Modelfiles'
+check "empty dir says so" has_line "$out" "no Modelfiles in $scratch/empty/models\$"
+# The Modelfiles ship with this repo: a missing set is a broken install,
+# server or not.
+check "empty dir exits 1" [ "$rc" = 1 ]
+FAKE_SERVER_DOWN=1 run empty-down
+check "empty dir, server down: exits 1" [ "$rc" = 1 ]
 
 # The Modelfiles ship with this repo, so stow puts them under $HOME/.config
 # even when the caller has its own XDG_CONFIG_HOME.
