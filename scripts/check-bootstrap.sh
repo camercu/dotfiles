@@ -258,6 +258,26 @@ run_dotsync_smoke_test() {
   [ "$(resolve_path "$tmp_home/.zshenv")" = "$(resolve_path "$DOTFILE_DIR/common/.zshenv")" ]
 }
 
+# Unlinking removes links only: no state dirs, no ~/.claude link.
+run_dotsync_unlink_test() {
+  begin_test dotsync_unlink_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/dotsync-unlink.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+
+  # With ~/.config/claude present, a migration would add the ~/.claude link.
+  mkdir -p "$tmp_home/.config/claude"
+
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" --unlink >"$LAST_LOG" 2>&1
+  for made in .config/forge .claude; do
+    if [ -e "$tmp_home/$made" ] || [ -L "$tmp_home/$made" ]; then
+      echo "dotsync --unlink: created ~/$made" >&2
+      return 1
+    fi
+  done
+}
+
 # A state dir an older dotsync linked whole into the repo: say so.
 run_state_dir_link_test() {
   begin_test state_dir_link_test
@@ -1227,6 +1247,7 @@ run_zsh_health_test
 run_stale_link_prune_test
 run_stale_link_besteffort_test
 run_dotsync_smoke_test
+run_dotsync_unlink_test
 run_state_dir_link_test
 run_state_dir_git_fail_test
 run_state_dir_ignored_test
