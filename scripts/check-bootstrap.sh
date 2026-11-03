@@ -971,6 +971,8 @@ run_claude_migrate_test() {
   ln -s "$tmp_home/repo/settings.json" "$tmp_home/.config/claude/settings.json"
   echo legacy >"$tmp_home/.claude/settings.json"
   echo legacy >"$tmp_home/.claude/history.jsonl"
+  # Claude Code keeps its Linux login in a dot file.
+  echo legacy >"$tmp_home/.claude/.credentials.json"
   mkdir -p "$tmp_home/repo/skills" "$tmp_home/.claude/skills"
   ln -s "$tmp_home/repo/skills" "$tmp_home/.config/claude/skills"
   echo legacy >"$tmp_home/.claude/skills/mine.md"
@@ -999,6 +1001,10 @@ run_claude_migrate_test() {
   fi
   if [ ! -f "$tmp_home/.config/claude/history.jsonl" ]; then
     echo "claude migrate: did not merge legacy-only history.jsonl" >&2
+    return 1
+  fi
+  if [ ! -f "$tmp_home/.config/claude/.credentials.json" ]; then
+    echo "claude migrate: did not merge legacy-only .credentials.json" >&2
     return 1
   fi
   if ! grep -qx legacy "$tmp_home"/state/claude-migrate/*/skills/mine.md; then
