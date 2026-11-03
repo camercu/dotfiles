@@ -113,11 +113,13 @@ select_packages() {
 
 # repo_git PACKAGE ARGS...: git in a package of this repo. The repo is trusted
 # even when another user owns it (a shared mount): the safe.directory entry
-# for it ships in the git config dotsync has yet to link.
+# for it ships in the git config dotsync has yet to link. Paths come raw, not
+# quoted for non-ASCII; git still quotes names with quotes, backslashes or
+# control characters.
 repo_git() {
   package_dir=$DOTFILE_DIR/$1
   shift
-  git -c safe.directory="$DOTFILE_DIR" -C "$package_dir" "$@"
+  git -c safe.directory="$DOTFILE_DIR" -c core.quotePath=false -C "$package_dir" "$@"
 }
 
 # unfold_repo_links DIR: replace each link from $HOME down to DIR that an
@@ -151,9 +153,8 @@ unfold_repo_links() {
 # repo dir to the same place under $HOME, then drop the dirs that emptied:
 # stow would link an empty repo dir into the next HOME that lacks it.
 move_repo_state() {
-  # Raw non-ASCII names; git still quotes names with quotes, backslashes or
-  # control characters, which this loop cannot pass to mv.
-  repo_git "$1" -c core.quotePath=false ls-files --others --ignored --exclude-standard -- "$2" |
+  # A name git still quotes cannot be passed to mv.
+  repo_git "$1" ls-files --others --ignored --exclude-standard -- "$2" |
     while IFS= read -r file; do
       case $file in
         \"*)
