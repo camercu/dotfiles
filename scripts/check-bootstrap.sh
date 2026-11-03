@@ -945,22 +945,93 @@ run_claude_hook_test() {
   return "$hook_status"
 }
 
+# migrate_claude HOME: run the migration as bootstrap does, with a caller's
+# own XDG dirs; sets rc.
+migrate_claude() {
+  rc=0
+  HOME="$1" XDG_CONFIG_HOME="$1/alt" XDG_STATE_HOME="$1/state" \
+    zsh "$DOTFILE_DIR/scripts/migrate-claude-config.zsh" </dev/null >"$LAST_LOG" 2>&1 || rc=$?
+}
+
 # Stow links the shipped Claude config at $HOME/.config/claude whatever
-# XDG_CONFIG_HOME says, so the migration must point ~/.claude there.
+# XDG_CONFIG_HOME says, so the migration must point ~/.claude there. Merging
+# a legacy ~/.claude must keep each stow link and keep the legacy copy.
 run_claude_migrate_test() {
   begin_test claude_migrate_test
   capture_log
 
   tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/claude-migrate.XXXXXX")
   register_cleanup "$tmp_home"
-  mkdir -p "$tmp_home/.claude" "$tmp_home/.config/claude"
+  mkdir -p "$tmp_home/.claude" "$tmp_home/.config/claude" "$tmp_home/repo"
+  echo shipped >"$tmp_home/repo/settings.json"
+  ln -s "$tmp_home/repo/settings.json" "$tmp_home/.config/claude/settings.json"
+  echo legacy >"$tmp_home/.claude/settings.json"
+  echo legacy >"$tmp_home/.claude/history.jsonl"
+  mkdir -p "$tmp_home/repo/skills" "$tmp_home/.claude/skills"
+  ln -s "$tmp_home/repo/skills" "$tmp_home/.config/claude/skills"
+  echo legacy >"$tmp_home/.claude/skills/mine.md"
+  # A stow link whose repo file is gone still names a shipped entry.
+  ln -s "$tmp_home/repo/gone.toml" "$tmp_home/.config/claude/starship.toml"
+  echo legacy >"$tmp_home/.claude/starship.toml"
 
-  HOME="$tmp_home" XDG_CONFIG_HOME="$tmp_home/alt" \
-    zsh "$DOTFILE_DIR/scripts/migrate-claude-config.zsh" </dev/null >"$LAST_LOG" 2>&1
+  migrate_claude "$tmp_home"
 
   link=$(readlink "$tmp_home/.claude")
   if [ "$link" != "$tmp_home/.config/claude" ]; then
     echo "claude migrate: ~/.claude -> '$link', want $tmp_home/.config/claude" >&2
+    return 1
+  fi
+  if [ ! -L "$tmp_home/.config/claude/settings.json" ]; then
+    echo "claude migrate: replaced the settings.json stow link" >&2
+    return 1
+  fi
+  if [ "$(cat "$tmp_home/repo/settings.json")" != shipped ]; then
+    echo "claude migrate: wrote through the settings.json stow link" >&2
+    return 1
+  fi
+  if [ ! -L "$tmp_home/.config/claude/skills" ] || [ -e "$tmp_home/repo/skills/mine.md" ]; then
+    echo "claude migrate: merged into the skills stow link" >&2
+    return 1
+  fi
+  if [ ! -f "$tmp_home/.config/claude/history.jsonl" ]; then
+    echo "claude migrate: did not merge legacy-only history.jsonl" >&2
+    return 1
+  fi
+  if ! grep -qx legacy "$tmp_home"/state/claude-migrate/*/skills/mine.md; then
+    echo "claude migrate: no legacy skills kept under XDG_STATE_HOME" >&2
+    return 1
+  fi
+  if ! grep -q 'left in .*: settings.json skills starship.toml$' "$LAST_LOG"; then
+    echo "claude migrate: does not name the entries it left in the backup" >&2
+    return 1
+  fi
+}
+
+# An older dotsync linked ~/.config/claude whole into the repo: a merge
+# would write legacy files into the worktree, so refuse.
+run_claude_migrate_linked_test() {
+  begin_test claude_migrate_linked_test
+  capture_log
+
+  tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/claude-migrate.XXXXXX")
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/.claude" "$tmp_home/.config" "$tmp_home/repo"
+  echo shipped >"$tmp_home/repo/settings.json"
+  ln -s "$tmp_home/repo" "$tmp_home/.config/claude"
+  echo legacy >"$tmp_home/.claude/settings.json"
+
+  migrate_claude "$tmp_home"
+
+  if [ "$rc" = 0 ]; then
+    echo "claude migrate: merged into a dir that links into the repo" >&2
+    return 1
+  fi
+  if [ "$(cat "$tmp_home/repo/settings.json")" != shipped ]; then
+    echo "claude migrate: wrote legacy settings.json into the repo" >&2
+    return 1
+  fi
+  if [ -L "$tmp_home/.claude" ]; then
+    echo "claude migrate: replaced ~/.claude after refusing" >&2
     return 1
   fi
 }
@@ -1045,6 +1116,7 @@ run_repo_relative_link_test
 run_stow_conflict_test
 run_claude_hook_test
 run_claude_migrate_test
+run_claude_migrate_linked_test
 run_skill_validate_test
 run_launch_agent_lint_test
 run_ollama_aliases_test

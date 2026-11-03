@@ -42,17 +42,28 @@ if [[ ! -d "$xdg_dir" ]]; then
   exit 0
 fi
 
-if command -v rsync >/dev/null 2>&1; then
-  rsync -a -- "$legacy_dir"/ "$xdg_dir"/
-  rm -rf -- "$legacy_dir"
-  ln -s "$xdg_dir" "$legacy_dir"
-  success "Merged $legacy_dir into $xdg_dir and created compatibility symlink."
-  exit 0
+# Never replace a stow link, nor write through a dir linked whole into the
+# repo.
+if [[ -L "$xdg_dir" ]]; then
+  error "$xdg_dir links into the repo. Merge $legacy_dir into it by hand."
+  exit 1
 fi
 
-backup_dir="${legacy_dir}.backup.$(date +%Y%m%d%H%M%S)"
+# Shipped entries win and are never descended into: a stow link stays a link.
+# Legacy entries already in $xdg_dir stay in the backup under XDG_STATE_HOME.
+backup_dir="${XDG_STATE_HOME:-$HOME/.local/state}/claude-migrate/$(date +%Y%m%d%H%M%S)"
+mkdir -p -- "${backup_dir:h}"
+kept=()
+for entry in "$legacy_dir"/*(DN); do
+  if [[ -e "$xdg_dir/${entry:t}" || -L "$xdg_dir/${entry:t}" ]]; then
+    kept+=("${entry:t}")
+  else
+    mv -- "$entry" "$xdg_dir/"
+  fi
+done
 mv -- "$legacy_dir" "$backup_dir"
 ln -s "$xdg_dir" "$legacy_dir"
-warn "rsync is not available."
-warn "Moved legacy directory to $backup_dir."
-warn "Merge its contents into $xdg_dir manually if needed."
+success "Merged $legacy_dir into $xdg_dir and created compatibility symlink."
+if (( ${#kept} )); then
+  warn "Already in $xdg_dir, so left in $backup_dir: ${kept[*]}"
+fi
