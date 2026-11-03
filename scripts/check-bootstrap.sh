@@ -240,9 +240,9 @@ run_dotsync_smoke_test() {
   [ "$(resolve_path "$tmp_home/.zshenv")" = "$(resolve_path "$DOTFILE_DIR/common/.zshenv")" ]
   # A dir whose .gitignore starts with `*` takes tool state beside shipped
   # files. Linked whole, that state would land in the repo.
-  for marker in "$DOTFILE_DIR"/common/.config/*/.gitignore; do
-    [ "$(head -n 1 "$marker")" = '*' ] || continue
-    state_dir=$tmp_home/.config/$(basename "$(dirname "$marker")")
+  for marker in $(git -C "$DOTFILE_DIR/common" ls-files -- '*.gitignore'); do
+    [ "$(head -n 1 "$DOTFILE_DIR/common/$marker")" = '*' ] || continue
+    state_dir=$tmp_home/$(dirname "$marker")
     if [ -L "$state_dir" ] || [ ! -d "$state_dir" ]; then
       echo "dotsync: $state_dir is not a real dir; tool state would land in the repo" >&2
       return 1
