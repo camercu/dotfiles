@@ -247,6 +247,16 @@ run_dotsync_smoke_test() {
       echo "dotsync: $state_dir is not a real dir; tool state would land in the repo" >&2
       return 1
     fi
+    # Nor may stow fold a dir below it: ~/.local/share would take XDG data.
+    # A dir the repo tracks as a link (claude/skills) is a shipped file.
+    folded=$(find "$state_dir" -type l | while IFS= read -r link; do
+      shipped=$DOTFILE_DIR/common/${link#"$tmp_home"/}
+      if [ -d "$shipped" ] && [ ! -L "$shipped" ]; then echo "$link"; fi
+    done)
+    if [ -n "$folded" ]; then
+      echo "dotsync: linked whole into the repo: $folded" >&2
+      return 1
+    fi
   done
 
   HOME="$tmp_home" "$SCRIPT_DIR/uninstall-dotfiles.sh" >"$LAST_LOG" 2>&1
@@ -343,6 +353,37 @@ run_state_dir_link_test() {
   fi
   if [ ! -L "$tmp_home/.config/codex/config.toml" ]; then
     echo "state dir: shipped config.toml not linked after the repair" >&2
+    return 1
+  fi
+}
+
+# An older dotsync made ~/.local real but let stow fold ~/.local/share, the
+# XDG data home. dotsync replaces that link too and moves the data out.
+run_state_dir_sub_link_test() {
+  begin_test state_dir_sub_link_test
+  capture_log
+
+  if [ -n "$(repo_state_files)" ]; then
+    echo "state dir: repo holds tool state; move it out first:" >&2
+    repo_state_files >&2
+    return 1
+  fi
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-sub.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/.local"
+  ln -s "$(rel_path "$DOTFILE_DIR/common/.local/share" "$tmp_home/.local")" "$tmp_home/.local/share"
+  probe=$DOTFILE_DIR/common/.local/share/probe-data.$$
+  register_cleanup "$probe"
+  echo data >"$probe"
+
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  if [ -L "$tmp_home/.local/share" ] || [ ! -d "$tmp_home/.local/share" ]; then
+    echo "state dir: ~/.local/share still links into the repo" >&2
+    return 1
+  fi
+  if [ -e "$probe" ] || [ "$(cat "$tmp_home/.local/share/${probe##*/}")" != data ]; then
+    echo "state dir: data not moved from the repo to ~/.local/share" >&2
     return 1
   fi
 }
@@ -1414,6 +1455,7 @@ run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_dotsync_unlink_test
 run_state_dir_link_test
+run_state_dir_sub_link_test
 run_state_dir_real_test
 run_state_dir_parent_link_test
 run_state_dir_foreign_link_test

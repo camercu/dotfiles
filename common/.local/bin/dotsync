@@ -182,15 +182,21 @@ make_state_dirs() {
 
   # Tracked files only: untracked worktrees inside a package carry copies.
   # Without the list, linking would put tool state in the repo: stop.
-  if ! markers=$(repo_git "$package_name" ls-files -- '*.gitignore'); then
+  if ! tracked=$(repo_git "$package_name" ls-files); then
     error "cannot list tracked files in $package_name; nothing linked"
     exit 1
   fi
+  # stow also folds a dir below a marked one (~/.local/share), so each dir
+  # there that holds shipped files gets the same treatment.
   state_dirs=
-  for rel in $markers; do
-    [ "${rel##*/}" = .gitignore ] || continue
+  for rel in $(printf '%s\n' "$tracked" | grep '\(^\|/\)\.gitignore$'); do
     [ "$(head -n 1 "$DOTFILE_DIR/$package_name/$rel")" = '*' ] || continue
-    state_dirs="$state_dirs $(dirname "$rel")"
+    marked=$(dirname "$rel")
+    state_dirs="$state_dirs $marked $(printf '%s\n' "$tracked" | awk -v d="$marked" '
+      index($0, d "/") == 1 {
+        n = split(substr($0, length(d) + 2), part, "/"); p = d
+        for (i = 1; i < n; i++) { p = p "/" part[i]; if (!seen[p]++) print p }
+      }')"
   done
 
   # Resolve every dir before changing any: unfolding ~/.config for one would
