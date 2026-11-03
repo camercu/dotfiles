@@ -272,6 +272,31 @@ run_state_dir_link_test() {
   grep -q "$tmp_home/.config/codex links into the repo" "$LAST_LOG"
 }
 
+# Without the tracked marker list dotsync cannot tell which dirs hold tool
+# state; linking anyway would put that state in the repo.
+run_state_dir_git_fail_test() {
+  begin_test state_dir_git_fail_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-git.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/bin"
+  printf '#!/bin/sh\necho "fatal: detected dubious ownership" >&2\nexit 128\n' >"$tmp_home/bin/git"
+  chmod +x "$tmp_home/bin/git"
+
+  rc=0
+  HOME="$tmp_home" PATH="$tmp_home/bin:$PATH" \
+    "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1 || rc=$?
+  if [ "$rc" = 0 ]; then
+    echo "dotsync: exits 0 when git cannot list the state dir markers" >&2
+    return 1
+  fi
+  if [ -e "$tmp_home/.config" ]; then
+    echo "dotsync: linked packages without the state dir markers" >&2
+    return 1
+  fi
+}
+
 run_repo_relative_link_test() {
   begin_test repo_relative_link_test
   capture_log
@@ -1157,6 +1182,7 @@ run_stale_link_prune_test
 run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_state_dir_link_test
+run_state_dir_git_fail_test
 run_logging_parity_test
 run_predicate_parity_test
 run_aliases_test
