@@ -148,10 +148,19 @@ unfold_repo_links() {
 }
 
 # move_repo_state PACKAGE DIR: move the ignored files (tool state) in a marked
-# repo dir to the same place under $HOME.
+# repo dir to the same place under $HOME, then drop the dirs that emptied:
+# stow would link an empty repo dir into the next HOME that lacks it.
 move_repo_state() {
-  repo_git "$1" ls-files --others --ignored --exclude-standard -- "$2" |
+  # Raw non-ASCII names; git still quotes names with quotes, backslashes or
+  # control characters, which this loop cannot pass to mv.
+  repo_git "$1" -c core.quotePath=false ls-files --others --ignored --exclude-standard -- "$2" |
     while IFS= read -r file; do
+      case $file in
+        \"*)
+          warn "cannot move $file out of $DOTFILE_DIR/$1; move it by hand"
+          continue
+          ;;
+      esac
       if [ -e "$HOME/$file" ] || [ -L "$HOME/$file" ]; then
         warn "$HOME/$file exists, so $DOTFILE_DIR/$1/$file stays in the repo"
         continue
@@ -160,6 +169,7 @@ move_repo_state() {
       mv -- "$DOTFILE_DIR/$1/$file" "$HOME/$file"
       info "moved $file from the repo to $HOME/$file"
     done
+  find "$DOTFILE_DIR/$1/$2" -depth -mindepth 1 -type d -empty -delete
 }
 
 # A package dir whose .gitignore starts with `*` takes tool state beside the

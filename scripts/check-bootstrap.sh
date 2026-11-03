@@ -307,8 +307,23 @@ run_state_dir_link_test() {
   mkdir -p "$tmp_home/.config"
   ln -s "$(rel_path "$DOTFILE_DIR/common/.config/codex" "$tmp_home/.config")" "$tmp_home/.config/codex"
   echo state >"$probe"
+  # Real state nests, and git quotes non-ASCII names.
+  nested=$DOTFILE_DIR/common/.config/codex/probe-sessions.$$
+  register_cleanup "$nested"
+  mkdir -p "$nested/day"
+  echo state >"$nested/day/café"
+  # git quotes this name even with core.quotePath off: dotsync warns, moves on.
+  quoted=$DOTFILE_DIR/common/.config/codex/probe-quote\".$$
+  register_cleanup "$quoted"
+  echo state >"$quoted"
 
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  if [ ! -e "$quoted" ] || ! grep -q "cannot move .*probe-quote" "$LAST_LOG"; then
+    echo "state dir: no warning for a name git quotes" >&2
+    return 1
+  fi
+  rm -- "$quoted"
 
   if [ -L "$tmp_home/.config/codex" ] || [ ! -d "$tmp_home/.config/codex" ]; then
     echo "state dir: ~/.config/codex still links into the repo" >&2
@@ -318,10 +333,41 @@ run_state_dir_link_test() {
     echo "state dir: tool state not moved from the repo to ~/.config/codex" >&2
     return 1
   fi
+  if [ "$(cat "$tmp_home/.config/codex/${nested##*/}/day/café")" != state ]; then
+    echo "state dir: nested non-ASCII tool state not moved out of the repo" >&2
+    return 1
+  fi
+  if [ -e "$nested" ]; then
+    echo "state dir: left the emptied ${nested##*/} in the repo, for stow to link" >&2
+    return 1
+  fi
   if [ ! -L "$tmp_home/.config/codex/config.toml" ]; then
     echo "state dir: shipped config.toml not linked after the repair" >&2
     return 1
   fi
+}
+
+# On a machine whose state dirs are real, ignored files in the repo are not
+# this HOME's state: leave them.
+run_state_dir_real_test() {
+  begin_test state_dir_real_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-real.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  probe=$DOTFILE_DIR/common/.config/codex/probe-state.$$
+  register_cleanup "$probe"
+  mkdir -p "$tmp_home/.config/codex"
+  echo state >"$probe"
+
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  if [ ! -e "$probe" ]; then
+    echo "state dir: moved repo files into a HOME whose state dir is real" >&2
+    return 1
+  fi
+  # The next heal test refuses to run while the repo holds state.
+  rm -- "$probe"
 }
 
 # An older dotsync linked all of ~/.config into the repo, so no state dir is
@@ -1368,6 +1414,7 @@ run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_dotsync_unlink_test
 run_state_dir_link_test
+run_state_dir_real_test
 run_state_dir_parent_link_test
 run_state_dir_foreign_link_test
 run_state_dir_foreign_owner_test
