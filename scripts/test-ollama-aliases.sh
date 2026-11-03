@@ -45,6 +45,8 @@ check() { # check NAME COMMAND...: passes when COMMAND succeeds
 }
 
 has_line() { printf '%s\n' "$1" | grep -q -- "$2"; }
+# is_line TEXT LINE: TEXT has LINE, compared as plain text.
+is_line() { printf '%s\n' "$1" | grep -qxF -- "$2"; }
 lacks_escape() { ! printf '%s' "$1" | grep -q "$(printf '\033')"; }
 
 # modelfile CASE CONTENT NAME; CONTENT is a printf format (\n, \r).
@@ -87,7 +89,7 @@ check "unknown argument exits 2" [ "$rc" = 2 ]
 check "unknown argument runs nothing" [ -z "$log" ]
 
 run empty
-check "empty dir says so" has_line "$out" "no Modelfiles in $scratch/empty/models\$"
+check "empty dir says so" is_line "$out" "ollama-aliases: no Modelfiles in $scratch/empty/models"
 # The Modelfiles ship with this repo: a missing set is a broken install,
 # server or not.
 check "empty dir exits 1" [ "$rc" = 1 ]

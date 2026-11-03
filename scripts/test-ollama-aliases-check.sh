@@ -72,6 +72,8 @@ check() { # check NAME COMMAND...: passes when COMMAND succeeds
 }
 
 has_line() { printf '%s\n' "$1" | grep -q -- "$2"; }
+# is_line TEXT LINE: TEXT has LINE, compared as plain text.
+is_line() { printf '%s\n' "$1" | grep -qxF -- "$2"; }
 lacks_line() { ! has_line "$@"; }
 # every_line TEXT PATTERN: TEXT has lines and each one matches PATTERN.
 every_line() { [ -n "$1" ] && ! printf '%s\n' "$1" | grep -qv -- "$2"; }
@@ -124,7 +126,7 @@ check "slow /api/show: names the curl failure" has_line "$out" '^local-x:latest:
 
 run none '{"models":[]}'
 check "no Modelfiles: exits 1" [ "$rc" = 1 ]
-check "no Modelfiles: says where it looked" has_line "$out" "no Modelfiles in $scratch/none/models\$"
+check "no Modelfiles: says where it looked" is_line "$out" "ollama-aliases-check: no Modelfiles in $scratch/none/models"
 
 # The Modelfiles ship with this repo, so stow puts them under $HOME/.config
 # even when the caller has its own XDG_CONFIG_HOME.
