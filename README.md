@@ -173,6 +173,8 @@ On Linux, it stows `common/` and `linux/`.
 
 The `.stowrc` file sets the default target to `$HOME` and ignores `.stowrc` itself plus `.DS_Store`. On top of that, dotsync ignores generated per-machine files that may appear inside package dirs (`.zcompdump*`, `.zsh_history`, `*.zwc`, `.DS_Store`) — stow doesn't honor `.gitignore`, and one such collision would abort the whole run.
 
+Some tools write state next to the config this repo ships (claude, codex, forge). A tracked `.gitignore` starting with `*` marks such a directory: it ignores everything except the shipped files, and dotsync creates the directory for real before stow runs. Stow then links its files one by one, so the tool state stays out of the repo. A new shipped file in a marked directory needs a `!name` line in that `.gitignore`.
+
 After linking, dotsync points `~/.claude` at `~/.config/claude`. If Claude Code already made a real `~/.claude`, dotsync merges in its entries that the repo doesn't ship and moves the rest to `~/.local/state/claude-migrate/<date>`.
 
 ### Configuring hosts
