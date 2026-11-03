@@ -1020,11 +1020,11 @@ run_claude_dotsync_test() {
 
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/claude-dotsync.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
-  # A real ~/.local: stow would otherwise link it whole into the repo.
-  mkdir -p "$tmp_home/.claude" "$tmp_home/.local"
+  mkdir -p "$tmp_home/.claude"
   echo legacy >"$tmp_home/.claude/settings.json"
   echo legacy >"$tmp_home/.claude/history.jsonl"
 
+  repo_before=$(git -C "$DOTFILE_DIR" status --porcelain --ignored -- common)
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
 
   if [ "$(readlink "$tmp_home/.claude")" != "$tmp_home/.config/claude" ]; then
@@ -1041,6 +1041,12 @@ run_claude_dotsync_test() {
   fi
   if ! grep -qx legacy "$tmp_home"/.local/state/claude-migrate/*/settings.json; then
     echo "claude dotsync: legacy copy not kept under the test HOME" >&2
+    return 1
+  fi
+  repo_after=$(git -C "$DOTFILE_DIR" status --porcelain --ignored -- common)
+  if [ "$repo_after" != "$repo_before" ]; then
+    echo "claude dotsync: wrote into the repo:" >&2
+    printf '%s\n' "$repo_after" >&2
     return 1
   fi
 }

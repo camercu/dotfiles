@@ -1,0 +1,7 @@
+*
+!.gitignore
+!bin/
+!bin/*
+!share/
+!share/fonts/
+!share/fonts/*
