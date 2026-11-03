@@ -30,7 +30,7 @@ This script:
 1. Installs bootstrap packages (`git`, `curl`, `zsh`) if needed
 2. Calls `scripts/bootstrap-install.zsh` which:
     - Installs [Nix](https://zero-to-nix.com/) via [Determinate Installer](https://github.com/DeterminateSystems/nix-installer)
-    - Links dotfiles via [dotsync](https://github.com/DeterminateSystems/dotsync) (stow-based)
+    - Links dotfiles via [dotsync](#dotsync-stow) (stow-based)
     - Installs Homebrew on macOS (admin required)
     - Configures macOS defaults
     - Installs nix-darwin on macOS (admin required)
