@@ -111,9 +111,53 @@ select_packages() {
   fi
 }
 
+# unfold_repo_links DIR: replace each link from $HOME down to DIR that an
+# older dotsync made into the repo (stow folded the dir) with an empty real
+# dir; stow then relinks the shipped files one by one. Returns 1 at a link
+# that leaves the repo: not ours to replace.
+unfold_repo_links() {
+  rest=${1#"$HOME"/}
+  path=$HOME
+  while [ -n "$rest" ]; do
+    part=${rest%%/*}
+    case $rest in
+      */*) rest=${rest#*/} ;;
+      *) rest= ;;
+    esac
+    path=$path/$part
+    [ -L "$path" ] || continue
+    target=$(CDPATH='' cd -P -- "$path" 2>/dev/null && pwd) || target=
+    case $target in
+      "$DOTFILE_DIR"/*)
+        rm -- "$path"
+        mkdir -- "$path"
+        info "replaced $path, a link into the repo, with a real dir"
+        ;;
+      *) return 1 ;;
+    esac
+  done
+}
+
+# move_repo_state PACKAGE DIR: move the ignored files (tool state) in a marked
+# repo dir to the same place under $HOME.
+move_repo_state() {
+  git -C "$DOTFILE_DIR/$1" ls-files --others --ignored --exclude-standard -- "$2" |
+    while IFS= read -r file; do
+      if [ -e "$HOME/$file" ] || [ -L "$HOME/$file" ]; then
+        warn "$HOME/$file exists, so $DOTFILE_DIR/$1/$file stays in the repo"
+        continue
+      fi
+      mkdir -p "$(dirname "$HOME/$file")"
+      mv -- "$DOTFILE_DIR/$1/$file" "$HOME/$file"
+      info "moved $file from the repo to $HOME/$file"
+    done
+}
+
 # A package dir whose .gitignore starts with `*` takes tool state beside the
 # files the repo ships. stow links a dir missing from $HOME whole, which would
 # put that state in the repo: make it a real dir so stow links file by file.
+# A dir an older dotsync already linked whole gets a real dir, and the state
+# written through that link moves out of the repo.
 make_state_dirs() {
   package_name=$1
 
@@ -123,17 +167,31 @@ make_state_dirs() {
     error "cannot list tracked files in $package_name; nothing linked"
     exit 1
   fi
-  printf '%s\n' "$markers" |
-    while IFS= read -r rel; do
-      [ "${rel##*/}" = .gitignore ] || continue
-      [ "$(head -n 1 "$DOTFILE_DIR/$package_name/$rel")" = '*' ] || continue
-      state_dir=$HOME/$(dirname "$rel")
-      if [ -L "$state_dir" ]; then
-        warn "$state_dir links into the repo, so tool state lands there; replace it with a real dir"
-      else
-        mkdir -p "$state_dir"
-      fi
-    done
+  state_dirs=
+  for rel in $markers; do
+    [ "${rel##*/}" = .gitignore ] || continue
+    [ "$(head -n 1 "$DOTFILE_DIR/$package_name/$rel")" = '*' ] || continue
+    state_dirs="$state_dirs $(dirname "$rel")"
+  done
+
+  # Resolve every dir before changing any: unfolding ~/.config for one would
+  # hide that the next also lived in the repo.
+  in_repo=
+  for dir in $state_dirs; do
+    resolved=$(CDPATH='' cd -P -- "$HOME/$dir" 2>/dev/null && pwd) || continue
+    [ "$resolved" = "$DOTFILE_DIR/$package_name/$dir" ] && in_repo="$in_repo $dir"
+  done
+
+  for dir in $state_dirs; do
+    if unfold_repo_links "$HOME/$dir"; then
+      mkdir -p "$HOME/$dir"
+    else
+      warn "$HOME/$dir sits under a link out of the repo; left as is"
+    fi
+  done
+  for dir in $in_repo; do
+    move_repo_state "$package_name" "$dir"
+  done
 }
 
 apply_packages() {

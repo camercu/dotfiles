@@ -278,18 +278,107 @@ run_dotsync_unlink_test() {
   done
 }
 
-# A state dir an older dotsync linked whole into the repo: say so.
+# repo_state_files: ignored files in the marked dirs, i.e. tool state in the
+# repo. The heal tests below move such files into a throwaway HOME, so they
+# run only while the repo holds none of the user's.
+repo_state_files() {
+  for marker in $(git -C "$DOTFILE_DIR/common" ls-files -- '*.gitignore'); do
+    [ "$(head -n 1 "$DOTFILE_DIR/common/$marker")" = '*' ] || continue
+    git -C "$DOTFILE_DIR/common" ls-files --others --ignored --exclude-standard -- "$(dirname "$marker")"
+  done
+}
+
+# An older dotsync linked a state dir whole into the repo, and the tool wrote
+# state there. dotsync replaces the link with a real dir and moves the state
+# out of the repo.
 run_state_dir_link_test() {
   begin_test state_dir_link_test
   capture_log
 
+  if [ -n "$(repo_state_files)" ]; then
+    echo "state dir: repo holds tool state; move it out first:" >&2
+    repo_state_files >&2
+    return 1
+  fi
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-home.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
+  probe=$DOTFILE_DIR/common/.config/codex/probe-state.$$
+  register_cleanup "$probe"
   mkdir -p "$tmp_home/.config"
   ln -s "$(rel_path "$DOTFILE_DIR/common/.config/codex" "$tmp_home/.config")" "$tmp_home/.config/codex"
+  echo state >"$probe"
 
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
-  grep -q "$tmp_home/.config/codex links into the repo" "$LAST_LOG"
+
+  if [ -L "$tmp_home/.config/codex" ] || [ ! -d "$tmp_home/.config/codex" ]; then
+    echo "state dir: ~/.config/codex still links into the repo" >&2
+    return 1
+  fi
+  if [ -e "$probe" ] || [ "$(cat "$tmp_home/.config/codex/${probe##*/}")" != state ]; then
+    echo "state dir: tool state not moved from the repo to ~/.config/codex" >&2
+    return 1
+  fi
+  if [ ! -L "$tmp_home/.config/codex/config.toml" ]; then
+    echo "state dir: shipped config.toml not linked after the repair" >&2
+    return 1
+  fi
+}
+
+# An older dotsync linked all of ~/.config into the repo, so no state dir is
+# itself a link: dotsync must still find and replace the folded parent.
+run_state_dir_parent_link_test() {
+  begin_test state_dir_parent_link_test
+  capture_log
+
+  if [ -n "$(repo_state_files)" ]; then
+    echo "state dir: repo holds tool state; move it out first:" >&2
+    repo_state_files >&2
+    return 1
+  fi
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-parent.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  ln -s "$(rel_path "$DOTFILE_DIR/common/.config" "$tmp_home")" "$tmp_home/.config"
+  repo_before=$(git -C "$DOTFILE_DIR" status --porcelain --ignored -- common)
+  # codex sorts after claude, whose repair unfolds ~/.config first.
+  probe=$DOTFILE_DIR/common/.config/codex/probe-state.$$
+  register_cleanup "$probe"
+  echo state >"$probe"
+
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  if [ -e "$probe" ] || [ "$(cat "$tmp_home/.config/codex/${probe##*/}")" != state ]; then
+    echo "state dir: tool state not moved from the repo to ~/.config/codex" >&2
+    return 1
+  fi
+
+  for d in .config .config/claude; do
+    if [ -L "$tmp_home/$d" ] || [ ! -d "$tmp_home/$d" ]; then
+      echo "state dir: ~/$d is not a real dir after dotsync" >&2
+      return 1
+    fi
+  done
+  if [ "$(git -C "$DOTFILE_DIR" status --porcelain --ignored -- common)" != "$repo_before" ]; then
+    echo "state dir: dotsync wrote into the repo" >&2
+    return 1
+  fi
+}
+
+# A state dir the user linked elsewhere (another disk) is not stow's: keep it.
+run_state_dir_foreign_link_test() {
+  begin_test state_dir_foreign_link_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-foreign.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/.config" "$tmp_home/elsewhere/forge"
+  ln -s "$tmp_home/elsewhere/forge" "$tmp_home/.config/forge"
+
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1 || :
+
+  if [ "$(readlink "$tmp_home/.config/forge")" != "$tmp_home/elsewhere/forge" ]; then
+    echo "state dir: replaced a link that leaves the repo" >&2
+    return 1
+  fi
 }
 
 # A marked dir ignores all but its `!name` lines. A file ignored there is a
@@ -1249,6 +1338,8 @@ run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_dotsync_unlink_test
 run_state_dir_link_test
+run_state_dir_parent_link_test
+run_state_dir_foreign_link_test
 run_state_dir_git_fail_test
 run_state_dir_ignored_test
 run_logging_parity_test
