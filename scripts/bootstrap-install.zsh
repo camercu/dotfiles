@@ -43,10 +43,6 @@ update_git_submodules() {
   git submodule update --init --recursive
 }
 
-migrate_claude_config() {
-  "$SCRIPTS_DIR/migrate-claude-config.zsh"
-}
-
 ensure_nix_installed() {
   is_installed nix && return 0
   is_macos || is_linux || return 0
@@ -124,7 +120,6 @@ maybe_apply_home_manager() {
 main() {
   run_step "Creating shell directories"          ensure_shell_directories
   run_step "Ensuring ~/.ssh"                      ensure_ssh_directory
-  run_step "Migrating Claude config"             migrate_claude_config
   run_step "Marking repo as git safe.directory"  ensure_git_safe_directory
   run_step "Updating git submodules"             update_git_submodules
   run_step "Installing Nix (if needed)"          ensure_nix_installed

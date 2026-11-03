@@ -1007,6 +1007,35 @@ run_claude_migrate_test() {
   fi
 }
 
+# Claude Code may run before bootstrap and leave a real ~/.claude. Migrating
+# it before stow plants a real settings.json where stow must link, and stow
+# then aborts; dotsync migrates after linking.
+run_claude_dotsync_test() {
+  begin_test claude_dotsync_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/claude-dotsync.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/.claude"
+  echo legacy >"$tmp_home/.claude/settings.json"
+  echo legacy >"$tmp_home/.claude/history.jsonl"
+
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  if [ "$(readlink "$tmp_home/.claude")" != "$tmp_home/.config/claude" ]; then
+    echo "claude dotsync: ~/.claude is not linked to ~/.config/claude" >&2
+    return 1
+  fi
+  if [ ! -L "$tmp_home/.config/claude/settings.json" ]; then
+    echo "claude dotsync: settings.json is not a stow link" >&2
+    return 1
+  fi
+  if [ ! -f "$tmp_home/.config/claude/history.jsonl" ]; then
+    echo "claude dotsync: legacy history.jsonl not merged" >&2
+    return 1
+  fi
+}
+
 # An older dotsync linked ~/.config/claude whole into the repo: a merge
 # would write legacy files into the worktree, so refuse.
 run_claude_migrate_linked_test() {
@@ -1117,6 +1146,7 @@ run_stow_conflict_test
 run_claude_hook_test
 run_claude_migrate_test
 run_claude_migrate_linked_test
+run_claude_dotsync_test
 run_skill_validate_test
 run_launch_agent_lint_test
 run_ollama_aliases_test

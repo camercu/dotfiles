@@ -33,7 +33,8 @@ usage() {
   cat <<'EOF'
 Usage: dotsync [--unlink] [--auto-discover]
 
-Without options, dotsync (re)links the managed dotfile packages using stow.
+Without options, dotsync (re)links the managed dotfile packages using stow,
+then points ~/.claude at ~/.config/claude.
 
 Options:
   --unlink  remove all managed dotfile symlinks for the active package set
@@ -142,6 +143,15 @@ apply_packages() {
   done
 }
 
+# Claude Code may have made a real ~/.claude before the first link. Point it
+# at the linked ~/.config/claude only after stow: moved there earlier, its
+# settings.json blocks the stow link.
+migrate_claude() {
+  [ "$MODE" = "unlink" ] && return 0
+  zsh "$DOTFILE_DIR/scripts/migrate-claude-config.zsh" ||
+    warn "Claude config migration failed; see above"
+}
+
 report_result() {
   if [ "$AUTO_DISCOVER" -eq 1 ]; then
     warn "--auto-discover is ignored in stow mode"
@@ -157,4 +167,5 @@ report_result() {
 parse_args "$@"
 select_packages
 apply_packages
+migrate_claude
 report_result

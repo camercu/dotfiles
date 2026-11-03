@@ -173,6 +173,8 @@ On Linux, it stows `common/` and `linux/`.
 
 The `.stowrc` file sets the default target to `$HOME` and ignores `.stowrc` itself plus `.DS_Store`. On top of that, dotsync ignores generated per-machine files that may appear inside package dirs (`.zcompdump*`, `.zsh_history`, `*.zwc`, `.DS_Store`) — stow doesn't honor `.gitignore`, and one such collision would abort the whole run.
 
+After linking, dotsync points `~/.claude` at `~/.config/claude`. If Claude Code already made a real `~/.claude`, dotsync merges in its entries that the repo doesn't ship and moves the rest to `~/.local/state/claude-migrate/<date>`.
+
 ### Configuring hosts
 
 Add or modify hosts in `common/.config/home-manager/hosts.tsv`. The first column (`config_name`) is used as the Home Manager/nix-darwin flake input name. Aliases in the `aliases` column are also resolved.
