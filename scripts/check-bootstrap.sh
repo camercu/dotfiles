@@ -993,7 +993,7 @@ run_claude_hook_test() {
   return "$hook_status"
 }
 
-# migrate_claude HOME: run the migration as bootstrap does, with a caller's
+# migrate_claude HOME: run the migration as dotsync does, with a caller's
 # own XDG dirs; sets rc.
 migrate_claude() {
   rc=0
@@ -1057,6 +1057,33 @@ run_claude_migrate_test() {
   fi
   if ! grep -q 'left in .*: settings.json skills starship.toml$' "$LAST_LOG"; then
     echo "claude migrate: does not name the entries it left in the backup" >&2
+    return 1
+  fi
+}
+
+# Run before stow, the migration would plant a real settings.json where
+# stow must link: without a real ~/.config/claude, refuse.
+run_claude_migrate_early_test() {
+  begin_test claude_migrate_early_test
+  capture_log
+
+  tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/claude-migrate.XXXXXX")
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/.claude"
+  echo legacy >"$tmp_home/.claude/settings.json"
+
+  migrate_claude "$tmp_home"
+
+  if [ "$rc" = 0 ]; then
+    echo "claude migrate: ran with no ~/.config/claude" >&2
+    return 1
+  fi
+  if [ -L "$tmp_home/.claude" ] || [ -e "$tmp_home/.config/claude" ]; then
+    echo "claude migrate: moved ~/.claude with no ~/.config/claude" >&2
+    return 1
+  fi
+  if ! grep -q "$tmp_home/.config/claude is not a real dir" "$LAST_LOG"; then
+    echo "claude migrate: does not say why it refused" >&2
     return 1
   fi
 }
@@ -1213,6 +1240,7 @@ run_stow_conflict_test
 run_claude_hook_test
 run_claude_migrate_test
 run_claude_migrate_linked_test
+run_claude_migrate_early_test
 run_claude_dotsync_test
 run_skill_validate_test
 run_launch_agent_lint_test

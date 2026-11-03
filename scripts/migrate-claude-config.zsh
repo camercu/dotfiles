@@ -27,24 +27,11 @@ if [[ ! -d "$legacy_dir" ]]; then
   exit 0
 fi
 
-mkdir -p -- "${config_dir:h}"
-
-if [[ ! -e "$config_dir" ]]; then
-  mv -- "$legacy_dir" "$config_dir"
-  ln -s "$config_dir" "$legacy_dir"
-  success "Migrated $legacy_dir to $config_dir and created compatibility symlink."
-  exit 0
-fi
-
-if [[ ! -d "$config_dir" ]]; then
-  warn "$config_dir exists but is not a directory. Skipping migration."
-  exit 0
-fi
-
-# Never replace a stow link, nor write through a dir linked whole into the
-# repo.
-if [[ -L "$config_dir" ]]; then
-  error "$config_dir links into the repo. Merge $legacy_dir into it by hand."
+# dotsync runs this after linking, so $config_dir is a real dir holding
+# per-file stow links. Anything else means stow has not run, or linked the
+# dir whole into the repo: merging would block stow or write into the repo.
+if [[ -L "$config_dir" || ! -d "$config_dir" ]]; then
+  error "$config_dir is not a real dir. Remove it if it is a link, then rerun dotsync."
   exit 1
 fi
 
