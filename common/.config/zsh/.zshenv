@@ -19,7 +19,7 @@ export SHELL_SESSIONS_DISABLE=1
 # Fish-like zsh dirs
 #
 export __zsh_cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
-export __zsh_config_dir="${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}"
+export __zsh_config_dir="${ZDOTDIR:-$HOME/.config/zsh}"
 export __zsh_user_data_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh"
 #
 # and bash-like equivalents
