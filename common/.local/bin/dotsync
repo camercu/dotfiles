@@ -110,6 +110,26 @@ select_packages() {
   fi
 }
 
+# A package dir whose .gitignore starts with `*` takes tool state beside the
+# files the repo ships. stow links a dir missing from $HOME whole, which would
+# put that state in the repo: make it a real dir so stow links file by file.
+make_state_dirs() {
+  package_name=$1
+
+  # Tracked files only: untracked worktrees inside a package carry copies.
+  git -C "$DOTFILE_DIR/$package_name" ls-files -- '*.gitignore' |
+    while IFS= read -r rel; do
+      [ "${rel##*/}" = .gitignore ] || continue
+      [ "$(head -n 1 "$DOTFILE_DIR/$package_name/$rel")" = '*' ] || continue
+      state_dir=$HOME/$(dirname "$rel")
+      if [ -L "$state_dir" ]; then
+        warn "$state_dir links into the repo, so tool state lands there; replace it with a real dir"
+      else
+        mkdir -p "$state_dir"
+      fi
+    done
+}
+
 apply_packages() {
   action=-R
   if [ "$MODE" = "unlink" ]; then
@@ -117,6 +137,7 @@ apply_packages() {
   fi
 
   for package_name in $packages; do
+    [ "$MODE" = "unlink" ] || make_state_dirs "$package_name"
     run_stow "$action" "$package_name"
   done
 }

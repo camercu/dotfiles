@@ -234,6 +234,16 @@ run_dotsync_smoke_test() {
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
   [ -L "$tmp_home/.zshenv" ]
   [ "$(resolve_path "$tmp_home/.zshenv")" = "$(resolve_path "$DOTFILE_DIR/common/.zshenv")" ]
+  # A dir whose .gitignore starts with `*` takes tool state beside shipped
+  # files. Linked whole, that state would land in the repo.
+  for marker in "$DOTFILE_DIR"/common/.config/*/.gitignore; do
+    [ "$(head -n 1 "$marker")" = '*' ] || continue
+    state_dir=$tmp_home/.config/$(basename "$(dirname "$marker")")
+    if [ -L "$state_dir" ] || [ ! -d "$state_dir" ]; then
+      echo "dotsync: $state_dir is not a real dir; tool state would land in the repo" >&2
+      return 1
+    fi
+  done
 
   HOME="$tmp_home" "$SCRIPT_DIR/uninstall-dotfiles.sh" >"$LAST_LOG" 2>&1
   [ ! -L "$tmp_home/.zshenv" ]
@@ -242,6 +252,20 @@ run_dotsync_smoke_test() {
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" --auto-discover >"$LAST_LOG" 2>&1
   [ -L "$tmp_home/.zshenv" ]
   [ "$(resolve_path "$tmp_home/.zshenv")" = "$(resolve_path "$DOTFILE_DIR/common/.zshenv")" ]
+}
+
+# A state dir an older dotsync linked whole into the repo: say so.
+run_state_dir_link_test() {
+  begin_test state_dir_link_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-home.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  mkdir -p "$tmp_home/.config"
+  ln -s "$(rel_path "$DOTFILE_DIR/common/.config/codex" "$tmp_home/.config")" "$tmp_home/.config/codex"
+
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+  grep -q "$tmp_home/.config/codex links into the repo" "$LAST_LOG"
 }
 
 run_repo_relative_link_test() {
@@ -1011,6 +1035,7 @@ run_zsh_health_test
 run_stale_link_prune_test
 run_stale_link_besteffort_test
 run_dotsync_smoke_test
+run_state_dir_link_test
 run_logging_parity_test
 run_predicate_parity_test
 run_aliases_test
