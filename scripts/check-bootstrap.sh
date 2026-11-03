@@ -272,6 +272,25 @@ run_state_dir_link_test() {
   grep -q "$tmp_home/.config/codex links into the repo" "$LAST_LOG"
 }
 
+# A marked dir ignores all but its `!name` lines. A file ignored there is a
+# shipped file missing its line (git add -A skips it, so other machines never
+# get it) or tool state that reached the repo.
+run_state_dir_ignored_test() {
+  begin_test state_dir_ignored_test
+
+  ignored_status=0
+  for marker in $(git -C "$DOTFILE_DIR" ls-files -- '*.gitignore'); do
+    [ "$(head -n 1 "$DOTFILE_DIR/$marker")" = '*' ] || continue
+    ignored=$(git -C "$DOTFILE_DIR" ls-files --others --ignored --exclude-standard -- "$(dirname "$marker")")
+    if [ -n "$ignored" ]; then
+      echo "state dir: ignored in $(dirname "$marker") (add a !name line, or move it out):" >&2
+      printf '%s\n' "$ignored" >&2
+      ignored_status=1
+    fi
+  done
+  return "$ignored_status"
+}
+
 # Without the tracked marker list dotsync cannot tell which dirs hold tool
 # state; linking anyway would put that state in the repo.
 run_state_dir_git_fail_test() {
@@ -1183,6 +1202,7 @@ run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_state_dir_link_test
 run_state_dir_git_fail_test
+run_state_dir_ignored_test
 run_logging_parity_test
 run_predicate_parity_test
 run_aliases_test
