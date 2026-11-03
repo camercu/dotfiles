@@ -313,6 +313,17 @@ repo_state_files() {
   done
 }
 
+# require_no_repo_state: stop a test that links a throwaway HOME into the repo
+# while the repo holds the user's tool state; a repair would move it there.
+require_no_repo_state() {
+  state=$(repo_state_files) || return 1
+  if [ -n "$state" ]; then
+    echo "state dir: repo holds tool state; move it out first:" >&2
+    printf '%s\n' "$state" >&2
+    return 1
+  fi
+}
+
 # An older dotsync linked a state dir whole into the repo, and the tool wrote
 # state there. dotsync replaces the link with a real dir and moves the state
 # out of the repo.
@@ -320,12 +331,7 @@ run_state_dir_link_test() {
   begin_test state_dir_link_test
   capture_log
 
-  state=$(repo_state_files) || return 1
-  if [ -n "$state" ]; then
-    echo "state dir: repo holds tool state; move it out first:" >&2
-    printf '%s\n' "$state" >&2
-    return 1
-  fi
+  require_no_repo_state
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-home.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
   probe=$DOTFILE_DIR/common/.config/codex/probe-state.$$
@@ -379,12 +385,7 @@ run_state_dir_sub_link_test() {
   begin_test state_dir_sub_link_test
   capture_log
 
-  state=$(repo_state_files) || return 1
-  if [ -n "$state" ]; then
-    echo "state dir: repo holds tool state; move it out first:" >&2
-    printf '%s\n' "$state" >&2
-    return 1
-  fi
+  require_no_repo_state
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-sub.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
   mkdir -p "$tmp_home/.local"
@@ -434,12 +435,7 @@ run_state_dir_parent_link_test() {
   begin_test state_dir_parent_link_test
   capture_log
 
-  state=$(repo_state_files) || return 1
-  if [ -n "$state" ]; then
-    echo "state dir: repo holds tool state; move it out first:" >&2
-    printf '%s\n' "$state" >&2
-    return 1
-  fi
+  require_no_repo_state
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-parent.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
   ln -s "$(rel_path "$DOTFILE_DIR/common/.config" "$tmp_home")" "$tmp_home/.config"
@@ -473,6 +469,8 @@ run_state_dir_parent_link_test() {
 run_state_dir_stow_fail_test() {
   begin_test state_dir_stow_fail_test
   capture_log
+
+  require_no_repo_state
 
   tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-stow-fail.XXXXXX")" && pwd -P)
   register_cleanup "$tmp_home"
