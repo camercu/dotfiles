@@ -53,20 +53,20 @@ has_command() {
 # the system /etc/zshrc, or a Finder .DS_Store) collides with a real file.
 STOW_IGNORE='(^|/)(\.zcompdump.*|\.zsh_history|\.DS_Store|.*\.zwc)$'
 
+# run_stow PACKAGE FLAGS...: FLAGS are plain options such as -n -R.
 run_stow() {
-  action=$1
-  package_name=$2
+  package_name=$1
+  shift
 
-  info "stow $action $package_name"
   (
     cd "$DOTFILE_DIR"
     if has_command stow; then
-      stow --ignore="$STOW_IGNORE" "$action" "$package_name"
+      stow --ignore="$STOW_IGNORE" "$@" "$package_name"
       exit 0
     fi
 
     if has_command nix-shell; then
-      nix-shell -p stow --run "stow --ignore='$STOW_IGNORE' $action $package_name"
+      nix-shell -p stow --run "stow --ignore='$STOW_IGNORE' $* $package_name"
       exit 0
     fi
 
@@ -226,8 +226,18 @@ apply_packages() {
   fi
 
   for package_name in $packages; do
-    [ "$MODE" = "unlink" ] || make_state_dirs "$package_name"
-    run_stow "$action" "$package_name"
+    if [ "$MODE" != "unlink" ]; then
+      # Repair only once stow is known to succeed: an aborted run would leave
+      # an unfolded ~/.config holding nothing but the state dirs.
+      if ! dry_run=$(run_stow "$package_name" -n "$action" 2>&1); then
+        printf '%s\n' "$dry_run" >&2
+        error "stow cannot link $package_name; stopped before changing it"
+        exit 1
+      fi
+      make_state_dirs "$package_name"
+    fi
+    info "stow $action $package_name"
+    run_stow "$package_name" "$action"
   done
 }
 

@@ -450,6 +450,27 @@ run_state_dir_parent_link_test() {
   fi
 }
 
+# A stow conflict aborts the run. The repair must not have run first: an
+# unfolded ~/.config would then hold nothing but the state dirs.
+run_state_dir_stow_fail_test() {
+  begin_test state_dir_stow_fail_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-stow-fail.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  ln -s "$(rel_path "$DOTFILE_DIR/common/.config" "$tmp_home")" "$tmp_home/.config"
+  echo mine >"$tmp_home/.zshenv"
+
+  if HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1; then
+    echo "state dir: dotsync passed despite a stow conflict" >&2
+    return 1
+  fi
+  if [ ! -d "$tmp_home/.config/zsh" ]; then
+    echo "state dir: failed run left ~/.config without zsh config" >&2
+    return 1
+  fi
+}
+
 # A state dir the user linked elsewhere (another disk) is not stow's: keep it.
 run_state_dir_foreign_link_test() {
   begin_test state_dir_foreign_link_test
@@ -1458,6 +1479,7 @@ run_state_dir_link_test
 run_state_dir_sub_link_test
 run_state_dir_real_test
 run_state_dir_parent_link_test
+run_state_dir_stow_fail_test
 run_state_dir_foreign_link_test
 run_state_dir_foreign_owner_test
 run_state_dir_git_fail_test
