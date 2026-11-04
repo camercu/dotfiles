@@ -26,10 +26,12 @@ $1"
 # The path is physical: on macOS $TMPDIR lives under /var -> /private/var, and
 # stow resolves that link when computing relative links, so a link made from
 # the unresolved path is "not owned by stow". mktemp and cd are separate
-# checked steps: a failed mktemp inside cd's argument left `cd ""`, which sh
-# treats as success, so tmp_home became the cwd and the cleanup deleted it.
+# checked steps, and an empty path is refused: a failed mktemp inside cd's
+# argument left `cd ""`, which dash and zsh treat as success, so tmp_home
+# became the cwd and the cleanup deleted it.
 new_home() {
   new_dir=$(mktemp -d "${TMPDIR:-/tmp}/$1.XXXXXX") || return 1
+  [ -n "$new_dir" ] || return 1
   tmp_home=$(CDPATH='' cd -P -- "$new_dir" && pwd) || return 1
   register_cleanup "$tmp_home"
 }
@@ -338,8 +340,9 @@ repo_linked_home() {
   done
 }
 
-# A failed mktemp must fail new_home, not hand back the cwd for the cleanup
-# to delete. A shim makes mktemp fail; a canary dir stands in for the cwd.
+# A failed mktemp, or one that prints no path, must fail new_home, not hand
+# back the cwd for the cleanup to delete. A shim stands in for mktemp, and a
+# canary dir for the cwd. The shim's marker shows it ran.
 run_new_home_mktemp_fail_test() {
   begin_test new_home_mktemp_fail_test
   capture_log
@@ -347,13 +350,15 @@ run_new_home_mktemp_fail_test() {
   new_home new-home-canary
   canary=$tmp_home
   mkdir "$canary/shim"
-  printf '#!/bin/sh\nexit 1\n' >"$canary/shim/mktemp"
-  chmod +x "$canary/shim/mktemp"
-
-  if (cd "$canary" && PATH="$canary/shim:$PATH" new_home probe) >"$LAST_LOG" 2>&1; then
-    echo "new_home: passed although mktemp failed" >&2
-    return 1
-  fi
+  for rc in 1 0; do
+    printf '#!/bin/sh\necho shim-mktemp >&2\nexit %s\n' "$rc" >"$canary/shim/mktemp"
+    chmod +x "$canary/shim/mktemp"
+    if (cd "$canary" && PATH="$canary/shim:$PATH" new_home probe) >"$LAST_LOG" 2>&1; then
+      echo "new_home: passed although mktemp exited $rc with no path" >&2
+      return 1
+    fi
+    grep -q shim-mktemp "$LAST_LOG"
+  done
 }
 
 # The heal tests' cleanup deletes whatever dotsync moved into their HOME, so
@@ -789,8 +794,8 @@ run_stale_link_prune_test() {
   begin_test stale_link_prune_test
   capture_log
 
-  # Physical path, as with the dotsync smoke test: stow computes relative
-  # targets from the physical location, and the fixture must match.
+  # Physical path (see new_home): stow computes relative targets from the
+  # physical location, and the fixture must match.
   new_home stale-prune-home
   mkdir -p "$tmp_home/.config/nested"
 
