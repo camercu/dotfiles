@@ -22,6 +22,18 @@ register_cleanup() {
 $1"
 }
 
+# new_home NAME: set tmp_home to a fresh throwaway dir, registered for cleanup.
+# The path is physical: on macOS $TMPDIR lives under /var -> /private/var, and
+# stow resolves that link when computing relative links, so a link made from
+# the unresolved path is "not owned by stow". mktemp and cd are separate
+# checked steps: a failed mktemp inside cd's argument left `cd ""`, which sh
+# treats as success, so tmp_home became the cwd and the cleanup deleted it.
+new_home() {
+  new_dir=$(mktemp -d "${TMPDIR:-/tmp}/$1.XXXXXX") || return 1
+  tmp_home=$(CDPATH='' cd -P -- "$new_dir" && pwd) || return 1
+  register_cleanup "$tmp_home"
+}
+
 # begin_test NAME: name the running test (for the on_exit banner) and clear
 # any log left by the previous test. Clearing here means a test that emits
 # straight to stderr never has to remember to reset LAST_LOG — omitting the
@@ -83,8 +95,7 @@ run_logging_parity_test() {
   begin_test logging_parity_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/logging-parity.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home logging-parity
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
 
   calls='info msg; debug msg; warn msg; error msg; success msg'
@@ -159,8 +170,7 @@ run_predicate_parity_test() {
   begin_test predicate_parity_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/predicate-parity.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home predicate-parity
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
 
   # The copies differ only in the separator, so one probe template serves all
@@ -224,13 +234,7 @@ run_dotsync_smoke_test() {
   begin_test dotsync_smoke_test
   capture_log
 
-  # Resolve to the physical path: on macOS $TMPDIR lives under /var -> /private/var,
-  # and stow resolves that symlink when computing relative links. Fabricating the
-  # pre-existing link from the unresolved path yields a target stow would never
-  # create, so stow rejects it as "not owned by stow". Resolving keeps the
-  # simulated link identical to a real stow-owned one.
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/dotsync-home.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home dotsync-home
   rel_target=$(rel_path "$DOTFILE_DIR/common/.zshenv" "$tmp_home")
 
   ln -s "$rel_target" "$tmp_home/.zshenv"
@@ -273,8 +277,7 @@ run_dotsync_unlink_test() {
   begin_test dotsync_unlink_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/dotsync-unlink.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home dotsync-unlink
 
   # With ~/.config/claude present, a migration would add the ~/.claude link.
   mkdir -p "$tmp_home/.config/claude"
@@ -326,14 +329,31 @@ repo_linked_home() {
     printf '%s\n' "$state" >&2
     return 1
   fi
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/$1.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home "$1"
   shift
   for dir in "$@"; do
     parent=$(dirname "$tmp_home/$dir")
     mkdir -p "$parent"
     ln -s "$(rel_path "$DOTFILE_DIR/common/$dir" "$parent")" "$tmp_home/$dir"
   done
+}
+
+# A failed mktemp must fail new_home, not hand back the cwd for the cleanup
+# to delete. A shim makes mktemp fail; a canary dir stands in for the cwd.
+run_new_home_mktemp_fail_test() {
+  begin_test new_home_mktemp_fail_test
+  capture_log
+
+  new_home new-home-canary
+  canary=$tmp_home
+  mkdir "$canary/shim"
+  printf '#!/bin/sh\nexit 1\n' >"$canary/shim/mktemp"
+  chmod +x "$canary/shim/mktemp"
+
+  if (cd "$canary" && PATH="$canary/shim:$PATH" new_home probe) >"$LAST_LOG" 2>&1; then
+    echo "new_home: passed although mktemp failed" >&2
+    return 1
+  fi
 }
 
 # The heal tests' cleanup deletes whatever dotsync moved into their HOME, so
@@ -431,8 +451,7 @@ run_state_dir_real_test() {
   begin_test state_dir_real_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-real.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home state-dir-real
   probe=$DOTFILE_DIR/common/.config/codex/probe-state.$$
   register_cleanup "$probe"
   mkdir -p "$tmp_home/.config/codex"
@@ -455,8 +474,7 @@ run_state_dir_non_ascii_test() {
   begin_test state_dir_non_ascii_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-ascii.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home state-dir-non-ascii
   index=$(mktemp "${TMPDIR:-/tmp}/state-dir-index.XXXXXX")
   register_cleanup "$index"
   cp "$(git -C "$DOTFILE_DIR" rev-parse --absolute-git-dir)/index" "$index"
@@ -535,8 +553,7 @@ run_state_dir_foreign_link_test() {
   begin_test state_dir_foreign_link_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-foreign.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home state-dir-foreign
   mkdir -p "$tmp_home/.config" "$tmp_home/elsewhere/forge"
   ln -s "$tmp_home/elsewhere/forge" "$tmp_home/.config/forge"
 
@@ -555,8 +572,7 @@ run_state_dir_foreign_owner_test() {
   begin_test state_dir_foreign_owner_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-owner.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home state-dir-owner
   mkdir -p "$tmp_home/bin"
   real_git=$(command -v git)
   cat >"$tmp_home/bin/git" <<EOF
@@ -603,8 +619,7 @@ run_state_dir_git_fail_test() {
   begin_test state_dir_git_fail_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-git.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home state-dir-git
   mkdir -p "$tmp_home/bin"
   printf '#!/bin/sh\necho "fatal: detected dubious ownership" >&2\nexit 128\n' >"$tmp_home/bin/git"
   chmod +x "$tmp_home/bin/git"
@@ -776,8 +791,7 @@ run_stale_link_prune_test() {
 
   # Physical path, as with the dotsync smoke test: stow computes relative
   # targets from the physical location, and the fixture must match.
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/stale-prune-home.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home stale-prune-home
   mkdir -p "$tmp_home/.config/nested"
 
   rel_stale=$(rel_path "$DOTFILE_DIR/common/.config/also-no-such-file" "$tmp_home/.config/nested")
@@ -803,8 +817,7 @@ run_stale_link_besteffort_test() {
   begin_test stale_link_besteffort_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/stale-besteffort-home.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home stale-besteffort-home
   mkdir -p "$tmp_home/.config/locked" "$tmp_home/.config/nested"
 
   ln -s "$DOTFILE_DIR/common/.config/gone-locked" "$tmp_home/.config/locked/repo-stale"
@@ -855,8 +868,7 @@ run_vim_startup_test() {
   capture_log
   require_tool vim "vim startup" || return 0
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/vim-home.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home vim-home
   # Real dirs, as on a used HOME: else stow links ~/.local into the repo and
   # vim's state lands there.
   mkdir -p "$tmp_home/.local/state" "$tmp_home/.local/share"
@@ -889,8 +901,7 @@ run_tool_env_test() {
   begin_test tool_env_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/tool-env.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home tool-env
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
 
   # SC2016: single quotes on purpose; the sh under test expands them.
@@ -1028,8 +1039,7 @@ run_aliases_test() {
   begin_test aliases_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/bash-aliases.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home bash-aliases
   HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
 
   aliases_status=0
@@ -1401,8 +1411,7 @@ run_claude_dotsync_test() {
   begin_test claude_dotsync_test
   capture_log
 
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/claude-dotsync.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  new_home claude-dotsync
   mkdir -p "$tmp_home/.claude"
   echo legacy >"$tmp_home/.claude/settings.json"
   echo legacy >"$tmp_home/.claude/history.jsonl"
@@ -1534,6 +1543,7 @@ run_stale_link_prune_test
 run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_dotsync_unlink_test
+run_new_home_mktemp_fail_test
 run_repo_linked_home_guard_test
 run_state_dir_link_test
 run_state_dir_sub_link_test
