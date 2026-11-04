@@ -313,15 +313,27 @@ repo_state_files() {
   done
 }
 
-# require_no_repo_state: stop a test that links a throwaway HOME into the repo
-# while the repo holds the user's tool state; a repair would move it there.
-require_no_repo_state() {
+# repo_linked_home NAME DIR...: set tmp_home to a throwaway HOME whose DIRs
+# (paths under common/) link whole into the repo, as an older dotsync left
+# them. Refuses while the repo holds the user's tool state: a repair would
+# move it into this HOME, and the cleanup would delete it. Call it bare, not
+# in $(...), so tmp_home and the cleanup reach the test. Link a HOME into the
+# repo only through this helper.
+repo_linked_home() {
   state=$(repo_state_files) || return 1
   if [ -n "$state" ]; then
     echo "state dir: repo holds tool state; move it out first:" >&2
     printf '%s\n' "$state" >&2
     return 1
   fi
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/$1.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  shift
+  for dir in "$@"; do
+    parent=$(dirname "$tmp_home/$dir")
+    mkdir -p "$parent"
+    ln -s "$(rel_path "$DOTFILE_DIR/common/$dir" "$parent")" "$tmp_home/$dir"
+  done
 }
 
 # An older dotsync linked a state dir whole into the repo, and the tool wrote
@@ -331,13 +343,9 @@ run_state_dir_link_test() {
   begin_test state_dir_link_test
   capture_log
 
-  require_no_repo_state
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-home.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
+  repo_linked_home state-dir-home .config/codex
   probe=$DOTFILE_DIR/common/.config/codex/probe-state.$$
   register_cleanup "$probe"
-  mkdir -p "$tmp_home/.config"
-  ln -s "$(rel_path "$DOTFILE_DIR/common/.config/codex" "$tmp_home/.config")" "$tmp_home/.config/codex"
   echo state >"$probe"
   # Real state nests, and git quotes non-ASCII names.
   nested=$DOTFILE_DIR/common/.config/codex/probe-sessions.$$
@@ -385,11 +393,7 @@ run_state_dir_sub_link_test() {
   begin_test state_dir_sub_link_test
   capture_log
 
-  require_no_repo_state
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-sub.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
-  mkdir -p "$tmp_home/.local"
-  ln -s "$(rel_path "$DOTFILE_DIR/common/.local/share" "$tmp_home/.local")" "$tmp_home/.local/share"
+  repo_linked_home state-dir-sub .local/share
   probe=$DOTFILE_DIR/common/.local/share/probe-data.$$
   register_cleanup "$probe"
   echo data >"$probe"
@@ -466,10 +470,7 @@ run_state_dir_parent_link_test() {
   begin_test state_dir_parent_link_test
   capture_log
 
-  require_no_repo_state
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-parent.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
-  ln -s "$(rel_path "$DOTFILE_DIR/common/.config" "$tmp_home")" "$tmp_home/.config"
+  repo_linked_home state-dir-parent .config
   repo_before=$(git -C "$DOTFILE_DIR" status --porcelain --ignored -- common)
   # codex sorts after claude, whose repair unfolds ~/.config first.
   probe=$DOTFILE_DIR/common/.config/codex/probe-state.$$
@@ -501,11 +502,7 @@ run_state_dir_stow_fail_test() {
   begin_test state_dir_stow_fail_test
   capture_log
 
-  require_no_repo_state
-
-  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-stow-fail.XXXXXX")" && pwd -P)
-  register_cleanup "$tmp_home"
-  ln -s "$(rel_path "$DOTFILE_DIR/common/.config" "$tmp_home")" "$tmp_home/.config"
+  repo_linked_home state-dir-stow-fail .config
   echo mine >"$tmp_home/.zshenv"
 
   if HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1; then
