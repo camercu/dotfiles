@@ -429,6 +429,37 @@ run_state_dir_real_test() {
   rm -- "$probe"
 }
 
+# A shipped dir with a non-ASCII name under a marked dir must be real too:
+# git quotes such names unless told not to, and the quoted path matched no
+# marked dir. A temp index ships the probe without touching the real one.
+run_state_dir_non_ascii_test() {
+  begin_test state_dir_non_ascii_test
+  capture_log
+
+  tmp_home=$(CDPATH='' cd -- "$(mktemp -d "${TMPDIR:-/tmp}/state-dir-ascii.XXXXXX")" && pwd -P)
+  register_cleanup "$tmp_home"
+  index=$(mktemp "${TMPDIR:-/tmp}/state-dir-index.XXXXXX")
+  register_cleanup "$index"
+  cp "$(git -C "$DOTFILE_DIR" rev-parse --absolute-git-dir)/index" "$index"
+  shipped=$DOTFILE_DIR/common/.config/codex/probe-café.$$
+  register_cleanup "$shipped"
+  mkdir -p "$shipped"
+  : >"$shipped/f"
+  # e69de29: the empty blob, which git knows without writing an object.
+  GIT_INDEX_FILE=$index git -C "$DOTFILE_DIR" update-index --add \
+    --cacheinfo "100644,e69de29bb2d1d6434b8b29ae775ad8c2e48c5391,common/.config/codex/${shipped##*/}/f"
+
+  HOME="$tmp_home" GIT_INDEX_FILE="$index" \
+    "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+
+  if [ -L "$tmp_home/.config/codex/${shipped##*/}" ] || [ ! -L "$tmp_home/.config/codex/${shipped##*/}/f" ]; then
+    echo "state dir: shipped non-ASCII dir linked whole into the repo" >&2
+    return 1
+  fi  # The next heal test refuses to run while the repo holds state.
+  rm -- "$shipped/f"
+  rmdir -- "$shipped"
+}
+
 # An older dotsync linked all of ~/.config into the repo, so no state dir is
 # itself a link: dotsync must still find and replace the folded parent.
 run_state_dir_parent_link_test() {
@@ -1494,6 +1525,7 @@ run_dotsync_unlink_test
 run_state_dir_link_test
 run_state_dir_sub_link_test
 run_state_dir_real_test
+run_state_dir_non_ascii_test
 run_state_dir_parent_link_test
 run_state_dir_stow_fail_test
 run_state_dir_foreign_link_test
