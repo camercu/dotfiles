@@ -336,6 +336,21 @@ repo_linked_home() {
   done
 }
 
+# The heal tests' cleanup deletes whatever dotsync moved into their HOME, so
+# repo_linked_home must refuse while the repo holds tool state. A subshell
+# fakes that state; the repo stays untouched.
+run_repo_linked_home_guard_test() {
+  begin_test repo_linked_home_guard_test
+  capture_log
+
+  if (repo_state_files() { echo .config/codex/user-state; }
+      repo_linked_home guard-probe .config/codex) >"$LAST_LOG" 2>&1; then
+    echo "state dir: repo_linked_home linked a HOME while the repo holds state" >&2
+    return 1
+  fi
+  grep -q 'repo holds tool state' "$LAST_LOG"
+}
+
 # An older dotsync linked a state dir whole into the repo, and the tool wrote
 # state there. dotsync replaces the link with a real dir and moves the state
 # out of the repo.
@@ -1519,6 +1534,7 @@ run_stale_link_prune_test
 run_stale_link_besteffort_test
 run_dotsync_smoke_test
 run_dotsync_unlink_test
+run_repo_linked_home_guard_test
 run_state_dir_link_test
 run_state_dir_sub_link_test
 run_state_dir_real_test
