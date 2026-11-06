@@ -882,6 +882,51 @@ run_stow_conflict_test() {
   fi
 }
 
+# A fresh distro ships its own copies of files the repo links (Kali's xfce
+# panel and shortcuts). --backup moves such real files aside and links; it
+# must keep the user's content, say where it went, and still refuse any
+# conflict it cannot safely move (a link stow does not own).
+run_stow_backup_test() {
+  begin_test stow_backup_test
+  capture_log
+
+  tmp_home=$(mktemp -d "${TMPDIR:-/tmp}/dotsync-backup.XXXXXX")
+  register_cleanup "$tmp_home"
+  printf 'distro default\n' >"$tmp_home/.zshenv"
+
+  if HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1; then
+    echo "backup: dotsync without --backup replaced a real file" >&2
+    exit 1
+  fi
+  if ! HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" --backup \
+      >"$LAST_LOG" 2>&1; then
+    echo "backup: dotsync --backup failed on a real-file conflict" >&2
+    exit 1
+  fi
+  if [ ! -L "$tmp_home/.zshenv" ]; then
+    echo "backup: ~/.zshenv is not linked after --backup" >&2
+    exit 1
+  fi
+  saved=$(find "$tmp_home/.local/state/dotsync-backup" -name .zshenv -type f)
+  if [ "$(cat "$saved" 2>/dev/null)" != "distro default" ]; then
+    echo "backup: the replaced ~/.zshenv was not kept under dotsync-backup" >&2
+    exit 1
+  fi
+  if ! grep -q "$saved" "$LAST_LOG"; then
+    echo "backup: dotsync did not report where it moved ~/.zshenv" >&2
+    exit 1
+  fi
+
+  rm -f "$tmp_home/.local/bin/zk"
+  mkdir -p "$tmp_home/.local/bin"
+  ln -s "$DOTFILE_DIR/common/.local/bin/zk" "$tmp_home/.local/bin/zk"
+  if HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" --backup \
+      >"$LAST_LOG" 2>&1; then
+    echo "backup: --backup moved or ignored a link stow does not own" >&2
+    exit 1
+  fi
+}
+
 # vim reads its vimrc through a stow link into the repo, so every default
 # under the first 'runtimepath' dir lands in the repo. A launcher with no XDG
 # vars and a C locale (launchd, cron, env -i) must still start cleanly and
@@ -1602,6 +1647,7 @@ run_tool_env_test
 run_vim_startup_test
 run_repo_relative_link_test
 run_stow_conflict_test
+run_stow_backup_test
 run_claude_hook_test
 run_claude_migrate_test
 run_claude_migrate_linked_test

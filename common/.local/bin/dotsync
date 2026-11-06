@@ -27,17 +27,22 @@ DOTFILE_DIR=$(CDPATH='' cd -- "$SCRIPT_DIR/../../.." && pwd -P)
 
 MODE=sync
 AUTO_DISCOVER=0
+BACKUP=0
+BACKUP_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dotsync-backup/$(date +%Y%m%d-%H%M%S)"
 packages=
 
 usage() {
   cat <<'EOF'
-Usage: dotsync [--unlink] [--auto-discover]
+Usage: dotsync [--unlink] [--backup] [--auto-discover]
 
 Without options, dotsync (re)links the managed dotfile packages using stow,
 then points ~/.claude at ~/.config/claude.
 
 Options:
   --unlink  remove all managed dotfile symlinks for the active package set
+  --backup  move real files that block a link to
+            $XDG_STATE_HOME/dotsync-backup/<time>/ first (fresh machines ship
+            their own defaults); other conflicts still stop the run
   --auto-discover  compatibility no-op; stow handles link discovery
   -h, --help  show this help message
 EOF
@@ -83,6 +88,9 @@ parse_args() {
         ;;
       --auto-discover)
         AUTO_DISCOVER=1
+        ;;
+      --backup)
+        BACKUP=1
         ;;
       -h|--help)
         usage
@@ -220,6 +228,20 @@ make_state_dirs() {
   done
 }
 
+# backup_conflicts STOW_OUTPUT: move each real file stow refused to replace
+# into $BACKUP_DIR, keeping its path under $HOME. Only plain files move: a
+# link stow does not own may point anywhere, so it stays a conflict.
+backup_conflicts() {
+  printf '%s\n' "$1" |
+    sed -n 's/.* over existing target \(.*\) since neither a link nor a directory.*/\1/p' |
+    while IFS= read -r target; do
+      [ -f "$HOME/$target" ] && [ ! -L "$HOME/$target" ] || continue
+      mkdir -p "$(dirname "$BACKUP_DIR/$target")"
+      mv -- "$HOME/$target" "$BACKUP_DIR/$target"
+      warn "moved $HOME/$target to $BACKUP_DIR/$target"
+    done
+}
+
 apply_packages() {
   action=-R
   if [ "$MODE" = "unlink" ]; then
@@ -230,6 +252,10 @@ apply_packages() {
     if [ "$MODE" != "unlink" ]; then
       # Repair only once stow is known to succeed: an aborted run would leave
       # an unfolded ~/.config holding nothing but the state dirs.
+      if [ "$BACKUP" -eq 1 ] &&
+          ! dry_run=$(run_stow "$package_name" -n "$action" 2>&1); then
+        backup_conflicts "$dry_run"
+      fi
       if ! dry_run=$(run_stow "$package_name" -n "$action" 2>&1); then
         printf '%s\n' "$dry_run" >&2
         error "stow cannot link $package_name; stopped before changing it"

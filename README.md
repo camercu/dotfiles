@@ -179,6 +179,8 @@ dotsync
 dotsync --unlink
 ```
 
+dotsync stops before linking anything when a real file sits where a link should go. `dotsync --backup` moves such files to `~/.local/state/dotsync-backup/<time>/` first and prints each move; `install.sh` uses it, since a fresh machine ships its own defaults (Kali's xfce panel and shortcuts). Other conflicts, such as a link stow does not own, still stop the run.
+
 On macOS, it stows `common/`, `macos/`, and `nix-darwin/` (admin required).
 On Linux, it stows `common/` and `linux/`.
 

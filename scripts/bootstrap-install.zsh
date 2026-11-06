@@ -97,8 +97,10 @@ ensure_powerlevel10k() {
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$p10k_dir"
 }
 
+# --backup: a fresh machine ships its own copies of linked files (Kali's xfce
+# panel and shortcuts); move them aside instead of stopping the bootstrap.
 install_dotfiles() {
-  "$DOTSYNC_BIN"
+  "$DOTSYNC_BIN" --backup
 }
 
 configure_macos_defaults() {
