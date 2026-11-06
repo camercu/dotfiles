@@ -94,14 +94,17 @@ function maintain {
 
   info "dotfiles: pull + submodules"
   git -C "$dotdir" pull --ff-only || return
-  # Deliberate split: the daily (non-admin) account floats submodules to
-  # upstream HEAD (--remote --merge) and commits the advanced pins; admin
+  # Deliberate split: the daily (non-admin) account floats the zsh plugins
+  # to upstream HEAD (--remote --merge) and commits the advanced pins; admin
   # accounts just check out whatever is pinned. One account curates plugin
-  # versions, every other account reproduces them.
+  # versions, every other account reproduces them. The private agents/bench
+  # submodule is `update = none`, so machines without access skip it. The
+  # pathspec matters: --merge on the command line overrides `update = none`.
   if is-admin; then
     git -C "$dotdir" submodule update --init --recursive || return
   else
-    git -C "$dotdir" submodule update --init --remote --recursive --merge || return
+    git -C "$dotdir" submodule update --init --remote --recursive --merge \
+      -- common/.config/zsh/plugins || return
   fi
 
   info "dotfiles: relink (stow)"

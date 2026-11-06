@@ -94,7 +94,17 @@ The `ollama-aliases` step turns each `~/.config/ollama/<name>.Modelfile` into an
 maintain
 ```
 
-Submodules are handled differently on purpose: the daily (non-admin) account floats them to upstream HEAD (`--remote --merge`) and commits the advanced pins; admin accounts reproduce the pinned SHAs. One account curates plugin versions, every other account follows.
+Submodules are handled differently on purpose: the daily (non-admin) account floats the zsh plugins to upstream HEAD (`--remote --merge`) and commits the advanced pins; admin accounts reproduce the pinned SHAs. One account curates plugin versions, every other account follows.
+
+`common/.config/agents/bench` is a private repo, set to `update = none` in `.gitmodules`, so cloning, bootstrap, `git up` and `maintain` skip it and work without access to it. To fetch it on a machine that has access, run this once:
+
+```sh
+git -C ~/.dotfiles -c submodule.common/.config/agents/bench.update=checkout \
+  submodule update --init common/.config/agents/bench
+git -C ~/.dotfiles/common/.config/agents/bench switch main
+```
+
+After that, nothing updates it automatically: commit and pull in it like any other repo.
 
 On macOS every account also gets a quiet NixOS-release heads-up at the end: nothing is printed normally, and a `[!]` warning appears once the next release (see below) is fully cut and ready for `make upgrade`.
 
