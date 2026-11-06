@@ -8,4 +8,6 @@ mouse-hide-while-typing = true
 quit-after-last-window-closed = true
 scrollback-limit = 4194304
 window-decoration = true
-shell-integration-features = sudo
+# ssh-terminfo: install xterm-ghostty terminfo on hosts we ssh into (cached).
+# ssh-env: fall back to TERM=xterm-256color where that install is not possible.
+shell-integration-features = sudo,ssh-terminfo,ssh-env
