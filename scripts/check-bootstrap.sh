@@ -690,6 +690,24 @@ EOF
 
 # Interactive startup must be silent: any output means a config file or an
 # eval'd tool hook errored (e.g. compdef called before compinit defines it).
+run_bootstrap_fresh_home_test() {
+  begin_test bootstrap_fresh_home_test
+  capture_log
+
+  # A fresh Mac has no ~/.config/zsh until the stow step: bootstrap's env
+  # load and first step must work from the repo alone.
+  new_home bootstrap-fresh
+  # shellcheck disable=SC2016 # expanded by the zsh under test
+  if ! env -i HOME="$tmp_home" PATH="$PATH" zsh -c \
+      '. "$1" && ensure_shell_directories' _ "$SCRIPT_DIR/bootstrap-install.zsh" \
+      >"$LAST_LOG" 2>&1 </dev/null \
+    || [ ! -d "$tmp_home/.cache/zsh" ]; then
+    echo "bootstrap: fresh HOME fails before stow:" >&2
+    cat "$LAST_LOG" >&2
+    exit 1
+  fi
+}
+
 run_zsh_startup_test() {
   begin_test zsh_startup_test
   capture_log
@@ -1541,6 +1559,7 @@ run_shellcheck_test
 run_sourced_lib_test
 begin_test verify_home_manager_hosts
 "$SCRIPT_DIR/verify-home-manager-hosts.sh"
+run_bootstrap_fresh_home_test
 run_zsh_startup_test
 run_zsh_startup_stdin_test
 run_zsh_health_test

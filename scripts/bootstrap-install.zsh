@@ -6,8 +6,11 @@ export DOTFILE_DIR="$(cd "$(dirname "$0")/.." && pwd -P)"
 typeset -r SCRIPTS_DIR="$DOTFILE_DIR/scripts"
 typeset -r DOTSYNC_BIN="$DOTFILE_DIR/common/.local/bin/dotsync"
 
-# load env vars (XDG_*, ZDOTDIR, ...) then the shared script helpers
-builtin source "$DOTFILE_DIR/common/.zshenv"
+# Load env vars (XDG_*, ...) from the repo copy: ~/.config/zsh does not exist
+# until the stow step. ZDOTDIR stays unexported, so child shells use ~/.zshenv.
+ZDOTDIR="$DOTFILE_DIR/common/.config/zsh"
+builtin source "$ZDOTDIR/.zshenv"
+# then the shared script helpers
 builtin source "$SCRIPTS_DIR/lib/logging.sh"  # info/debug/warn/error/success
 builtin source "$SCRIPTS_DIR/lib/checks.sh"   # is_macos/is_linux/is_admin/...
 
@@ -132,4 +135,7 @@ main() {
   success "Bootstrap complete."
 }
 
-main "$@"
+# Sourced (check-bootstrap tests single steps): define functions only.
+if [[ $ZSH_EVAL_CONTEXT == toplevel ]]; then
+  main "$@"
+fi
