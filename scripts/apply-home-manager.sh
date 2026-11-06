@@ -36,6 +36,8 @@ if HOST_SYSTEM=$("$HOST_HELPER" lookup-system "$RAW_NAME" 2>/dev/null); then
   esac
 fi
 
+# --inputs-from: run the home-manager CLI the flake locks, so CLI and module
+# versions cannot drift apart across NixOS release bumps.
 nix --extra-experimental-features 'nix-command flakes' \
-  run home-manager/release-25.05 -- \
+  run --inputs-from "$FLAKE_URI" home-manager -- \
   switch -b hm-backup --flake "$FLAKE_URI#$CONFIG_NAME" "$@"

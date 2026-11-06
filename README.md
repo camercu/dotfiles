@@ -148,7 +148,7 @@ make upgrade RELEASE=26.11
 On Linux, the root flake's `homeConfigurations` apply directly:
 
 ```sh
-nix run home-manager/release-25.05 -- \
+nix run --inputs-from path:$HOME/.dotfiles home-manager -- \
   switch --flake path:$HOME/.dotfiles#somnambulist
 ```
 
