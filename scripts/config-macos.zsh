@@ -69,17 +69,14 @@ configure_trackpad() {
   defaults -currentHost write NSGlobalDomain "com.apple.mouse.tapBehavior" -int 1
   defaults write com.apple.AppleMultitouchTrackpad TrackpadRightClick -bool true
   defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
-  # Three-finger drag, as System Settings writes it: three-finger swipes move
-  # to four fingers so they don't claim the drag. Takes effect after logout.
+  # Three-finger drag; three-finger swipes move to four fingers so they don't
+  # claim the drag. Trackpad settings load at login only.
   local domain
   for domain in com.apple.AppleMultitouchTrackpad com.apple.driver.AppleBluetoothMultitouch.trackpad; do
     defaults write "$domain" TrackpadThreeFingerDrag -bool true
     defaults write "$domain" TrackpadThreeFingerHorizSwipeGesture -int 0
     defaults write "$domain" TrackpadThreeFingerVertSwipeGesture -int 0
   done
-  defaults -currentHost write NSGlobalDomain com.apple.trackpad.threeFingerDragGesture -int 1
-  defaults -currentHost write NSGlobalDomain com.apple.trackpad.threeFingerHorizSwipeGesture -int 0
-  defaults -currentHost write NSGlobalDomain com.apple.trackpad.threeFingerVertSwipeGesture -int 0
   defaults write NSGlobalDomain "com.apple.trackpad.scaling" -float 1
 }
 
@@ -128,6 +125,7 @@ main() {
   configure_safari
   configure_admin_settings
   restart_affected_services
+  warn "Log out and back in to apply trackpad settings."
 }
 
 main "$@"
