@@ -90,6 +90,13 @@ ensure_homebrew() {
   builtin eval "$(/opt/homebrew/bin/brew shellenv)"
 }
 
+# .zshrc sources the theme from the zsh cache dir; clone it there once.
+ensure_powerlevel10k() {
+  local p10k_dir="$__zsh_cache_dir/powerlevel10k"
+  [[ -s "$p10k_dir/powerlevel10k.zsh-theme" ]] && return 0
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$p10k_dir"
+}
+
 install_dotfiles() {
   "$DOTSYNC_BIN"
 }
@@ -129,6 +136,7 @@ main() {
   run_step "Loading Nix environment"             load_nix_environment
   run_step "Installing Homebrew (if needed)"     ensure_homebrew
   run_step "Linking dotfiles (stow)"             install_dotfiles
+  run_step "Installing powerlevel10k (if needed)" ensure_powerlevel10k
   run_step "Configuring macOS defaults"          configure_macos_defaults
   run_step "Applying nix-darwin (if needed)"     ensure_nix_darwin
   run_step "Applying home-manager (if enabled)"  maybe_apply_home_manager
