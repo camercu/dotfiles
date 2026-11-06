@@ -95,10 +95,8 @@
 
       homebrew = {
         enable = true;
-        onActivation = {
-          cleanup = "uninstall";
-          extraFlags = ["--force-cleanup"];
-        };
+        # nix-darwin passes --force-cleanup itself for "uninstall".
+        onActivation.cleanup = "uninstall";
         casks = [
           "1password"
           "1password-cli"
