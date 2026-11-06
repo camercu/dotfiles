@@ -82,11 +82,12 @@ maintain
 
 **macOS (non-admin):**
 ```sh
-# git pull + submodule update (float to upstream) + dotsync + ollama-aliases --pull + ollama-aliases-check
+# git pull + submodule update (float to upstream) + dotsync
+# + ollama-aliases --pull + ollama-aliases-check (user cameron on Roci only)
 maintain
 ```
 
-The `ollama-aliases` step turns each `~/.config/ollama/<name>.Modelfile` into an Ollama model named `<name>`. This is where each model gets its own context size. It runs only for non-admin accounts: under `su cadmin`, the daily account's server still answers on localhost. It also skips itself when no Ollama server answers. When omp is installed, `ollama-aliases-check` then confirms that omp sees the same context size and image support that Ollama serves for each model. A failure in either step prints a warning and doesn't stop `maintain`.
+The `ollama-aliases` step turns each `~/.config/ollama/<name>.Modelfile` into an Ollama model named `<name>`. This is where each model gets its own context size. Model pulls are many GB, so this step runs only for user `cameron` on Roci (`ollama-models-wanted` in `aliases.sh`). Every other host and account skips it, including `su cadmin` on Roci, where the daily account's server still answers on localhost. It also skips itself when no Ollama server answers. When omp is installed, `ollama-aliases-check` then confirms that omp sees the same context size and image support that Ollama serves for each model. A failure in either step prints a warning and doesn't stop `maintain`.
 
 **Linux (admin):**
 ```sh

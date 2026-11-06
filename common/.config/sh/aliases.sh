@@ -83,6 +83,17 @@ function cdf {
             ')" || return
 }
 
+##? ollama-models-wanted [user] [host-config]: should maintain pull models here?
+# Pulls are many GB, so only the daily account on Roci gets them; every other
+# host and account that shares these dotfiles skips them. Checking the user,
+# not just is-admin: under `su cadmin` the daily account's server still
+# answers on localhost, so the script's no-server skip is not enough.
+function ollama-models-wanted {
+  local user="${1:-$(id -un)}"
+  local host="${2:-$("$HOME/.dotfiles/scripts/home-manager-host.sh" current-config 2>/dev/null)}"
+  [[ "$user" == cameron && "$host" == roci ]]
+}
+
 ##? maintain: one-shot, non-interactive system + dotfiles update.
 # Pulls dotfiles (fast-forward only, no editor), syncs submodules + stow links,
 # then updates platform packages. cwd is never changed (git -C + subshell) and
@@ -110,9 +121,7 @@ function maintain {
   info "dotfiles: relink (stow)"
   dotsync || return
 
-  # Daily account only. Under `su cadmin` the daily account's server still
-  # answers on localhost, so the script's no-server skip is not enough.
-  if is-installed ollama && ! is-admin; then
+  if is-installed ollama && ollama-models-wanted; then
     info "ollama: pull bases + recreate aliases"
     ollama-aliases --pull || warn "ollama-aliases failed; see output above"
     if is-installed omp; then

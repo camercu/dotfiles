@@ -1119,6 +1119,22 @@ run_aliases_test() {
     fi
   done
 
+  # Model pulls are many GB: maintain may pull them for one account on one
+  # machine only, never on other hosts or users that share these dotfiles.
+  for ollama_case in "cameron roci 0" "cameron kali 1" "cr4nk roci 1" \
+      "cadmin roci 1" "cameron theark 1"; do
+    # shellcheck disable=SC2086 # split "user host want" into $1..$3
+    set -- $ollama_case
+    actual=0
+    HOME="$tmp_home" bash -c \
+      ". \"\$HOME/.config/sh/aliases.sh\"; ollama-models-wanted $1 $2" \
+      >/dev/null 2>&1 || actual=1
+    if [ "$actual" != "$3" ]; then
+      echo "aliases.sh: ollama-models-wanted $1 $2 exited $actual, want $3" >&2
+      aliases_status=1
+    fi
+  done
+
   return "$aliases_status"
 }
 
