@@ -67,8 +67,11 @@ else
     builtin source "$ZDOTDIR/p10k.zsh"
 fi
 # After the configs: each one starts by unsetting every POWERLEVEL9K_* var.
-# Kali gets a skull (nf-md-skull, U+F068C) instead of the stock penguin.
-typeset -g POWERLEVEL9K_LINUX_KALI_ICON=$'\U000F068C'
+# Kali gets a red skull (nf-md-skull, U+F068C) instead of the stock penguin.
+if [[ -r /etc/os-release ]] && (( ${${(f)"$(</etc/os-release)"}[(I)ID=kali]} )); then
+  typeset -g POWERLEVEL9K_LINUX_KALI_ICON=$'\U000F068C'
+  typeset -g POWERLEVEL9K_OS_ICON_FOREGROUND=196
+fi
 if [[ -s "${__p10k_dir}/powerlevel10k.zsh-theme" ]]; then
   builtin source "${__p10k_dir}/powerlevel10k.zsh-theme"
 else
