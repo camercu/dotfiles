@@ -125,9 +125,14 @@ function maintain {
     # a non-admin user can neither rebuild nix-darwin nor write to /opt/homebrew.
     # So these run for admins only (matches the original per-account maintain).
     if is-admin; then
+      # brew update first: nix-darwin activation runs `brew bundle` with
+      # flags from the current nix-darwin, and an older brew rejects them,
+      # failing maintain before it could ever update brew.
+      info "homebrew: update"
+      NONINTERACTIVE=1 HOMEBREW_NO_ENV_HINTS=1 brew update || return
       info "nix-darwin: update"
       make -C "$HOME/.config/nix-darwin" update || return
-      info "homebrew: update + upgrade + cleanup"
+      info "homebrew: upgrade + cleanup"
       (
         export NONINTERACTIVE=1 HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_ENV_HINTS=1 HOMEBREW_NO_ASK=1
         # Cask upgrades get --force: unlike the formula path, brew hard-aborts
@@ -136,8 +141,7 @@ function maintain {
         # prior manual install or a stale link) — --force tells it to
         # overwrite rather than bail. Kept off the formula pass since there
         # it also disables keg-only/migration safety checks we do want.
-        brew update &&
-          brew upgrade --formula &&
+        brew upgrade --formula &&
           brew upgrade --cask --force &&
           brew cleanup
       ) || return
