@@ -66,6 +66,9 @@ if [[ "${ZSH_ADMIN_PROMPT:-0}" == "1" ]] || (( EUID == 0 )) || [[ " $(groups 2>/
 else
     builtin source "$ZDOTDIR/p10k.zsh"
 fi
+# After the configs: each one starts by unsetting every POWERLEVEL9K_* var.
+# Kali gets a skull (nf-md-skull, U+F068C) instead of the stock penguin.
+typeset -g POWERLEVEL9K_LINUX_KALI_ICON=$'\U000F068C'
 if [[ -s "${__p10k_dir}/powerlevel10k.zsh-theme" ]]; then
   builtin source "${__p10k_dir}/powerlevel10k.zsh-theme"
 else
