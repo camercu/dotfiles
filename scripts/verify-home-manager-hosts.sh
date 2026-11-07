@@ -275,9 +275,26 @@ verify_linux_gcm() {
     fail "kali@kali does not install git-credential-manager, which its git config uses"
 }
 
+# Linux hosts get from nix what the Mac gets from nix-darwin: the CLI tools
+# the shell and git config call (delta is git's pager, lsd backs ls), the
+# fonts that ghostty/config and the xfce panel name, and rustup at the
+# XDG paths env/rust.sh sets.
+verify_linux_user_tools() {
+  have_nix || return 0
+  names=$(hm_package_names kali@kali) || fail "could not evaluate kali@kali packages"
+  for want in delta:out lsd:out procs:out tealdeer:out xh:out entr:out jq:bin \
+    rustup:out nerd-fonts-meslo-lg:out nerd-fonts-fira-code:out; do
+    printf '%s\n' "$names" | grep -qx "$want" || fail "kali@kali does not install $want"
+  done
+  [ "$(nix --extra-experimental-features 'nix-command flakes' eval \
+    "path:$DOTFILE_DIR#homeConfigurations.\"kali@kali\".config.fonts.fontconfig.enable")" = true ] ||
+    fail "kali@kali installs fonts without fontconfig, so apps cannot find them"
+}
+
 verify_nix_rejects_bad_rows
 verify_system_ghostty
 verify_linux_gcm
+verify_linux_user_tools
 verify_panel_launchers
 verify_apply_target
 verify_shell_hosts
