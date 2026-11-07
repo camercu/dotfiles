@@ -163,6 +163,13 @@ verify_apply_target() {
     *) fail "expected apply for cr4nk on kali to switch to '#cr4nk@kali', got '$out'" ;;
   esac
 
+  # bootstrap-install.zsh and the Makefile pass an empty name to mean "detect".
+  out=$(run_on_kali_as cr4nk "$APPLY" "") || fail "apply-home-manager.sh '' failed for cr4nk on kali"
+  case "$out" in
+    *"#cr4nk@kali") ;;
+    *) fail "expected apply '' for cr4nk on kali to detect '#cr4nk@kali', got '$out'" ;;
+  esac
+
   out=$(run_on_kali_as bob "$APPLY") || fail "apply-home-manager.sh failed for bob on kali"
   case "$out" in
     *"#kali") ;;

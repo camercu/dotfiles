@@ -16,7 +16,9 @@ if ! command -v nix >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ $# -gt 0 ]; then
+# An empty name, as callers pass for an unset HOME_MANAGER_CONFIG, means
+# detect this machine's config.
+if [ -n "${1:-}" ]; then
   RAW_NAME=$1
 elif ! RAW_NAME=$("$HOST_HELPER" current-config); then
   error "add a row for this machine to $HOSTS_FILE, or pass a config name"
