@@ -1,16 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_SHELL": "/run/current-system/sw/bin/bash"
+  },
   "attribution": {
     "commit": "",
     "pr": "",
     "sessionUrl": false
   },
   "includeGitInstructions": false,
-  "env": {
-    "CLAUDE_CODE_SHELL": "/run/current-system/sw/bin/bash"
-  },
-  "autoContinueAtUsageLimit": true,
-  "autoCompactWindow": 300000,
   "permissions": {
     "allow": [
       "Edit",
@@ -75,10 +73,53 @@
     "starship-claude@starship-claude": true,
     "nono@nolabs-ai": true
   },
+  "autoCompactWindow": 300000,
   "tui": "fullscreen",
   "editorMode": "vim",
+  "autoContinueAtUsageLimit": true,
   "terminalProgressBarEnabled": true,
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: not queryable here via gh — assume private per shipped default, but treat as possibly public since visibility could not be verified; the repo name/remote (github.com/camercu/blivet) does not itself indicate public or private",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: main (default branch, trunk-based per CLAUDE.md); protected-branch/ruleset status not queryable here — treat main as protected by default given trunk-based workflow and CI gating described in repo docs",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine with open internet",
+      "**Source control**: The trusted repo (github.com/camercu/blivet) and its origin remote only — no additional orgs configured",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: None configured",
+      "**Internal package registry**: None configured — crates.io used as the public Rust registry, not an internal registry",
+      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar — note .envrc and scripts/agent-attribution-allowlist.txt flagged as sensitive-looking paths in this repo",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries prod or production as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries prod or production as a whole word or name segment",
+      "**Primary use of Claude Code**: software development",
+      "**Repository visibility**: not queryable here for camercu/dotfiles — treat as possibly public (repo name/owner suggest a personal public dotfiles repo); scope commits/pushes accordingly",
+      "**Default / protected branches**: main (default branch per repo facts); protection status not queryable here — treat as unverified",
+      "**Source control**: The trusted repo (github.com/camercu/dotfiles) and its origin remote only",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar; note .gitignore'd `.github-api-token` and tracked `linux/.config/git/config-credential` / `macos/.config/git/config-credential` paths in this repo as likely credential-adjacent files",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (Rust daemon library, blivet)",
+      "**Trusted repo**: github.com/camercu/blivet (working directory repo) and its origin remote — visibility unverified, treat as possibly public for commit/push scoping",
+      "**Org-specific CLIs**: None configured — nix-shell, rtk, perl, podman seen as project tooling but no org-specific CLI identified",
+      "routine under ~/repos/blivet/ prefix: nix-shell-wrapped toolchain commands (cargo, make targets like build/check/lint/ci) and rtk usage are routine in this repo",
+      "**Primary use of Claude Code**: software development (personal dotfiles/nix configuration management)",
+      "**Trusted repo**: /Users/cameron/.dotfiles (github.com/camercu/dotfiles, origin) — repo visibility unverified, treat as possibly public",
+      "**Org-specific CLIs**: None configured — note repo-local tools seen in usage: nix-shell, dotsync, omp, rtk, ollama",
+      "routine under /Users/cameron/.dotfiles/ prefix: nix-shell-wrapped tool invocations and Makefile targets (check-config, switch, update, upgrade, test) are routine project operations"
+    ]
+  }
 }
