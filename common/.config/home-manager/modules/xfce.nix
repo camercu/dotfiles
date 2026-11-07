@@ -19,5 +19,13 @@ lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     xfce4-session = {
       "shutdown/LockScreen" = false;
     };
+    # Top-bar launchers, named by their files in linux/.config/xfce4/panel/
+    # launcher-N. Without these lists the panel keeps Kali's own entries and
+    # copies the linked files in again on each run, duplicating tiles.
+    xfce4-panel = {
+      "plugins/plugin-5/items" = ["text-editor.desktop"];
+      "plugins/plugin-6/items" = ["firefox-esr.desktop"];
+      "plugins/plugin-7/items" = ["ghostty.desktop" "root-terminal.desktop"];
+    };
   };
 }

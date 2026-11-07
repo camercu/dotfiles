@@ -236,8 +236,33 @@ verify_system_ghostty() {
     fail "somnambulist no longer installs nix ghostty"
 }
 
+# Each xfce launcher lists its tiles by file name in xfconf. A file the list
+# does not name is imported again as a fresh copy on the next login, which
+# duplicates tiles; a name with no file is a blank tile. So the list in
+# xfce.nix and the files under panel/launcher-N must match exactly.
+verify_panel_launchers() {
+  have_nix || return 0
+  settings=$(nix --extra-experimental-features 'nix-command flakes' eval --json \
+    "path:$DOTFILE_DIR#homeConfigurations.\"kali@kali\".config.xfconf.settings.xfce4-panel") ||
+    fail "could not evaluate kali@kali xfce4-panel settings"
+  problems=$(printf '%s' "$settings" | python3 -c '
+import json, os, re, sys
+panel = sys.argv[1]
+items = {m.group(1): v for k, v in json.load(sys.stdin).items()
+         if (m := re.fullmatch(r"plugins/plugin-(\d+)/items", k))}
+shipped = {d[len("launcher-"):]: sorted(f for f in os.listdir(os.path.join(panel, d))
+                                        if f.endswith(".desktop"))
+           for d in os.listdir(panel) if d.startswith("launcher-")}
+for n in sorted(set(items) | set(shipped)):
+    if sorted(items.get(n, [])) != shipped.get(n, []):
+        print(f"launcher-{n}: items {items.get(n)} but files {shipped.get(n)}")
+' "$DOTFILE_DIR/linux/.config/xfce4/panel")
+  [ -z "$problems" ] || fail "xfce panel items and launcher files differ: $problems"
+}
+
 verify_nix_rejects_bad_rows
 verify_system_ghostty
+verify_panel_launchers
 verify_apply_target
 verify_shell_hosts
 verify_nix_hosts
