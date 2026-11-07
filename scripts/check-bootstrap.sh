@@ -1199,6 +1199,7 @@ run_terminfo_env_test() {
 
   terminfo_status=0
   for shell_cmd in "zsh -c" "zsh -ic" "bash --norc -c"; do
+    # shellcheck disable=SC2016 # the child shell expands it
     show='printf %s "$TERMINFO_DIRS"'
     case $shell_cmd in
       bash*) show=". '$DOTFILE_DIR/linux/.bash_aliases'; $show" ;;
