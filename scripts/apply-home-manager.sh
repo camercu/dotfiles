@@ -16,9 +16,12 @@ if ! command -v nix >/dev/null 2>&1; then
   exit 1
 fi
 
-# current-config prefers a user@host row; with no row at all, keep the bare
-# name so the error below says what was looked up.
-RAW_NAME=${1:-$("$HOST_HELPER" current-config 2>/dev/null || "$HOST_HELPER" current-name)}
+if [ $# -gt 0 ]; then
+  RAW_NAME=$1
+elif ! RAW_NAME=$("$HOST_HELPER" current-config); then
+  error "add a row for this machine to $HOSTS_FILE, or pass a config name"
+  exit 1
+fi
 
 if [ $# -gt 0 ]; then
   shift

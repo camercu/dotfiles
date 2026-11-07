@@ -88,11 +88,15 @@ case "$command" in
     # user@host row wins over the plain host row. An explicit
     # HOME_MANAGER_CONFIG is taken as given.
     host=$(detect_host)
-    if [ -z "${HOME_MANAGER_CONFIG:-}" ] &&
-      lookup_host_field "$(id -un)@$host" config; then
-      exit 0
+    tried="'$host'"
+    if [ -z "${HOME_MANAGER_CONFIG:-}" ]; then
+      user_host="$(id -un)@$host"
+      lookup_host_field "$user_host" config && exit 0
+      tried="'$user_host', $tried"
     fi
-    lookup_host_field "$host" config
+    lookup_host_field "$host" config && exit 0
+    printf 'no config in %s matches: tried %s\n' "$HOSTS_FILE" "$tried" >&2
+    exit 1
     ;;
   resolve-config)
     [ $# -eq 2 ] || usage

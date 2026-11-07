@@ -105,7 +105,13 @@ for host in json.load(sys.stdin):
     fail "hosts.nix and hosts.tsv disagree on config/system pairs"
 }
 
-# Runs $2... on a Linux host called kali, logged in as $1.
+# hosts.tsv rows for run_on_kali_as. cr4nkkali is a decoy: it collides with
+# cr4nk@kali if a normalizer ever drops the @.
+KALI_ROWS='kali|aarch64-linux|kali|||||
+cr4nkkali|aarch64-linux|cr4nkkali|||||
+cr4nk@kali|aarch64-linux|cr4nk|||||'
+
+# Runs $2... on a Linux host called kali, logged in as $1, with $KALI_ROWS.
 run_on_kali_as() {
   user=$1
   shift
@@ -114,9 +120,7 @@ run_on_kali_as() {
   printf '#!/bin/sh\necho %s\n' "$user" > "$STUB_DIR/id"
   printf '#!/bin/sh\necho "$@"\n' > "$STUB_DIR/nix"
   chmod +x "$STUB_DIR/uname" "$STUB_DIR/hostname" "$STUB_DIR/id" "$STUB_DIR/nix"
-  printf '%s\n' \
-    'kali|aarch64-linux|kali|||||' \
-    'cr4nk@kali|aarch64-linux|cr4nk|||||' > "$STUB_DIR/hosts.tsv"
+  printf '%s\n' "$KALI_ROWS" > "$STUB_DIR/hosts.tsv"
   env -u HOME_MANAGER_CONFIG PATH="$STUB_DIR:$PATH" \
     HOME_MANAGER_HOSTS_FILE="$STUB_DIR/hosts.tsv" "$@"
 }
@@ -139,6 +143,16 @@ verify_current_config() {
     fail "current-config failed for HOME_MANAGER_CONFIG=kali"
   [ "$actual" = "kali" ] ||
     fail "expected HOME_MANAGER_CONFIG=kali to win over 'cr4nk@kali', got '$actual'"
+
+  # With no row for bob, the error must name both names tried, so the fix
+  # (add a bob@kali row) is obvious.
+  if err=$(KALI_ROWS='cr4nk@kali|aarch64-linux|cr4nk|||||' current_config_as bob 2>&1); then
+    fail "current-config matched a config for bob with no row: '$err'"
+  fi
+  case "$err" in
+    *"'bob@kali'"*"'kali'"*) ;;
+    *) fail "current-config error for bob should name 'bob@kali' and 'kali', got '$err'" ;;
+  esac
 }
 
 # apply-home-manager.sh must switch to the same config current-config picks.
@@ -147,6 +161,26 @@ verify_apply_target() {
   case "$out" in
     *"#cr4nk@kali"*) ;;
     *) fail "expected apply for cr4nk on kali to switch to '#cr4nk@kali', got '$out'" ;;
+  esac
+
+  out=$(run_on_kali_as bob "$APPLY") || fail "apply-home-manager.sh failed for bob on kali"
+  case "$out" in
+    *"#kali") ;;
+    *) fail "expected apply for bob on kali to fall back to '#kali', got '$out'" ;;
+  esac
+
+  out=$(run_on_kali_as bob "$APPLY" cr4nk@kali) || fail "apply-home-manager.sh cr4nk@kali failed"
+  case "$out" in
+    *"#cr4nk@kali") ;;
+    *) fail "expected an explicit cr4nk@kali to win for bob, got '$out'" ;;
+  esac
+
+  if err=$(KALI_ROWS='cr4nk@kali|aarch64-linux|cr4nk|||||' run_on_kali_as bob "$APPLY" 2>&1); then
+    fail "apply-home-manager.sh switched for bob with no row: '$err'"
+  fi
+  case "$err" in
+    *"'bob@kali'"*) ;;
+    *) fail "apply error for bob should name 'bob@kali', got '$err'" ;;
   esac
 }
 

@@ -115,8 +115,7 @@ ensure_nix_darwin() {
 
   typeset -r nix_bin="$(command -v nix)"
   local darwin_config
-  darwin_config="$("$SCRIPTS_DIR/home-manager-host.sh" current-config 2>/dev/null)" \
-    || darwin_config="$("$SCRIPTS_DIR/home-manager-host.sh" current-name)"
+  darwin_config="$("$SCRIPTS_DIR/home-manager-host.sh" current-config)" || return 1
 
   sudo -H "$nix_bin" run nix-darwin#darwin-rebuild -- switch --flake "path:$DOTFILE_DIR#$darwin_config"
 }

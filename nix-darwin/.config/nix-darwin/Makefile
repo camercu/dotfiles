@@ -1,5 +1,5 @@
 DOTFILE_DIR ?= $(shell realpath $$HOME/.dotfiles)
-CONFIG ?= $(shell "$(DOTFILE_DIR)/scripts/home-manager-host.sh" current-config 2>/dev/null || "$(DOTFILE_DIR)/scripts/home-manager-host.sh" current-name 2>/dev/null || true)
+CONFIG ?= $(shell "$(DOTFILE_DIR)/scripts/home-manager-host.sh" current-config || true)
 
 .PHONY: check-config
 check-config:
