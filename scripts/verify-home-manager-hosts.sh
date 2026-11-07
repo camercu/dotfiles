@@ -267,8 +267,17 @@ for n in sorted(set(items) | set(shipped)):
   [ -z "$problems" ] || fail "xfce panel items and launcher files differ: $problems"
 }
 
+# linux/.config/git/config-credential runs git-credential-manager from the
+# Home Manager profile; without the package every https push fails.
+verify_linux_gcm() {
+  have_nix || return 0
+  hm_package_names kali@kali | grep -qx git-credential-manager:out ||
+    fail "kali@kali does not install git-credential-manager, which its git config uses"
+}
+
 verify_nix_rejects_bad_rows
 verify_system_ghostty
+verify_linux_gcm
 verify_panel_launchers
 verify_apply_target
 verify_shell_hosts

@@ -32,6 +32,8 @@ in {
         # Listed on its own so hosts reached over ssh keep xterm-ghostty even
         # without the GUI app; env/terminfo.sh puts it on TERMINFO_DIRS.
         ghostty.terminfo
+        # linux/.config/git/config-credential runs it from the profile.
+        git-credential-manager
         wl-clipboard
       ];
 
