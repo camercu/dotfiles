@@ -1183,6 +1183,53 @@ run_aliases_test() {
   return "$aliases_status"
 }
 
+# Home Manager puts terminal entries (xterm-ghostty) in ~/.nix-profile, where
+# a distro's ncurses never looks. Every shell must search there, still reach
+# the system entries (an empty element means the compiled-in dirs), and keep
+# a TERMINFO_DIRS it inherits. Asserted on the variable: resolving a real
+# entry would depend on which ncurses build each shell's PATH finds first.
+run_terminfo_env_test() {
+  begin_test terminfo_env_test
+  capture_log
+
+  new_home terminfo-env
+  HOME="$tmp_home" "$DOTFILE_DIR/common/.local/bin/dotsync" >"$LAST_LOG" 2>&1
+  mkdir -p "$tmp_home/.nix-profile/share/terminfo"
+  want="$tmp_home/.nix-profile/share/terminfo"
+
+  terminfo_status=0
+  for shell_cmd in "zsh -c" "zsh -ic" "bash --norc -c"; do
+    show='printf %s "$TERMINFO_DIRS"'
+    case $shell_cmd in
+      bash*) show=". '$DOTFILE_DIR/linux/.bash_aliases'; $show" ;;
+    esac
+    # shellcheck disable=SC2086 # split "zsh -ic" into command and flag
+    got=$(env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb $shell_cmd "$show" \
+      </dev/null 2>/dev/null)
+    case :$got: in
+      *:"$want":*) ;;
+      *) echo "terminfo env: '$shell_cmd' does not search $want ($got)" >&2
+         terminfo_status=1 ;;
+    esac
+    case :$got: in
+      *::*|*:/usr/share/terminfo:*) ;;
+      *) echo "terminfo env: '$shell_cmd' hides the system entries ($got)" >&2
+         terminfo_status=1 ;;
+    esac
+    # nix-darwin's /etc/zshenv sets TERMINFO_DIRS itself on macOS.
+    [ "$(uname -s)" = Darwin ] && continue
+    # shellcheck disable=SC2086
+    got=$(env -i HOME="$tmp_home" PATH="$PATH" TERM=dumb \
+      TERMINFO_DIRS=/inherited $shell_cmd "$show" </dev/null 2>/dev/null)
+    case :$got: in
+      *:/inherited:*) ;;
+      *) echo "terminfo env: '$shell_cmd' dropped an inherited TERMINFO_DIRS ($got)" >&2
+         terminfo_status=1 ;;
+    esac
+  done
+  return "$terminfo_status"
+}
+
 # Shell scripts in common/.local/bin, found by shebang so new ones are checked
 # without editing this file (python and uv scripts live there too).
 bin_shell_scripts() {
@@ -1644,6 +1691,7 @@ run_logging_parity_test
 run_predicate_parity_test
 run_aliases_test
 run_tool_env_test
+run_terminfo_env_test
 run_vim_startup_test
 run_repo_relative_link_test
 run_stow_conflict_test

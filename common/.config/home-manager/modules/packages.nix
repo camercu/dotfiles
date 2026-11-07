@@ -21,6 +21,9 @@ in {
       ]
       ++ lib.optionals isLinux [
         ghostty
+        # Listed on its own so hosts reached over ssh keep xterm-ghostty even
+        # without the GUI app; env/terminfo.sh puts it on TERMINFO_DIRS.
+        ghostty.terminfo
         wl-clipboard
       ];
 
