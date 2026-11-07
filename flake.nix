@@ -150,7 +150,7 @@
     };
 
     mkDarwinHost = {host}: let
-      extraModules = map (modulePath: dotfilesRoot + "/${modulePath}") host.darwinExtraModules;
+      extraModules = map (modulePath: dotfilesRoot + "/${modulePath}") host.extraModules;
     in
       nix-darwin.lib.darwinSystem {
         modules =
@@ -204,6 +204,7 @@
         name = host.configName;
         value = mkHome {
           inherit (host) system username;
+          extraModules = map (modulePath: dotfilesRoot + "/${modulePath}") host.extraModules;
           homeDirectory =
             if host.homeDirectory == ""
             then null

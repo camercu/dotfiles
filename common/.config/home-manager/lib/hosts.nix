@@ -36,7 +36,7 @@
         if primaryUser != ""
         then primaryUser
         else null;
-      darwinExtraModules = parseModulePaths (field 7);
+      extraModules = parseModulePaths (field 7);
     };
 
   hosts = map parseHost readHostLines;

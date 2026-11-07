@@ -10,10 +10,12 @@ A [Nix](https://nixos.org/)-based dotfiles repository using a two-layer approach
 Hosts are defined in `common/.config/home-manager/hosts.tsv` using this format:
 
 ```
-config_name|system|username|home_directory|aliases|display_name|primary_user|darwin_extra_modules
+config_name|system|username|home_directory|aliases|display_name|primary_user|extra_modules
 ```
 
 The current host is auto-detected via `scutil --get ComputerName` (macOS) or `hostname -s` (Linux). You can override the active host with the `HOME_MANAGER_CONFIG` environment variable.
+
+`extra_modules` lists extra module files, comma-separated, relative to the repo root: nix-darwin modules on macOS hosts, Home Manager modules on Linux hosts. The Kali rows use `modules/system-ghostty.nix`, because hackbox-init installs Ghostty there as a system package.
 
 A `config_name` of `user@host` matches only that user on that host, and wins over a plain `host` row. Use it when machines share a hostname, such as Kali VMs, which are all called `kali`.
 

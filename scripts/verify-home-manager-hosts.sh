@@ -45,7 +45,7 @@ verify_shell_lookup() {
 }
 
 verify_shell_hosts() {
-  while IFS='|' read -r config_name system _username _home_directory aliases _display_name _primary_user darwin_extra_modules; do
+  while IFS='|' read -r config_name system _username _home_directory aliases _display_name _primary_user extra_modules; do
     case "$config_name" in
       ""|\#*)
         continue
@@ -64,10 +64,10 @@ verify_shell_hosts() {
 
     old_ifs=$IFS
     IFS=','
-    for module_path in $darwin_extra_modules; do
+    for module_path in $extra_modules; do
       [ -n "$module_path" ] || continue
       [ -f "$DOTFILE_DIR/$module_path" ] ||
-        fail "host '$config_name' references missing darwin module '$module_path'"
+        fail "host '$config_name' references missing module '$module_path'"
     done
     IFS=$old_ifs
   done < "$HOSTS_FILE"
@@ -178,7 +178,32 @@ verify_nix_rejects_bad_rows() {
   expect_nix_rejects 'cr4nk@kali|aarch64-linux|kali|||||' "a user part that differs from its username"
 }
 
+# pname:output of each package a Linux Home Manager config installs, one per
+# line. ghostty.terminfo shares ghostty's pname, so the output tells them apart.
+# shellcheck disable=SC2016 # ${...} in --apply is nix, not shell
+hm_package_names() {
+  nix --extra-experimental-features 'nix-command flakes' eval --raw \
+    "path:$DOTFILE_DIR#homeConfigurations.\"$1\".config.home.packages" \
+    --apply 'ps: builtins.concatStringsSep "\n" (map (p: "${p.pname or p.name}:${p.outputName or "out"}") ps)'
+}
+
+# Kali VMs get Ghostty from a system .deb (hackbox-init), built against the
+# system's GL. A nix ghostty earlier on PATH would shadow it.
+verify_system_ghostty() {
+  have_nix || return 0
+  for config in kali@kali cr4nk@kali; do
+    names=$(hm_package_names "$config") || fail "could not evaluate $config packages"
+    printf '%s\n' "$names" | grep -qx ghostty:out &&
+      fail "$config installs nix ghostty; it should use the system package"
+    printf '%s\n' "$names" | grep -qx ghostty:terminfo ||
+      fail "$config lost ghostty terminfo: $names"
+  done
+  hm_package_names somnambulist | grep -qx ghostty:out ||
+    fail "somnambulist no longer installs nix ghostty"
+}
+
 verify_nix_rejects_bad_rows
+verify_system_ghostty
 verify_apply_target
 verify_shell_hosts
 verify_nix_hosts
