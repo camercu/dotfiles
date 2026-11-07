@@ -91,6 +91,7 @@ function cdf {
 function ollama-models-wanted {
   local user="${1:-$(id -un)}"
   local host="${2:-$("$HOME/.dotfiles/scripts/home-manager-host.sh" current-config 2>/dev/null)}"
+  host="${host#*@}" # a user@host config names the host after the @
   [[ "$user" == cameron && "$host" == roci ]]
 }
 

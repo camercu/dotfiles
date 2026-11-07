@@ -1166,7 +1166,7 @@ run_aliases_test() {
 
   # Model pulls are many GB: maintain may pull them for one account on one
   # machine only, never on other hosts or users that share these dotfiles.
-  for ollama_case in "cameron roci 0" "cameron kali 1" "cr4nk roci 1" \
+  for ollama_case in "cameron roci 0" "cameron cameron@roci 0" "cameron kali 1" "cr4nk roci 1" \
       "cadmin roci 1" "cameron theark 1"; do
     # shellcheck disable=SC2086 # split "user host want" into $1..$3
     set -- $ollama_case
