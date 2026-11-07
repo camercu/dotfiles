@@ -8,13 +8,17 @@ DOTFILE_DIR=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd -P)
 . "$SCRIPT_DIR/lib/logging.sh"
 HOSTS_FILE=${HOME_MANAGER_HOSTS_FILE:-$DOTFILE_DIR/common/.config/home-manager/hosts.tsv}
 HOST_HELPER=$SCRIPT_DIR/home-manager-host.sh
+APPLY=$SCRIPT_DIR/apply-home-manager.sh
 HOSTS_NIX=$DOTFILE_DIR/common/.config/home-manager/lib/hosts.nix
 
 EXPECTED_FILE=$(mktemp "${TMPDIR:-/tmp}/hm-hosts-expected.XXXXXX")
 ACTUAL_FILE=$(mktemp "${TMPDIR:-/tmp}/hm-hosts-actual.XXXXXX")
 
+STUB_DIR=$(mktemp -d "${TMPDIR:-/tmp}/hm-hosts-stubs.XXXXXX")
+
 cleanup() {
   rm -f "$EXPECTED_FILE" "$ACTUAL_FILE"
+  rm -rf "$STUB_DIR"
 }
 
 trap cleanup EXIT HUP INT TERM
@@ -94,5 +98,59 @@ for host in json.load(sys.stdin):
     fail "hosts.nix and hosts.tsv disagree on config/system pairs"
 }
 
+# Runs $2... on a Linux host called kali, logged in as $1.
+run_on_kali_as() {
+  user=$1
+  shift
+  printf '#!/bin/sh\necho Linux\n' > "$STUB_DIR/uname"
+  printf '#!/bin/sh\necho kali\n' > "$STUB_DIR/hostname"
+  printf '#!/bin/sh\necho %s\n' "$user" > "$STUB_DIR/id"
+  printf '#!/bin/sh\necho "$@"\n' > "$STUB_DIR/nix"
+  chmod +x "$STUB_DIR/uname" "$STUB_DIR/hostname" "$STUB_DIR/id" "$STUB_DIR/nix"
+  printf '%s\n' \
+    'kali|aarch64-linux|kali|||||' \
+    'cr4nk@kali|aarch64-linux|cr4nk|||||' > "$STUB_DIR/hosts.tsv"
+  env -u HOME_MANAGER_CONFIG PATH="$STUB_DIR:$PATH" \
+    HOME_MANAGER_HOSTS_FILE="$STUB_DIR/hosts.tsv" "$@"
+}
+
+current_config_as() {
+  run_on_kali_as "$1" "$HOST_HELPER" current-config
+}
+
+# Fresh Kali VMs all share the hostname kali; the user tells them apart.
+verify_current_config() {
+  actual=$(current_config_as cr4nk) || fail "current-config failed for cr4nk on kali"
+  [ "$actual" = "cr4nk@kali" ] ||
+    fail "expected cr4nk on kali to pick 'cr4nk@kali', got '$actual'"
+
+  actual=$(current_config_as bob) || fail "current-config failed for bob on kali"
+  [ "$actual" = "kali" ] ||
+    fail "expected bob on kali to fall back to 'kali', got '$actual'"
+
+  actual=$(run_on_kali_as cr4nk env HOME_MANAGER_CONFIG=kali "$HOST_HELPER" current-config) ||
+    fail "current-config failed for HOME_MANAGER_CONFIG=kali"
+  [ "$actual" = "kali" ] ||
+    fail "expected HOME_MANAGER_CONFIG=kali to win over 'cr4nk@kali', got '$actual'"
+}
+
+# hosts.nix reads every field by index, so a short row breaks evaluation.
+verify_field_counts() {
+  bad=$(awk -F'|' '$1 != "" && $1 !~ /^#/ && NF != 8 { print NR ": " $0 }' "$HOSTS_FILE")
+  [ -z "$bad" ] || fail "hosts.tsv rows need 8 '|'-separated fields: $bad"
+}
+
+# apply-home-manager.sh must switch to the same config current-config picks.
+verify_apply_target() {
+  out=$(run_on_kali_as cr4nk "$APPLY") || fail "apply-home-manager.sh failed for cr4nk on kali"
+  case "$out" in
+    *"#cr4nk@kali"*) ;;
+    *) fail "expected apply for cr4nk on kali to switch to '#cr4nk@kali', got '$out'" ;;
+  esac
+}
+
+verify_field_counts
+verify_apply_target
 verify_shell_hosts
 verify_nix_hosts
+verify_current_config

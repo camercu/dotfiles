@@ -1,8 +1,9 @@
 {lib, hostsFile ? ../hosts.tsv}: let
+  # Keeps @ for user@host config names. Keep in step with home-manager-host.sh.
   normalizeName = value:
     lib.concatStrings (
       builtins.filter (char:
-        builtins.match "[a-z0-9_-]" char != null) (lib.stringToCharacters (lib.toLower value)));
+        builtins.match "[a-z0-9_@-]" char != null) (lib.stringToCharacters (lib.toLower value)));
 
   readHostLines =
     builtins.filter (line:

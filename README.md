@@ -15,6 +15,8 @@ config_name|system|username|home_directory|aliases|display_name|primary_user|dar
 
 The current host is auto-detected via `scutil --get ComputerName` (macOS) or `hostname -s` (Linux). You can override the active host with the `HOME_MANAGER_CONFIG` environment variable.
 
+A `config_name` of `user@host` matches only that user on that host, and wins over a plain `host` row. Use it when machines share a hostname, such as Kali VMs, which are all called `kali`.
+
 ## Installation
 
 ### Full install

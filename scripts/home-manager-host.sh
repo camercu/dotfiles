@@ -30,8 +30,9 @@ detect_host() {
   hostname -s
 }
 
+# Keeps @ for user@host config names. Keep in step with lib/hosts.nix.
 normalize_name() {
-  printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]_-'
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]_@-'
 }
 
 lookup_host_field() {
@@ -81,7 +82,15 @@ case "$command" in
     detect_host
     ;;
   current-config)
-    lookup_host_field "$(detect_host)" config
+    # Hosts can share a name (every fresh Kali VM is "kali"), so a
+    # user@host row wins over the plain host row. An explicit
+    # HOME_MANAGER_CONFIG is taken as given.
+    host=$(detect_host)
+    if [ -z "${HOME_MANAGER_CONFIG:-}" ] &&
+      lookup_host_field "$(id -un)@$host" config; then
+      exit 0
+    fi
+    lookup_host_field "$host" config
     ;;
   resolve-config)
     [ $# -eq 2 ] || usage
