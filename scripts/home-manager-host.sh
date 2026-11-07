@@ -30,7 +30,9 @@ detect_host() {
   hostname -s
 }
 
-# Keeps @ for user@host config names. Keep in step with lib/hosts.nix.
+# Folds what a user types or a machine reports ("Roci") onto a config name.
+# Keeps @ for user@host names. lib/hosts.nix rejects names that are not
+# already in this form.
 normalize_name() {
   printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]_@-'
 }

@@ -73,8 +73,15 @@ verify_shell_hosts() {
   done < "$HOSTS_FILE"
 }
 
+# hosts.nix holds the row checks; without nix they do not run at all.
+have_nix() {
+  command -v nix-instantiate >/dev/null 2>&1 && return 0
+  warn "nix-instantiate not found: skipping hosts.nix checks"
+  return 1
+}
+
 verify_nix_hosts() {
-  command -v nix-instantiate >/dev/null 2>&1 || return 0
+  have_nix || return 0
 
   awk -F'|' '
     $1 != "" && $1 !~ /^#/ { print $1 "|" $2 }
@@ -134,12 +141,6 @@ verify_current_config() {
     fail "expected HOME_MANAGER_CONFIG=kali to win over 'cr4nk@kali', got '$actual'"
 }
 
-# hosts.nix reads every field by index, so a short row breaks evaluation.
-verify_field_counts() {
-  bad=$(awk -F'|' '$1 != "" && $1 !~ /^#/ && NF != 8 { print NR ": " $0 }' "$HOSTS_FILE")
-  [ -z "$bad" ] || fail "hosts.tsv rows need 8 '|'-separated fields: $bad"
-}
-
 # apply-home-manager.sh must switch to the same config current-config picks.
 verify_apply_target() {
   out=$(run_on_kali_as cr4nk "$APPLY") || fail "apply-home-manager.sh failed for cr4nk on kali"
@@ -149,7 +150,35 @@ verify_apply_target() {
   esac
 }
 
-verify_field_counts
+# hosts.nix must reject a bad row while evaluating, naming the row, so a typo
+# in hosts.tsv breaks the flake at once instead of building a wrong home.
+expect_nix_rejects() {
+  row=$1
+  why=$2
+  printf '%s\n' "$row" > "$STUB_DIR/bad-hosts.tsv"
+  if err=$(nix-instantiate --eval --strict --expr "
+    let
+      lib = import <nixpkgs/lib>;
+      hosts = import $HOSTS_NIX { inherit lib; hostsFile = \"$STUB_DIR/bad-hosts.tsv\"; };
+    in map (host: host.configName) hosts.hosts
+  " 2>&1); then
+    fail "hosts.nix accepted a row with $why: '$row'"
+  fi
+  case "$err" in
+    *"hosts.tsv:"*) ;;
+    *) fail "hosts.nix rejected a row with $why without naming it: $err" ;;
+  esac
+}
+
+verify_nix_rejects_bad_rows() {
+  have_nix || return 0
+  expect_nix_rejects 'short|aarch64-linux|short||||' "7 fields"
+  expect_nix_rejects '|aarch64-linux|kali|||||' "an empty config name"
+  expect_nix_rejects 'Kali|aarch64-linux|kali|||||' "an uppercase config name"
+  expect_nix_rejects 'cr4nk@kali|aarch64-linux|kali|||||' "a user part that differs from its username"
+}
+
+verify_nix_rejects_bad_rows
 verify_apply_target
 verify_shell_hosts
 verify_nix_hosts

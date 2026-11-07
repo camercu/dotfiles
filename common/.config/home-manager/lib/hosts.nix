@@ -1,53 +1,47 @@
 {lib, hostsFile ? ../hosts.tsv}: let
-  # Keeps @ for user@host config names. Keep in step with home-manager-host.sh.
-  normalizeName = value:
-    lib.concatStrings (
-      builtins.filter (char:
-        builtins.match "[a-z0-9_@-]" char != null) (lib.stringToCharacters (lib.toLower value)));
-
   readHostLines =
     builtins.filter (line:
       line != ""
       && !(lib.hasPrefix "#" line)) (lib.splitString "\n" (builtins.readFile hostsFile));
 
-  parseAliases = rawAliases:
-    builtins.filter (aliasName: aliasName != "") (map normalizeName (lib.splitString "," rawAliases));
-
   parseModulePaths = rawPaths:
     builtins.filter (path: path != "") (lib.splitString "," rawPaths);
 
+  # Rejects a bad row while evaluating, so a hosts.tsv typo breaks the flake
+  # instead of building a home for the wrong user or path.
   parseHost = line: let
     parts = lib.splitString "|" line;
-    displayName = builtins.elemAt parts 5;
-    primaryUser = builtins.elemAt parts 6;
-  in {
-    configName = normalizeName (builtins.elemAt parts 0);
-    system = builtins.elemAt parts 1;
-    username = builtins.elemAt parts 2;
-    homeDirectory = builtins.elemAt parts 3;
-    aliases = parseAliases (builtins.elemAt parts 4);
-    displayName =
-      if displayName != ""
-      then displayName
-      else builtins.elemAt parts 0;
-    primaryUser =
-      if primaryUser != ""
-      then primaryUser
-      else null;
-    darwinExtraModules = parseModulePaths (builtins.elemAt parts 7);
-  };
+    field = builtins.elemAt parts;
+    configName = field 0;
+    username = field 2;
+    displayName = field 5;
+    primaryUser = field 6;
+    # user@host names one user on a host that others share; see README.
+    userPart = builtins.match "([^@]*)@.*" configName;
+  in
+    assert lib.assertMsg (builtins.length parts == 8)
+    "hosts.tsv: row '${line}' needs 8 '|'-separated fields, has ${toString (builtins.length parts)}";
+    assert lib.assertMsg (builtins.match "([a-z0-9_-]+@)?[a-z0-9_-]+" configName != null)
+    "hosts.tsv: config name '${configName}' must be lowercase letters, digits, _ or -, optionally as user@host";
+    assert lib.assertMsg (userPart == null || builtins.head userPart == username)
+    "hosts.tsv: config '${configName}' names user '${builtins.head userPart}' but its username column is '${username}'"; {
+      inherit configName username;
+      system = field 1;
+      homeDirectory = field 3;
+      displayName =
+        if displayName != ""
+        then displayName
+        else configName;
+      primaryUser =
+        if primaryUser != ""
+        then primaryUser
+        else null;
+      darwinExtraModules = parseModulePaths (field 7);
+    };
 
   hosts = map parseHost readHostLines;
 in {
-  inherit hosts normalizeName;
-
-  byName =
-    builtins.listToAttrs (map (host: {
-        name = host.configName;
-        value = host;
-      })
-      hosts);
-
+  inherit hosts;
   linuxHosts = builtins.filter (host: lib.hasSuffix "-linux" host.system) hosts;
   darwinHosts = builtins.filter (host: lib.hasSuffix "-darwin" host.system) hosts;
 }
