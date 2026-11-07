@@ -1,0 +1,147 @@
+{
+  "guid": "root________",
+  "title": "",
+  "index": 0,
+  "dateAdded": 1683057114250000,
+  "lastModified": 1683317435581000,
+  "id": 1,
+  "typeCode": 2,
+  "type": "text/x-moz-place-container",
+  "root": "placesRoot",
+  "children": [
+    {
+      "guid": "menu________",
+      "title": "menu",
+      "index": 0,
+      "dateAdded": 1683057114250000,
+      "lastModified": 1683057114250000,
+      "id": 2,
+      "typeCode": 2,
+      "type": "text/x-moz-place-container",
+      "root": "bookmarksMenuFolder"
+    },
+    {
+      "guid": "toolbar_____",
+      "title": "toolbar",
+      "index": 1,
+      "dateAdded": 1683057114250000,
+      "lastModified": 1794030997242000,
+      "id": 3,
+      "typeCode": 2,
+      "type": "text/x-moz-place-container",
+      "root": "toolbarFolder",
+      "children": [
+        {
+          "guid": "DstB-8Yg39hO",
+          "title": "Exploit-DB",
+          "index": 0,
+          "dateAdded": 1683057115595000,
+          "lastModified": 1683057115595000,
+          "id": 7,
+          "typeCode": 1,
+          "type": "text/x-moz-place",
+          "uri": "https://www.exploit-db.com/"
+        },
+        {
+          "guid": "DstB-ZwKPGys",
+          "title": "Google Hacking DB",
+          "index": 1,
+          "dateAdded": 1683057115831000,
+          "lastModified": 1683057115831000,
+          "id": 8,
+          "typeCode": 1,
+          "type": "text/x-moz-place",
+          "uri": "https://www.exploit-db.com/google-hacking-database"
+        },
+        {
+          "guid": "Qr3PcVWJtYfa",
+          "title": "HackTricks",
+          "index": 2,
+          "dateAdded": 1683057713029000,
+          "lastModified": 1794030997242000,
+          "id": 9,
+          "typeCode": 1,
+          "type": "text/x-moz-place",
+          "uri": "https://hacktricks.wiki/en/"
+        },
+        {
+          "guid": "CebmYtBkHJqt",
+          "title": "AntiScan.Me",
+          "index": 3,
+          "dateAdded": 1683057734824000,
+          "lastModified": 1683057742866000,
+          "id": 10,
+          "typeCode": 1,
+          "type": "text/x-moz-place",
+          "uri": "https://antiscan.me/"
+        },
+        {
+          "guid": "_JA_p_ihqmuu",
+          "title": "WP-webshell-plugin",
+          "index": 4,
+          "dateAdded": 1683057839909000,
+          "lastModified": 1683057851799000,
+          "id": 11,
+          "typeCode": 1,
+          "type": "text/x-moz-place",
+          "uri": "https://github.com/p0dalirius/Wordpress-webshell-plugin/releases"
+        },
+        {
+          "guid": "n_gU1HTwQ-2q",
+          "title": "GTFOBins",
+          "index": 5,
+          "dateAdded": 1683317385748000,
+          "lastModified": 1683317385748000,
+          "id": 12,
+          "typeCode": 1,
+          "type": "text/x-moz-place",
+          "uri": "https://gtfobins.github.io/"
+        },
+        {
+          "guid": "nCTtnrE7vlqf",
+          "title": "LOLBAS",
+          "index": 6,
+          "dateAdded": 1683317402350000,
+          "lastModified": 1683317402350000,
+          "id": 13,
+          "typeCode": 1,
+          "type": "text/x-moz-place",
+          "uri": "https://lolbas-project.github.io/#"
+        },
+        {
+          "guid": "2got1OrBSQ7X",
+          "title": "tldr manpages",
+          "index": 7,
+          "dateAdded": 1683317435581000,
+          "lastModified": 1683317452388000,
+          "id": 14,
+          "typeCode": 1,
+          "type": "text/x-moz-place",
+          "uri": "https://tldr.inbrowser.app/"
+        }
+      ]
+    },
+    {
+      "guid": "unfiled_____",
+      "title": "unfiled",
+      "index": 3,
+      "dateAdded": 1683057114250000,
+      "lastModified": 1683057114250000,
+      "id": 5,
+      "typeCode": 2,
+      "type": "text/x-moz-place-container",
+      "root": "unfiledBookmarksFolder"
+    },
+    {
+      "guid": "mobile______",
+      "title": "mobile",
+      "index": 4,
+      "dateAdded": 1683057114262000,
+      "lastModified": 1683057114262000,
+      "id": 6,
+      "typeCode": 2,
+      "type": "text/x-moz-place-container",
+      "root": "mobileFolder"
+    }
+  ]
+}

@@ -5,7 +5,14 @@ result
 result-*
 .tmp-dotsync-home.*
 
+# Firefox profile state, except the files that set up a new profile.
 linux/.mozilla/firefox/*
+!linux/.mozilla/firefox/profiles.ini
+!linux/.mozilla/firefox/installs.ini
+!linux/.mozilla/firefox/user.js
+!linux/.mozilla/firefox/e4vtk5tb.default-esr/
+linux/.mozilla/firefox/e4vtk5tb.default-esr/*
+!linux/.mozilla/firefox/e4vtk5tb.default-esr/bookmarkbackups/
 common/.config/zsh/env/claude-oauth.zsh
 common/.config/agents/skills/synced/
 
