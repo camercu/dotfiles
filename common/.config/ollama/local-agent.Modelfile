@@ -1,13 +1,13 @@
 # Coding agent for omp, forge, and codecompanion. Clients use the alias, so a
 # quant swap needs no client change. A base swap can: check `ollama show` for
 # capabilities clients rely on (tools, thinking), then `omp models refresh`.
-# Base chosen by agent-bench (laguna-q4 5/6, 2026-10-28).
-FROM laguna-xs-2.1:q4_K_M
+# Base chosen by agent-bench: ornith-q4 13/24 vs laguna-q4 12/24, ~25% faster,
+# half the tool errors (matrix7, 2026-11-07).
+FROM hf.co/ornith-ai/Ornith-1.5-35B-A3B-GGUF:Q4_K_M
 # Clients sized to this: omp discovers it as contextWindow; forge max_tokens +
 # compact.token_threshold must stay below it.
 PARAMETER num_ctx 131072
-# laguna aborts with "token repeat limit reached" on requests without a
-# system message; this default fixes those. A client's own system message
-# replaces it, and some still abort the same way: codecompanion and forge
-# title generation (2026-10-28), so new conversations go untitled.
-SYSTEM You are a helpful assistant.
+# Ornith's recommended sampling, as benched.
+PARAMETER temperature 0.6
+PARAMETER top_p 0.95
+PARAMETER top_k 20

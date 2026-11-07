@@ -2,8 +2,15 @@
 # ~/.config/omp/agent/config.yml, which omp rewrites itself and stays untracked.
 modelRoles:
   default: ollama/local-agent:latest
+edit:
+  # Ornith (local-agent's base) sends parallel edits to one file; hashline
+  # edits then reject each other (~60 errors per 6 bench runs). Keys match
+  # as a lowercase substring of the model id.
+  modelVariants:
+    local-agent: replace
 images:
-  # local-agent has no vision. Otherwise omp sends images (attachments and
-  # `read <img>?q=`) to the first vision model it finds, swapping 20 GB models
-  # on the shared server. Blocked images fail loud with a settings message.
+  # Ornith lists vision, but it is untested through omp. Otherwise omp sends
+  # images (attachments and `read <img>?q=`) to the first vision model it
+  # finds, swapping 20 GB models on the shared server. Blocked images fail
+  # loud with a settings message.
   blockImages: true
