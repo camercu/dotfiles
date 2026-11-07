@@ -198,6 +198,8 @@ After linking, dotsync points `~/.claude` at `~/.config/claude`. If Claude Code 
 
 Add or modify hosts in `common/.config/home-manager/hosts.tsv`. The first column (`config_name`) is used as the Home Manager/nix-darwin flake input name. Aliases in the `aliases` column are also resolved.
 
+A config name is either a host name (`roci`) or `user@host` (`cr4nk@kali`). Use `user@host` when machines share a host name; every fresh Kali VM is `kali`. On a machine, `current-config` tries `$(id -un)@<host>` first, then the bare host name, and fails naming both when neither has a row. Set `HOME_MANAGER_CONFIG` to skip the lookup and use that name.
+
 The `home-manager-host.sh` helper resolves active host information:
 
 ```sh
