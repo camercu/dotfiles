@@ -29,7 +29,7 @@
       "obsidian"
       "raspberry-pi-imager"
       "the-unarchiver"
-      "virtualbox"
+      # "virtualbox"
       "visual-studio-code"
     ];
   };

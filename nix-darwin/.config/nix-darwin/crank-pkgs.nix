@@ -11,8 +11,6 @@
     bottom # top alternative; command 'btm'
     delta # diff viewer
     deno # node.js alternative
-    devbox # easy shells/containers for dev
-    devcontainer # dev container CLI
     difftastic # syntax aware diff viewer
     direnv # change env config on cd to directory
     dua # disk usage analyzer (du replacement)
@@ -23,7 +21,6 @@
     gitu # git TUI
     grex # auto-generate gnu regular expressions based on supplied test cases
     hashcat # fast password cracker
-    helix # text editor (vim alternative)
     hexyl # CLI hex viewer
     hyperfine # benchmarking tool
     hyx # hex editor
@@ -35,8 +32,7 @@
     # lima # Linux VMs similar to WSL on MacOS
     lsd # ls replacement, used by zshrc
     mermaid-cli # generate diagrams from text (neovim)
-    nushell # modern shell written in Rust
-    (omp.packages."${pkgs.stdenv.hostPlatform.system}".default) # oh-my-pi (omp) terminal coding agent
+    omp.packages."${pkgs.stdenv.hostPlatform.system}".default # oh-my-pi (omp) terminal coding agent
     openjdk # Java SDK
     pkg-config # helper for compiling binaries
     pngpaste # paste images into terminal
