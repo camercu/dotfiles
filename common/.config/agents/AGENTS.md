@@ -39,8 +39,9 @@ read `~/.config/agents/guard-ladders.md`.
 
 ## Development process
 
-- Behavior change: `/tdd`. Every change, refactor too: then `/harden`. Fix
-  incidental issues found on the way.
+- Logic or code behaviour change: `/tdd`. Docs, config text, minor GUI
+  styling: edit, run the gate, commit. Every change, refactor too: then
+  `/harden`. Fix incidental issues found on the way.
 - Named skill = real Skill tool call. Cannot run: report SKIPPED + reason.
 - Fresh agent reviews own work: context that authored the code spawns a fresh
   reviewer unless a human vets the findings. Already a spawned reviewer →
