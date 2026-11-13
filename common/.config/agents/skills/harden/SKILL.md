@@ -140,6 +140,18 @@ passes: brief from `references/pass-brief.md`.
 | Test-health | `test-design-reviewer` (forks itself, read-only) | args: repo path, range, findings path; you write its report to the findings file. Fixing its findings → `references/test-health.md` |
 | Docs | here | every behaviour change reaches every doc describing it: README, API docs, man page, `--help`, examples, changelog. Regenerate generated docs. Drift → `~/.config/agents/guard-ladders.md` *Docs drift* |
 
+**Test-health stays clean.** Once a round's Test-health finds nothing
+significant, later rounds row it `N/A: suite clean since round <n>, no tests
+removed or weakened`. Each slice's `tdd` mutation run already guards new code;
+re-review of an unchanged suite costs a round and finds nothing. Before
+writing that row, check the round's range; either check fails → run the pass:
+
+1. Test count ≥ count recorded at the clean round (stack's list command, e.g.
+   `cargo nextest list | wc -l`; record the count in the ledger row).
+2. `git diff <range> -- <test paths>` has no removed line holding an
+   assertion (`^-.*(assert|expect|should|check)`) unless the same hunk adds
+   one at least as strict; no `#[ignore]`/skip/`only` added.
+
 Each finding: **significant** = bug, coverage or contract gap, flaky or slow
 test, reframing that deletes code or concepts, cohesion-map mismatch in a
 file touched by > 25% of recent commits (`improve-architecture` step 1a). Doc
