@@ -18,6 +18,7 @@
     entr # run arbitrary commands on file change
     exiftool # read/edit file metadata
     ffmpeg # audio and video tools
+    gh # GitHub CLI
     gitu # git TUI
     grex # auto-generate gnu regular expressions based on supplied test cases
     hashcat # fast password cracker
