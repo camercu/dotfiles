@@ -52,9 +52,13 @@ read `~/.config/agents/guard-ladders.md`.
 ## Dev environment
 
 Repo has nix env (`shell.nix`/`flake.nix` + `.envrc`): run every repo tool
-inside it (`nix-shell --run '<cmd>'` or direnv shell). Tool not in env:
-`nix-shell -p <pkg> --run '<cmd>'`. Why: host, nix, CI versions drift; host
-tool gives stale snapshots, CI-only failures.
+inside it (`nix-shell --run '<cmd>'` or direnv shell). Why: host, nix, CI
+versions drift; host tool gives stale snapshots, CI-only failures.
+
+Tool missing on host or in repo env (`gh`, `shellcheck`, `jq`, …): run it via
+`nix-shell -p <pkg> --run '<cmd>'`, any directory, any repo. "Command not
+found" is never "tool unavailable": try nix first, report only if that fails.
+Subagent briefs carry this line; subagents do not read this file.
 
 zsh: separator `---`; test `[ x = y ]`. (`==` triggers `=cmd` expansion:
 `(eval):1: == not found`.) Absolute paths; cwd drifts after `cd`.
