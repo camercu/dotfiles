@@ -127,33 +127,49 @@ Score each property from the code, citing evidence. Bands:
   real production code could not have been written test-first.
 
 Multi-property signals count for each (e.g. `Thread.sleep` hits both R and F).
+**Evidence or it's a guess**: every score cites `file:line` + signal.
+**Conservative base 5.0** when a property shows no signal — unknown ≠ good.
 
 ## Sleeps and flakes are design findings
 
-A suite exists to give **fast, reliable feedback**. A sleep makes it slow; a
-flake makes it unreliable; a test that does both is worse than none, because
-it teaches people to ignore red. A sleep, a wait-until-timeout, a
-retry-until-green, or a flaky test means the code under test offers no
-deterministic way to observe the behaviour. File it against the production
-design, not only the test: the fix is a seam that makes the behaviour fast and
-deterministic, even when that seam means redesigning production code. Name the
-seam in the recommendation:
+A suite exists to give **fast, reliable, deterministic feedback**. A sleep
+makes it slow; a flake makes it unreliable; a test that does both is worse
+than none, because it teaches people to ignore red. A sleep, a
+wait-until-timeout, a retry-until-green, or a flaky test means the code under
+test offers no deterministic way to observe the behaviour. File it against
+the production design, not only the test: the fix is a seam that makes the
+behaviour fast and deterministic, even when that seam means redesigning
+production code.
+
+**How a seam enters:** ports and adapters (hexagonal). The core talks to a
+port it owns; real and test adapters plug in behind it, passed in by plain
+constructor or parameter injection. Every seam below reaches the code this
+way.
+
+Name the seam in the recommendation:
 
 - **Functional core, imperative shell** — move the decision into a pure
-  function; test it with values.
+  function; test it with values. Relatives: **humble object** (strip logic
+  out of a UI, thread or signal handler) and **sans-IO** (a protocol as a
+  state machine fed bytes and time, returning actions).
 - **Nullable infrastructure** (James Shore) — clock, timer, network, or
   process behind a wrapper with an in-memory, controllable mode. Patterns:
   `~/.config/agents/skills/tdd/testing-without-mocks.md`.
 - **Plan-execute** — code returns the plan (actions, delays, retries) as
   data; test asserts the plan; a thin executor runs it.
-- **Injected time and scheduling** — virtual clock or manual executor the
-  test advances; output tracking or events in place of polling.
+- **Controlled time and randomness** — virtual clock the test advances,
+  paused runtime time (e.g. tokio `time::pause`), seeded RNG.
+- **Completion signal** — code exposes a future, channel, callback or event
+  when work finishes; the test waits on the signal, never on a timer.
+- **Deterministic simulation** — for concurrent or distributed code: one
+  scheduler, seeded interleavings, simulated network and disk; a failure
+  replays from its seed.
+- **Contract tests** — one suite runs against the real adapter and the test
+  adapter, so the fast double stays true to the real thing.
 
 A longer timeout, a retry wrapper, or `#[ignore]` hides the flake and keeps
 the design; rank the seam above it. Score R and F 1-2 for any such test
 regardless of how rarely it fails.
-**Evidence or it's a guess**: every score cites `file:line` + signal.
-**Conservative base 5.0** when a property shows no signal — unknown ≠ good.
 
 ## Tautology theatre
 
