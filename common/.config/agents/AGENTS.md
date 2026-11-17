@@ -66,11 +66,10 @@ zsh: separator `---`; test `[ x = y ]`. (`==` triggers `=cmd` expansion:
 ## Working files
 
 Repo-local working state → `<repo>/.scratch/<skill>/`: handoffs, spike
-worktrees, ledgers, review and dogfood reports, throwaway consumers. First
-write: `git check-ignore -q .scratch` fails → append `.scratch/` to
-`.git/info/exclude`. Why: survives reboot and `/tmp` reapers; exclude keeps
-it out of git and colocated jj snapshots (jj honours `info/exclude`). No repo
-→ OS temp dir.
+worktrees, ledgers, review and dogfood reports, throwaway consumers. Global
+git ignore covers `.scratch/` (jj honors it too); no per-repo ignore step.
+Never use other top-level dirs (`.harden/` etc.). Why: survives reboot and
+`/tmp` reapers; one ignored root, no per-repo setup. No repo → OS temp dir.
 
 ## Guardrails
 
