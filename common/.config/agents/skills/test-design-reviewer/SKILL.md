@@ -127,6 +127,28 @@ Score each property from the code, citing evidence. Bands:
   real production code could not have been written test-first.
 
 Multi-property signals count for each (e.g. `Thread.sleep` hits both R and F).
+
+## Sleeps and flakes are design findings
+
+A sleep, a wait-until-timeout, a retry-until-green, or a flaky test means the
+code under test offers no deterministic way to observe the behaviour. File it
+against the production design, not only the test: the fix is a seam that
+makes the behaviour fast and deterministic, even when that seam means
+redesigning production code. Name the seam in the recommendation:
+
+- **Functional core, imperative shell** — move the decision into a pure
+  function; test it with values.
+- **Nullable infrastructure** (James Shore) — clock, timer, network, or
+  process behind a wrapper with an in-memory, controllable mode. Patterns:
+  `~/.config/agents/skills/tdd/testing-without-mocks.md`.
+- **Plan-execute** — code returns the plan (actions, delays, retries) as
+  data; test asserts the plan; a thin executor runs it.
+- **Injected time and scheduling** — virtual clock or manual executor the
+  test advances; output tracking or events in place of polling.
+
+A longer timeout, a retry wrapper, or `#[ignore]` hides the flake and keeps
+the design; rank the seam above it. Score R and F 1-2 for any such test
+regardless of how rarely it fails.
 **Evidence or it's a guess**: every score cites `file:line` + signal.
 **Conservative base 5.0** when a property shows no signal — unknown ≠ good.
 
