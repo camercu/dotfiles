@@ -130,11 +130,14 @@ Multi-property signals count for each (e.g. `Thread.sleep` hits both R and F).
 
 ## Sleeps and flakes are design findings
 
-A sleep, a wait-until-timeout, a retry-until-green, or a flaky test means the
-code under test offers no deterministic way to observe the behaviour. File it
-against the production design, not only the test: the fix is a seam that
-makes the behaviour fast and deterministic, even when that seam means
-redesigning production code. Name the seam in the recommendation:
+A suite exists to give **fast, reliable feedback**. A sleep makes it slow; a
+flake makes it unreliable; a test that does both is worse than none, because
+it teaches people to ignore red. A sleep, a wait-until-timeout, a
+retry-until-green, or a flaky test means the code under test offers no
+deterministic way to observe the behaviour. File it against the production
+design, not only the test: the fix is a seam that makes the behaviour fast and
+deterministic, even when that seam means redesigning production code. Name the
+seam in the recommendation:
 
 - **Functional core, imperative shell** — move the decision into a pure
   function; test it with values.

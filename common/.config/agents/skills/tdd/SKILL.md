@@ -34,7 +34,7 @@ Cross-refs: `/improve-architecture` (module-level), `/simplify` (code-level clea
 - **Test pyramid.** ~80% unit / 15% integration / 5% E2E. Top-heavy suite = logic coupled to infrastructure.
 - **One test → one impl → repeat.** Never write all tests up front — bulk tests test *imagined* behavior. Friction writing tests = design feedback; fix the design.
 - **Call your shots.** Predict the failure, run, confirm it fails for that reason. Mismatch reveals misunderstanding.
-- **Fast and deterministic.** Whole suite ≤10s, zero flakes.
+- **Fast, reliable feedback** — the point of the suite. Whole suite ≤10s, zero flakes. A test that wants a sleep, a timeout wait or a retry = design feedback: add a deterministic seam in production code (seams: `~/.config/agents/skills/test-design-reviewer/SKILL.md`, *Sleeps and flakes are design findings*).
 - **Prove-It rule.** No bug fix without a failing reproduction test first; passing test = fixed + regression-proofed.
 - **Test runs code, never reads it.** Regression test for a mistake = exercise the behaviour that broke. Before writing a test that greps source or config: `~/.config/agents/guard-ladders.md`, *Test guards*.
 - **Can the test fail? Ask the mutation tool.** After GREEN, run mutation testing over the change (`cargo mutants --in-diff <diff> --output .scratch/tdd`, Stryker, mutmut), tool output under `.scratch/tdd/`. Survivor = code no test constrains: sharpen the test, or record why the mutant is equivalent. Tool absent or broken → hand-mutate each branch and boundary, report the kill count.
