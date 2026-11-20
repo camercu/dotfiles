@@ -115,7 +115,8 @@ fi
 # rewrite. The reconcile-rebase below would replay the rewritten commits onto the
 # old upstream; identical patch-ids make rebase drop them all, silently undoing
 # the rewrite (and turning the push into a no-op). Step aside — the operator has
-# explicitly opted out of fast-forward reconciliation.
+# explicitly opted out of fast-forward reconciliation. Native Git's
+# protect-trunk pre-push hook checks the resolved destination and ancestry.
 grep -Eq -- '(^| )(-f|--force[a-z-]*)( |=|$)' <<<"$cmd" && exit 0
 
 # Upstream this branch tracks (e.g. origin/main). No upstream => nothing to

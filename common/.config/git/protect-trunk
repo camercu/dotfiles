@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Git pre-push supplies the actual destination ref and both object IDs.
+while read -r local_ref local_oid remote_ref remote_oid; do
+    case "$remote_ref" in
+        refs/heads/main|refs/heads/master|refs/heads/trunk) ;;
+        *) continue ;;
+    esac
+    if [ "$local_ref" = "(delete)" ]; then
+        printf 'protect-trunk: deletion refused for %s\n' "$remote_ref" >&2
+        exit 1
+    fi
+    case "$remote_oid" in
+        *[!0]*) ;;
+        *) continue ;; # New branch, including on SHA-256 repositories.
+    esac
+    if ! git merge-base --is-ancestor "$remote_oid" "$local_oid"; then
+        printf 'protect-trunk: cannot prove a fast-forward to %s. Fetch and reconcile first.\n' "$remote_ref" >&2
+        exit 1
+    fi
+done

@@ -2,3 +2,5 @@
 # Prevents a compromised guest from running malicious .git/hooks/ scripts.
 [core]
 	hooksPath = /dev/null
+[hook "protect-trunk"]
+	enabled = false

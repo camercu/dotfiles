@@ -33,15 +33,15 @@ test). Chain fine when output tiny.
 
 **`just` recipes bypass rtk too** — recipe body runs cargo directly, hook never
 sees it. Repos seeded from `rust-template` (blivet, litmask, relentless) carry
-`cargo := env("RTK_CARGO","cargo")` + a `ci-rtk` recipe: run **`just ci-rtk`**,
-not `just ci`. Single recipe: `RTK_CARGO="rtk cargo" just <recipe>`.
+`cargo := env("RTK_CARGO","cargo")` + a `ci-rtk` recipe. Use `ci-rtk` for
+quick feedback. For the authoritative gate, run `env -u RTK_CARGO just ci`
+in the project environment and capture its full log and status.
 Recipes deliberately left on plain cargo — stable-channel (`+stable`),
 coverage-lcov, `public-api*`, tool-version checks — rtk corrupts
 file-written/parsed output or toolchain-pinned runs. Don't "fix" those.
 
-**rtk masks child exit codes** on some paths — never trust `cargo test && git
-commit`. Assert green from the nextest "Summary … N passed" line. Build-script
-panics get filtered out of view; full log under
-`~/Library/Application Support/rtk/tee/*.log`.
+**rtk masks child exit codes** and filters some build-script panics. Follow
+AGENTS.md *Authoritative verification* for the commit gate. RTK keeps its
+own logs under `~/Library/Application Support/rtk/tee/`.
 
 Full command reference: CLAUDE.md.

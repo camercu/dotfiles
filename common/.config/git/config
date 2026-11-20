@@ -28,6 +28,9 @@
 	path = ~/.config/git/config-aliases
 	path = ~/.config/git/config-credential
 	path = ~/.config/delta/themes/catppuccin.gitconfig
+[hook "protect-trunk"]
+	event = pre-push
+	command = "\"$HOME/.dotfiles/common/.config/git/protect-trunk\""
 [includeIf "gitdir:/mnt/share/"]
 	path = ~/.config/git/config-no-hooks
 [init]

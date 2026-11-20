@@ -6,6 +6,7 @@
 # a disjoint remote move (clean rebase -> allow), and a conflicting remote move
 # (rebase aborts -> block). Exercises the real `git fetch`/`git rebase` paths.
 set -euo pipefail
+export GIT_CONFIG_GLOBAL=/dev/null
 
 here="$(cd "$(dirname "$0")" && pwd)"
 guard="$here/guard-push.sh"
@@ -22,7 +23,7 @@ expect() { if [ "$2" = "$3" ]; then echo "ok  - $1"; else echo "FAIL- $1 (got $2
 check() { if "${@:2}"; then echo "ok  - $1"; else echo "FAIL- $1"; fails=$((fails+1)); fi; }
 
 root="$(mktemp -d)"; trap 'rm -rf "$root"' EXIT
-git init -q --bare "$root/remote.git"
+git init -q --bare -b main "$root/remote.git"
 git clone -q "$root/remote.git" "$root/work" 2>/dev/null  # empty-repo warning is expected
 cd "$root/work"; git config user.email t@t; git config user.name t
 git checkout -q -b main
@@ -61,7 +62,7 @@ check "conflicting rebase aborted, no dangling state" test ! -e .git/rebase-merg
 # 5. pushed tree points at a submodule commit missing from the submodule's
 #    remote: the parent's link would dangle, so block until it is pushed.
 sroot="$(mktemp -d)"; trap 'rm -rf "$root" "$sroot"' EXIT
-git init -q --bare "$sroot/sub.git"; git init -q --bare "$sroot/parent.git"
+git init -q --bare -b main "$sroot/sub.git"; git init -q --bare -b main "$sroot/parent.git"
 git clone -q "$sroot/sub.git" "$sroot/subseed" 2>/dev/null
 ( cd "$sroot/subseed"; git config user.email t@t; git config user.name t; git checkout -q -b main
   printf 's1\n' > s.txt; git add s.txt; git commit -qm init; git push -q -u origin main )
@@ -85,16 +86,57 @@ expect "-C path with ~ is expanded" "$(HOME="$sroot" run_guard 'git -C ~/pwork/s
 expect "pushed submodule commit passes" "$(run_guard 'git push')" 0
 cd "$root/work"
 
+# Native Git guard, independent of the agent's Bash hook and command parser.
+# Leave an ordinary repository hook in place to check that both are run.
+native_config="$here/../../git/config"
+native_hook="$here/../../git/protect-trunk"
+(
+  git init -q --bare -b main "$root/protected.git"
+  git init -q -b source "$root/source"
+  cd "$root/source"
+  git config user.name t
+  git config user.email t@t
+  git config include.path "$native_config"
+  git config hook.protect-trunk.command "\"$native_hook\""
+  mkdir -p .git/hooks
+  printf '#!/bin/sh\ncat > .git/seen-push\n' > .git/hooks/pre-push
+  chmod +x .git/hooks/pre-push
+  git remote add origin "$root/protected.git"
+  git commit -qm initial --allow-empty
+  git push -q origin HEAD:main HEAD:master HEAD:trunk HEAD:topic
+  git commit -qm next --allow-empty
+  git push -q origin HEAD:main HEAD:master HEAD:trunk HEAD:topic
+  grep -q 'refs/heads/main' .git/seen-push
+  tip=$(git rev-parse HEAD)
+  expect_refusal() {
+    if git push origin "$@" >"$root/push.log" 2>&1; then
+      echo "FAIL - native guard accepted: $*" >&2
+      exit 1
+    fi
+    grep -F 'protect-trunk:' "$root/push.log" || { cat "$root/push.log"; exit 1; }
+  }
+  expect_refusal --force HEAD^:main
+  expect_refusal --force-with-lease="refs/heads/master:$tip" HEAD^:master
+  expect_refusal +HEAD^:trunk
+  expect_refusal --delete main
+  for branch in main master trunk; do
+    test "$(git -C "$root/protected.git" rev-parse "$branch")" = "$tip"
+  done
+  git push -q origin +HEAD^:topic
+  test "$(git -C "$root/protected.git" rev-parse topic)" = "$(git rev-parse HEAD^)"
+)
+
 # ── jj backend ──────────────────────────────────────────────────────────────
 # Same four cases against a colocated jj clone, driving `jj push` / `jj git push`
 # through the guard's jj-native reconcile. Skipped where jj is not installed.
-if command -v jj >/dev/null 2>&1; then
+if command -v jj >/dev/null 2>&1; then (
   jroot="$(mktemp -d)"; trap 'rm -rf "$root" "$jroot"' EXIT
-  git init -q --bare "$jroot/remote.git"
+  export XDG_CONFIG_HOME="$jroot/config"
+  git init -q --bare -b main "$jroot/remote.git"
   git clone -q "$jroot/remote.git" "$jroot/seed" 2>/dev/null
   ( cd "$jroot/seed"; git config user.email t@t; git config user.name t; git checkout -q -b main
     printf 'l1\n' > f.txt; git add f.txt; git commit -qm init; git push -q -u origin main )
-  jj git clone --colocate "$jroot/remote.git" "$jroot/work" >/dev/null 2>&1
+  jj git clone --colocate "$jroot/remote.git" "$jroot/work"
   cd "$jroot/work"
   jj config set --repo user.name t >/dev/null 2>&1
   jj config set --repo user.email t@t >/dev/null 2>&1
@@ -132,6 +174,7 @@ if command -v jj >/dev/null 2>&1; then
   expect "jj conflicting remote move blocked" "$(run_guard 'jj push')" 2
   check "jj main is a single clean rev after block" \
     test "$(jj log --no-graph -r main -T '"x\n"' 2>/dev/null | grep -c x)" = 1
+)
 else
   echo "ok  - (jj not installed; jj push-guard cases skipped)"
 fi

@@ -131,5 +131,9 @@ Trunk-based. These rules = whole git workflow.
 - Push = outward-facing: confirm first unless user said proceed. Shared trunk:
   fast-forward only; never force-push or delete it. `guard-push` hook fetches +
   rebases.
+- Native Git's configured `protect-trunk` pre-push hook checks the actual
+  destination and ancestry for `main`, `master`, and `trunk`. Verify
+  registration with `git hook list pre-push`. Require remote branch protection
+  against rewrites and deletion for clients that bypass Git hooks, including jj.
 
 @RTK.md
