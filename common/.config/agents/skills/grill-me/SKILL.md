@@ -3,8 +3,10 @@ name: grill-me
 description: Use when user wants to stress-test a plan or design, asks to be grilled, or says "grill me", "poke holes in this", "interview me about this design".
 ---
 
-Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
+Resolve decisions that materially affect the plan's implementation, contract,
+or verification. Read the repository first and use established decisions as
+defaults. Resolve dependencies between decisions in order.
 
-Ask the questions one at a time.
-
-If a question can be answered by exploring the codebase, explore the codebase instead.
+Ask one question at a time, with your recommendation and evidence. Stop when
+remaining uncertainty will not change implementation or acceptance. Summarize
+decisions, assumptions, and explicitly deferred questions.

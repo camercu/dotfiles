@@ -11,15 +11,18 @@ Review changed code for reuse, quality, efficiency; fix findings. Metric is comp
 
 ## Phase 0: Understand Before Touching (Chesterton's Fence)
 
-Read `CONTEXT.md` / `CLAUDE.md` / project conventions if present, then study the diff. For each non-obvious changed piece, know its responsibility, callers/callees, edge cases, and why it might be written that way (perf? platform constraint? history?). Use `git blame` when something looks wrong but might be intentional. If intent unclear, ask the user before simplifying.
+Read `CONTEXT.md` / `CLAUDE.md` / project conventions if present, then study the diff. For each non-obvious changed piece, identify its responsibility, callers, and edge cases. Before removing a special case, compatibility behavior, or unfamiliar indirection, use `git blame` and `git log -p` to inspect the introducing and subsequent commits. Read a linked PR or ADR when available. Record the original constraint and evidence it still applies or has expired. If rationale is missing, record that and preserve the behavior unless current evidence establishes safe removal.
 
 ## Phase 1: Identify Changes
 
 `git diff` (or `git diff HEAD` if staged changes exist). No git changes → review files the user mentioned or you edited this conversation.
 
-## Phase 2: Three Review Agents in Parallel
+## Phase 2: Review Through Three Lenses
 
-Launch concurrently in a single message. Each prompt carries the full diff, its own findings-file path, and `~/.config/agents/record-as-you-go.md`:
+If harden is coordinating, use its finding format and reuse any covered
+lenses. Review the remaining questions in one pass. Use independent
+reviewers where the risk tier or distinct expertise warrants it, with
+separate findings paths and `~/.config/agents/record-as-you-go.md`.
 
 1. **Reuse** — find existing utilities/helpers that replace newly written code (check utility dirs, shared modules, adjacent files); flag new functions duplicating existing ones and inline logic an existing utility covers.
 2. **Quality** — redundant/derivable state; parameter sprawl instead of restructuring; copy-paste with slight variation; leaky abstractions; stringly-typed code where constants/enums/branded types exist; comments explaining WHAT or narrating the change (keep only non-obvious WHY).
@@ -27,9 +30,9 @@ Launch concurrently in a single message. Each prompt carries the full diff, its 
 
 ## Phase 3: Fix Issues
 
-Wait for all three, aggregate, fix each directly. False positive or not worth it → note and skip; don't argue with the finding.
-
-Aggregate from the three findings files. Report-only mode (delegated review, no authority to edit) → record skipped and false-positive calls in the file too, so the next pass doesn't re-raise them.
+Aggregate findings across the lenses. Fix supported findings within scope
+and record evidence for declines. In report-only mode record findings and
+dispositions for the coordinator.
 
 ### Do NOT simplify when
 

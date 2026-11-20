@@ -2,6 +2,23 @@
 
 Runs in the implementing context: it enumerates this change's invariants.
 
+Before implementation, prioritize the one or two boundary assumptions with
+the worst failure consequences. Trace each through caller, adapter, external
+tool or process, configuration, and teardown where applicable. Name the
+observable failure and test it: inject partial acquisition or rollback
+failure, exercise ownership transfer or retry, run a disposable consumer, or
+simulate the state transitions. Deliberately violate the assumption and
+confirm the experiment detects the intended failure. Record setup, expected
+and actual result, and the check that will remain. Mark impractical or unsafe
+experiments unverified with the remaining risk.
+
+For state changes exposed to retries, replay, crashes, or partial completion,
+verify duplicate execution and interruption at each consequential transition.
+Distinguish a retry of the same logical command from distinct commands.
+Derive recovery from observable state. Check stale locks, partial artifacts,
+duplicate effects, and abandoned ownership. If reconciliation is impossible,
+record the external constraint.
+
 1. List every operation in the change that carries a precondition the
    toolchain won't verify: unsafe/FFI/raw pointer, shared mutable state,
    concurrency, privilege boundary, call-order lifecycle, permission check.
@@ -19,6 +36,6 @@ Runs in the implementing context: it enumerates this change's invariants.
    code; fix whichever side is wrong.
 6. Change adds a precondition marker or fail-closed guard to a **public**
    contract → breaking change → gate. Internal-only → record the decision
-   (rule 3).
+   in the harden ledger.
 
 Done when every listed operation has one status with evidence in findings.

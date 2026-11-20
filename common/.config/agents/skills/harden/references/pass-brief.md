@@ -1,69 +1,60 @@
 # Pass brief
 
-Prompt for every fresh agent harden spawns. Fill `<…>`. Send *Common* plus
-the section for this pass. Combined agent (Right-size): one task line naming
-each skill, one findings file with a section per skill, every pass section.
+Use for self-review or an independent reviewer. Combine applicable lenses in
+one pass when they fit the same scope. For independence, provide the contract,
+range and verification commands. Hold back earlier verdicts and fix rationale.
 
 ## Common
 
-```
-Task: <pass> pass for harden, round <n>. Invoke the `<skill>` skill via the
-Skill tool and run it over the scope below.
-Repo: <absolute repo path>. cd there first. Skills that fork start in the
-session cwd: pass them this path.
-Scope: commits <base>..<head> (`git log --oneline <base>..<head>`).
-Verify: <matrix commands, one per line>.
-Authority docs: <paths>. A finding that would reverse one → report it as a
-conflict with the doc quote; leave the doc as is.
-Findings file: <repo>/.scratch/harden/<pass>-r<n>.md. Follow
-~/.config/agents/record-as-you-go.md; the file is the deliverable. Header
-lists each skill you invoked via the Skill tool.
-Rails: read-only on tracked files; history stays as is (no rebase, amend,
-reset). The skill's own subagent spawns are fine. Skill step says fix → write the fix as a finding with the proposed
-diff; harden's main context lands it. Skill step asks the user → write the
-question, options, and your recommendation as a finding; continue.
-Leave unread: .scratch/harden/LEDGER.md and other passes' findings files — they
-would prime you.
-Report: path to findings file; each finding ranked, with file:line, evidence,
-and significant / cosmetic / false-positive.
-Doc findings rate cosmetic unless so misleading they would frustrate a large
-share of users.
-```
+- Scope: absolute repository path, base..head, highest-risk behavior.
+- Contract: governing docs and interface. Quote conflicts in findings.
+- Checks: commands, required environment, actual exit statuses, and log paths.
+- Review method: apply Review below. When `code-review` is installed, use it
+  for ordinary code review and ensure the boundary and evidence instructions
+  here are covered. Name the method and any delegated skills in the report.
+- Findings: write to the assigned scratch path per
+  `~/.config/agents/record-as-you-go.md`. Review agents leave tracked files and
+  history untouched. Put proposed fixes and decision requests in findings.
 
-## Exercise — add
+## Finding format
 
-```
-Consumer surface = what the range changes. Report path: the findings file.
-```
+Give each finding a stable ID and include the affected contract and code
+location, expected versus actual behavior, a reproducible scenario or concrete
+code evidence, proposed correction, and impact. Separate evidence from severity:
 
-## Review — add
+| Classification | Evidence |
+|---|---|
+| Verified defect | A reproducible failing scenario or executable check against the contract. |
+| Supported risk | Evidence of a credible harmful path whose failure has not been established. State what remains unknown and why direct verification may be impractical or unsafe. |
+| Hypothesis | A possibility without a demonstrated path. Name the experiment that would distinguish it from expected behavior. |
 
-```
-Two lenses:
-1. Inside the box: bugs, regressions, coverage gaps (untested wiring is the
-   classic miss), security, design as written. Mutation tool present → run it
-   over the range; each survivor = candidate finding. Each finding: name its
-   class and sweep for siblings.
-2. First principles: treat current shape as accidental. Rebuilt from scratch,
-   what would never get built? Hunt reframings that preserve behaviour and
-   delete whole branches, helpers, or concepts. Challenge each abstraction,
-   each special case in an unrelated flow, each misplaced layer, each loose
-   type a sharper model would forbid, each file or function grown past what a
-   reader holds. A documented decision can be the defect: say so.
-Reframing too big for one slice → report it as a plan candidate.
-```
+Record accepted, rejected or deferred disposition after triage and link the
+test, commit, or rationale. A hypothesis alone is not an actionable defect.
 
-## Convergence — replaces the task line
+## Exercise
 
-Send *Common* (range = round 1 base..`HEAD`), the Review lenses, and this.
-Fix rationale and your own probes stay out: overlapping probes are the point.
+Run `dogfood` against the affected interface and report by its friction format.
+Link any reproduction and its setup to the finding ID.
 
-```
-Task: convergence check for harden. Treat the range as new to you.
-1. Invoke `dogfood` on the range (adversarial pass included).
-2. Invoke `code-review` over the range, both lenses.
-3. Run every matrix command; report exit status each.
-Original friction report: <path> — confirm each item resolved or still live.
-Verdict line: "converged" (zero significant findings) or "not converged:
-<count> significant".
-```
+## Review
+
+1. Walk changed contracts and their callers. Check regressions, boundary
+   assumptions, wiring coverage, error and retry paths, and security. Look for
+   siblings of demonstrated defects. Inspect existing mutation evidence before
+   running probes on uncovered behavior.
+   For external contracts, persisted state, cleanup, dependencies, packaging,
+   security, or concurrency, trace one or two consequential assumptions beyond
+   the diff to their consumers. Probe them and record the assumptions cleared,
+   findings, and any gaps. Use [Soundness](soundness.md) for unchecked invariants.
+2. Question design where relevant: which branches, abstractions or types
+   could disappear while preserving behavior? Surface larger changes as
+   candidates with trade-offs and historical constraints.
+3. For final-range review, verify affected fixes and surface unresolved risk.
+   Report coverage and findings. The coordinator determines convergence from
+   this review, consumer rechecks, and the final matrix.
+
+## Convergence
+
+Review the changed behavior or remaining gap on the final range. Record
+significant findings still open and which slices or consumer scenarios were
+rechecked. Cite prior independent coverage for unchanged behavior.

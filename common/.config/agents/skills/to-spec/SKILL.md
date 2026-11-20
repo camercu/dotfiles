@@ -27,13 +27,15 @@ Adapt this process to the project. Skip steps that add no value. Propose process
 
 | Situation | Skip to |
 |-----------|---------|
-| Trivial (rename, config, small bug) | Step 4 — write spec directly |
+| Small, well-defined change | Use existing acceptance criteria. Write Step 4 only when a spec was requested or the handoff needs one. |
 | Well-understood pattern ("done this before") | Step 2 (brief) → Step 4 |
 | Pure refactor, no behavior change | Skip entirely — use `/improve-architecture` |
 | Greenfield, no existing code | Skip Step 0 |
 | Prototype / spike | Step 2 (brief) → Step 4, mark spec as "draft" |
 
-**Never skip**: Step 2 (discovery) and Step 4 (numbered requirements). Discovery prevents building wrong thing. Numbered requirements prevent ambiguity.
+When a formal spec is justified, keep Step 4's numbered, testable requirements.
+Use established project decisions as defaults. Interview only when remaining
+uncertainty could change implementation, acceptance, or migration.
 
 ## Process
 
@@ -53,7 +55,13 @@ Skip when domain well-understood or pure bug fix.
 
 **Goal: complete map of the problem, not a plan for solving it.** Do not design solutions during discovery.
 
-Grill user (see `/grill-me`) on every branch of the problem tree — users, workflows, data, failure modes, constraints, integration points. For each question, offer recommended answer based on codebase analysis and research. **Do not move on from a branch until it is resolved or explicitly deferred.**
+Identify the consumer's primary workflow. Justify features, options, and
+abstractions by how they support it. Prefer a smaller coherent workflow when
+added capabilities would make ordinary use harder.
+
+For consequential open questions, use `/grill-me` with codebase evidence and a
+recommended answer. Stop when remaining uncertainty will not materially change
+implementation. Record assumptions and explicitly deferred decisions.
 
 Load [discovery-questions.md](references/discovery-questions.md) for domain-specific prompts.
 
@@ -65,7 +73,8 @@ Produce initial architecture + development plan. Then iterate:
 2. **Red-team** — Does every abstraction earn its keep? Bugs, conflicts, ambiguities? Architecture proportionate to problem? Testing strategy actually workable? Load [red-team-checklist.md](references/red-team-checklist.md).
 3. **Simplify** — each pass should reduce or hold steady on complexity while improving precision and coverage.
 
-Repeat until review finds only minor issues (typically 2–4 cycles).
+Use one focused red-team pass when the design warrants it. Repeat on affected
+decisions only when consequential ambiguity or a new contract risk remains.
 
 ### 4. Write Spec
 
@@ -92,5 +101,3 @@ User approves, requests changes, or sends back to Step 3 for more cycles.
 **The spec is the portable artifact.** Write it so a new session can load the spec and begin implementation without the conversation history. Summarize key design decisions and rationale in the architecture section.
 
 **Process overhead is accidental complexity too.** Formal schemas, dependency graphs, fine-grained tracking — use only when scale or regulatory requirements demand them.
-
-**Trust the adversarial review.** Quality comes from red-team passes, not from adding process. When in doubt, do another review cycle.

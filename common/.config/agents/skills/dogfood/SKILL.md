@@ -88,7 +88,13 @@ errors, awkward API shapes — `ux-devex` findings.
    mapped to surface regions. Ergonomics friction only surfaces in realistic use.
 2. **Sweep pass**: minimal probes for inventory items no consumer touched. Sweep
    finds crashes; consumers find UX — need both.
-3. **Honest remainder**: unexercised items + why.
+3. **Rust library**: run actual Cargo commands from disposable consumer
+   crates. For shipping behavior, depend on an unpacked `cargo package`
+   archive or the released crate. Exercise relevant default, no-default, and
+   supported feature combinations and documented examples. Use fresh
+   consumer and target dirs, isolated runtime config and home where relevant,
+   and record any shared Cargo cache or toolchain.
+4. **Honest remainder**: unexercised items + why.
 
 ## Pass 3 — Adversarial misuse
 
@@ -111,6 +117,10 @@ Write to scratch, tell user the path. Sections in order:
 3. **Findings**, severity-ranked (blocker/high/medium/low). Each tagged: category
    (`docs` | `ux-devex` | `bug` | `soundness`), provenance (doc section or consumer
    file:line), **inherent-to-design vs fixable**.
+   For a defect, include the affected contract, exact consumer command and setup,
+   expected and actual result (including exit status), and the smallest
+   fixture that reproduces it. Link scratch files so harden can turn the
+   reproduction into a repo-local regression check.
 4. **Re-eval only**: resolved / still-live / new-since.
 5. **Honest remainder**: unexercised + why.
 6. **Doc-ladder escalations**: every forced source-read = the doc-gap list.

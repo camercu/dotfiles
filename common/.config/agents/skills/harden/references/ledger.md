@@ -18,8 +18,10 @@ Ledger holds run **state**; findings file holds **evidence**.
 ```markdown
 # Harden ledger
 Scope: <paths or "repo">  Range: <base>..<head>
+Tier and reason: <highest-risk behavior>
+Review budget: <rounds planned / used>
 Matrix: <command per line>
-Last matrix run: <commit> <green|red: which command>
+Last matrix run: <commit, environment, command, raw exit status, log, skips>
 Authority docs: <paths or "working contract: README + API + tests">
 Friction report: <path>
 Findings files: <path per pass and round>
@@ -29,7 +31,13 @@ Position: step <n>, slice <id>, round <n>
 | id | status (pending/in-progress/done/declined) | commit subject |
 
 ## Passes (round <n>)
-| pass | RAN / N/A / SKIPPED / polluted | agent | result or reason |
+| pass | RAN / RAN (self-review) / REUSED / N/A / SKIPPED | reviewer and range | result or reason |
+
+## Findings
+| id | classification and impact | evidence | disposition and check or rationale |
+
+## Boundary assumptions
+| assumption and consequence | experiment and result | remaining risk |
 
 ## Gates
 | gate | options | user verdict |

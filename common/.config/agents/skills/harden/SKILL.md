@@ -8,9 +8,9 @@ description: Use when user wants to build or refine something "properly", harden
 ## Overview
 
 Take a change to a maintenance-first quality bar: exercise it as a consumer,
-decide fixes with the user, land them test-first, then run review passes until
-a full round finds nothing significant (**converged**). Harden sequences
-specialist skills (`dogfood`, `grill-me`, `tdd`, `code-review`, `simplify`,
+triage evidence, land fixes test-first, then review and verify within the
+recorded review budget. Harden sequences
+specialist skills (`dogfood`, `grill-me`, `tdd`, `simplify`,
 `improve-architecture`, `test-design-reviewer`); each owns its method. Harden
 owns order, gates, run state, and the convergence proof.
 
@@ -18,7 +18,7 @@ Run state lives in a **ledger** on disk, so `/clear` and resume are safe.
 
 ## Rules (every phase)
 
-Commits, fresh-agent review, and real Skill calls follow AGENTS.md
+Commits, independent review, and skill invocation follow AGENTS.md
 *Development process* and *Git*. Findings follow
 `~/.config/agents/record-as-you-go.md`. Harden adds:
 
@@ -28,26 +28,29 @@ Commits, fresh-agent review, and real Skill calls follow AGENTS.md
    update every reference to it in the same slice; a half-updated doc
    contradicts itself.
 2. **Slice green across the whole matrix.** Run the verification matrix after
-   every slice, not only at the end. Slice done = green on every config it
-   touches.
+   every slice on the affected configurations, and the final matrix on HEAD.
+   Use AGENTS.md *Authoritative verification* for logs, exit codes and skips.
 3. **Declines are results.** Evidence kills a plan (yours or the user's) → say
    so, with why. New evidence against a decline the user already chose → gate
    again, quoting the evidence. Record load-bearing decisions, declines
    included, in a durable home: ADR, or body of the nearest slice commit. No
    slice this run → ADR when load-bearing, else the closing report. Ledger
    only points at them.
-4. **Evaluative passes run fresh; propagating passes run here.** Evaluative =
+4. **Evaluative passes follow the risk tier.** Evaluative =
    judges the work: Exercise, Review, Simplify, Architecture, Test-health,
    convergence. Propagating = applies a known change: TDD slices, fixes,
-   Soundness, Docs; these need to know what changed. Unable to spawn → run the
-   evaluative pass here; its row reads `RAN (polluted)`.
-5. **Invoking harden = consent** to every sub-skill and fresh-agent spawn it
-   prescribes.
+   Soundness, Docs; these need to know what changed. When run in context, record self-review in its row.
+5. **Reuse evidence.** TDD supplies acceptance, boundary, and mutation
+   evidence. Harden coordinates review. Carry forward pass evidence where
+   fixes leave its scope intact. Repeat changed areas and uncovered behavior.
 
 ## Right-size
 
-Blast radius sets ceremony; rules 1–5 hold at every size. Record each sizing
-choice in the ledger.
+Use the risk tier in AGENTS.md. Record the highest-risk behavior, tier, and
+review budget in the ledger. Defaults: low one focused review, medium one
+round plus one targeted follow-up, high one initial round plus up to two
+targeted follow-ups. High risk requires an independent review of the final
+high-risk behavior. Budget limits repeated review, not required checks.
 
 - **Consumer surface** (public API, CLI, observable behaviour): full loop.
 - **No consumer surface** (internal refactor, test, doc, lockfile): friction
@@ -55,11 +58,10 @@ choice in the ledger.
   → `N/A` in the ledger.
 - **Infrastructure code**: Exercise = converge on the target (check mode while
   the host is unreachable) plus the verify playbook.
-- **Agent count.** Default: one fresh agent per evaluative pass. Small diff
-  where Review, Simplify, Architecture all look near-done → one agent carries
-  all three (combined brief in `references/pass-brief.md`); each ledger row
-  cites the shared result. Blast radius wider than one agent can hold → split
-  by subsystem.
+- **Agent count.** Combine Review, Simplify, and Architecture where the
+  same reviewer can cover them. Low risk can use one focused in-context
+  review. Use a fresh reviewer where the risk tier warrants it. Split by
+  subsystem only when the scope exceeds what one reviewer can cover.
 - A gate with one obvious option = one chat question, not a `grill-me` run.
 
 ## Steps
@@ -71,22 +73,24 @@ choice in the ledger.
      (targets, feature flags, OS, host with and without each optional tool the
      change calls). Source: task runner (`just --list`, `Makefile`,
      `package.json` scripts), else native toolchain, plus CI config. Tests
-     that nothing runs → add them to the matrix, and a friction finding. A
-     check that skips when its tool is missing counts red until run with the
-     tool.
+     that nothing runs → add them to the matrix and record the gap. Use the
+     full applicable matrix for high risk. A missing required tool leaves
+     its check unverified.
    - **Authority docs**: see rule 1. None → README + public API + tests are
      the working contract; say so.
    - **Commit rules**: AGENTS.md, `CONTRIBUTING`, `git log` format.
    - **Pass rows**: one ledger row per pass — Exercise (step 1) and the six
-     of step 4. Pass skill absent from this session's skill list → row
-     `SKIPPED: skill absent`.
+     of step 4. Resolve skills as described in AGENTS.md. For Review, apply
+     the built-in Review brief when `code-review` is unavailable.
 2. Run the matrix on the target change. Red → friction finding for step 2;
    its fix becomes the first slice, so later slices can land green.
 3. Ledger: read `references/ledger.md`, then resume the existing one or create
    it.
 4. Scope = whole repo, or wider than one context window → read
    `references/slice-queue.md` and build the queue before step 1.
-5. State matrix, baseline result, authority docs in one chat line.
+5. State matrix, baseline result, authority docs in one chat line. Before
+   implementing a nontrivial change, apply TDD's boundary-assumption step.
+   For unchecked invariants read [Soundness](references/soundness.md).
 
 Round 1 range = target change's base..`HEAD`, so round 1 reviews the change
 itself. Later rounds: commits landed since the previous round.
@@ -96,54 +100,68 @@ authority docs, and seven pass rows.
 
 ### 1 — Exercise
 
-Fresh agent invokes `dogfood` on the change (brief:
+Run `dogfood` on the affected consumer behavior, with an independent
+reviewer for a high-risk or broad cold walk (brief:
 `references/pass-brief.md`); dogfood picks its own mode. Its fast-exit `N/A`
 report → ledger row `N/A`; friction then comes from step 4 Review, pulled
 forward.
 
 Done when the friction report path is in the ledger.
 
-### 2 — Decide ⟨gate⟩
+### 2 — Triage and decide
 
-Each friction finding → options with codebase evidence, a recommendation, and
-a check against authority docs (rule 1). One finding's choice changes
-another's options → `grill-me`; resolve those dependencies first. Independent
-findings → one gate message, numbered. Prefer the option the code supports
-over the elegant one. No fixable findings → note it, go to step 4.
+Use the [finding format](references/pass-brief.md#finding-format). Accept a
+behavioral defect for implementation after a concrete reproduction or failing
+executable check demonstrates it. When reproduction is unsafe or impractical,
+record concrete code evidence as a supported risk and account for it in the
+convergence verdict. A hypothesis needs an experiment before it can drive a
+fix.
 
-Done when the user chose a fix, or decline, for every finding.
+Proceed on fixes covered by the user's intent. Present options, evidence, and
+a recommendation for unresolved decisions; use `grill-me` only when decisions
+depend on one another. Check each accepted fix against the authority docs.
+
+Done when every finding has an accepted, rejected, or deferred disposition
+with evidence. No fixable findings → step 4.
 
 ### 3 — Slice, test, commit
 
 Split approved work into vertical slices (`to-tasks` when more than ~3). Each
-slice: `tdd` → full matrix (rule 2) → commit. Step 2 verdict = tdd's plan
-approval; tdd's review step = step 4 here, run once per round over the range.
+slice: `tdd` for behavior changes → matrix (rule 2) → commit. The step 2
+verdict carries through TDD. Its review belongs to step 4 here.
 Red-baseline fix lands first; widest-blast-radius slice last. Approved fix
 only partly achievable → re-gate when the gap changes the user's choice, else
 record the residual in the commit body.
 
-Done when every approved finding maps to a landed commit or a recorded
-decline.
+For an accepted consumer defect, promote the smallest reproduction into the
+project's normal checks. Use the real interface and actual tooling, such as
+Cargo with a disposable client and an unpacked package. Demonstrate the
+original failure and the post-fix pass. Wire the fixture into a project-local
+`just` recipe or equivalent and the applicable CI gate. If durable execution
+is impractical, record what remains unverified and why.
+
+Done when every accepted finding has a landed commit or a recorded decline,
+and each consumer check has pre-fix and post-fix evidence or a named gap.
 
 ### 4 — Passes
 
 Over the round's range (step 0). Run in-context passes (Soundness, Docs)
-first, then spawn the evaluative ones over the resulting range. Spawned
-passes: brief from `references/pass-brief.md`.
+first, then use the Review brief over the resulting range with the reviewer
+selected in Right-size.
 
 | Pass | Runs in | Does |
 |---|---|---|
-| Review | fresh agent | invokes `code-review`; two lenses in the brief |
+| Review | by tier | apply the brief. Use `code-review` if available for ordinary code review |
 | Soundness | here | change touches an invariant the toolchain won't check (unsafe/FFI, shared mutable state, concurrency, privilege, call-order lifecycle) → `references/soundness.md`; else row `N/A: no unchecked-invariant surface` |
-| Simplify | fresh agent | invokes `simplify` |
-| Architecture | fresh agent | invokes `improve-architecture`; do-vs-decline = gate |
-| Test-health | `test-design-reviewer` (forks itself, read-only) | args: repo path, range, findings path; you write its report to the findings file. Fixing its findings → `references/test-health.md` |
+| Simplify | combine with Review when practical | invokes `simplify` when the diff raises reuse, quality, or efficiency questions |
+| Architecture | combine with Review when practical | invokes `improve-architecture` when boundaries or coupling change; gate an unresolved architectural decision |
+| Test-health | `test-design-reviewer` (forks itself, read-only) | runs when affected checks are new, weakened, or show test-health concerns; args: repo path, range, findings path. Fixes → `references/test-health.md` |
 | Docs | here | every behaviour change reaches every doc describing it: README, API docs, man page, `--help`, examples, changelog. Regenerate generated docs. Drift → `~/.config/agents/guard-ladders.md` *Docs drift* |
 
 **Test-health stays clean.** Once a round's Test-health finds nothing
 significant, later rounds row it `N/A: suite clean since round <n>, no tests
-removed or weakened`. Each slice's `tdd` mutation run already guards new code;
-re-review of an unchanged suite costs a round and finds nothing. Before
+removed or weakened`. Reuse the first pass's evidence for the unchanged suite. Check added tests
+against their TDD evidence. Before
 writing that row, check the round's range; either check fails → run the pass:
 
 1. Test count ≥ count recorded at the clean round (stack's list command, e.g.
@@ -159,57 +177,51 @@ findings (stale, imprecise, or contradicting code) are cosmetic: fix them in
 passing, but they never block convergence. Exception: doc so misleading that it
 would frustrate a large share of users (wrong install, wrong core API usage,
 claims a guarantee the code breaks) → significant. Else cosmetic or false
-positive → one line in findings, no slice. Passes disagree
-on a finding's rating → the higher rating wins. Significant findings → step 2
-when a choice is open, else step 3 directly.
+positive → one line in findings, no slice. When passes disagree, resolve the evidence and record any remaining risk.
+Significant findings → step 2 for triage, then step 3 for accepted fixes.
 
-Done when every pass row reads `RAN`, `RAN (polluted)`, `N/A` (with the
-surface it lacks), or `SKIPPED` (with reason), and every significant finding
-is sliced or gated.
+Done when every pass row has its status and evidence or reason, and every
+significant finding has a disposition. Use the status names in the ledger.
 
 ### 5 — Converge and close
 
-Repeat steps 3–4 until one round yields zero significant findings. Converged
-needs proof from a fresh agent: the convergence brief in
-`references/pass-brief.md`, run over the final range. A Review agent that
-already read the final range unprimed counts; spawn one only when Review ran
-before the last slice landed.
+Repeat affected parts of steps 3–4 within the review budget. Reuse a final-range
+independent Review as convergence evidence where it covers the final behavior.
+Use the convergence brief in `references/pass-brief.md` for remaining gaps.
 
-Then re-run `dogfood re-eval <report>`: each original friction item resolved,
-or declined with reason.
+Re-run affected consumer checks and use `dogfood re-eval <report>` when a
+consumer report exists. Run the applicable final matrix on HEAD.
 
-Done when the convergence agent reports zero significant findings and re-eval
-shows no live friction the user did not decline. User stops the loop at a
-gate → close with the open findings listed as deferred.
+Converged = required checks green, tier's review evidence present, original
+friction resolved or declined on evidence, zero open significant findings.
+An unresolved serious safety risk blocks convergence even when reproduction
+is impractical. At budget exhaustion report what remains open and surface
+decisions needed to continue.
 
 ## Gates
 
 Stop and hand the decision to the user at:
 
 - authority-doc conflict (rule 1);
-- fix selection (step 2);
-- architecture do-vs-decline (step 4);
+- unresolved product or architecture decision (steps 2 and 4);
 - public safety-contract change (`references/soundness.md`);
 - irreversible or outward-facing action: push, publish, delete, migration,
-  dependency change.
+  dependency change outside the approved scope.
 
 Form: AGENTS.md *Writing* gate rule. Record each verdict in the ledger. Between
 gates, run autonomously.
 
 ## Done criterion
 
-Run is done when step 5's criterion holds, and the closing report gives:
+Close with the step 5 verdict and report:
 
 1. Slices landed (commit subjects) and decisions with their durable homes.
-2. Pass ledger: the seven rows from step 0 — `RAN` (result, findings acted
-   on or declined), `RAN (polluted)`, `N/A` (surface it lacks), `SKIPPED`
-   (reason). A skill that declines by its own guardrails = `RAN (declined)`,
-   with why.
+2. Pass ledger with evidence, disposition, and any skipped or reused coverage.
 3. Final matrix status, red stays red.
-4. Convergence verdict quoted from the fresh agent, marked independent; or the
-   significant findings deliberately deferred, with why.
+4. Convergence verdict, review provenance, and open findings with reasons.
+5. Boundary results and durable consumer checks, with any gaps.
 
-Then delete `.scratch/harden/`.
+Keep the ledger and logs as evidence for resumption and retrospectives.
 
 ## Self-check
 
@@ -217,10 +229,9 @@ Before the closing report:
 
 1. `git log --format=%s <range>`: every approved finding has a commit or a
    ledger decline.
-2. Each `RAN` row that names a skill → a Skill tool call exists in this
-   context, or the pass's findings-file header lists the skill as invoked.
-   Neither → row becomes `SKIPPED`.
-3. Each evaluative `RAN` row ran in a fresh agent, or reads `polluted`.
+2. Each `RAN` row names its skill or review method and links its evidence.
+3. Each evaluative row names its reviewer and range. Missing required
+   independent review keeps high-risk convergence open.
 4. Last matrix run is on `HEAD`: its recorded commit equals `git rev-parse
    HEAD`.
 5. Each decision the report names resolves: ADR path exists, or `git show`

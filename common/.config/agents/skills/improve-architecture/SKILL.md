@@ -46,6 +46,10 @@ Navigate organically. Note: shallow modules, scattered understanding, coupling l
 
 Apply **deletion test** to suspect modules. Check [references/ANTI-PATTERNS.md](references/ANTI-PATTERNS.md).
 
+Before proposing to remove unfamiliar behavior or indirection, use
+`/simplify` Phase 0's history check. Cite the introducing or modifying commit,
+PR, or ADR and whether its constraint still holds. Record missing rationale.
+
 ### 1a. Cohesion map
 
 Depth judges a module's interface; the map judges where code lives. Write a
@@ -106,6 +110,11 @@ Walk design tree: interface constraints, dependencies, hidden complexity, test s
 Side effects: new concept → add to `CONTEXT.md`. Sharpened term → update `CONTEXT.md`. Load-bearing rejection → offer ADR (see `/domain-model` for CONTEXT.md and ADR formats, three-gate ADR check).
 
 ### 4. Design interfaces
+
+When a requirement strains the design, sketch what you would build had it
+been known from the beginning. Compare that design with the smallest
+incremental change by total complexity, compatibility, and migration cost.
+Recommend one and identify incremental migration steps.
 
 Simple → propose one interface from grilling constraints.
 Ambiguous/Complex → parallel sub-agents (see [references/INTERFACE-DESIGN.md](references/INTERFACE-DESIGN.md)).
