@@ -14,7 +14,9 @@ prompt, task, limit hit) is counted only when its own timestamp is in range.
 
 import argparse
 import json
+import os
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -296,8 +298,8 @@ def trend(previous, current):
     keys = sorted(set(prev) | set(cur))
     changes = {}
     for key in keys:
-        # A missing delivery measurement means unknown, not zero defects or cost.
-        now = cur.get(key) if key.startswith("delivery.") else cur.get(key, 0)
+        # An unavailable project probe leaves its measures unknown.
+        now = cur.get(key) if key.startswith(("delivery.", "wip.")) else cur.get(key, 0)
         if prev.get(key) != now:
             changes[key] = prev.get(key), now
     return changes
@@ -334,7 +336,7 @@ def render_markdown(report, changes, since, until):
     if "wip" in report:
         lines += ["", "## WIP", "| Repo | Unpushed | Unmerged branches | Worktrees |", "|---|---|---|---|"]
         for repo, v in report["wip"].items():
-            if v["unpushed"] or v["unmerged_branches"] or v["worktrees"]:
+            if any(value is None or value > 0 for value in v.values()):
                 lines.append(f"| {repo} | {v['unpushed']} | {v['unmerged_branches']} | {v['worktrees']} |")
     if "delivery" in report:
         delivery = report["delivery"]
@@ -436,9 +438,13 @@ def read_rtk(db_path, since, until):
 
 
 def _git(repo, *args):
-    import subprocess
-
-    out = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True)
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(repo), *args], capture_output=True, text=True, timeout=5,
+            env={**os.environ, "GIT_NO_LAZY_FETCH": "1", "GIT_TERMINAL_PROMPT": "0"},
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return None
     return out.stdout if out.returncode == 0 else None
 
 
@@ -449,12 +455,14 @@ def read_wip(repos_dir):
         if not (repo / ".git").exists():
             continue
         unpushed = _git(repo, "rev-list", "--count", "@{u}..HEAD")  # None: no upstream
-        unmerged = _git(repo, "branch", "--no-merged", "HEAD", "--format=%(refname:short)") or ""
-        trees = _git(repo, "worktree", "list", "--porcelain") or ""
+        unmerged = _git(repo, "branch", "--no-merged", "HEAD", "--format=%(refname:short)")
+        trees = _git(repo, "worktree", "list", "--porcelain")
         wip[repo.name] = {
             "unpushed": int(unpushed) if unpushed else None,
-            "unmerged_branches": len(unmerged.split()),
-            "worktrees": max(0, trees.count("\nworktree ") + trees.startswith("worktree ") - 1),
+            "unmerged_branches": len(unmerged.split()) if unmerged is not None else None,
+            "worktrees": None if trees is None else max(
+                0, trees.count("\nworktree ") + trees.startswith("worktree ") - 1
+            ),
         }
     return wip
 

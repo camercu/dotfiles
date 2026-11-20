@@ -295,6 +295,23 @@ def test_wip_counts_unpushed_commits_and_unmerged_branches(tmp_path):
     assert wip["demo"] == {"unpushed": 1, "unmerged_branches": 1, "worktrees": 0}
 
 
+def test_stalled_git_probe_is_unknown_and_local(tmp_path, monkeypatch):
+    repo = tmp_path / "stalled"
+    git(tmp_path, "init", "-q", "-b", "main", str(repo))
+
+    def stall(args, *, timeout, env, **kwargs):
+        assert timeout > 0
+        assert env["GIT_NO_LAZY_FETCH"] == "1"
+        assert env["GIT_TERMINAL_PROMPT"] == "0"
+        raise subprocess.TimeoutExpired(args, timeout)
+
+    monkeypatch.setattr(audit.subprocess, "run", stall)
+    assert audit.read_wip(tmp_path)["stalled"] == {
+        "unpushed": None, "unmerged_branches": None, "worktrees": None,
+    }
+    assert audit.read_history(tmp_path, "2026-11-19") == {"stalled": None}
+
+
 # --- trend ------------------------------------------------------------------------
 
 

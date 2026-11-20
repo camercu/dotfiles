@@ -22,6 +22,8 @@ working file under the retrospective state directory.
   established none. Git counts history independently. An outcome whose SHA
   is absent is counted as unresolved. A commit subject or prompt alone
   cannot establish review yield, corrections, or regressions.
+- Git probes read local history only. Missing objects or a stalled Git
+  command leave the affected measurement unknown.
 
 Capture a pre-change snapshot and an equal-length post-change snapshot.
 Compare within project and risk tier, with observed counts beside totals.
