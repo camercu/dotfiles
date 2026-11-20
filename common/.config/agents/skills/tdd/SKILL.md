@@ -37,7 +37,7 @@ Cross-refs: `/improve-architecture` (module-level), `/simplify` (code-level clea
 - **Fast, reliable, deterministic feedback** — the point of the suite. Whole suite ≤10s, zero flakes. A test that wants a sleep, a timeout wait or a retry = design feedback: add a deterministic seam in production code (seams: `~/.config/agents/skills/test-design-reviewer/SKILL.md`, *Sleeps and flakes are design findings*).
 - **Prove-It rule.** No bug fix without a failing reproduction test first; passing test = fixed + regression-proofed.
 - **Test runs code, never reads it.** Regression test for a mistake = exercise the behaviour that broke. Before writing a test that greps source or config: `~/.config/agents/guard-ladders.md`, *Test guards*.
-- **Can the test fail? Ask the mutation tool.** After GREEN, run mutation testing over the change (`cargo mutants --in-diff <diff> --output .scratch/tdd`, Stryker, mutmut), tool output under `.scratch/tdd/`. Survivor = code no test constrains: sharpen the test, or record why the mutant is equivalent. Tool absent or broken → hand-mutate each branch and boundary, report the kill count.
+- **Can the test fail?** Use the mutation depth for the AGENTS.md risk tier. For high risk, target changed branches and boundaries. If a mutation tool is unavailable, violate those invariants by hand or inject the corresponding faults. Record killed mutants, explain survivors, and list unverified cases.
 - **Docs: say less, then generate, guard last.** Before writing a doc that mirrors code: `~/.config/agents/guard-ladders.md`, *Docs drift*.
 
 ## Workflow: Double Loop
@@ -56,13 +56,25 @@ OUTER (acceptance):
 - [ ] Write acceptance criteria as GIVEN-WHEN-THEN
 - [ ] Design for [deep modules](./deep-modules.md) + [testability](./interface-design.md)
 - [ ] Plan [tracer bullet](./tracer-bullets.md) — thinnest vertical slice first
-- [ ] Get user approval
+- [ ] For nontrivial changes, trace the one or two assumptions with the worst failure consequences through API calls, resource lifecycles, process boundaries, adapters, external tools, and configuration. For each consequential assumption, design a failing test, fault injection, consumer, or state-machine simulation. For unchecked invariants, use [Soundness](../harden/references/soundness.md).
+- [ ] Use existing approval for the implementation. Route new decisions by AGENTS.md.
 
 ### 2. Acceptance Test (outer RED)
 
 **Features:** ONE failing acceptance test through the public interface; stays RED during inner loop. Feature change → review existing tests for new behavior before adding new ones.
 
 **Bug fixes:** Prove-It rule above.
+
+Two fixes fail on the same assumption → apply *Attack the premise* in
+`~/.config/agents/maintenance-first.md` before a third attempt. For retryable
+or interruptible changes, design the recovery cases in
+[Soundness](../harden/references/soundness.md) now.
+
+Run each planned boundary experiment before changing production code where
+feasible. Demonstrate red for the intended failure, including by deliberately
+violating the assumption in a disposable fixture. Keep the regression check
+in the project when it can run safely and reliably. Record any assumption
+that remains unverified and why.
 
 ### 3. TDD Loop (inner)
 
@@ -80,7 +92,10 @@ Use ZOMBIES (Zero, One, Many, Boundaries, Interface-design, Exceptions/Edge-case
 
 Coverage audit: edge cases, error paths, boundaries. Consider **property-based tests** (Hypothesis/proptest) for broad input domains.
 
-Then review and refactor via `/code-review`, `/simplify`, `/improve-architecture`. Tests stay GREEN throughout (design changes only, no behavior changes).
+Run one focused review using the AGENTS.md tier. If `/harden` is coordinating,
+hand it the acceptance, boundary and mutation evidence and use its Review pass.
+Use `/simplify` or `/improve-architecture` only when the change raises a question
+in their scope. Keep tests GREEN during refactoring.
 
 ### 6. Docs sweep → Done
 

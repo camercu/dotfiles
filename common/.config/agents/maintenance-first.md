@@ -39,6 +39,12 @@ Consequences of the constitution, named so they become reflex:
   class, hunt siblings, trace to root not symptom. Any review (docs, specs,
   code) = leak point: forces confronting what the system really does; a mismatch
   often indicts the code — a whole class — not just the reviewed artifact.
+- **Attack the premise.** If two fixes based on the same assumption fail,
+  write it down and test an observation that could disprove it before trying
+  a third fix.
+- **Build the lever.** For nontrivial investigation, analysis, or transformation,
+  prefer the smallest rerunnable script, codemod, or check. Prove it on a
+  representative case and keep it when subsequent runs benefit.
 - **Accept liberally, report honestly** (Postel's law, sharpened) — real inputs
   are malformed; refusing them strands the user who most needs the tool, since
   broken counterpart = exactly when diagnostics matter. So accept. But liberal

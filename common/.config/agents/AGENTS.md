@@ -20,6 +20,10 @@
 
 @maintenance-first.md
 
+Give concurrent workers separate writable files, keys, worktrees, or state
+directories where possible. Assign one owner to aggregate the results. When
+shared mutation is intrinsic, enforce synchronization in the design.
+
 ## Defect prevention
 
 Bug found or mistake repeats: fix the class. Use highest tier that reaches:
@@ -39,15 +43,31 @@ read `~/.config/agents/guard-ladders.md`.
 
 ## Development process
 
-- Logic or code behaviour change: `/tdd`. Docs, config text, minor GUI
-  styling: edit, run the gate, commit. Every change, refactor too: then
-  `/harden`. Fix incidental issues found on the way.
-- Named skill = real Skill tool call. Cannot run: report SKIPPED + reason.
-- Fresh agent reviews own work: context that authored the code spawns a fresh
-  reviewer unless a human vets the findings. Already a spawned reviewer →
-  review in place.
-- Rust library public API: follow
-  https://rust-lang.github.io/api-guidelines/checklist.html
+Route by the highest-risk behavior affected. A three-line ownership change
+can be high risk. Record the tier and the behavior that determines it.
+
+| Tier | Examples | Default |
+|---|---|---|
+| Low | Docs, cosmetic edits, isolated mechanical or minor config changes | Relevant checks and one focused review. Mutation testing only if required by the project. |
+| Medium | Ordinary features and contained refactors | `/tdd` for behavior changes, relevant integration checks and one focused review. Seek independent review for cross-module uncertainty. Target mutation testing at risky logic or suspected weak assertions. |
+| High | Unsafe/FFI, concurrency, privilege, rollback or resource ownership, public safety contracts, consequential platform differences, release automation | `/tdd` for behavior changes, boundary experiments before implementation, full applicable matrix, targeted mutation or fault probes, independent review, and unresolved-risk accounting. |
+
+Use `/harden` for high-risk changes, when requested, or when findings need
+multiple passes. Reuse review evidence for the same range. For independent
+review, use a fresh reviewer or human reviewer. If unavailable, record the
+missing review and keep high-risk convergence unverified.
+
+Use named skills through the harness where available, or read the installed
+`SKILL.md` and apply its instructions directly. For code review, resolve
+  `code-review` in the session skill list if available. Apply the Review
+  brief in `~/.config/agents/skills/harden/references/pass-brief.md` either way.
+
+Carry prior approval through implementation. Ask for consequential new
+decisions, conflicting requirements, public contract changes, or destructive
+actions. Follow the Git rule for pushes.
+
+Rust library public API: follow
+https://rust-lang.github.io/api-guidelines/checklist.html
 
 ## Dev environment
 
@@ -62,6 +82,26 @@ Subagent briefs carry this line; subagents do not read this file.
 
 zsh: separator `---`; test `[ x = y ]`. (`==` triggers `=cmd` expansion:
 `(eval):1: == not found`.) Absolute paths; cwd drifts after `cd`.
+
+### Authoritative verification
+
+Use the project's gate from CI or the task runner in its required environment.
+For a flake with a dev shell, use `nix develop --command <cmd>` or its direnv
+shell. Run the original command without output wrappers that change its status.
+Save both streams to a log under `.scratch/` and record the command, tested
+revision, and actual exit status. Capture status before reading or filtering
+the log. Example inside the required environment:
+
+```sh
+mkdir -p .scratch
+check_rc=0
+env -u RTK_CARGO just ci >.scratch/ci.log 2>&1 || check_rc=$?
+printf 'ci exit: %s\n' "$check_rc"
+exit "$check_rc"
+```
+
+When a required check skips or its tool cannot run, report it as unverified
+with the reason. A passing summary cannot override a failed command.
 
 ## Working files
 
