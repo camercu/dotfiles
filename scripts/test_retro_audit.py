@@ -1,6 +1,7 @@
 """Behaviour of the cross-session audit, driven through its CLI and core."""
 
 import json
+import os
 import sqlite3
 import subprocess
 import sys
@@ -295,6 +296,74 @@ def test_wip_counts_unpushed_commits_and_unmerged_branches(tmp_path):
 
 
 # --- trend ------------------------------------------------------------------------
+
+
+def test_delivery_joins_outcomes_to_git_history(tmp_path):
+    repo = tmp_path / "demo"
+    git(tmp_path, "init", "-q", "-b", "main", str(repo))
+
+    def commit(when):
+        subprocess.run(
+            ["git", "-C", str(repo), "-c", "user.email=a@b", "-c", "user.name=a",
+             "commit", "-q", "--allow-empty", "-m", "fix: behavior"],
+            env={**os.environ, "GIT_AUTHOR_DATE": when, "GIT_COMMITTER_DATE": when}, check=True,
+        )
+        return subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+
+    older = commit("2026-09-30T12:00:00Z")
+    inside = commit("2026-10-02T12:00:00Z")
+    later = commit("2026-11-01T00:00:00Z")
+    fixture = tmp_path / "outcomes.jsonl"
+    common = {"project": "demo", "tier": "high", "evidence": "session.jsonl:15",
+              "accepted_at": "2026-10-02T13:00:00Z"}
+    records = [
+        {**common, "commit": older, "started_at": "2026-10-02T12:00:00Z",
+         "review_rounds": 2, "review_seconds": 300, "accepted": 1, "human_corrections": 1,
+         "regressions": 1, "defect_classes": ["package", "package"]},
+        {**common, "commit": inside, "review_rounds": 1, "accepted": 0, "rejected": 2,
+         "defect_classes": ["package"]},
+        {**common, "commit": later, "accepted_at": "2026-11-01T00:00:00Z"},
+        {**common, "commit": "0" * 40, "accepted": 9},
+    ]
+    fixture.write_text("\n".join(map(json.dumps, records)))
+    command = [sys.executable, str(SCRIPT), "--projects", str(tmp_path / "empty"),
+               "--since", "2026-10-01", "--until", "2026-10-31", "--repos", str(tmp_path)]
+    no_outcomes = json.loads(subprocess.check_output(command, text=True))["delivery"]
+    delivery = json.loads(subprocess.check_output([*command, "--outcomes", str(fixture)], text=True))["delivery"]
+    assert no_outcomes["projects"] == {}
+    assert no_outcomes["evidence"] == "no outcome records"
+    assert delivery["commits"] == {"demo": 1}
+    assert delivery["unresolved_commits"] == 1
+    assert delivery["projects"]["demo"]["high"] == {
+        "changes": 2, "accepted": {"sum": 1, "observed": 2},
+        "rejected": {"sum": 2, "observed": 1},
+        "review_rounds": {"sum": 3, "observed": 2},
+        "review_seconds": {"sum": 300, "observed": 1},
+        "elapsed_seconds": {"median": 3600, "observed": 1},
+        "defect_classes": {"changes_by_class": {"package": 2}, "observed": 2},
+        "human_corrections": {"sum": 1, "observed": 1},
+        "regressions": {"sum": 1, "observed": 1},
+        "repeated_review_changes": 1,
+        "review_yield": {"zero_acceptance": 1, "observed": 2},
+    }
+    for field, value, diagnostic in [
+        ("review_rounds", -1, "review_rounds must be a nonnegative integer"),
+        ("accepted_at", 5, "outcome timestamps must be ISO 8601 strings"),
+        ("defect_classes", "race", "defect_classes must be a list of nonempty strings"),
+    ]:
+        fixture.write_text(json.dumps({**records[0], field: value}))
+        result = subprocess.run([*command, "--outcomes", str(fixture)], capture_output=True, text=True)
+        assert result.returncode == 2
+        assert diagnostic in result.stderr
+
+
+def test_trend_marks_missing_delivery_evidence_unknown():
+    before = {"delivery": {"commits": {"demo": 5}, "projects": {"demo": {"low": {"changes": 2}}}}}
+    after = {"delivery": {"commits": {"demo": None}}}
+    assert audit.trend(before, after) == {
+        "delivery.commits.demo": (5, None),
+        "delivery.projects.demo.low.changes": (2, None),
+    }
 
 
 def test_trend_reports_change_for_each_numeric_metric():

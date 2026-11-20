@@ -17,7 +17,8 @@ an anecdote; the audit's counts decide rank.
 ## Context
 
 - `scripts/audit.py` — counts failure signatures, quota and context use, edit
-  methods, rtk savings, WIP; `--show=PATH:LINE` prints one line per transcript
+  methods, rtk savings, WIP, first-parent Git history and sourced review
+  outcomes; `--show=PATH:LINE` prints one line per transcript
   record around an example. `--help` lists flags. Signatures: its `SIGNATURES`
   table; tests: `~/.dotfiles/scripts/test_retro_audit.py`.
 - Snapshots: `~/.local/state/agent-retro/<until>.json`, one per run.
@@ -31,13 +32,17 @@ an anecdote; the audit's counts decide rank.
 ## Steps
 
 1. Window: `--since` = the last snapshot's date (first run: 14 days back),
-   `--until` = today (UTC). Run:
+   `--until` = today (UTC). Dates are inclusive. For comparisons use
+   matching, non-overlapping UTC windows. Run:
    ```sh
    A=~/.claude/skills/retro/scripts/audit.py
    $A --since <since> --until <today> --rtk-db ~/Library/Application\ Support/rtk/history.db \
      --repos ~/repos --state ~/.local/state/agent-retro --md
    $A --since <since> --until <today> --json   # examples per signature
    ```
+   Use `--outcomes <file.jsonl>` with `--repos` for delivery measures. See
+   [outcome evidence](references/outcome-evidence.md) to build records and
+   compare review effort and outcomes.
 2. Candidates, from the Markdown's change table and signature table:
    - Worse-when-higher metrics that rose: `signatures.*.calls`,
      `quota.limit_hit_days`, `quota.agents_failed*`, `quota.main_turns_over_300k`,
@@ -46,8 +51,10 @@ an anecdote; the audit's counts decide rank.
    - Every `unclassified` failure.
    - The top three signatures by calls, excluding `nonzero-exit` and
      `unclassified` (buckets of many causes, not one).
-   - Each fix in the git log above: its metric must have fallen. Flat or risen
-     → the fix failed; that is a candidate.
+   - Each fix in the git log above: inspect its metric, denominator and
+     examples. Treat a flat or higher rate as a candidate for investigation.
+   - Repeated reviews with little accepted evidence and recurring verified
+     defect classes. Check those against regressions and human correction.
    First run has no change table: use the last three rules only.
 3. For each candidate, run `$A --show=<example> --context 15` on two or three
    examples. Name the root cause, the class it belongs to, and the evidence

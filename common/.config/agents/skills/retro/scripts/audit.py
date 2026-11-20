@@ -17,7 +17,9 @@ import json
 import re
 import sys
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
+from statistics import median
 
 # Each signature: id -> regex over a failed tool result's text. Order matters:
 # the first match wins, so put specific signatures before general ones.
@@ -292,7 +294,13 @@ def trend(previous, current):
     the report, and that drop is the evidence the fix worked."""
     prev, cur = _flatten(previous), _flatten(current)
     keys = sorted(set(prev) | set(cur))
-    return {k: (prev.get(k), cur.get(k, 0)) for k in keys if prev.get(k) != cur.get(k, 0)}
+    changes = {}
+    for key in keys:
+        # A missing delivery measurement means unknown, not zero defects or cost.
+        now = cur.get(key) if key.startswith("delivery.") else cur.get(key, 0)
+        if prev.get(key) != now:
+            changes[key] = prev.get(key), now
+    return changes
 
 
 def render_markdown(report, changes, since, until):
@@ -328,6 +336,15 @@ def render_markdown(report, changes, since, until):
         for repo, v in report["wip"].items():
             if v["unpushed"] or v["unmerged_branches"] or v["worktrees"]:
                 lines.append(f"| {repo} | {v['unpushed']} | {v['unmerged_branches']} | {v['worktrees']} |")
+    if "delivery" in report:
+        delivery = report["delivery"]
+        lines += ["", "## Delivery and review",
+                  f"- History (first-parent commits by project): {delivery['commits']}",
+                  f"- Outcome records with unresolved commits: {delivery['unresolved_commits']}",
+                  f"- Outcome evidence: {delivery['evidence']}"]
+        for project, tiers in delivery["projects"].items():
+            for tier, metrics in tiers.items():
+                lines.append(f"- {project} / {tier}: {metrics}")
     lines += ["", "## Change since last snapshot", "| Metric | Before | Now |", "|---|---|---|"]
     lines += [f"| {k} | {a} | {b} |" for k, (a, b) in changes.items()] or ["| (no snapshot) | | |"]
     return "\n".join(lines) + "\n"
@@ -442,6 +459,105 @@ def read_wip(repos_dir):
     return wip
 
 
+def read_history(repos_dir, until):
+    """Map first-parent commit IDs at local HEAD to UTC days."""
+    history = {}
+    for repo in sorted(Path(repos_dir).iterdir()):
+        if not (repo / ".git").exists():
+            continue
+        log = _git(repo, "log", "--first-parent", "--format=%H %ct", "HEAD")
+        if log is None:
+            history[repo.name] = None
+            continue
+        commits = {}
+        for line in log.splitlines():
+            sha, timestamp = line.split()
+            day = datetime.fromtimestamp(int(timestamp), timezone.utc).date().isoformat()
+            if day <= until:
+                commits[sha] = day
+        history[repo.name] = commits
+    return history
+
+
+def _outcome_time(value):
+    if not isinstance(value, str):
+        raise ValueError("outcome timestamps must be ISO 8601 strings")
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.utcoffset() is None:
+        raise ValueError("outcome timestamps require a UTC offset")
+    return parsed.astimezone(timezone.utc)
+
+
+def _record_delivery(row, delivery):
+    """Aggregate one sourced observation, leaving absent measures unknown."""
+    delivery["changes"] = delivery.get("changes", 0) + 1
+    fields = ("review_rounds", "review_seconds", "accepted", "rejected", "deferred",
+              "human_corrections", "regressions")
+    for key in fields:
+        value = row.get(key)
+        if value is None:
+            continue
+        if type(value) is not int or value < 0:
+            raise ValueError(f"{key} must be a nonnegative integer")
+        metric = delivery.setdefault(key, {"sum": 0, "observed": 0})
+        metric["sum"] += value
+        metric["observed"] += 1
+    rounds, accepted = row.get("review_rounds"), row.get("accepted")
+    if rounds is not None:
+        delivery["repeated_review_changes"] = delivery.get("repeated_review_changes", 0) + (rounds > 1)
+    if rounds and accepted is not None:
+        yield_counts = delivery.setdefault("review_yield", {"zero_acceptance": 0, "observed": 0})
+        yield_counts["observed"] += 1
+        yield_counts["zero_acceptance"] += accepted == 0
+    if row.get("defect_classes") is not None:
+        names = row["defect_classes"]
+        if not isinstance(names, list) or any(not isinstance(name, str) or not name.strip() for name in names):
+            raise ValueError("defect_classes must be a list of nonempty strings")
+        classes = delivery.setdefault("defect_classes", {"observed": 0, "changes_by_class": {}})
+        classes["observed"] += 1
+        for name in set(names):
+            counts = classes["changes_by_class"]
+            counts[name] = counts.get(name, 0) + 1
+
+
+def delivery_report(history, outcomes, since, until):
+    projects, elapsed, seen = {}, {}, set()
+    unresolved = 0
+    for row in outcomes:
+        project, commit, tier = row["project"], row["commit"], row.get("tier", "unknown")
+        key = project, commit
+        if key in seen or not row.get("evidence") or tier not in {"low", "medium", "high", "unknown"}:
+            raise ValueError(f"duplicate outcome, missing evidence, or invalid tier: {key!r}")
+        seen.add(key)
+        accepted_at = _outcome_time(row["accepted_at"])
+        if not since <= accepted_at.date().isoformat() <= until:
+            continue
+        if commit not in (history.get(project) or {}):
+            unresolved += 1
+            continue
+        summary = projects.setdefault(project, {}).setdefault(tier, {})
+        _record_delivery(row, summary)
+        if row.get("started_at"):
+            seconds = (accepted_at - _outcome_time(row["started_at"])).total_seconds()
+            if seconds < 0:
+                raise ValueError(f"acceptance precedes start: {key!r}")
+            elapsed.setdefault((project, tier), []).append(seconds)
+    for (project, tier), durations in elapsed.items():
+        projects[project][tier]["elapsed_seconds"] = {
+            "median": median(durations), "observed": len(durations),
+        }
+    return {
+        "commits": {
+            project: None if commits is None else
+            sum(since <= day <= until for day in commits.values())
+            for project, commits in history.items()
+        },
+        "projects": projects,
+        "unresolved_commits": unresolved,
+        "evidence": "provided outcomes" if outcomes else "no outcome records",
+    }
+
+
 
 def load_sessions(projects_dir):
     root = Path(projects_dir)
@@ -458,6 +574,7 @@ def main(argv=None):
     ap.add_argument("--until", default="9999-99-99")
     ap.add_argument("--rtk-db", help="rtk history.db; omit to skip rtk metrics")
     ap.add_argument("--repos", help="directory of git repos to survey for WIP")
+    ap.add_argument("--outcomes", type=Path, help="JSON Lines with sourced change outcomes; requires --repos")
     ap.add_argument("--state", help="snapshot dir: compare with the latest earlier snapshot, then save this one")
     ap.add_argument("--show", metavar="PATH:LINE", help="print transcript records around an example, then exit")
     ap.add_argument("--context", type=int, default=15, help="records either side for --show")
@@ -465,6 +582,8 @@ def main(argv=None):
     fmt.add_argument("--json", action="store_true")
     fmt.add_argument("--md", action="store_true")
     args = ap.parse_args(argv)
+    if args.outcomes and not args.repos:
+        ap.error("--outcomes requires --repos")
     if args.show:
         show(args.projects, args.show, args.context)
         return
@@ -475,6 +594,14 @@ def main(argv=None):
         report["rtk"] = rtk_summary(read_rtk(args.rtk_db, args.since, args.until))
     if args.repos:
         report["wip"] = read_wip(args.repos)
+        try:
+            outcomes = [json.loads(line) for line in args.outcomes.read_text().splitlines()
+                        if line.strip()] if args.outcomes else []
+            # An older accepted commit can be reviewed or linked in a later window.
+            history = read_history(args.repos, args.until)
+            report["delivery"] = delivery_report(history, outcomes, args.since, args.until)
+        except (KeyError, OSError, TypeError, ValueError) as error:
+            ap.error(f"delivery evidence: {error}")
     changes = {}
     if args.state:
         state = Path(args.state)
