@@ -1,4 +1,3 @@
-
 ---
 name: cli-audit
 description: Use when reviewing a proposed or implemented command-line interface, asked for a CLI review, command ergonomics review, command taxonomy review, CLI usability audit, composability or grep-ability review, or Command Line Interface Guidelines compliance check. Also runs from cli-design and dogfood for CLI targets. For general consumer trials, use dogfood.
@@ -15,6 +14,11 @@ corrections. Implementation belongs to `cli-design` and `tdd`.
 
 ## Context
 
+- Read [ux-design](../ux-design/SKILL.md), specifically *Design rules*.
+  Evaluate its applicable general interaction principles through the
+  CLI-specific rules in `cli-design`. Reuse the CLI design-rule and
+  action-cycle coverage; record any general interaction principle
+  not adequately covered by those checks.
 - Read [cli-design](../cli-design/SKILL.md), specifically *Context*,
   *Plan*, and *Design rules*. The design rules are the shared source
   of truth.
