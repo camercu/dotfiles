@@ -1,4 +1,3 @@
-
 ---
 name: ux-design
 description: Use when planning or building a GUI or TUI screen, pane, control, or workflow, or when asked to "design the UI", "wireframe", "make it look/feel better", or theme an app. Not for static visual design without interaction; for usability reviews, use ux-audit.
