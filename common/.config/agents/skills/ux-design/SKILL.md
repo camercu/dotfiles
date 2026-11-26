@@ -1,65 +1,84 @@
+
 ---
 name: ux-design
-description: Use when planning or building a GUI or TUI screen, pane, control, or workflow, or when asked to "design the UI", "plan the screen", "wireframe", "make it look/feel better", or theme an app. Not for static web visual design with no interaction.
+description: Use when planning or building a GUI or TUI screen, pane, control, or workflow, or when asked to "design the UI", "wireframe", "make it look/feel better", or theme an app. Not for static visual design without interaction; for usability reviews, use ux-audit.
 ---
 
 # UX design
 
 ## Overview
 
-The plan-then-build loop for a GUI or TUI change. The plan specifies workflows, conceptual model, wireframe, states, safeguards, and keyboard navigation before code. The build keeps the UI layer thin over a tested pure core so rules fail in tests or lints. This skill sets the design shape; `tdd` drives each code slice, and `ux-audit` evaluates the finished workflows.
+Design around user goals, then build and verify the interaction. Keep design decisions grounded in evidence and interaction rules independently testable. `tdd` drives implementation; `ux-audit` evaluates the running interface.
+
+## Context
+
+- Before planning, read the project's requirements, design docs, existing workflow tests, UI components, and affected screens. Use approved requirements as design authority and running behavior as evidence of the current experience. Resolve conflicts with the user.
+- When choosing interaction patterns, inspect relevant domain applications and platform conventions. Reuse established patterns unless a documented user need warrants a deviation.
+- When choosing or changing colors, read [palettes.md](palettes.md). Prefer the project's design system and user appearance preferences; use the palette defaults for new themes.
+- When designing or verifying accessibility, consult [WCAG 2.2](https://www.w3.org/TR/WCAG22/) Level AA and, for non-web GUIs and TUIs, [WCAG2ICT](https://www.w3.org/TR/wcag2ict/) for applicable criteria. Account for terminal and assistive technology limitations.
 
 ## Plan
 
-Write the plan into the change's spec or task file. Each item below is a heading there.
+Record the following headings in the change's spec or task file. Scale detail to novelty, risk, and scope. Reuse approved decisions by reference; mark inapplicable items with a reason.
 
-1. **Workflows.** List each user goal as a verb phrase with its steps. Write one acceptance test per workflow before building its UI. Drive the design from these workflows rather than underlying data types.
-2. **Reference apps.** Name two or three established apps in the target domain and state what each lends (a layout, gesture, or readout). Check project design docs for domain-specific favorites.
-3. **Conceptual model.** Write three sentences in the user's vocabulary, free of code identifiers. Update the project's spec or design doc whenever a change alters this model.
-4. **Wireframe.** Draw an ASCII layout of the changed screen. Place each control beside what it acts on, align continuous controls (sliders, axes, zoom, scroll) with natural mapping, keep control placement consistent across views, group related controls by proximity, distinguish primary readouts from secondary metadata through typographic hierarchy, and state the minimum window or terminal size plus resize and overflow behavior.
-5. **States.** For every touched pane and control, specify what it shows in each state: empty, waiting, failed, ready, busy (in flight), and disabled. State how the screen persistently displays the current mode and active selection. Name the single primary action per view, and place secondary actions behind progressive disclosure (a menu or collapsing section).
-6. **Constraints, defaults, and recovery.** Specify upfront input constraints (bounded ranges, pickers, format masks) and safe, non-destructive defaults. For every destructive or irreversible action, specify its safeguard (undo buffer, soft delete, or explicit confirmation). For every error state, specify the message stating what failed, why, and the recovery action.
-7. **Keyboard and accelerators.** Specify the focus order, safe initial focus target, primary keyboard shortcuts, how users discover them (inline hints, status bar, or command palette), and any batch actions or CLI parity for repeat workflows.
+1. **Users and context.** Identify users, expertise, task frequency, operating conditions, accessibility needs, and success criteria. Cite existing evidence or user input; label assumptions and identify which need validation.
+2. **Workflows.** List every affected user goal as a verb phrase with its steps, alternatives, and observable completion criteria. Cover normal, exceptional, and recovery paths. Write acceptance criteria for each workflow in user terms.
+3. **Conceptual model.** Describe user-facing objects, relationships, actions, and lifecycle in domain vocabulary. Compare the model with evidence of users' mental models. Update the design docs if the model changes.
+4. **Interaction and layout.** Wireframe the changed views and navigation, including the minimum supported size, scaling, resize, and overflow behavior. Use ASCII, a sketch, or an interactive prototype as needed to resolve uncertainty. Apply the design rules below; record consequential decisions and their rationale.
+5. **States and feedback.** For every affected control and pane, specify applicable states, transitions, available actions, and visible results. Include empty, waiting, ready, busy, failed, disabled, stale, disconnected, partial, canceled, and uncertain outcomes where applicable. Distinguish operation completion from achievement of the user's goal.
+6. **Constraints and recovery.** Identify likely slips, memory lapses, mode errors, and mistakes. Specify validation, safe defaults, safeguards, cancellation, undo, and interruption recovery for affected workflows.
+7. **Accessibility and efficiency.** Specify input methods, focus order and restoration, reading order, assistive technology behavior, shortcuts and their discovery, and accelerators for frequent tasks. Identify applicable accessibility criteria and how to verify them.
+8. **Design validation.** Walk through each workflow using Norman's action cycle: goal, plan, specify, perform, perceive, interpret, compare. At each step identify what the user must know, what evidence the interface supplies, and any gap. Resolve gaps in the design. For novel, risky, or uncertain interactions, evaluate a prototype with representative users where available; record findings and remaining assumptions.
 
-**Gate:** Show the user the wireframe, state list, and safeguards. Proceed to build ONLY after the user approves them.
+**Gate.** Present the proposed workflows, wireframes, states, safeguards, and unresolved assumptions for materially new or changed interactions. Build after the user approves those decisions. Minor changes within an approved interaction pattern may reuse that approval. Return to the gate when a new design decision changes the approved workflow, conceptual model, or safeguards.
 
-## Build rules
+## Design rules
 
-- **Pure core, thin shell.** Keep view models, session state, and interaction state machines in modules free of UI toolkit types so tests drive them directly. The UI shell converts toolkit events into a plain input frame, passes it to the core, and renders the core's output.
-- **Explicit state types.** Represent every pane's content as a tagged union or discriminated state (`Waiting`, `Failed`, `Ready(T)`) so loading and failure stay distinct. Render an explicit message for every non-ready variant.
-- **Single availability source.** Implement each action as a predicate returning either an executable command or a structured disabled reason. Drive the control's enabled state from that result, and display the disabled reason in tooltips and status-bar hints.
-- **Latency-matched feedback.** Under 100ms, update immediately. Between 100ms and 1s, show an in-flight pending state ("Writing...") and block duplicate triggers until completion, failure, or cancellation. Over 1s, show progress (determinate when possible) with a cancel action. Confirm completion when the result is visually subtle.
-- **Constraints, safe defaults, and forgiveness.** Constrain inputs upfront with bounded ranges, pickers, or format masks so invalid states are unrepresentable. Pre-populate safe, non-destructive defaults and focus targets. Every error state tells the user what happened, why, and how to recover (retry, revert, or dismiss). Prefer undoable actions over modal confirmations; gate only irreversible operations.
-- **Clear signifiers, hierarchy, and accessibility.** Visually distinguish interactive controls from static content across default, hover, focus, active, and disabled states. Keep the current mode and active selection visibly surfaced at all times. Use typographic scale and weight to separate primary readouts from secondary metadata and control information density. Meet WCAG AA contrast (4.5:1 for normal text, 3:1 for large text and UI components). Pair every color-coded state with text, an icon, or a pattern so grayscale rendering stays legible. Ensure every interactive control is keyboard-operable with a visible focus indicator.
-- **One theme.** Source every color, font, and size from a single theme module. Enforce a static lint or CI check that bans raw toolkit color and font constructors outside the theme module, backed by a gate test that plants a violation to prove the check fires. When picking or changing colors, read [`palettes.md`](palettes.md) (default: One Dark Pro, else Catppuccin Mocha). Keep data colormaps separate from the UI theme.
-- **One geometry.** Compute every pane's rectangle in a single layout function and draw into those rectangles. Pin inter-pane relations, consistent cross-view placement, and minimum-size behavior with layout tests.
-- **TUI parity.** Apply the same rules to terminal UIs using theme style constants, test-backend buffer snapshots, and automated terminal-driver verification.
+Apply every rule to each affected workflow; record exceptions with their rationale. Use the same rules for GUIs and TUIs.
+
+- **Discoverability.** Make possible actions, their targets, prerequisites, and consequences apparent at the point of use. Give common and consequential actions prominent entry points; disclose infrequent or advanced options progressively.
+- **Affordances and signifiers.** Provide actions users can actually perform and cues that accurately communicate them. Distinguish controls from content and distinguish available, focused, active, selected, and disabled states. Make gestures, shortcuts, and hidden interactions discoverable through accessible labels, hints, or help.
+- **Mapping.** Align controls with their targets and effects through spatial, directional, temporal, and conventional mappings. Keep related controls near their objects; make action scope explicit.
+- **Conceptual model and consistency.** Make the system image communicate one coherent model through terminology, navigation, controls, behavior, and help. Reuse domain and platform conventions. Make consequential modes and active targets explicit; eliminate unnecessary modes.
+- **Feedback.** Acknowledge input promptly. Aim for immediate feedback within 100 ms; show pending feedback when delay becomes perceptible and progress for waits around 1 s or longer. For waits around 10 s or longer, support background work or completion notification where appropriate. Prevent unintended duplicate execution. Distinguish acknowledgment, completion, and verified outcome; expose relevant freshness, uncertainty, and partial results. Announce subtle changes and preserve useful content during refreshes.
+- **Constraints and forgiveness.** Use physical, semantic, cultural, and logical constraints to guide valid actions. Enforce genuine invariants; accommodate legitimate variations in input and normalize when appropriate. Prefer safe defaults, prevention, previews, undo, and reversible actions. Require explicit confirmation or an interlock for consequential irreversible actions. Explain errors in user terms: what happened, why if known, what remains intact, and what to do next. Investigate the design causes of human errors.
+- **User control.** Support escape, predictable navigation, cancellation, pause, resume, and reversal where meaningful and safe. Preserve work, selection, filters, and scroll position across interruptions and navigation. Keep automation observable and controllable; report its actual capabilities and side effects. Respect user preferences, privacy, and consent; make consequential choices explicit and reversible where feasible.
+- **Recognition over recall.** Present the information required for each decision alongside its controls. Surface options, units, prior choices, examples, and relevant context. Use concise action labels and task-oriented help where the interaction alone cannot communicate enough.
+- **Learnability and efficiency.** Provide discoverable paths for newcomers and efficient paths for experts. Reduce repeated entry and unnecessary steps; provide shortcuts, direct manipulation, search, presets, batch operations, or CLI parity where the workflow warrants them.
+- **Visual and information design.** Establish hierarchy through alignment, proximity, spacing, typography, contrast, and meaningful ordering. Give information and actions prominence proportional to task relevance and frequency. Remove irrelevant decoration; match density to the task. Label data with units, scale, precision, and uncertainty where consequential. Evaluate first impressions (visceral), task performance (behavioral), and confidence in outcomes (reflective).
+- **Inclusive interaction.** Meet applicable accessibility criteria. Provide semantic names, roles, values, states, logical reading and focus order, visible unobscured focus, keyboard escape, scalable presentation, sufficient contrast and target size, accessible status announcements, and alternative input paths. Convey essential information through more than color, position, sound, or motion alone. For TUIs, verify the actual terminal and assistive technology behavior; document platform limitations.
+
+## Build
+
+- **Test first.** Invoke `tdd` for each behavioral slice using the planned acceptance criteria. Keep interaction rules, validation, and state transitions independent of UI toolkit types; keep rendering and event translation at the boundary.
+- **Explicit state.** Represent user-observable states and valid combinations explicitly. Render each applicable state and preserve useful data during transient failures where safe.
+- **Single availability source.** Derive action execution, enabled state, and accessible disabled explanations from the same rules. Recheck prerequisites at execution when state can change.
+- **One theme.** Use shared design tokens and component styles for recurring visual decisions. Keep data colormaps separate from UI colors. Enforce the design system through structure first, behavioral checks second, and review or a justified static guard per `~/.config/agents/guard-ladders.md` (Test guards). Demonstrate that any added guard detects a deliberate violation.
+- **One layout model.** Use authoritative, composable layout constraints. Test spatial relationships, cross-view consistency, minimum size, and overflow rather than binding tests to a particular layout algorithm.
 
 ## Verify
 
-- **Behavior change:** Run `tdd` over the core, then drive the live app with an automated GUI or terminal driver. If no display or terminal host is available, report the live check as skipped with the reason.
-- **Refactor or theme-token move:** Capture a frame snapshot before and after, rebuilding between runs and confirming the binary checksum changed. Report every differing region and its cause.
-- **End of change:** Run `ux-audit` on every workflow the change touched.
+1. Run the acceptance tests for every affected workflow and the design-system and layout checks.
+2. Drive the running app through every affected workflow, including failure and recovery. Exercise supported input methods, keyboard-only navigation, focus, resizing, accessibility, and the planned state transitions. Capture evidence with the project's GUI or terminal driver. Test applicable accessibility criteria with automated checks and manual interaction; include assistive technology where supported.
+3. For rendering-sensitive refactors, capture equivalent before and after frames using the same inputs, viewport, theme, and data. Rebuild and verify that each run uses the intended revision. Explain every meaningful visual difference.
+4. Invoke `ux-audit` for every affected workflow. Use a fresh reviewer for substantial interaction changes. Reuse live evidence from step 2 where it covers the audit. Resolve findings, rerun affected checks, and re-audit.
+5. For materially new, risky, or uncertain workflows, observe representative users attempting realistic tasks without revealing the solution. Record completion, errors, assistance, and time where relevant against the planned success criteria. Revise the design from the evidence. If users are unavailable, record human validation as outstanding; use the cognitive walkthrough and audit as interim evidence.
 
 ## Done criterion
 
-Done when all of the following hold:
+Done when:
 
-1. The plan contains all seven headings and the user approved the gate.
-2. Every workflow in the plan has a passing acceptance test.
-3. The theme-ban gate test passes.
-4. The `ux-audit` report for all touched workflows has zero open blocker or high findings (unless explicitly declined by the user).
+1. Every affected workflow is listed in the plan; all eight headings are complete or explicitly inapplicable, and required approvals are recorded.
+2. Every affected workflow has passing acceptance tests; applicable design-system and layout checks pass, including the deliberate violation check when a guard is added or changed.
+3. Every verification item has observed evidence or an explicit unverified status and reason. Unverified release-critical checks require user acceptance before reporting done.
+4. `ux-audit` covers every affected workflow and has zero unresolved blocker or high findings unless the user explicitly accepts them. The same rule applies to findings from accessibility and human validation.
+5. The report names the plan, test results, audit report, and validation evidence; lists failures, skipped checks, and outstanding assumptions; distinguishes functional verification from demonstrated usability.
 
 ## Self-check
 
-Run before reporting done:
-
-1. Does a static search or linter check for raw toolkit color and font constructors outside the theme module return zero hits?
-2. Does every new action drive both its enabled state and its disabled hint from a single availability predicate?
-3. Does every touched pane represent loading and failure as distinct states rather than a shared nullable or empty value?
-4. Are inputs constrained upfront (ranges, pickers, masks) with safe, non-destructive defaults and focus targets?
-5. Are current mode and active selection visibly surfaced on screen at all times?
-6. Can every touched workflow be completed using only the keyboard, with a visible focus indicator at every step?
-7. Does every error state include a recovery action, and does every destructive action have undo or confirmation?
-8. When rendered in grayscale, are all states, alerts, and interactive controls still distinguishable?
-9. Does every refactor commit body record the before and after snapshot diff result?
+1. Match the changed screens, controls, and workflows against the plan and test results. Every affected item is accounted for.
+2. Trace each affected workflow through the action cycle and the design rules. Every gap is resolved or recorded with a rationale and status.
+3. Exercise every changed action's availability, state transitions, safeguards, and recovery. The displayed state, disabled explanation, and actual execution agree.
+4. Run the design-system and layout checks; inspect the applicable live and accessibility evidence. Every claimed pass has an observed result.
+5. Compare the audit and validation findings with the final implementation. Every blocker or high finding is resolved with evidence or explicitly accepted by the user.
+6. Check that every required approval and skill invocation occurred. Report every failed, skipped, or unverified check with its reason.
