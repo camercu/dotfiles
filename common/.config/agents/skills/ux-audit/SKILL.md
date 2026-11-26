@@ -1,53 +1,55 @@
+
 ---
 name: ux-audit
-description: Use when reviewing how usable a GUI or TUI workflow is, asked for a "Norman audit", "UX review", "usability check", "gulf of execution/evaluation", "error prevention check", or a "conceptual model" of an app. Runs from dogfood on every GUI/TUI target and from ux-design at the end of a GUI/TUI change. Not for static web visual polish or accessibility conformance alone.
+description: Use when reviewing GUI or TUI usability, asked for a "Norman audit", "UX review", "usability check", "gulf of execution/evaluation", "error prevention check", or a "conceptual model" of an app. Runs from dogfood on GUI and TUI targets and from ux-design after a GUI or TUI change. Not for static web visual polish or accessibility conformance alone.
 ---
 
 # UX audit
 
 ## Overview
 
-A Norman and usability audit of every workflow a GUI or TUI offers. It evaluates the conceptual model, the Gulf of Execution, the Gulf of Evaluation, and error prevention and recovery. Each claim rests on two sources: the code that decides what a control shows, and the running app. The output is a ranked findings file. This skill reports problems and proposes fixes, while implementation goes to `ux-design` or `tdd`.
+Evaluate workflows against the design rules in `ux-design` and Norman's action cycle. Ground findings in the running interface and the code that determines its behavior. Produce a ranked findings report; implementation belongs to `ux-design` and `tdd`.
 
 ## Context
 
-- **Workflows.** Source workflows in this order: acceptance tests, then the spec's workflow or scope list, then the README. State each workflow as a verb phrase describing a user goal, such as "filter records and export a selection". A documented goal with no acceptance test is a finding.
-- **Controls and their conditions.** Search the UI layer for every interactive widget and read the predicate that enables, disables, or hides it.
-- **Live app.** Launch the app through the `run` skill. Drive a GUI with the computer-use `app_*` tools, and drive a TUI with `tmux send-keys` and `tmux capture-pane -p`. Use the project's snapshot hook when one exists.
-- **Authority.** Live behavior overrides code reading, and code reading overrides docs.
+- **Design criteria.** Before auditing, read [ux-design](../ux-design/SKILL.md), specifically *Context*, *Plan*, and *Design rules*. The design rules are the shared source of truth. Apply approved project requirements and documented exceptions.
+- **Scope.** For a change audit, inventory affected workflows; for a full audit, inventory all workflows. Reconcile acceptance tests, spec, README, and controls in the running app. Include undocumented workflows and identify documented goals without acceptance tests. Name each workflow as a verb phrase.
+- **Controls and states.** Enumerate interactive controls, applicable observable states and combinations, and their availability and execution rules from the UI and core.
+- **Live app.** Launch through the project's documented procedure or the `run` skill if available. Use an available GUI or terminal driver and the project's snapshot hook where available. Use disposable data and isolated environments for consequential probes.
+- **Authority.** Use approved requirements for intended behavior, the running app for observed behavior, and code for causes and unexercised paths. Mark conflicts as findings.
 
 ## Steps
 
-Open `.scratch/ux-audit/<run>/report.md` before step 1 and fill it as you go, per `~/.config/agents/record-as-you-go.md`.
+Open `.scratch/ux-audit/<run>/report.md` before step 1 and record evidence per `~/.config/agents/record-as-you-go.md`. Reuse existing verification evidence for the same revision, configuration, and workflow.
 
-1. **Conceptual model.** Write three sentences from the user's perspective using only what the user sees and does, with zero code identifiers. List every place where the screen suggests a conflicting model, such as a control that looks like it does X but does Y.
-2. **Gulf of Execution.** Create one table per workflow with columns: step, signifier the user follows, and problem. Flag any of these problems: a missing signifier, an undocumented shortcut or modifier key, a control hidden until an earlier step, a control placed far from what it acts on, unnatural mapping on continuous controls such as sliders or zoom, inconsistent control placement across views, weak typographic hierarchy between primary readouts and secondary metadata, two controls that look alike, or a workflow that fails keyboard-only completion or lacks a visible focus indicator.
-3. **Gulf of Evaluation.** Create one table with a row per user action: action, on-screen proof of state change, and gap. Check that the current mode and active selection stay persistently visible. Check latency feedback: instant updates under 100ms, a pending state between 100ms and 1s, and a progress indicator with a cancel action over 1s. Check for subtle completions that lack confirmation, silent no-ops, unlabeled pane meaning changes, WCAG AA contrast failures (4.5:1 for normal text, 3:1 for large text and UI components), and states encoded by color alone that fail grayscale legibility.
-4. **Error prevention and recovery.** Enumerate the app's states: empty, waiting, ready, busy, and failed. For every enabled control in every state, record what clicking or pressing it does. Assign a constraint to every no-op or error row: disable it with a tooltip or status hint, hide it, or gate it with confirmation. Mark intentionally enabled, harmless controls as "keep" with the reason. Check that inputs enforce upfront constraints such as bounded ranges or pickers, that defaults and initial focus targets are safe, that destructive actions provide undo or explicit confirmation, and that every error state explains what failed, why, and how to recover.
-5. **Verify live.** Reproduce every finding from steps 2 through 4 in the running app and attach the screenshot or captured pane path. Run a keyboard-only pass across every workflow and resize the window or terminal to its planned minimum dimensions to check for clipping, overlap, or unreadable truncation. Mark any finding you could not reproduce live as `unverified` with the reason, such as a missing display or an unsimulatable gesture.
+1. **Conceptual model.** Describe objects, relationships, actions, and lifecycle in the user's vocabulary. Compare the model communicated by the interface with the intended model, domain conventions, and available evidence of users' mental models. Record conflicting cues and unverified assumptions.
+2. **Gulf of execution.** For each workflow, walk through goal, plan, specify, and perform. Record each step, the knowledge required, the cue or control available, and any gap. Include first-use discovery, alternate input paths, navigation, and frequent-task efficiency.
+3. **Gulf of evaluation.** For each user action, walk through perceive, interpret, and compare. Record the observed feedback, its meaning, and whether it establishes the goal was achieved. Measure consequential response delays. Exercise stale, partial, failed, and uncertain outcomes where applicable.
+4. **Error prevention and recovery.** Enumerate every applicable control and state pair, including disabled and hidden controls. Record the availability rule, expected and actual behavior, likely slips or mistakes, safeguards, and recovery path. Group equivalent pairs only when they share the same rules and outcome. Probe invalid inputs, interruptions, mode errors, and irreversible actions safely.
+5. **Design-rule sweep.** For every workflow, account for every rule under `ux-design` *Design rules* in a coverage matrix. Link execution, evaluation, and prevention evidence already collected. Exercise remaining rules, including accessibility, visual hierarchy, consistency, user control, recognition, and trust. Record each rule as pass, finding, inapplicable with reason, or unverified with reason.
+6. **Verify live.** Reproduce each finding where feasible and capture evidence. Walk each workflow using the keyboard, test focus and alternate supported input methods, and resize to the planned minimum and other relevant viewports. Use manual and automated accessibility checks and assistive technology where supported. Mark unavailable live checks unverified; code inspection alone cannot establish live behavior. Record existing representative-user evidence separately from agent walkthroughs and identify workflows where human validation remains outstanding.
 
 ## Report
 
-Include these sections in order: context (app, commit, date, how it was driven), conceptual model, execution tables, evaluation table, error-prevention table, and findings. Give each finding a severity (`blocker`, `high`, `medium`, or `low`), a lens (`model`, `execution`, `evaluation`, or `prevention`), evidence (`file:line` and screenshot path), a proposed fix, and a status (`verified` or `unverified`).
+Include context (app, revision, date, scope, driver), workflow inventory, conceptual model, execution tables, evaluation table, error-prevention table, design-rule coverage matrix, findings, and unverified checks.
+
+Each finding includes severity (`blocker`, `high`, `medium`, or `low`), lens (`model`, `execution`, `evaluation`, `prevention`, or `design`), applicable design rule, expected and actual behavior, user impact, evidence (reproduction steps, code location and live capture where applicable), proposed fix, and status (`verified` or `unverified` with reason). Use measurements or traces for timing, semantic accessibility, and state transitions.
 
 ## Done criterion
 
-Done when all of the following hold:
+Done when:
 
-1. Every workflow from *Context* has an execution table.
-2. Every user action has an evaluation row.
-3. Every pair of app state and enabled control has a prevention row.
-4. Every workflow was tested keyboard-only and at minimum window or terminal size, or reported `unverified` with the reason.
-5. The chat reply gives the report path and the count of findings per severity.
+1. Every inventoried workflow has an execution table and every user action has an evaluation row.
+2. Every applicable control and state pair has a prevention row or a reference to its equivalent group.
+3. Every workflow has a coverage entry for every design rule and an account of applicable live and accessibility checks.
+4. Every finding has evidence and a status; every unverified check has a reason. Human validation evidence and gaps are distinct from automated or agent-led checks.
+5. The chat reply gives the report path, findings count by severity, and unverified coverage.
 
 ## Self-check
 
-Run before reporting done:
-
-1. Do the workflow count in the source list and the execution table count in the report match?
-2. Does every enabled, disabled, or hidden control predicate found in code appear in the prevention table?
-3. Does every finding have a status of `verified` with an existing screenshot path, or `unverified` with a reason?
-4. Is every sentence in the conceptual model free of code identifiers?
-5. Was every workflow tested using only the keyboard, with focus visibility checked at each step?
-6. Was the app tested at its planned minimum window or terminal size for clipping and overflow?
-7. Was every error state checked for a recovery action, and every destructive action checked for undo or confirmation?
+1. Compare the inventory with acceptance tests, specs, docs, and live controls. Every in-scope workflow has a row in the coverage matrix.
+2. Match workflow steps and actions to the execution and evaluation tables. Every action has an entry or a reference.
+3. Match every applicable control and state pair to the prevention table. Every availability rule, including disabled and hidden cases, is accounted for.
+4. Compare the design-rule headings in `ux-design` with the matrix for each workflow. Every rule has a disposition.
+5. Inspect live captures, measurements, and accessibility results. Every verified claim has evidence; every unavailable check has a reason.
+6. Match the final findings, unverified checks, and severity totals to the report. Report actual results; leave human usability validation unverified where representative users have yet to evaluate the workflow.
