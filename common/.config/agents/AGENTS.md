@@ -11,6 +11,9 @@
 
 @caveman.md
 
+- American English spelling in all text: identifiers, comments, docs, commits,
+  chat (color, behavior, canceled, center). Repo has typos lint → set
+  `locale = "en-us"` in its config so the gate enforces it.
 - Use terms from `CONTEXT.md` when present.
 - Question, gate, or fork for user: ask in chat, not a tool. Numbered options, own
   recommendation, reasons. Give enough context (real code, exact API) so user
