@@ -1,4 +1,5 @@
 
+
 ---
 name: cli-design
 description: Use when designing or changing a command-line interface, command hierarchy, subcommands, arguments, flags, help, output formats, exit codes, or shell workflows, or when asked to make a CLI more intuitive, ergonomic, composable, or scriptable. For CLI reviews, use cli-audit; for GUI or TUI interaction, use ux-design.
@@ -9,9 +10,10 @@ description: Use when designing or changing a command-line interface, command hi
 ## Overview
 
 Design around user goals, then build and verify the public CLI contract.
-Serve interactive users, shell pipelines, scripts, and other applications
-through one coherent conceptual model. `tdd` drives implementation;
-`cli-audit` independently evaluates the design.
+Specialize the interaction principles in `ux-design` for command-line
+interfaces. Serve interactive users, shell pipelines, scripts, agents,
+and other applications through one coherent conceptual model.
+`tdd` drives implementation; `cli-audit` independently evaluates the design.
 
 ## Context
 
@@ -20,9 +22,17 @@ through one coherent conceptual model. `tdd` drives implementation;
   Approved requirements define intent; released behavior defines
   existing compatibility obligations; running behavior establishes
   current facts.
+- Read [ux-design](../ux-design/SKILL.md), specifically *Design rules*.
+  Apply its general interaction principles and Norman's action cycle
+  through the CLI-specific rules below. CLI conventions, process
+  contracts, and shell interoperability govern their application.
+  GUI/TUI-specific layout, focus, pointer, and rendering requirements
+  apply only to interactive visual interfaces. Use `ux-design` for
+  interactive visual components of a CLI when applicable.
 - Read [Command Line Interface Guidelines](https://clig.dev/) (CLIG).
-  Treat CLIG as the default design baseline. Justify deviations through
-  user needs, domain conventions, or interoperability requirements.
+  Treat CLIG as the default CLI design baseline. Justify deviations
+  through user needs, domain conventions, or interoperability
+  requirements.
 - When designing utility syntax, consult applicable
   [POSIX utility conventions](https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap12.html)
   and [GNU conventions](https://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html).
@@ -42,11 +52,14 @@ mark inapplicable items with a reason.
    automation, and agents as applicable. List affected goals as verb
    phrases with prerequisites, expected results, and recovery paths.
    Include first-use, frequent, advanced, and unattended workflows.
+   Cite existing evidence or user input; label assumptions and identify
+   which need validation.
 
 2. **Conceptual model.** Define user-facing objects, relationships,
    actions, and lifecycle in domain vocabulary. Identify what must be
    explicit, what may be inferred, and what state persists between
-   invocations.
+   invocations. Compare the model with available evidence of users'
+   mental models and established domain conventions.
 
 3. **Workflow transcripts.** Write complete shell transcripts showing
    how users accomplish each goal: discovery, invocation, representative
@@ -73,14 +86,16 @@ mark inapplicable items with a reason.
 7. **Design validation.** Walk every transcript through Norman's action
    cycle: goal, plan, specify, perform, perceive, interpret, compare.
    Identify what users must know, what cues the CLI supplies, and where
-   execution or interpretation breaks down. Apply the design rules below.
+   execution or interpretation breaks down. Apply the design rules
+   below and the applicable interaction principles from `ux-design`.
    Evaluate alternatives through concrete transcripts rather than
-   abstract preferences.
+   abstract preferences. Identify likely slips, mistakes, mode errors,
+   and recovery paths.
 
 8. **Verification.** Define acceptance criteria and executable contract
    tests for every affected workflow. Cover applicable terminal and
    non-terminal contexts, output formats, shell composition, failure
-   paths, and compatibility requirements.
+   paths, accessibility, and compatibility requirements.
 
 **Gate.** Invoke `cli-audit` in design mode for materially new or changed
 interfaces. Present the proposed grammar, representative transcripts,
@@ -94,6 +109,11 @@ implementation requires a material change to the public contract.
 Apply every rule to affected workflows and the CLI as a whole.
 Record justified exceptions.
 
+The general interaction principles in `ux-design` govern usability;
+the rules below specialize them for CLI interaction, composition,
+and process contracts. Apply CLIG and established conventions to
+resolve CLI-specific design decisions.
+
 ### 1. User intent and conceptual integrity
 
 - Name commands after user goals and domain actions rather than
@@ -106,6 +126,8 @@ Record justified exceptions.
   verb-first or noun-first hierarchies.
 - Preserve meaningful distinctions between operations with different
   effects, prerequisites, or outcomes.
+- Make relationships between commands, operands, targets, and effects
+  apparent through their grammar and terminology.
 - Remove internal abstractions users would otherwise need to learn.
 
 ### 2. Workflow economy
@@ -119,6 +141,8 @@ Record justified exceptions.
   composable primitives for workflows requiring flexibility.
 - Keep standalone operations independent of project or session state
   unless that state is necessary to their semantics.
+- Support batch operations, reusable configuration, and other
+  accelerators when demonstrated workflows warrant them.
 - Introduce sessions, REPLs, workflow languages, background services,
   and orchestration layers only when demonstrated workflows justify them.
 
@@ -139,6 +163,8 @@ Record justified exceptions.
 - Keep command-specific flags local; make genuinely shared options
   consistently available.
 - Choose defaults appropriate to common, safe workflows.
+- Make unfamiliar commands guessable from familiar commands through
+  consistent grammar, vocabulary, and option semantics.
 
 ### 4. Domain notation and precision
 
@@ -165,6 +191,8 @@ Record justified exceptions.
   layered configuration materially affects behavior.
 - Follow native platform configuration and filesystem conventions.
 - Prefer reproducible invocations over hidden mutable context.
+- Make persistent context inspectable, controllable, and resettable
+  where applicable.
 - Reuse selectors and action semantics across live and recorded sources
   wherever their capabilities genuinely overlap.
 - Document environment variables, their precedence, and their effects.
@@ -178,8 +206,13 @@ Record justified exceptions.
   and completed.
 - Lead help with purpose, usage, common operations, and representative
   examples. Organize commands and options by user tasks.
-- Document prerequisites, defaults, accepted notation, side effects,
-  output formats, and outcome semantics.
+- Favor recognition over recall: expose available actions, accepted
+  values, prerequisites, defaults, and relevant context at the point
+  where users need them.
+- Disclose advanced options progressively without making them
+  undiscoverable.
+- Document accepted notation, side effects, output formats, and
+  outcome semantics.
 - Suggest likely corrections to invalid input without executing
   unintended actions.
 - Provide contextual next-command guidance where a workflow naturally
@@ -234,6 +267,10 @@ without duplicating application behavior.
 - Document which text formats are stable contracts. Direct scripts
   requiring stronger guarantees to documented plain or structured
   formats.
+
+Structured output supplements grep-friendly text rather than
+replacing it. Users should be able to perform simple ad hoc processing
+with ordinary shell tools without requiring a structured-data parser.
 
 #### Format selection
 
@@ -323,6 +360,9 @@ the rationale for unsupported formats.
 
 - Provide concise, meaningful interactive feedback proportionate to
   the operation's duration, complexity, and consequences.
+- Apply the feedback principles and response-time guidance in
+  `ux-design` to interactive CLI operations. Preserve machine-output
+  contracts when presenting feedback.
 - Distinguish request acceptance, operation completion, and verified
   achievement of the user's goal.
 - Report empty, partial, interrupted, stale, uncertain, and failed
@@ -338,6 +378,8 @@ the rationale for unsupported formats.
   when known, remaining state, and actionable recovery.
 - Show consequential state changes and provide a way to inspect
   persistent state when it is otherwise hidden.
+- Make automation observable and controllable. Communicate its actual
+  capabilities, limitations, and side effects.
 
 ### 9. Interactivity and accessibility
 
@@ -348,6 +390,8 @@ the rationale for unsupported formats.
   explicit arguments and confirmation mechanisms for unattended use.
 - Adapt human presentation to terminal width and capabilities while
   preserving explicit machine-output contracts.
+- Establish information hierarchy through meaningful ordering,
+  alignment, headings, spacing, and concise labels.
 - Respect `NO_COLOR`, terminal capabilities, and explicit presentation
   options; convey essential information without relying on color alone.
 - Enable paging and animated progress only in appropriate terminal
@@ -358,6 +402,11 @@ the rationale for unsupported formats.
   visual-only cues.
 - Provide a non-interactive alternative to interactive selection
   whenever the same operation is suitable for scripting.
+- Ensure interactive prompts support predictable keyboard operation,
+  cancellation, correction, and accessible alternatives.
+- For interactive visual components, apply `ux-design` and its
+  applicable accessibility requirements. Verify actual terminal and
+  assistive technology behavior; document platform limitations.
 
 ### 10. Safety and recovery
 
@@ -365,6 +414,8 @@ the rationale for unsupported formats.
   transmission, network access, privilege changes, and destructive
   actions.
 - Validate prerequisites before irreversible work.
+- Prefer error prevention, safe defaults, reversible actions, and
+  preservation of user work over error messages alone.
 - Match confirmation, preview, and interlock strength to the
   operation's potential consequences.
 - Derive dry-run and execution behavior from the same validated plan
@@ -378,11 +429,15 @@ the rationale for unsupported formats.
   or explicit repeat semantics as appropriate.
 - Respond promptly to cancellation. Bound cleanup and define escalation,
   retained artifacts, and recovery behavior.
+- Support pause, resume, and reversal where meaningful and safe.
 - Expect abnormal termination and recover safely on subsequent
   invocation.
 - Accept secrets through appropriate protected channels and redact
   them from diagnostics. Require informed consent for telemetry and
   unexpected external communication.
+- Investigate the design causes of user errors. Correct ambiguous
+  grammar, misleading feedback, unsafe defaults, and hidden state
+  rather than relying solely on warnings or documentation.
 
 ### 11. Compatibility and evolution
 
@@ -408,6 +463,9 @@ the rationale for unsupported formats.
   keep CLI-specific translation and presentation at the process boundary.
 - Use types to represent valid command requests and resolved context
   where practical.
+- Derive help, availability, validation, and execution constraints from
+  shared rules where practical. Recheck prerequisites at execution
+  when state can change.
 - Share behavior across frontends rather than invoking or parsing the
   CLI internally unless process isolation is an actual requirement.
 - Prefer the smallest architecture that supports demonstrated workflows.
@@ -415,6 +473,9 @@ the rationale for unsupported formats.
   lightweight commands.
 - Prefer native distribution mechanisms and straightforward
   installation and removal.
+- Apply the deletion test to commands, flags, modes, output variants,
+  persistent state, and architectural layers. Each addition must serve
+  a demonstrated workflow or contract.
 
 ## Build
 
@@ -424,6 +485,9 @@ the rationale for unsupported formats.
   supported by the selected tooling.
 - Translate validated input into application operations. Keep terminal
   rendering, process exit status, and operating-system I/O at the edge.
+- Represent user-observable outcomes and valid command states
+  explicitly. Derive output, diagnostics, and exit status from the
+  actual outcome.
 - Implement output formats as renderers over shared semantic results
   or result streams. Use established serializers.
 - Test domain decisions through their public behavioral interfaces.
@@ -449,15 +513,20 @@ the rationale for unsupported formats.
    structured-data parsers, and empty and partial results.
 5. Compare semantic results across supported output formats. Verify
    terminal, pipe, and file behavior, escaping, streaming, and early
-   downstream termination where applicable.
-6. Verify supported platform behavior and compatibility obligations
-   using appropriate environments and fixtures.
+   downstream termination where applicable. Capture relevant producer
+   and consumer exit statuses independently.
+6. Verify applicable accessibility requirements, supported platform
+   behavior, and compatibility obligations using appropriate
+   environments and fixtures.
 7. Invoke `cli-audit` in implementation mode. Use a fresh reviewer for
-   substantial changes. Reuse equivalent live evidence.
-8. For novel or uncertain interactions, observe representative users
-   accomplishing realistic goals without revealing the command sequence.
-   Record task completion, assistance, errors, and friction. If users
-   are unavailable, record human validation as outstanding.
+   substantial changes. Reuse equivalent live evidence. Resolve
+   findings, rerun affected checks, and re-audit.
+8. For novel, risky, or uncertain interactions, observe representative
+   users accomplishing realistic goals without revealing the command
+   sequence. Record task completion, assistance, errors, and friction
+   against planned success criteria. Revise the design from evidence.
+   If users are unavailable, record human validation as outstanding;
+   use the cognitive walkthrough and audit as interim evidence.
 
 ## Done criterion
 
@@ -465,8 +534,9 @@ Done when:
 
 1. Every affected workflow has an approved design, transcript, and
    acceptance criteria, with all plan headings accounted for.
-2. Every applicable design rule has been applied or has a documented
-   exception.
+2. Every applicable CLI design rule, general interaction principle,
+   and CLIG guideline has been applied or has a documented exception.
+   Reuse the audit coverage rather than maintaining duplicate matrices.
 3. Acceptance and executable contract tests pass for every affected
    workflow. Documentation examples match observed behavior.
 4. Every affected data-producing command has a documented output
@@ -476,23 +546,30 @@ Done when:
    explicit unverified status with reason. Unverified release-critical
    checks require user acceptance before reporting done.
 6. `cli-audit` has zero unresolved blocker or high findings unless
-   explicitly accepted by the user.
+   explicitly accepted by the user. Apply the same rule to findings
+   from accessibility and representative-user validation.
 7. The report identifies the design, tests, audit, compatibility
    implications, skipped checks, and outstanding validation.
+   Distinguish functional verification from demonstrated usability.
 
 ## Self-check
 
 1. Reconcile changed commands, options, and output contracts with the
    approved workflow inventory. Every public change is accounted for.
-2. Compare equivalent operations across command families. Every
+2. Trace each affected workflow through Norman's action cycle and the
+   applicable design rules in this skill and `ux-design`. Every gap
+   is resolved or recorded with rationale and status.
+3. Compare equivalent operations across command families. Every
    inconsistent term, flag, default, or behavior is resolved or justified.
-3. Run affected transcripts and documentation examples against the
+4. Run affected transcripts and documentation examples against the
    intended binary. Every claimed result has observed evidence.
-4. Check applicable process-boundary contracts independently of
+5. Check applicable process-boundary contracts independently of
    application-level behavior.
-5. Exercise representative grep, shell pipeline, and structured-output
+6. Exercise representative grep, shell pipeline, and structured-output
    workflows. Compare results across formats with independent consumers.
-6. Compare final behavior against compatibility commitments and
-   consequential safeguards.
-7. Account for all audit findings, approvals, failed checks, skipped
+7. Compare final behavior against compatibility commitments,
+   accessibility requirements, and consequential safeguards.
+8. Apply the deletion test to the resulting interface. Every command,
+   flag, mode, output variant, and persistent concept earns its keep.
+9. Account for all audit findings, approvals, failed checks, skipped
    checks, and unverified human or platform validation.
