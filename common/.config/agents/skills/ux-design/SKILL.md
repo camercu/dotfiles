@@ -1,13 +1,17 @@
 ---
 name: ux-design
-description: Use when planning or building a GUI or TUI screen, pane, control, or workflow, or when asked to "design the UI", "wireframe", "make it look/feel better", or theme an app. Not for static visual design without interaction; for usability reviews, use ux-audit.
+description: Use when planning or building a GUI or TUI screen, pane, control, or workflow, or when asked to "design the UI", "wireframe", "make it look/feel better", or theme an app. Not for static visual design without interaction; for usability reviews, use ux-audit. For command-line interfaces, use cli-design.
 ---
 
 # UX design
 
 ## Overview
 
-Design around user goals, then build and verify the interaction. Keep design decisions grounded in evidence and interaction rules independently testable. `tdd` drives implementation; `ux-audit` evaluates the running interface.
+Design around user goals, then build and verify the interaction. Keep design decisions grounded in evidence and interaction rules independently testable. `tdd` drives implementation; `ux-audit` evaluates the running interface. 
+The design rules describe general interaction principles. `cli-design`
+specializes these principles for command-line interfaces, including
+shell composition and programmatic consumption.
+
 
 ## Context
 
