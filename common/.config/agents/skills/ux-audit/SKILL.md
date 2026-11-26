@@ -1,4 +1,3 @@
-
 ---
 name: ux-audit
 description: Use when reviewing GUI or TUI usability, asked for a "Norman audit", "UX review", "usability check", "gulf of execution/evaluation", "error prevention check", or a "conceptual model" of an app. Runs from dogfood on GUI and TUI targets and from ux-design after a GUI or TUI change. Not for static web visual polish or accessibility conformance alone.
