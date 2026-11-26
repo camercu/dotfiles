@@ -1,5 +1,3 @@
-
-
 ---
 name: cli-design
 description: Use when designing or changing a command-line interface, command hierarchy, subcommands, arguments, flags, help, output formats, exit codes, or shell workflows, or when asked to make a CLI more intuitive, ergonomic, composable, or scriptable. For CLI reviews, use cli-audit; for GUI or TUI interaction, use ux-design.
