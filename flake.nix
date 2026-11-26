@@ -71,6 +71,7 @@
         alejandra
         fd
         fzf
+        (import ./nix-darwin/.config/nix-darwin/ghostty-terminfo.nix {inherit pkgs;})
         git
         go
         lazygit
@@ -89,7 +90,6 @@
       ];
 
       environment.variables = {
-        TERMINFO_DIRS = ["/Applications/Ghostty.app/Contents/Resources/terminfo"];
         GHOSTTY_RESOURCES_DIR = "/Applications/Ghostty.app/Contents/Resources/ghostty";
       };
 

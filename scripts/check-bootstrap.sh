@@ -1231,6 +1231,34 @@ run_terminfo_env_test() {
   return "$terminfo_status"
 }
 
+# nix-darwin compiles a vendored copy of Ghostty's terminfo (see
+# ghostty-terminfo.nix). It must compile, and must match the installed app's
+# entry so a Ghostty upgrade that changes it can't go unnoticed.
+# GHOSTTY_APP points the check at another bundle.
+run_ghostty_terminfo_test() {
+  begin_test ghostty_terminfo_test
+  capture_log
+  require_tool tic "the ghostty terminfo check" || return 0
+
+  src="$DOTFILE_DIR/nix-darwin/.config/nix-darwin/xterm-ghostty.terminfo"
+  new_home ghostty-terminfo
+  tic -x -o "$tmp_home" "$src" >"$LAST_LOG" 2>&1
+
+  app_dir="${GHOSTTY_APP:-/Applications/Ghostty.app}/Contents/Resources/terminfo"
+  if [ ! -d "$app_dir" ]; then
+    echo "no $app_dir, skipping the ghostty terminfo drift check" >&2
+    return 0
+  fi
+  TERMINFO_DIRS="$app_dir" infocmp -x xterm-ghostty | grep -v '^#' \
+    >"$tmp_home/app.ti"
+  TERMINFO_DIRS="$tmp_home" infocmp -x xterm-ghostty | grep -v '^#' \
+    >"$tmp_home/vendored.ti"
+  if ! diff "$tmp_home/app.ti" "$tmp_home/vendored.ti" >"$LAST_LOG" 2>&1; then
+    echo "ghostty terminfo: $src differs from $app_dir; refresh it (see its header)" >&2
+    return 1
+  fi
+}
+
 # Shell scripts in common/.local/bin, found by shebang so new ones are checked
 # without editing this file (python and uv scripts live there too).
 bin_shell_scripts() {
@@ -1693,6 +1721,7 @@ run_predicate_parity_test
 run_aliases_test
 run_tool_env_test
 run_terminfo_env_test
+run_ghostty_terminfo_test
 run_vim_startup_test
 run_repo_relative_link_test
 run_stow_conflict_test
