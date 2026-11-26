@@ -1,6 +1,6 @@
 ---
 name: test-design-reviewer
-description: Use when user asks to review tests, assess a suite design quality, coverage or bug-catching power, or to hunt weak, flaky, tautological or untested behaviors.
+description: Use when reviewing test suites for quality, behavioral coverage, defect detection, redundancy, slow or flaky tests, or weak assertions.
 context: fork
 agent: Explore
 model: sonnet
@@ -8,415 +8,429 @@ model: sonnet
 
 # Test Design Reviewer
 
-## Overview
+## Objective
 
-Review a test suite on three axes: **quality** (Dave Farley's 8 properties → a
-Farley Index 0-10), **completeness** (coverage), and **efficacy** (do the tests
-actually catch bugs?). Output = the Index with per-property evidence,
-tautology-theatre findings, ranked fixes, a Coverage Review, and an Efficacy
-Review (assertion-strength audit + mutation testing when available).
+Maintain a fast, reliable, deterministic test suite that detects defects,
+survives behavior-preserving refactoring, and minimizes maintenance cost.
+
+Review three independent dimensions:
+
+- **Quality:** Are the tests well designed?
+- **Completeness:** Are consequential behaviors exercised?
+- **Efficacy:** Would the tests detect incorrect behavior?
+
+Output actionable findings ranked by engineering impact. A healthy suite
+with no significant findings is a successful review.
 
 ## Boundaries
 
-Never modify source or tests — no Write/Edit/rename/delete, don't add tests to
-chase coverage. **Running** the suite / a coverage or mutation tool is allowed:
-it reads code and emits reports. Point every tool's output at
-`.scratch/test-health/` (AGENTS.md *Working files*), e.g. `cargo mutants
---output .scratch/test-health`, so nothing lands beside tracked files. A tool
-that mutates source in place runs against a copy under `.scratch/test-health/`:
-colocated jj snapshots the working tree, so an in-place mutant can land in a
-commit. Report is structured text. Consumer requesting
-fixes → point to the recommendations; the caller (e.g. harden TDD slice)
-implements.
+Leave tracked files and repository history untouched. The caller implements
+accepted fixes.
 
-## Three lenses, kept separate
+Follow `~/.config/agents/record-as-you-go.md`. Use the caller's findings path
+or `.scratch/test-health/`. If the fork cannot write files, return findings
+for the caller to persist.
 
-They measure different things; never fold them into one number.
+Direct tool output to `.scratch/test-health/`. Tools that mutate source
+in place run against a disposable copy: colocated jj can snapshot an
+in-place mutant into repository history.
 
-- **Quality** — the **Farley Index**. How well-crafted the tests that exist are.
-- **Completeness** — the **Coverage Review**. Whether behaviors have any test at
-  all. The Index says nothing about *missing* tests (`Necessary` flags low-value
-  *surplus*, never absence).
-- **Efficacy** — the **Efficacy Review**. Whether the tests actually *catch bugs*.
-  A covered line asserted-weakly is executed but unverified; coverage can't see
-  this, only assertion strength and mutation testing can.
-
-Read together: high Index + thin coverage = well-crafted tests of too little;
-high coverage + low efficacy = tests that run the code but wouldn't notice it
-breaking (coverage theatre).
-
-Suite tests infrastructure code → judge Completeness and Necessary against
-`~/.config/agents/skills/tdd/iac.md`: a missing test counts as a gap only where
-its row there demands one.
-
-## The 8 properties
-
-| Code | Property | Weight | Measures |
-|---|---|---|---|
-| U | Understandable | 1.50x | Reads like a spec; behavior-named; clear structure |
-| M | Maintainable | 1.50x | Verifies behavior not implementation; survives refactor |
-| R | Repeatable | 1.25x | Deterministic; no time/fs/network dependence |
-| A | Atomic | 1.00x | Isolated; no shared mutable state; parallelizable |
-| N | Necessary | 1.00x | Adds unique value; no redundant/trivial assertions |
-| G | Granular | 1.00x | Single outcome per test; failure pinpoints the issue |
-| F | Fast | 0.75x | Pure computation; no I/O or sleeps |
-| T | First (TDD) | 1.00x | Evidence of test-first; tests drove design |
-
-U/M highest (tests-as-doc + refactor-survival = long-term value). F lowest (a
-slow well-designed test beats a fast bad one).
-
-## Farley Index
-
-```
-Farley Index = (U*1.5 + M*1.5 + R*1.25 + A*1.0 + N*1.0 + G*1.0 + F*0.75 + T*1.0) / 9.0
-```
-
-Each property 0.0-10.0. Divisor 9.0 = sum of weights (not 8). Compute the
-weighted mean directly and show the arithmetic — no external calculator.
-
-## Per-property rubric (0-10)
-
-Score each property from the code, citing evidence. Bands:
-
-**U — Understandable**
-- 9-10: reads like a spec; descriptive names, clear organization
-- 5-6: needs some code inspection to grasp intent
-- 1-2: `test1`/`test2`, magic numbers, no structure
-
-**M — Maintainable**
-- 9-10: proper abstractions; refactoring rarely breaks tests; asserts behavior
-- 5-6: some implementation coupling; over-specified mock interactions
-- 1-2: reflection into privates; tests mirror implementation structure
-- Flag: `verify()` with exact counts/ordering/`verifyNoMoreInteractions`,
-  ArgumentCaptor deep-inspecting internal state, mock expectations mirroring
-  if/else branches, high verify-to-assert ratio. Plain `verify(mock).method()`
-  for a side effect is fine — flag only when it over-constrains implementation.
-
-**R — Repeatable**
-- 9-10: fully deterministic; no external deps
-- 5-6: occasional flakiness; timing/state dependence
-- 1-2: `sleep`, file I/O, network, system clock, unseeded random
-
-**A — Atomic**
-- 9-10: isolated; no shared state; parallelizable
-- 5-6: some shared state; order sometimes matters
-- 1-2: shared mutable static state; explicit ordering annotations
-
-**N — Necessary**
-- 9-10: every test unique value; parameterized for variations
-- 5-6: checkbox tests; moderate redundancy
-- 1-2: `assertTrue(true)`, disabled tests accumulating, mock-return-only tests
-
-**G — Granular**
-- 9-10: single outcome per test; failure pinpoints
-- 5-6: multiple behaviors per test; diagnosis takes effort
-- 1-2: mega-tests, 20+ assertions, `testEverything()`
-- "Single outcome" ≠ "single assertion": multiple asserts for one outcome
-  (status + body of a response) are fine. Flag *unrelated* asserts, not groups.
-
-**F — Fast**
-- 9-10: pure computation, millisecond
-- 5-6: some slow tests; noticeable suite time
-- 1-2: `sleep`, network, heavy setup/teardown
-
-**T — First (TDD evidence, indirect)**
-- 9-10: clear test-first; tests drive design; behavior-focused names
-- 5-6: unclear; tests may be afterthoughts
-- 1-2: structure mirrors implementation; coverage patches; no SUT exercised
-- Static evidence is weak here — lean on judgment, note it. Tests exercising no
-  real production code could not have been written test-first.
-
-Multi-property signals count for each (e.g. `Thread.sleep` hits both R and F).
-**Evidence or it's a guess**: every score cites `file:line` + signal.
-**Conservative base 5.0** when a property shows no signal — unknown ≠ good.
-
-## Sleeps and flakes are design findings
-
-A suite exists to give **fast, reliable, deterministic feedback**. A sleep
-makes it slow; a flake makes it unreliable; a test that does both is worse
-than none, because it teaches people to ignore red. A sleep, a
-wait-until-timeout, a retry-until-green, or a flaky test means the code under
-test offers no deterministic way to observe the behaviour. File it against
-the production design, not only the test: the fix is a seam that makes the
-behaviour fast and deterministic, even when that seam means redesigning
-production code.
-
-**How a seam enters:** ports and adapters (hexagonal). The core talks to a
-port it owns; real and test adapters plug in behind it, passed in by plain
-constructor or parameter injection. Every seam below reaches the code this
-way.
-
-Name the seam in the recommendation:
-
-- **Functional core, imperative shell** — move the decision into a pure
-  function; test it with values. Relatives: **humble object** (strip logic
-  out of a UI, thread or signal handler) and **sans-IO** (a protocol as a
-  state machine fed bytes and time, returning actions).
-- **Nullable infrastructure** (James Shore) — clock, timer, network, or
-  process behind a wrapper with an in-memory, controllable mode. Patterns:
-  `~/.config/agents/skills/tdd/testing-without-mocks.md`.
-- **Plan-execute** — code returns the plan (actions, delays, retries) as
-  data; test asserts the plan; a thin executor runs it.
-- **Controlled time and randomness** — virtual clock the test advances,
-  paused runtime time (e.g. tokio `time::pause`), seeded RNG.
-- **Completion signal** — code exposes a future, channel, callback or event
-  when work finishes; the test waits on the signal, never on a timer.
-- **Deterministic simulation** — for concurrent or distributed code: one
-  scheduler, seeded interleavings, simulated network and disk; a failure
-  replays from its seed.
-- **Contract tests** — one suite runs against the real adapter and the test
-  adapter, so the fast double stays true to the real thing.
-
-A longer timeout, a retry wrapper, or `#[ignore]` hides the flake and keeps
-the design; rank the seam above it. Score R and F 1-2 for any such test
-regardless of how rarely it fails.
-
-## Tautology theatre
-
-The plugin's signature check. A tautology-theatre test's outcome is
-predetermined by its own setup, independent of production code. Defining
-question: **"Would this still pass if all production code were deleted?"** Yes →
-tautology theatre (zero value, inflates coverage). Five types:
-
-- **Mock tautology** — configures a mock's return, then asserts the mock returns
-  it, no production code between. `x = 5; assert x == 5`. (hits N, M)
-- **Mock-only test** — every object a mock; no real class instantiated. (N, M, T)
-- **Trivial tautology** — always-true regardless of code: `assertTrue(true)`,
-  `assertEquals(1, 1)`, `assertNotNull(new Object())`. (N)
-- **Framework test** — verifies language/framework, not app code:
-  `assertNotNull(mock(Foo.class))`, `assertTrue("hello".contains("ell"))`. (N)
-- **Source-text guard** — reads source or config text for a pattern (grep for
-  `/tmp`, a flag in a build recipe) and never runs code. Checks spelling, so it
-  misses the next spelling of the mistake. Recommend structure, a behavioural
-  tier, or review instead (`~/.config/agents/guard-ladders.md`, *Test guards*); keep only when it
-  records why none reach. (N)
-
-## Assertion strength
-
-Tautology theatre is the floor (asserts *nothing*); assertion strength is the
-gradient above it (asserts something, but too weak to catch a bug). The audit
-question per test: **"If the production logic were subtly wrong, would this
-assertion go red?"** No → weak. Smells:
-
-- **Existence-only** — asserts not-null / not-throws / "it ran", never the value.
-- **Shape not content** — asserts `list.len() == 3` but not *which* elements;
-  status `200` but not the body; a type but not the data.
-- **Interaction not outcome** — asserts a mock/spy *was called* instead of the
-  observable effect (ties to Maintainable over-specification).
-- **Over-broad** — a giant snapshot that "pins" everything and therefore nothing
-  specific; `contains(x)` where exact equality is the real contract.
-- **Missing negative space** — only the happy path; no error / rejection /
-  boundary assertion. Untested error handling is the highest-risk case.
-- **Self-referential oracle** — expected value recomputed in the test the same
-  way production computes it, so both are wrong together. Prefer a hardcoded /
-  independently-derived expected.
-- **Loose tolerance** — `assert x > 0` when the exact expected is known.
-
-Strong = pins the *essential* observable outcome for a specific input, exact
-where the contract is exact, and covers the negative space. Rank tests by
-bug-catch confidence; the weak ones are where mutation testing will find
-survivors.
+For infrastructure tests, judge coverage and necessity against
+`~/.config/agents/skills/tdd/iac.md`.
 
 ## Process
 
-1. **Discover** — find test files; detect language + test/mock frameworks. Apply
-   language-appropriate patterns (don't score Python like Java).
-2. **Read tests first**, before implementation. Per test method: scan negative
-   signals (sleep, reflection, shared state, ordering, I/O, magic numbers,
-   cryptic names, trivial asserts, mega-tests), positive signals (behavior
-   names, AAA structure, parameterization, isolation), tautology theatre,
-   assertion strength; record `file:line`; count assertions.
-3. **Score** each property 0-10 from rubric + evidence. Aggregate method → file
-   (mean of positives, worst-case for negatives) → suite. Compute Farley Index.
-4. **Cover** (below): hunt behavior gaps manually + run a coverage tool if one's
-   available.
-5. **Verify efficacy** (below): the assertion-strength audit from step 2, plus
-   mutation testing if a tool's available.
-6. **Report** (below): worst offenders, tautology theatre, ranked fixes,
-   coverage, efficacy.
+### 1. Establish scope
 
-## Coverage review
+Identify:
 
-Runs last, after scoring. Completeness, not quality — reported separately from
-the Index. Two lenses:
+- Repository, commit range or paths, governing contracts, and risk.
+- Test framework, runner, feature and platform configurations.
+- Existing test, coverage, mutation, and timing evidence.
+- Tests excluded by runner, privileges, feature flags, or environment.
 
-**Manual (behavior gaps) — the primary lens.** Trace each observable behavior to
-a test that exercises it: every public API entry, each acceptance-criterion / spec
-item, error and edge paths, boundary conditions, and the wiring/integration seams
-between units (untested wiring = the classic miss). List *behaviors* with no
-exercising test, not just uncovered lines. A line executed by a test that asserts
-nothing on it is **covered but untested** — call these out (they tie back to
-tautology theatre); a covered line is not a tested behavior.
+Reuse evidence covering the same code, behavior, and configuration.
+Investigate gaps and evidence invalidated by subsequent changes.
 
-**Programmatic (a coverage tool) — best-effort.** Detect the stack's tool from
-project config/lockfiles; confirm it's installed (`--version`) before running;
-prefer a project runner that already wraps it (`just coverage`, an npm script).
-If present and the suite runs in reasonable time, run it, then report overall
-line/branch % and the largest uncovered spans (`file:line-range`) — discount
-spans covered only by `#[ignore]`/subprocess/root tests the tool didn't execute.
-If the wrapped runner *fails* (common cause: tests with process-global side
-effects — fd/signal/env — corrupt the shared test harness), retry the tool
-directly or via a per-test-isolating runner (e.g. `cargo llvm-cov nextest`)
-before giving up. If no tool is installed, it errors, or the run is prohibitively
-slow → **say so and fall back to manual-only. Never fail the review over coverage
-tooling.**
+Prefer the project's verification commands.
 
-| Stack | Tool (best-effort) |
+Done when scope, applicable evidence, and verification gaps are recorded.
+
+### 2. Sleeps and flakes are design findings
+
+Fast, reliable, deterministic feedback is the purpose of a test suite.
+Target: whole suite ≤10s, zero flakes.
+
+Slow tests discourage frequent execution. Flaky tests destroy trust in
+failures. Both are significant findings.
+
+A test that needs a sleep, settling period, timeout-based polling, or
+retry to observe a result exposes a design problem: the test cannot
+deterministically control or observe the behavior.
+
+Treat these as architectural findings. Trace latency and nondeterminism
+to their source in production code, infrastructure, or the test harness.
+Redesign for deterministic testability rather than accommodating a
+design that produces slow or unreliable tests.
+
+#### Architectural remedies
+
+| Problem | Preferred remedy |
 |---|---|
-| Rust | `cargo llvm-cov` (preferred), else `cargo tarpaulin` |
-| Python | `pytest --cov` / `coverage run -m pytest` (coverage.py) |
-| JS/TS | `vitest run --coverage`, `jest --coverage`, `c8`, `nyc` |
-| Go | `go test ./... -coverprofile=… ` + `go tool cover` |
-| Java | JaCoCo via `mvn test` / `gradle test` |
-| C# | `dotnet test --collect:"XPlat Code Coverage"` (coverlet) |
+| Logic entangled with I/O | Functional core, imperative shell |
+| Logic buried in UI, threads, or handlers | Humble object |
+| Protocol logic coupled to transport | Sans-IO state machine |
+| Uncontrolled external infrastructure | Nullable infrastructure |
+| Implicit infrastructure dependencies | Ports and adapters; dependency injection |
+| Wall-clock dependence | Injected or virtual clock |
+| Uncontrolled randomness | Injected, seeded RNG |
+| Waiting for work to finish | Explicit completion signal, future, channel, or event |
+| Decisions coupled to execution | Plan-execute: return actions as data |
+| Concurrent or distributed nondeterminism | Deterministic simulation and reproducible schedules |
+| Shared mutable state | Explicit ownership or per-test isolation |
+| Expensive repeated setup | Lightweight, isolated fixtures |
+| Test adapter may diverge from reality | Shared adapter contract tests |
 
-Reconcile the two: prefer behavior gaps (an uncovered line names a definite gap;
-100% line coverage still proves nothing about assertions). Rank gaps by risk —
-untested error handling and security/permission paths first.
+Introduce seams through ordinary constructor or parameter injection.
+Keep domain logic independent of infrastructure. Prefer the smallest
+design change that makes behavior fast and deterministic.
 
-## Efficacy review
+See `~/.config/agents/skills/tdd/testing-without-mocks.md` for nullable
+infrastructure and functional-core patterns.
 
-Do the tests *catch bugs*? Coverage can't answer this — a covered line with a
-weak assertion is executed but unverified. Two lenses:
+#### Review rules
 
-**Assertion strength (static) — always runs.** The audit above: rank tests by
-bug-catch confidence, list the weak ones with the specific smell and what a
-sharper assertion would pin.
+- Flag arbitrary sleeps used to wait for observable behavior, regardless
+  of duration or apparent reliability.
+- Flag timeout-based polling used instead of deterministic synchronization.
+- Treat intermittent failures as defects, even when rare. Subsequent
+  passing runs do not clear a flaky-test finding.
+- Measure suite runtime and identify dominant costs when execution
+  exceeds the feedback budget.
+- Investigate whether slow integration tests expose logic that belongs
+  in a functional core.
+- Look for architectural changes that eliminate entire classes of slow
+  or flaky tests.
+- Recommend a root-cause correction, naming the seam and where it
+  enters the production design.
 
-**Mutation testing (programmatic) — best-effort.** The ground truth: perturb the
-production code (flip `>`↔`>=`, `&&`↔`||`, delete a statement, swap a return) and
-re-run the tests. A mutant the tests **kill** (turn red) = that behavior is
-genuinely verified; a **survivor** = code changed and no test noticed. Report the
-**surviving mutants**, not just the score — but a survivor is a *candidate* gap,
-not proof of one. **Triage each** before reporting it; half the work of a good
-mutation review is discarding false gaps:
+Longer sleeps, larger timeouts, retry-until-green wrappers, serial
+execution, and disabling tests are not substitutes for root-cause
+correction.
 
-- **Real gap** — a reachable behavior no test pins. The actionable finding; name
-  it at `file:line` with the sharper assertion that would kill it.
-- **Equivalent mutant** — semantically identical to the original, so unkillable
-  (e.g. `|`→`^` on disjoint bit-flags, `x*1`, a reorder with no observable
-  effect). Not a gap.
-- **Unreachable / dead-defensive** — a branch/arm no input can produce by
-  construction. Points at dead code, not a test hole.
-- **Tested only outside the run** — killed only by an `#[ignore]`/subprocess/root
-  test the default mutation run skips (common for process-global effects:
-  fd/signal/env/fork). Reconcile against those before calling it a gap.
-- **Timeout** — the mutation hung the suite (diverged loop, blocked read); the
-  tests *detected* it. Count as killed unless it's merely a slow-but-correct test.
+A bounded timeout that detects deadlock or nontermination is appropriate
+as a failure guard, not as synchronization.
 
-Survivors clustering in one module — typically the imperative shell around
-syscalls — is expected: the pure core is killable in-process, the shell is
-integration territory. Say so rather than filing each as a defect.
+Tests of genuine timing contracts and real infrastructure boundaries may
+require real time or I/O. Keep them narrow, deterministic where possible,
+and justify their cost. Where verification is inherently expensive,
+separate it into an explicit verification tier while preserving its
+required coverage. Report its runtime separately; moving a test does
+not make it faster or resolve flakiness.
 
-Rules: detect the stack's tool; confirm installed (`--version`) before running.
-Mutation runs the suite once *per mutant* — it is slow: **time-box it and scope
-tight** (changed files / the review target / `--in-diff`), never the whole
-repo blind. Coverage upper-bounds it (a mutant on an uncovered line can't be
-killed), so run it on covered, load-bearing code. No tool, too slow, or it
-errors → **say so and let the assertion-strength audit stand as the efficacy
-verdict. Never fail the review over mutation tooling.**
+For each finding, record the observed problem, its cause or the
+experiment needed to establish it, the proposed architectural correction,
+and how to verify the improvement.
 
-| Stack | Tool (best-effort) |
+Done when slow and nondeterministic tests have been investigated and
+root-cause corrections recommended. Unresolved significant findings
+remain open.
+
+### 3. Review test design
+
+Read tests before implementation. Identify what each test promises
+to verify, then inspect production code and its contracts.
+
+Apply Dave Farley's eight properties:
+
+| Property | Review question |
 |---|---|
-| Rust | `cargo mutants` (cargo-mutants) |
-| Python | `mutmut`, `cosmic-ray` |
-| JS/TS | Stryker (`@stryker-mutator`) |
-| Java | PIT (`pitest`) |
-| Go | `gremlins`, `go-mutesting` |
-| C# | Stryker.NET (`dotnet stryker`) |
+| Understandable | Can the reader identify the behavior and expected outcome without reconstructing the implementation? |
+| Maintainable | Does the test survive behavior-preserving refactoring? |
+| Repeatable | Does the same input reliably produce the same result? |
+| Atomic | Can the test run independently, in any order? |
+| Necessary | Does it provide unique behavioral evidence? |
+| Granular | Does failure identify a specific broken behavior? |
+| Fast | Does it support frequent execution? |
+| First | Is there evidence that tests drove the design? |
 
-## Report format
+Judge each property against the test's purpose. Real I/O is appropriate
+for a necessary adapter contract test. Exact ordering is appropriate
+when ordering is contractual. Multiple assertions about one outcome
+are appropriate.
 
-Fill the report per `~/.config/agents/record-as-you-go.md`. Each mutation
-survivor records the mutation applied and the tests that stayed green.
+Test-first development cannot reliably be inferred from final source.
+Use development history or recorded red-green evidence when available.
 
-```
-# Test Design Review
+#### Necessity and the deletion test
 
-## Farley Index: X.X / 10.0 (Rating)
+What defect would deleting this test allow to escape?
 
-### Property Breakdown
+- No unique value → remove or consolidate.
+- Same behavior at several tiers → retain the cheapest sufficient
+  coverage and necessary boundary contracts.
+- Test mirrors implementation → assert observable behavior.
+- Test polices an avoidable invariant → make the invalid state
+  unrepresentable or remove the underlying duplication.
+- Test scans source or configuration → apply
+  `~/.config/agents/guard-ladders.md` *Test guards*.
 
-| Property | Score | Weight | Weighted | Key Evidence |
-|---|---|---|---|---|
-| Understandable | X.X | 1.50x | X.XX | file:line ... |
-| Maintainable   | X.X | 1.50x | X.XX | ... |
-| Repeatable     | X.X | 1.25x | X.XX | ... |
-| Atomic         | X.X | 1.00x | X.XX | ... |
-| Necessary      | X.X | 1.00x | X.XX | ... |
-| Granular       | X.X | 1.00x | X.XX | ... |
-| Fast           | X.X | 0.75x | X.XX | ... |
-| First (TDD)    | X.X | 1.00x | X.XX | ... |
+Prefer eliminating production complexity over strengthening tests
+that compensate for it.
 
-### Tautology Theatre
+Done when consequential design weaknesses and unnecessary tests have
+been identified, with evidence of their engineering cost.
 
-Per type (Mock / Mock-only / Trivial / Framework): test method, line, evidence.
-Use "None detected." when empty. Summary line: N instances across M of T methods.
+### 4. Audit assertion strength
 
-### Top Worst Offenders
+Always perform this step.
 
-1. file:method — Farley X/10 — key issues
-2. ...
+For consequential behaviors, ask:
 
-### Recommendations
+**What plausible incorrect implementation would still pass these tests?**
 
-Ranked by impact — fix the lowest-scoring high-weight properties first.
-1. ...
+Inspect for:
 
-### Coverage Review
+| Weakness | Diagnostic |
+|---|---|
+| Tautology | Outcome predetermined by setup, independent of production behavior. |
+| Mock-only | Asserts a configured response or interaction without verifying production behavior. |
+| Framework test | Verifies the language or framework rather than the product. |
+| Existence-only | Checks existence or completion without verifying required properties. |
+| Shape without content | Checks length, type, or status without verifying required contents. |
+| Wrong-reason success | A negative test passes because the operation failed for an unrelated reason. |
+| Interaction instead of outcome | Checks internal calls rather than contractual effects. |
+| Self-referential oracle | Expected result reproduces production logic and can share its defect. |
+| Loose assertion | Accepts incorrect values, effects, or states outside the contract. |
+| Over-specification | Asserts incidental implementation details, making correct refactors fail. |
+| Confounded fixture | Changes several variables so the test passes for reasons unrelated to its stated purpose. |
+| Missing negative space | Verifies the desired effect but misses prohibited effects, cleanup, or preserved state. |
 
-Separate from the Farley Index — completeness, not quality.
+These are diagnostic signals, not automatic findings. A length assertion
+is sufficient when length is the contract.
 
-**Programmatic** ({tool}, or "no coverage tool available — manual only"):
-overall X% lines / Y% branches. Largest uncovered spans:
-- file:line-range — what's untested
+For each actionable weakness:
 
-**Behavior gaps** (manual — behaviors with no exercising test, ranked by risk):
-1. {behavior / acceptance-criterion} — untested — {where it lives}
+1. Name the incorrect behavior that escapes detection.
+2. Identify the test that should detect it and why it remains green.
+3. Propose the smallest independent assertion or fixture that distinguishes
+   correct from incorrect behavior.
+4. Demonstrate the escape with a targeted mutation or reproduction when
+   practical.
 
-**Covered but unasserted** (lines run by a test that asserts nothing on them):
-- file:method — ...
+Prefer exact assertions where the contract is exact, independently
+derived expected values, and fixtures that isolate the behavior
+under test.
 
-### Efficacy Review
+Done when consequential assertions have been examined and suspected
+weaknesses have evidence or a named verification gap.
 
-Separate from the Index — do the tests catch bugs?
+### 5. Review behavioral coverage
 
-**Assertion strength** (weak assertions, ranked by bug-catch risk):
-1. file:method — {smell} — asserts {what}; a sharper test would pin {what}
+Trace affected contracts to executable tests:
 
-**Mutation testing** ({tool} + scope, or "no tool available — assertion-strength
-audit stands as the efficacy verdict"): score {killed}/{total} ({pct}%).
-Surviving mutants (triaged — real gaps first, then dismissed with reason):
-- file:line — {mutation, e.g. `>` → `>=`} survived — {real gap: sharper test that
-  kills it | equivalent / dead / tested-out-of-run / timeout: why it's not a gap}
+- Public interfaces and acceptance criteria.
+- Boundary conditions and state transitions.
+- Invalid inputs, rejection, and error propagation.
+- Cleanup, rollback, cancellation, and recovery.
+- Security, permissions, and resource ownership.
+- Integration wiring and platform or feature-specific behavior.
 
-### Dimensions Not Measured
+Prioritize behaviors by failure impact. Investigate neighboring
+behaviors when a demonstrated gap suggests a wider defect pattern.
 
-Predictive, Inspiring, Composable, Writable (Beck's Test Desiderata — need
-runtime or team context, not assessable from test code alone).
+Distinguish:
 
-### Reference
+- **Unexercised:** No test reaches the behavior.
+- **Unverified:** A test reaches it without asserting its outcome.
+- **Outside runner:** Another test verifies it, but the selected runner
+  or configuration does not execute that test.
 
-Dave Farley, Properties of Good Tests:
-https://www.linkedin.com/pulse/tdd-properties-good-tests-dave-farley-iexge/
-```
+#### Programmatic coverage
 
-## Rating scale
+Reuse applicable coverage evidence or run the project's coverage tool
+when available within the review budget.
 
-| Farley Index | Rating | Interpretation |
-|---|---|---|
-| 9.0-10.0 | Exemplary | Model suite; tests are living documentation |
-| 7.5-8.9  | Excellent | High quality; minor improvements |
-| 6.0-7.4  | Good      | Solid; clear improvement areas |
-| 4.5-5.9  | Fair      | Functional; needs design attention |
-| 3.0-4.4  | Poor      | Limited value; major refactor needed |
-| 0.0-2.9  | Critical  | May be harmful; consider rewriting |
+Confirm tool availability. For runner failures caused by process-global
+state (signals, descriptors, environment), try a per-test-isolating
+runner, e.g. `cargo llvm-cov nextest`.
+
+Use uncovered regions to locate consequential behavioral gaps.
+Coverage percentages are supporting evidence, not the objective.
+
+Record tool, scope, configurations, relevant gaps, and limitations.
+Unavailable or impractical tooling → manual review; state what
+remains unverified.
+
+Done when consequential contracts have been traced to tests or
+recorded as gaps.
+
+### 6. Verify efficacy
+
+Use mutation testing to challenge assertions on consequential behavior.
+
+Reuse applicable TDD mutation evidence. Focus additional mutations on:
+
+- Suspected weak assertions and confounded fixtures.
+- Boundary comparisons and Boolean conditions.
+- Error handling and failure propagation.
+- Permission checks and prohibited effects.
+- State transitions, rollback, and resource cleanup.
+- Covered code whose behavior is not clearly asserted.
+
+Prefer the project's mutation runner. Confirm availability and use a
+bounded scope and execution budget, such as changed files or
+`cargo mutants --in-diff <diff>`.
+
+Where automated tooling is unavailable or unsuitable, use targeted
+manual mutations in a disposable copy. Establish a passing baseline,
+apply the mutation, and run the relevant tests.
+
+A killed mutant demonstrates detection of that particular change.
+A surviving mutant is a candidate gap, not automatically a finding.
+
+#### Triage mutation results
+
+| Classification | Disposition |
+|---|---|
+| Real gap | Reachable incorrect behavior survives. Report the missing behavioral evidence and smallest effective correction. |
+| Equivalent | Mutation preserves contractual behavior. Clear with reasoning. |
+| Unreachable | Construction or invariants prevent the mutated path. Consider deleting dead complexity. |
+| Outside runner | Another test tier detects it. Verify that tier actually runs where required. |
+| Behavioral timeout | Mutation demonstrably causes nontermination or violates a timing contract. Record as detected. |
+| Inconclusive | Build failure, environmental failure, insufficient budget, or unexplained timeout. Record separately. |
+
+Record each surviving mutant's location, mutation, affected contract,
+tests that remained green, and disposition.
+
+Investigate clusters for shared causes. Prefer one behavioral invariant
+or systematic fixture that detects a family of defects over accumulating
+individual tests.
+
+If mutation testing is unavailable or impractical, state that efficacy
+was assessed statically. Distinguish demonstrated escapes from suspected
+ones.
+
+Done when mutation results are triaged and significant efficacy gaps
+have actionable findings.
+
+## Findings
+
+Follow `~/.config/agents/record-as-you-go.md`.
+
+Rank findings by defect impact, likelihood of escape, feedback cost,
+and maintenance burden.
+
+Slow and flaky tests are significant findings. Prioritize architectural
+corrections that eliminate recurring latency or nondeterminism over
+isolated test repairs.
+
+Each finding records:
+
+- Stable ID, classification, and impact.
+- Affected contract and `file:line`.
+- Expected versus actual behavior or test weakness.
+- Concrete escaped defect, false failure, or engineering cost.
+- Evidence and reproduction, including mutation when applicable.
+- Root cause, where established.
+- Smallest effective correction and verification criteria.
+- Provenance: `test-health` and finding type.
+
+Classify evidence separately from impact:
+
+- **Verified defect:** Executable evidence demonstrates the weakness.
+- **Supported risk:** Concrete evidence identifies a credible failure
+  or cost; state what remains unverified.
+- **Hypothesis:** Insufficient evidence; name the experiment needed.
+
+A hypothesis alone does not justify a fix.
+
+Group findings with a common cause. Cosmetic findings do not justify
+test rewrites.
+
+Record cleared hazards and declined candidates with their reasoning
+so subsequent reviews need not rediscover them.
+
+## Report
+
+Return:
+
+1. **Verdict:** Whether significant findings remain. Summarize quality,
+   completeness, and efficacy separately.
+2. **Findings:** Ranked by impact, using the format above.
+3. **Verification:** Commands, configurations, results, reused evidence,
+   timing measurements, coverage, mutation dispositions, and limitations
+   where applicable.
+4. **Cleared candidates:** Material suspected weaknesses cleared during
+   investigation, with reasons.
+
+Order proposed corrections by leverage. Include deletion, consolidation,
+and architectural simplification where warranted.
+
+When no significant findings remain, say so. Additional findings
+are not required to justify the review.
+
+## Optional Farley Index
+
+Calculate only when explicitly requested or when the caller requests
+a quantitative baseline or retrospective comparison.
+
+Score each property from 0–10 with concrete evidence:
+
+- 9–10: exemplary
+- 7–8: strong
+- 5–6: mixed
+- 3–4: weak
+- 0–2: seriously deficient
+
+| Property | Weight |
+|---|---:|
+| Understandable (U) | 1.50 |
+| Maintainable (M) | 1.50 |
+| Repeatable (R) | 1.25 |
+| Atomic (A) | 1.00 |
+| Necessary (N) | 1.00 |
+| Granular (G) | 1.00 |
+| Fast (F) | 0.75 |
+| First (T) | 1.00 |
+
+Weighted index:
+
+    (1.5U + 1.5M + 1.25R + A + N + G + 0.75F + T) / 9
+
+Report per-property evidence, scores, and the weighted result.
+Mark unsupported properties unknown. If any property is unknown,
+report the breakdown without a composite index.
+
+Comparisons require comparable scope, configurations, and assessment
+criteria.
+
+The index measures design quality, not behavioral completeness or
+efficacy. Significant individual findings take precedence over an
+excellent aggregate score.
+
+## Self-check
+
+Before returning:
+
+1. Every significant finding identifies a concrete engineering consequence
+   and supporting evidence.
+2. Settling sleeps, flaky tests, and consequential feedback bottlenecks
+   have been investigated for architectural root causes.
+3. Behavioral coverage and assertion strength were examined separately.
+4. Mutation survivors were triaged before being called gaps.
+5. Existing applicable evidence was reused.
+6. Recommendations consider deleting complexity before adding tests.
+7. Verification limitations are explicit.
+8. Tracked files and repository history remain unchanged.
+
+Done when the findings are recorded and the caller can implement
+accepted corrections without repeating the investigation.
 
 ## Attribution
 
-Framework: Dave Farley's Properties of Good Tests. Scoring + tautology-theatre
-methodology: Andrea LaForgia's test-design-reviewer. Distilled from the
-[farley_score_plugin](https://github.com/mse-online/farley_score_plugin) —
-stripped to the rubric, dropping its Python calculator, static/LLM blend,
-sampling, and coach/demo modes; adds coverage and efficacy (assertion-strength +
-mutation-testing) reviews the plugin (quality-only, by design) omits.
+- Dave Farley, [Properties of Good Tests](https://www.linkedin.com/pulse/tdd-properties-good-tests-dave-farley-iexge/).
+- Andrea LaForgia, [farley_score_plugin](https://github.com/mse-online/farley_score_plugin):
+  scoring rubric and tautology-theatre methodology.
+- James Shore, [Testing Without Mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks):
+  nullable infrastructure and testable architecture.
