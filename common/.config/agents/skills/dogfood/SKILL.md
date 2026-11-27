@@ -1,4 +1,3 @@
-
 ---
 name: dogfood
 description: Use when user says "dogfood", "exercise as a consumer/user", "friction report", "consumer trial", "try it like a real user", or asks to re-run a prior friction report. Also runs as harden skill Phase 1 (Exercise then friction). Any software type — library, CLI, server/API, web UI, TUI.

@@ -8,7 +8,7 @@ model: sonnet
 
 # Test Design Reviewer
 
-## Objective
+## Overview
 
 Maintain a fast, reliable, deterministic test suite that detects defects,
 survives behavior-preserving refactoring, and minimizes maintenance cost.
