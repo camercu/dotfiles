@@ -37,6 +37,22 @@ Audit and improve source code comments using Ousterhout's principles from "A Phi
 - Captures a constraint not visible in types (units, null semantics, boundary conditions)
 - Is an interface comment describing the full contract (behavior, side effects, edge cases)
 
+## Deliberate shortcuts
+
+Use `shortcut:` for an intentional simplification with a known limitation.
+Record the limitation, why it is acceptable, the observable condition that
+invalidates it, and the upgrade path if known.
+
+```rust
+// shortcut: Linear lookup is sufficient for current session counts.
+// Revisit when profiling shows lookup limits throughput.
+// Upgrade to an index that preserves iteration order.
+```
+
+Reserve the marker for known limitations. Preserve contracts and safety, and
+run all required verification. Record cross-cutting architectural decisions in
+an ADR.
+
 ## Refactor Over Comment
 
 If a comment is needed to explain *what* code does (not *why*), prefer to rename or restructure the code to be self-explanatory, then remove the comment. A well-named function beats a comment on a poorly-named one.

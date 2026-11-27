@@ -46,6 +46,12 @@ read `~/.config/agents/guard-ladders.md`.
 
 ## Development process
 
+Before changing a contract, trace affected consumers and contract surfaces.
+Check callers, exports, implementations, tests, fixtures, configuration,
+docs, and feature or platform variants as applicable. For a bug, locate the
+owning implementation and inspect affected callers before choosing a fix.
+Fix the defect class at its source. Scale the trace to the change.
+
 Route by the highest-risk behavior affected. A three-line ownership change
 can be high risk. Record the tier and the behavior that determines it.
 

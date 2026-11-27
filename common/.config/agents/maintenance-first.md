@@ -23,6 +23,20 @@ Process/skills = how applied; this = *why*.
    Clear interfaces, modular components, interchangeable parts → evolve
    incrementally.
 
+## Before implementing
+
+Consider these options in order:
+
+1. Eliminate the need for new code.
+2. Reuse an implementation in the repository.
+3. Use language, standard library, or platform capabilities.
+4. Use a dependency the project already has.
+5. Implement the smallest coherent solution that satisfies the contract.
+6. Add a dependency or abstraction when its benefits justify its cost.
+
+Choose by total maintenance cost. Preserve contracts, portability,
+testability, and safety.
+
 ## Habits that follow
 
 Consequences of the constitution, named so they become reflex:

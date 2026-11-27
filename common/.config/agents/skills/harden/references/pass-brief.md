@@ -46,10 +46,20 @@ Link any reproduction and its setup to the finding ID.
    security, or concurrency, trace one or two consequential assumptions beyond
    the diff to their consumers. Probe them and record the assumptions cleared,
    findings, and any gaps. Use [Soundness](soundness.md) for unchecked invariants.
-2. Question design where relevant: which branches, abstractions or types
+2. When scale affects the contract, establish the supported workload from
+   requirements, contracts, and measurements. Trace behavior and resource use
+   at relevant input sizes, event rates, concurrency levels, run durations,
+   memory limits, and failure conditions. Record material assumptions and
+   unverified limits. Report failures at supported workloads as findings and
+   treat hypothetical future workloads as optimization candidates.
+3. In affected files, run `rg -n 'shortcut:' -- <affected paths>` with the
+   actual paths. Check whether each marker's assumption still holds or its
+   revisit condition has been met. Apply the standard finding criteria even
+   when the shortcut is documented.
+4. Question design where relevant: which branches, abstractions or types
    could disappear while preserving behavior? Surface larger changes as
    candidates with trade-offs and historical constraints.
-3. For final-range review, verify affected fixes and surface unresolved risk.
+5. For final-range review, verify affected fixes and surface unresolved risk.
    Report coverage and findings. The coordinator determines convergence from
    this review, consumer rechecks, and the final matrix.
 
